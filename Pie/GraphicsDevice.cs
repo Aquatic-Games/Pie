@@ -16,12 +16,26 @@ public abstract class GraphicsDevice : IDisposable
 
     public abstract GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false);
 
-    public abstract void Present();
+    public abstract Shader CreateShader(params ShaderAttachment[] attachments);
+
+    public abstract InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions);
+
+    public abstract void SetShader(Shader shader);
     
+    public abstract void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout);
+
+    public abstract void SetIndexBuffer(GraphicsBuffer buffer);
+
+    public abstract void Draw(uint elements);
+
+    public abstract void Present();
+
+    public abstract void ResizeMainFramebuffer(Size newSize);
+
     public abstract void Dispose();
 
-    public static GraphicsDevice CreateOpenGL33(IGLContext context)
+    public static GraphicsDevice CreateOpenGL33(IGLContext context, bool debug)
     {
-        return new OpenGL33GraphicsDevice(context);
+        return new OpenGL33GraphicsDevice(context, debug);
     }
 }
