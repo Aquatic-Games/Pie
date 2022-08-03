@@ -35,21 +35,36 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
             Gl.Enable(EnableCap.DebugOutputSynchronous);
             Gl.DebugMessageCallback(DebugCallback, null);
         }
+        
+        Gl.Enable(EnableCap.CullFace);
+        Gl.CullFace(CullFaceMode.Back);
+        Gl.FrontFace(FrontFaceDirection.CW);
+        Gl.Enable(EnableCap.DepthTest);
+        Gl.DepthFunc(DepthFunction.Lequal);
     }
-    
-    public override void Clear(Color color, ClearFlags flags)
+
+    private Rectangle _viewport;
+
+    public override Rectangle Viewport
+    {
+        get => _viewport;
+        set
+        {
+            Gl.Viewport(value.X, value.Y, (uint) value.Width, (uint) value.Height);
+        }
+    }
+
+    public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
     {
         Vector4 nC = color.Normalize();
         Clear(nC, flags);
     }
 
-    public override void Clear(Vector4 color, ClearFlags flags)
+    public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
     {
         Gl.ClearColor(color.X, color.Y, color.Z, color.W);
 
-        uint mask = 0;
-        if ((flags & ClearFlags.Color) == ClearFlags.Color)
-            mask |= (uint) ClearBufferMask.ColorBufferBit;
+        uint mask = (uint) ClearBufferMask.ColorBufferBit;
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
             mask |= (uint) ClearBufferMask.DepthBufferBit;
         if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
@@ -60,9 +75,6 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
     public override void Clear(ClearFlags flags)
     {
         uint mask = 0;
-        if ((flags & ClearFlags.Color) == ClearFlags.Color)
-            throw new PieException(
-                "Cannot clear color bit without a color, use an overload with a color parameter instead.");
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
             mask |= (uint) ClearBufferMask.DepthBufferBit;
         if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
@@ -75,9 +87,9 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33GraphicsBuffer(bufferType, sizeInBytes, dynamic);
     }
 
-    public override Texture CreateTexture(uint width, uint height, PixelFormat format)
+    public override Texture CreateTexture(uint width, uint height, PixelFormat format, TextureSample sample = TextureSample.Linear, bool mipmap = true)
     {
-        return new OpenGL33Texture(width, height, format);
+        return new OpenGL33Texture(width, height, format, sample, mipmap);
     }
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)
@@ -133,7 +145,7 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override void ResizeMainFramebuffer(Size newSize)
     {
-        Gl.Viewport(0, 0, (uint) newSize.Width, (uint) newSize.Height);
+        Viewport = new Rectangle(Point.Empty, newSize);
     }
 
     public override void Dispose()
