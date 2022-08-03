@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie", "Pie\Pie.csproj", "{B09ED936-BC60-4587-9AFD-0400A5EB2141}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Utils", "Pie.Utils\Pie.Utils.csproj", "{ECC33571-2DC2-4151-9253-163E162E915A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{B09ED936-BC60-4587-9AFD-0400A5EB2141}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B09ED936-BC60-4587-9AFD-0400A5EB2141}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B09ED936-BC60-4587-9AFD-0400A5EB2141}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECC33571-2DC2-4151-9253-163E162E915A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECC33571-2DC2-4151-9253-163E162E915A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECC33571-2DC2-4151-9253-163E162E915A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECC33571-2DC2-4151-9253-163E162E915A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

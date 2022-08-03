@@ -18,6 +18,7 @@ internal class OpenGL33Shader : Shader
     public OpenGL33Shader(ShaderAttachment[] attachments)
     {
         Handle = Gl.CreateProgram();
+        BoundHandle = Handle;
         for (int i = 0; i < attachments.Length; i++)
         {
             ShaderType type = attachments[i].Stage switch

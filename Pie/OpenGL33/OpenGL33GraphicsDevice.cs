@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Silk.NET.Core.Contexts;
 using Silk.NET.OpenGL;
 
@@ -15,13 +16,25 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
     
-    public OpenGL33GraphicsDevice(IGLContext context, bool debug)
+    public unsafe OpenGL33GraphicsDevice(IGLContext context, bool debug)
     {
         _context = context;
         Gl = GL.GetApi(context);
         _vao = Gl.GenVertexArray();
         Gl.BindVertexArray(_vao);
         Debug = debug;
+
+        if (debug)
+        {
+            Logging.Log("!!!!!! DEBUG ENABLED !!!!!!");
+            Logging.Log("Vendor info: " + Gl.GetStringS(StringName.Vendor));
+            Logging.Log("Version info: " + Gl.GetStringS(StringName.Version));
+            Logging.Log("Howdy! Thanks for using pie! Be sure to create an issue if you find any bugs.");
+            
+            Gl.Enable(EnableCap.DebugOutput);
+            Gl.Enable(EnableCap.DebugOutputSynchronous);
+            Gl.DebugMessageCallback(DebugCallback, null);
+        }
     }
     
     public override void Clear(Color color, ClearFlags flags)
@@ -62,6 +75,11 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33GraphicsBuffer(bufferType, sizeInBytes, dynamic);
     }
 
+    public override Texture CreateTexture(uint width, uint height, PixelFormat format)
+    {
+        return new OpenGL33Texture(width, height, format);
+    }
+
     public override Shader CreateShader(params ShaderAttachment[] attachments)
     {
         return new OpenGL33Shader(attachments);
@@ -77,6 +95,13 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
         OpenGL33Shader glShader = (OpenGL33Shader) shader;
         Gl.UseProgram(glShader.Handle);
         OpenGL33Shader.BoundHandle = glShader.Handle;
+    }
+
+    public override void SetTexture(uint slot, Texture texture)
+    {
+        OpenGL33Texture glTex = (OpenGL33Texture) texture;
+        Gl.BindTexture(TextureTarget.Texture2D, glTex.Handle);
+        Gl.ActiveTexture(TextureUnit.Texture0 + (int) slot);
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
@@ -115,5 +140,11 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
     {
         Gl.BindVertexArray(0);
         Gl.DeleteVertexArray(_vao);
+    }
+
+    private void DebugCallback(GLEnum source, GLEnum type, int id, GLEnum severity, int length, nint message, nint userParam)
+    {
+        string msg = Marshal.PtrToStringAnsi(message);
+        Logging.Log(msg);
     }
 }

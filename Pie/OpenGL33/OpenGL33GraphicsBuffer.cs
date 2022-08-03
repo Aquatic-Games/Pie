@@ -26,6 +26,18 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
         Handle = Gl.GenBuffer();
         Gl.BindBuffer(Target, Handle);
         Gl.BufferData(Target, sizeInBytes, null, usage);
+
+        switch (type)
+        {
+            case BufferType.VertexBuffer:
+                PieMetrics.VertexBufferCount++;
+                break;
+            case BufferType.IndexBuffer:
+                PieMetrics.IndexBufferCount++;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(type), type, null);
+        }
     }
 
     public override unsafe void Update<T>(uint offset, T[] data)
@@ -41,5 +53,14 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
             return;
         IsDisposed = true;
         Gl.DeleteBuffer(Handle);
+        switch (Target)
+        {
+            case BufferTargetARB.ArrayBuffer:
+                PieMetrics.VertexBufferCount--;
+                break;
+            case BufferTargetARB.ElementArrayBuffer:
+                PieMetrics.IndexBufferCount--;
+                break;
+        }
     }
 }
