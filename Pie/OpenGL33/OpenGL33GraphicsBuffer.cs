@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Silk.NET.OpenGL;
 using static Pie.OpenGL33.OpenGL33GraphicsDevice;
 
@@ -10,7 +11,6 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
 
     public uint Handle;
     private BufferTargetARB _target;
-    private BufferUsageARB _usage;
 
     public unsafe OpenGL33GraphicsBuffer(BufferType type, uint sizeInBytes, bool dynamic)
     {
@@ -21,20 +21,22 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
 
-        _usage = dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw;
+        BufferUsageARB usage = dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw;
 
         Handle = Gl.GenBuffer();
         Gl.BindBuffer(_target, Handle);
-        Gl.BufferData(_target, sizeInBytes, null, _usage);
+        Gl.BufferData(_target, sizeInBytes, null, usage);
     }
 
-    public override void Update<T>(uint offset, T[] data)
+    public override unsafe void Update<T>(uint offset, T[] data)
     {
-        
+        Gl.BindBuffer(_target, Handle);
+        fixed (void* d = data)
+            Gl.BufferSubData(_target, (nint) offset * Unsafe.SizeOf<T>(), (nuint) (data.Length * Unsafe.SizeOf<T>()), d);
     }
 
     public override void Dispose()
     {
-        throw new System.NotImplementedException();
+        Gl.DeleteBuffer(Handle);
     }
 }
