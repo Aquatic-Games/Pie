@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using Silk.NET.OpenGL;
 using static Pie.OpenGL33.OpenGL33GraphicsDevice;
 
@@ -42,8 +43,12 @@ internal class OpenGL33Texture : Texture
             TextureSample.Nearest => TextureMagFilter.Nearest,
             _ => throw new ArgumentOutOfRangeException(nameof(sample), sample, null)
         }));
+
+        Size = new Size((int) width, (int) height);
     }
-    
+
+    public override Size Size { get; set; }
+
     public override unsafe void Update<T>(int x, int y, uint width, uint height, T[] data)
     {
         Gl.BindTexture(TextureTarget.Texture2D, Handle);
