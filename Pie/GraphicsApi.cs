@@ -2,5 +2,7 @@
 
 public enum GraphicsApi
 {
-    OpenGl33
+    OpenGl33,
+    
+    D3D11
 }
