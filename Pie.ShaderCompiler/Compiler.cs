@@ -16,7 +16,8 @@ public static class Compiler
         shaderc_shader_kind kind = stage switch
         {
             ShaderStage.Vertex => shaderc_shader_kind.shaderc_vertex_shader,
-            ShaderStage.Fragment => shaderc_shader_kind.shaderc_fragment_shader
+            ShaderStage.Fragment => shaderc_shader_kind.shaderc_fragment_shader,
+            _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
 
         fixed (sbyte* src = GetFromString(source))
