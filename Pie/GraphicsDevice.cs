@@ -8,6 +8,10 @@ namespace Pie;
 
 public abstract class GraphicsDevice : IDisposable
 {
+    public abstract RasterizerState RasterizerState { get; set; }
+    
+    public abstract DepthMode DepthMode { get; set; }
+    
     public abstract Rectangle Viewport { get; set; }
     
     /// <summary>

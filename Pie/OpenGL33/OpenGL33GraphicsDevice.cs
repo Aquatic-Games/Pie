@@ -7,7 +7,7 @@ using Silk.NET.OpenGL;
 
 namespace Pie.OpenGL33;
 
-internal class OpenGL33GraphicsDevice : GraphicsDevice
+internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 {
     private IGLContext _context;
     internal static GL Gl;
@@ -35,15 +35,48 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
             Gl.Enable(EnableCap.DebugOutputSynchronous);
             Gl.DebugMessageCallback(DebugCallback, null);
         }
-        
-        Gl.Enable(EnableCap.CullFace);
-        Gl.CullFace(CullFaceMode.Back);
-        Gl.FrontFace(FrontFaceDirection.CW);
-        Gl.Enable(EnableCap.DepthTest);
-        Gl.DepthFunc(DepthFunction.Lequal);
+
+        RasterizerState = new OpenGL33RasterizerState();
+        DepthMode = DepthMode.LessEqual;
     }
 
     private Rectangle _viewport;
+
+    public override RasterizerState RasterizerState { get; set; }
+
+    private DepthMode _depthMode;
+
+    public override DepthMode DepthMode
+    {
+        get => _depthMode;
+        set
+        {
+            DepthMode mode = _depthMode;
+            _depthMode = value;
+
+            if (value == DepthMode.Disable)
+            {
+                Gl.Disable(EnableCap.DepthTest);
+                return;
+            }
+            
+            if (mode == DepthMode.Disable)
+                Gl.Enable(EnableCap.DepthTest);
+            
+            Gl.DepthFunc(value switch
+            {
+                DepthMode.Always => DepthFunction.Always,
+                DepthMode.Never => DepthFunction.Never,
+                DepthMode.Less => DepthFunction.Less,
+                DepthMode.Equal => DepthFunction.Equal,
+                DepthMode.LessEqual => DepthFunction.Lequal,
+                DepthMode.Greater => DepthFunction.Greater,
+                DepthMode.NotEqual => DepthFunction.Notequal,
+                DepthMode.GreaterEqual => DepthFunction.Gequal,
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            });
+        }
+    }
 
     public override Rectangle Viewport
     {
@@ -51,6 +84,7 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
         set
         {
             Gl.Viewport(value.X, value.Y, (uint) value.Width, (uint) value.Height);
+            _viewport = value;
         }
     }
 
@@ -157,6 +191,9 @@ internal class OpenGL33GraphicsDevice : GraphicsDevice
     private void DebugCallback(GLEnum source, GLEnum type, int id, GLEnum severity, int length, nint message, nint userParam)
     {
         string msg = Marshal.PtrToStringAnsi(message);
-        Logging.Log(msg);
+        DebugType debugType = (DebugType) type;
+        if (debugType == DebugType.DebugTypeError)
+            throw new PieException($"GL ERROR: {msg}");
+        Logging.Log(debugType.ToString().Replace("DebugType", "") + ": " + msg);
     }
 }

@@ -15,6 +15,8 @@ internal class OpenGL33Shader : Shader
 
     public static uint BoundHandle;
 
+    private bool _hasShownPerfWarning;
+
     public OpenGL33Shader(ShaderAttachment[] attachments)
     {
         Handle = Gl.CreateProgram();
@@ -127,8 +129,7 @@ internal class OpenGL33Shader : Shader
             {
                 string text =
                     $"WARNING: Uniform \"{name}\" does not exist in shader. Fix ASAP, an exception will be thrown when debug is disabled.";
-                Console.WriteLine(text);
-                System.Diagnostics.Debug.WriteLine(text);
+                Logging.Log(text);
                 return -1;
             }
             else
@@ -143,8 +144,12 @@ internal class OpenGL33Shader : Shader
         if (BoundHandle != Handle)
         {
             Gl.UseProgram(Handle);
-            if (Debug)
-                Console.WriteLine($"WARNING: For performance reasons, it's recommended before calling {nameof(Set)} that you call {nameof(GraphicsDevice.SetShader)}");
+            if (Debug && !_hasShownPerfWarning)
+            {
+                Logging.Log(
+                    "WARNING: For performance reasons, it's recommended before calling Set() that you call GraphicsDevice.SetShader()");
+                _hasShownPerfWarning = true;
+            }
         }
     }
 
