@@ -48,6 +48,8 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
             case BufferType.IndexBuffer:
                 PieMetrics.IndexBufferCount++;
                 break;
+            case BufferType.UniformBuffer:
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -60,6 +62,12 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
         Gl.BindBuffer(Target, Handle);
         fixed (void* d = data)
             Gl.BufferSubData(Target, (nint) offsetInBytes * Unsafe.SizeOf<T>(), (nuint) (data.Length * Unsafe.SizeOf<T>()), d);
+    }
+
+    public override unsafe void Update<T>(uint offsetInBytes, T data)
+    {
+        Gl.BindBuffer(Target, Handle);
+        Gl.BufferSubData(Target, (nint) offsetInBytes * Unsafe.SizeOf<T>(), (nuint) Unsafe.SizeOf<T>(), data);
     }
 
     public override void Dispose()

@@ -139,6 +139,13 @@ public abstract class GraphicsDevice : IDisposable
     public abstract void SetIndexBuffer(GraphicsBuffer buffer);
 
     /// <summary>
+    /// Set the uniform buffer that will be used on next draw.
+    /// </summary>
+    /// <param name="slot">The binding slot that this uniform buffer is.</param>
+    /// <param name="buffer">The buffer to use.</param>
+    public abstract void SetUniformBuffer(uint slot, GraphicsBuffer buffer);
+
+    /// <summary>
     /// Draw to the screen with the given elements count.
     /// </summary>
     /// <param name="elements">The number of elements (indices).</param>

@@ -199,6 +199,12 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.BindBuffer(GLEnum.ElementArrayBuffer, glBuf.Handle);
     }
 
+    public override void SetUniformBuffer(uint slot, GraphicsBuffer buffer)
+    {
+        Gl.UniformBlockBinding(OpenGL33Shader.BoundHandle, slot, slot);
+        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, slot, ((OpenGL33GraphicsBuffer) buffer).Handle);
+    }
+
     public override unsafe void Draw(uint elements)
     {
         Gl.DrawElements(PrimitiveType.Triangles, elements, DrawElementsType.UnsignedInt, null);

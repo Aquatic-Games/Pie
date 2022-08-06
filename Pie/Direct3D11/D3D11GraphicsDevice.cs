@@ -153,6 +153,11 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         Context.IASetIndexBuffer(((D3D11GraphicsBuffer) buffer).Buffer, Format.R32_UInt, 0);
     }
 
+    public override void SetUniformBuffer(uint slot, GraphicsBuffer buffer)
+    {
+        Context.VSSetConstantBuffer((int) slot, ((D3D11GraphicsBuffer) buffer).Buffer);
+    }
+
     public override void Draw(uint elements)
     {
         Context.DrawIndexed((int) elements, 0, 0);
