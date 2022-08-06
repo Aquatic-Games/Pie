@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Silk.NET.Core.Contexts;
 using Silk.NET.OpenGL;
@@ -16,13 +17,15 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
     
-    public unsafe OpenGL33GraphicsDevice(IGLContext context, bool debug)
+    public unsafe OpenGL33GraphicsDevice(IGLContext context, Size winSize, bool vsync, bool debug)
     {
         _context = context;
         Gl = GL.GetApi(context);
         _vao = Gl.GenVertexArray();
         Gl.BindVertexArray(_vao);
         Debug = debug;
+
+        Viewport = new Rectangle(Point.Empty, winSize);
 
         if (debug)
         {
@@ -38,10 +41,13 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
         RasterizerState = new OpenGL33RasterizerState();
         DepthMode = DepthMode.LessEqual;
+
+        VSync = vsync;
     }
 
     private Rectangle _viewport;
 
+    public override GraphicsApi Api => GraphicsApi.OpenGl33;
     public override RasterizerState RasterizerState { get; set; }
 
     private DepthMode _depthMode;
@@ -88,6 +94,17 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         }
     }
 
+    private bool _vsync;
+    public override bool VSync
+    {
+        get => _vsync;
+        set
+        {
+            _vsync = value;
+            _context.SwapInterval(value ? 1 : 0);
+        }
+    }
+
     public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
     {
         Vector4 nC = color.Normalize();
@@ -116,9 +133,24 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.Clear(mask);
     }
 
-    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
-        return new OpenGL33GraphicsBuffer(bufferType, sizeInBytes, dynamic);
+        return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), data, dynamic);
+    }
+
+    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
+    {
+        return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), new T[] { data }, dynamic);
+    }
+
+    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, uint sizeInBytes, T[] data, bool dynamic = false)
+    {
+        return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
+    }
+
+    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, uint sizeInBytes, T data, bool dynamic = false)
+    {
+        return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
     public override Texture CreateTexture(uint width, uint height, PixelFormat format, TextureSample sample = TextureSample.Linear, bool mipmap = true)

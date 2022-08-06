@@ -12,20 +12,33 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
     public readonly uint Handle;
     public readonly BufferTargetARB Target;
 
-    public unsafe OpenGL33GraphicsBuffer(BufferType type, uint sizeInBytes, bool dynamic)
+    public OpenGL33GraphicsBuffer(uint handle, BufferTargetARB target)
     {
-        Target = type switch
+        Handle = handle;
+        Target = target;
+    }
+
+    public static unsafe GraphicsBuffer CreateBuffer<T>(BufferType type, uint sizeInBytes, T[] data, bool dynamic) where T : unmanaged
+    {
+        BufferTargetARB target = type switch
         {
             BufferType.VertexBuffer => BufferTargetARB.ArrayBuffer,
             BufferType.IndexBuffer => BufferTargetARB.ElementArrayBuffer,
+            BufferType.UniformBuffer => BufferTargetARB.UniformBuffer,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
 
         BufferUsageARB usage = dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw;
 
-        Handle = Gl.GenBuffer();
-        Gl.BindBuffer(Target, Handle);
-        Gl.BufferData(Target, sizeInBytes, null, usage);
+        uint handle = Gl.GenBuffer();
+        Gl.BindBuffer(target, handle);
+        if (data == null)
+            Gl.BufferData(target, sizeInBytes, null, usage);
+        else
+        {
+            fixed (void* d = data)
+                Gl.BufferData(target, sizeInBytes, d, usage);
+        }
 
         switch (type)
         {
@@ -38,6 +51,8 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
+
+        return new OpenGL33GraphicsBuffer(handle, target);
     }
 
     public override unsafe void Update<T>(uint offset, T[] data)

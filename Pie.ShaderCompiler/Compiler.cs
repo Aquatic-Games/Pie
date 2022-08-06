@@ -31,7 +31,7 @@ public static class Compiler
         if (shaderc_result_get_compilation_status(result) !=
             shaderc_compilation_status.shaderc_compilation_status_success)
         {
-            throw new PieException("Failed to convert: " + ConvertToString(shaderc_result_get_error_message(result)));
+            throw new PieException($"Failed to convert {stage.ToString().ToLower()} shader: " + ConvertToString(shaderc_result_get_error_message(result)));
         }
 
         spvc_context* context;
@@ -61,7 +61,8 @@ public static class Compiler
                 spvc_compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, SPVC_FALSE);
                 break;
              case GraphicsApi.D3D11:
-                 // ???? not sure yet what settings
+                 spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_SHADER_MODEL,
+                     50);
                  break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);

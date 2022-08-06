@@ -2,7 +2,6 @@ namespace Pie;
 
 public enum AttributeType
 {
-    Bool = 1,
     Int = 1,
     Float = 1,
     

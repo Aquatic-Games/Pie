@@ -29,4 +29,14 @@ internal class OpenGL33InputLayout : InputLayout
             offset += (int) description.Type * 4;
         }
     }
+
+    public override bool IsDisposed { get; protected set; }
+    
+    public override void Dispose()
+    {
+        if (IsDisposed)
+            return;
+        IsDisposed = true;
+        // There is nothing to actually dispose.
+    }
 }

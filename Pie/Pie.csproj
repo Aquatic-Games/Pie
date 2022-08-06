@@ -8,8 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Silk.NET.Direct3D11" Version="2.16.0" />
       <PackageReference Include="Silk.NET.OpenGL" Version="2.16.0" />
+      <PackageReference Include="Vortice.D3DCompiler" Version="2.1.19" />
+      <PackageReference Include="Vortice.Direct3D11" Version="2.1.19" />
     </ItemGroup>
 
 </Project>

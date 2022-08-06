@@ -1,6 +1,9 @@
+using System;
+
 namespace Pie;
 
-public class InputLayout
+public abstract class InputLayout : IDisposable
 {
-    protected InputLayout() { }
+    public abstract bool IsDisposed { get; protected set; }
+    public abstract void Dispose();
 }
