@@ -8,7 +8,7 @@ namespace Pie.ShaderCompiler;
 
 public static class Compiler
 {
-    public static unsafe string CompileToSpirv(ShaderStage stage, GraphicsApi api, string source, string entryPoint)
+    public static unsafe string TranspileShader(ShaderStage stage, GraphicsApi api, string source, string entryPoint)
     {
         shaderc_compiler* compiler = shaderc_compiler_initialize();
         shaderc_compilation_result* result;

@@ -5,6 +5,9 @@ namespace Pie;
 
 public abstract class Shader : IDisposable
 {
+    /// <summary>
+    /// Will return <see langword="true" /> when this shader has been disposed.
+    /// </summary>
     public abstract bool IsDisposed { get; protected set; }
 
     public abstract void Set(string name, bool value);

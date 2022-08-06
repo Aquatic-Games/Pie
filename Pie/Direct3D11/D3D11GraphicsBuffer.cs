@@ -37,7 +37,7 @@ internal class D3D11GraphicsBuffer : GraphicsBuffer
         return new D3D11GraphicsBuffer(Device.CreateBuffer(new ReadOnlySpan<T>(data), description));
     }
     
-    public override unsafe void Update<T>(uint offset, T[] data)
+    public override unsafe void Update<T>(uint offsetInBytes, T[] data)
     {
         MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
         Unsafe.Copy(subresource.DataPointer.ToPointer(), ref data);

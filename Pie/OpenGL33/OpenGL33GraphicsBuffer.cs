@@ -55,11 +55,11 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
         return new OpenGL33GraphicsBuffer(handle, target);
     }
 
-    public override unsafe void Update<T>(uint offset, T[] data)
+    public override unsafe void Update<T>(uint offsetInBytes, T[] data)
     {
         Gl.BindBuffer(Target, Handle);
         fixed (void* d = data)
-            Gl.BufferSubData(Target, (nint) offset * Unsafe.SizeOf<T>(), (nuint) (data.Length * Unsafe.SizeOf<T>()), d);
+            Gl.BufferSubData(Target, (nint) offsetInBytes * Unsafe.SizeOf<T>(), (nuint) (data.Length * Unsafe.SizeOf<T>()), d);
     }
 
     public override void Dispose()

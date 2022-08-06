@@ -31,7 +31,7 @@ internal class OpenGL33Shader : Shader
 
             uint handle = Gl.CreateShader(type);
             attachments[i].TempHandle = handle;
-            Gl.ShaderSource(handle, attachments[i].Code);
+            Gl.ShaderSource(handle, attachments[i].Source);
             Gl.CompileShader(handle);
             Gl.GetShader(handle, ShaderParameterName.CompileStatus, out int compStatus);
             if (compStatus != (int) GLEnum.True)

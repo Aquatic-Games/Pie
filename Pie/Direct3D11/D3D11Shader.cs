@@ -25,11 +25,11 @@ internal class D3D11Shader : Shader
             switch (attachment.Stage)
             {
                 case ShaderStage.Vertex:
-                    Blob vShader = CompileShader(attachment.Code, "main", "vs_5_0");
+                    Blob vShader = CompileShader(attachment.Source, "main", "vs_5_0");
                     _shaders.Add(ShaderStage.Vertex, Device.CreateVertexShader(vShader.AsBytes()));
                     break;
                 case ShaderStage.Fragment:
-                    Blob fShader = CompileShader(attachment.Code, "main", "ps_5_0");
+                    Blob fShader = CompileShader(attachment.Source, "main", "ps_5_0");
                     _shaders.Add(ShaderStage.Fragment, Device.CreatePixelShader(fShader.AsBytes()));
                     break;
                 default:

@@ -5,7 +5,7 @@ namespace Pie;
 
 public static class Logging
 {
-    public static void Log(string message)
+    internal static void Log(string message)
     {
         Console.WriteLine(message);
         Debug.WriteLine(message);

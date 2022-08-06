@@ -114,8 +114,7 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
-    public override Texture CreateTexture(uint width, uint height, PixelFormat format, TextureSample sample = TextureSample.Linear,
-        bool mipmap = true)
+    public override Texture CreateTexture<T>(uint width, uint height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true)
     {
         throw new System.NotImplementedException();
     }
@@ -166,7 +165,10 @@ internal class D3D11GraphicsDevice : GraphicsDevice
 
     public override void ResizeMainFramebuffer(Size newSize)
     {
-        throw new System.NotImplementedException();
+        Context.Flush();
+        _renderTarget.Dispose();
+        _swapChain.ResizeBuffers(0, newSize.Width, newSize.Height);
+        _renderTarget = Device.CreateRenderTargetView(_swapChain.GetBuffer<ID3D11Texture2D>(0));
     }
 
     public override void Dispose()
