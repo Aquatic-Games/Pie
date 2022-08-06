@@ -1,4 +1,6 @@
-﻿namespace Pie.ShaderCompiler;
+﻿using Pie.Graphics;
+
+namespace Pie.ShaderCompiler;
 
 public static class Extensions
 {

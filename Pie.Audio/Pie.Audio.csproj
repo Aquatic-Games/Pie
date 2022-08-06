@@ -4,9 +4,6 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Description>Make cross-platform graphics programming as easy as pie.</Description>
-        <RepositoryUrl>https://github.com/IsometricSoftware/Pie</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
 </Project>

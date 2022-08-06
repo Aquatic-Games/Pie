@@ -2,24 +2,19 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Description>Make cross-platform graphics programming as easy as pie.</Description>
         <RepositoryUrl>https://github.com/IsometricSoftware/Pie</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageVersion>0.0.1</PackageVersion>
         <Authors>Ollie Robinson</Authors>
-        <PackageId>Pie.ShaderCompiler</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Spirzza.Interop.Shaderc" Version="0.0.1" />
-      <PackageReference Include="Spirzza.Interop.SpirvCross" Version="0.0.1" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Pie.Graphics\Pie.Graphics.csproj" />
+      <PackageReference Include="Silk.NET.OpenGL" Version="2.16.0" />
+      <PackageReference Include="Vortice.D3DCompiler" Version="2.1.19" />
+      <PackageReference Include="Vortice.Direct3D11" Version="2.1.19" />
     </ItemGroup>
 
 </Project>
