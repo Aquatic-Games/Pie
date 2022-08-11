@@ -24,8 +24,14 @@ internal class D3D11GraphicsDevice : GraphicsDevice
     
     public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, bool vsync, bool debug)
     {
+        if (debug && !SdkLayersAvailable())
+        {
+            debug = false;
+            Logging.Log("WARNING: Debug has been enabled however no SDK layers have been found. Direct3D debug has therefore been disabled.");
+        }
+        
         Result res;
-        if ((res = CreateDXGIFactory2(false, out _dxgiFactory)).Failure)
+        if ((res = CreateDXGIFactory2(debug, out _dxgiFactory)).Failure)
             throw new PieException("Error creating DXGI factory: " + res.Description);
 
         FeatureLevel[] levels = new[]
@@ -35,6 +41,8 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         };
 
         DeviceCreationFlags flags = DeviceCreationFlags.BgraSupport;
+        if (debug)
+            flags |= DeviceCreationFlags.Debug;
 
         SwapChainDescription swapChainDescription = new SwapChainDescription()
         {
