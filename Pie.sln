@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Graphics", "Pie.Graphics\Pie.Graphics.csproj", "{B09ED936-BC60-4587-9AFD-0400A5EB2141}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie", "Pie\Pie.csproj", "{B09ED936-BC60-4587-9AFD-0400A5EB2141}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Utils", "Pie.Utils\Pie.Utils.csproj", "{ECC33571-2DC2-4151-9253-163E162E915A}"
 EndProject

@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Pie.Graphics\Pie.Graphics.csproj" />
+      <ProjectReference Include="..\Pie\Pie.csproj" />
     </ItemGroup>
 
 </Project>
