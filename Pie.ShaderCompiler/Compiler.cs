@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 using Pie.Graphics;
 using Spirzza.Interop.Shaderc;
 using Spirzza.Interop.SpirvCross;
@@ -90,13 +91,6 @@ public static class Compiler
 
     private static unsafe string ConvertToString(sbyte* text)
     {
-        byte* c;
-        int pos = 0;
-        do
-        {
-            c = (byte*) text[pos++];
-        } while (c != (byte*) 0);
-        
-        return Encoding.ASCII.GetString((byte*) text, pos - 1);
+        return Marshal.PtrToStringAnsi((IntPtr) text);
     }
 }
