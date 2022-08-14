@@ -6,6 +6,8 @@ namespace Pie.Audio;
 
 public unsafe class AudioDevice : IDisposable
 {
+    public event OnBufferFinished BufferFinished;
+    
     internal static AL Al;
     private ALContext _alc;
     private Device* _device;
@@ -73,13 +75,14 @@ public unsafe class AudioDevice : IDisposable
 
     public void Update()
     {
-        for (int i = 0; i < Channels; i++)
+        for (uint i = 0; i < Channels; i++)
         {
             ref uint source = ref _sources[i];
             Al.GetSourceProperty(source, GetSourceInteger.BuffersProcessed, out int buffersProcessed);
             while (buffersProcessed > 0)
             {
                 Al.SourceUnqueueBuffers(source, 1, (uint*) &buffersProcessed);
+                BufferFinished?.Invoke(i);
                 buffersProcessed--;
             }
             
@@ -99,6 +102,8 @@ public unsafe class AudioDevice : IDisposable
 
         Al.DeleteSources(_sources);
 
+        _alc.DestroyContext(_context);
+        _alc.MakeContextCurrent(null);
         _alc.CloseDevice(_device);
         Al.Dispose();
         _alc.Dispose();
@@ -108,4 +113,6 @@ public unsafe class AudioDevice : IDisposable
     {
         public bool Loop;
     }
+
+    public delegate void OnBufferFinished(uint channel);
 }
