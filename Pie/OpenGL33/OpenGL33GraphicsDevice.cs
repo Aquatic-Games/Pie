@@ -17,7 +17,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
     
-    public unsafe OpenGL33GraphicsDevice(IGLContext context, Size winSize, bool vsync, bool debug)
+    public unsafe OpenGL33GraphicsDevice(IGLContext context, Size winSize, bool debug)
     {
         _context = context;
         Gl = GL.GetApi(context);
@@ -38,10 +38,6 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             Gl.Enable(EnableCap.DebugOutputSynchronous);
             Gl.DebugMessageCallback(DebugCallback, null);
         }
-        
-        DepthMode = DepthMode.LessEqual;
-
-        VSync = vsync;
     }
 
     private Rectangle _viewport;
@@ -50,38 +46,6 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     private DepthMode _depthMode;
 
-    public override DepthMode DepthMode
-    {
-        get => _depthMode;
-        set
-        {
-            DepthMode mode = _depthMode;
-            _depthMode = value;
-
-            if (value == DepthMode.Disable)
-            {
-                Gl.Disable(EnableCap.DepthTest);
-                return;
-            }
-            
-            if (mode == DepthMode.Disable)
-                Gl.Enable(EnableCap.DepthTest);
-            
-            Gl.DepthFunc(value switch
-            {
-                DepthMode.Always => DepthFunction.Always,
-                DepthMode.Never => DepthFunction.Never,
-                DepthMode.Less => DepthFunction.Less,
-                DepthMode.Equal => DepthFunction.Equal,
-                DepthMode.LessEqual => DepthFunction.Lequal,
-                DepthMode.Greater => DepthFunction.Greater,
-                DepthMode.NotEqual => DepthFunction.Notequal,
-                DepthMode.GreaterEqual => DepthFunction.Gequal,
-                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
-            });
-        }
-    }
-
     public override Rectangle Viewport
     {
         get => _viewport;
@@ -89,17 +53,6 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         {
             Gl.Viewport(value.X, value.Y, (uint) value.Width, (uint) value.Height);
             _viewport = value;
-        }
-    }
-
-    private bool _vsync;
-    public override bool VSync
-    {
-        get => _vsync;
-        set
-        {
-            _vsync = value;
-            _context.SwapInterval(value ? 1 : 0);
         }
     }
 
@@ -219,8 +172,9 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.DrawElements(PrimitiveType.Triangles, elements, DrawElementsType.UnsignedInt, null);
     }
 
-    public override void Present()
+    public override void Present(int swapInterval)
     {
+        _context.SwapInterval(swapInterval);
         _context.SwapBuffers();
     }
 

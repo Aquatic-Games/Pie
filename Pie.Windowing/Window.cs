@@ -1,88 +1,131 @@
 ﻿using System;
 using System.Drawing;
-using Silk.NET.Core.Contexts;
 using Silk.NET.GLFW;
-using Monitor = Silk.NET.GLFW.Monitor;
 
 namespace Pie.Windowing;
 
 public unsafe partial class Window : IDisposable
 {
-    private WindowHandle* _window;
-    private WindowSettings _settings;
     private Glfw _glfw;
+    private WindowHandle* _handle;
 
-    public IntPtr Handle => (IntPtr) _window;
-    
-    public IGLContext GlContext { get; private set; }
+    private string _title;
+
+    private Window(Glfw glfw, WindowHandle* handle, WindowSettings settings)
+    {
+        _glfw = glfw;
+        _handle = handle;
+        _title = settings.Title;
+        EventDriven = settings.EventDriven;
+        SetupCallbacks();
+    }
+
+    public bool EventDriven;
 
     public Size Size
     {
         get
         {
-            _glfw.GetWindowSize(_window, out int width, out int height);
+            _glfw.GetWindowSize(_handle, out int width, out int height);
             return new Size(width, height);
         }
         set
         {
-            _glfw.SetWindowSize(_window, value.Width, value.Height);
+            _glfw.SetWindowSize(_handle, value.Width, value.Height);
+            CenterWindow();
         }
     }
 
     public bool ShouldClose
     {
-        get => _glfw.WindowShouldClose(_window);
-        set => _glfw.SetWindowShouldClose(_window, value);
+        get => _glfw.WindowShouldClose(_handle);
+        set => _glfw.SetWindowShouldClose(_handle, value);
     }
 
-    public Window(WindowSettings settings)
+    public string Title
     {
-        _settings = settings;
-    }
-    
-    public void Run()
-    {
-        _glfw = Glfw.GetApi();
-
-        if (!_glfw.Init())
-            throw new Exception("GLFW failed to initialize.");
-        
-        _glfw.WindowHint(WindowHintBool.Visible, false);
-        _glfw.WindowHint(WindowHintBool.Resizable, _settings.Resizable);
-        _glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.OpenGL);
-        _glfw.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
-        _glfw.WindowHint(WindowHintInt.ContextVersionMajor, 3);
-        _glfw.WindowHint(WindowHintInt.ContextVersionMinor, 3);
-
-        _window = _glfw.CreateWindow(_settings.Size.Width, _settings.Size.Height, _settings.Title, null, null);
-        if (_window == null)
+        get => _title;
+        set
         {
-            Dispose();
-            throw new Exception(
-                "Window failed to create - it's likely the selected API is not supported on this system.");
+            _title = value;
+            _glfw.SetWindowTitle(_handle, value);
         }
-        
-        // TODO: Add D3D support.
-        _glfw.MakeContextCurrent(_window);
-        GlContext = new GlfwContext(_glfw, _window);
-
-        InitializeInput();
-
-        Monitor* primary = _glfw.GetPrimaryMonitor();
-        VideoMode* mode = _glfw.GetVideoMode(primary);
-        _glfw.GetMonitorPos(primary, out int x, out int y);
-        _glfw.SetWindowPos(_window, x + mode->Width / 2 - _settings.Size.Width / 2,
-            y + mode->Height / 2 - _settings.Size.Height / 2);
-        
-        _glfw.ShowWindow(_window);
     }
 
-    public void Update()
+    public void ProcessEvents()
     {
-        if (_settings.EventDriven)
+        if (EventDriven)
             _glfw.WaitEvents();
         else
             _glfw.PollEvents();
+    }
+
+    public void CenterWindow()
+    {
+        Monitor* monitor = _glfw.GetPrimaryMonitor();
+        VideoMode* mode = _glfw.GetVideoMode(monitor);
+        _glfw.GetMonitorPos(monitor, out int x, out int y);
+        Size size = Size;
+        _glfw.SetWindowPos(_handle, x + mode->Width / 2 - size.Width / 2, y + mode->Height / 2 - size.Height / 2);
+    }
+
+    public static Window CreateWithGraphicsDevice(WindowSettings settings, GraphicsApi api, out GraphicsDevice device)
+    {
+        Glfw glfw = Glfw.GetApi();
+        if (!glfw.Init())
+            throw new PieException("GLFW failed to initialize.");
+        
+        glfw.WindowHint(WindowHintBool.Visible, false);
+        glfw.WindowHint(WindowHintBool.Resizable, settings.Resizable);
+        switch (api)
+        {
+            case GraphicsApi.OpenGl33:
+                glfw.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
+                glfw.WindowHint(WindowHintInt.ContextVersionMajor, 3);
+                glfw.WindowHint(WindowHintInt.ContextVersionMinor, 3);
+                glfw.WindowHint(WindowHintBool.OpenGLForwardCompat, true);
+                break;
+            case GraphicsApi.D3D11:
+                glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.NoApi);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(api), api, null);
+        }
+
+        WindowHandle* handle = glfw.CreateWindow(settings.Size.Width, settings.Size.Height, settings.Title, null, null);
+        if (handle == null)
+        {
+            glfw.Terminate();
+            throw new PieException(
+                $"The window could not be created. This most likely means the chosen graphics API ({api.ToFriendlyString()}) is not supported on the given platform/hardware.");
+        }
+
+        Monitor* monitor = glfw.GetPrimaryMonitor();
+        VideoMode* mode = glfw.GetVideoMode(monitor);
+        glfw.GetMonitorPos(monitor, out int x, out int y);
+        glfw.SetWindowPos(handle, x + mode->Width / 2 - settings.Size.Width / 2, y + mode->Height / 2 - settings.Size.Height / 2);
+        
+        glfw.MakeContextCurrent(handle);
+
+        switch (api)
+        {
+            case GraphicsApi.OpenGl33:
+                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(glfw, handle), settings.Size, false);
+                break;
+            case GraphicsApi.D3D11:
+                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(glfw, handle).Win32!.Value.Hwnd, settings.Size, false);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(api), api, null);
+        }
+        
+        glfw.ShowWindow(handle);
+        return new Window(glfw, handle, settings);
+    }
+
+    public static Window CreateWithGraphicsDevice(WindowSettings settings, out GraphicsDevice device)
+    {
+        return CreateWithGraphicsDevice(settings, GraphicsDevice.GetBestApiForPlatform(), out device);
     }
 
     public void Dispose()

@@ -22,9 +22,11 @@ internal class D3D11GraphicsDevice : GraphicsDevice
     public static ID3D11DeviceContext Context;
     private IDXGISwapChain _swapChain;
     private ID3D11Texture2D _colorTexture;
+    private ID3D11Texture2D _depthStencilTexture;
     private ID3D11RenderTargetView _colorTargetView;
+    private ID3D11DepthStencilView _depthStencilTargetView;
 
-    public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, bool vsync, bool debug)
+    public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, bool debug)
     {
         if (debug && !SdkLayersAvailable())
         {
@@ -70,23 +72,13 @@ internal class D3D11GraphicsDevice : GraphicsDevice
             throw new PieException("Failed to get the back buffer: " + res.Description);
 
         _colorTargetView = Device.CreateRenderTargetView(_colorTexture);
+        //CreateDepthStencilView(winSize);
         
         Viewport = new Rectangle(Point.Empty, winSize);
-        VSync = vsync;
     }
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
-    
-    public override DepthMode DepthMode { get; set; }
     public override Rectangle Viewport { get; set; }
-
-    private int _swapInterval;
-
-    public override bool VSync
-    {
-        get => _swapInterval == 1;
-        set => _swapInterval = value ? 1 : 0;
-    }
 
     public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
     {
@@ -96,13 +88,13 @@ internal class D3D11GraphicsDevice : GraphicsDevice
     public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
     {
         Context.ClearRenderTargetView(_colorTargetView, new Color4(color));
-        Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
-        Context.OMSetRenderTargets(_colorTargetView);
+        Clear(flags);
     }
 
     public override void Clear(ClearFlags flags)
     {
-        throw new System.NotImplementedException();
+        Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
+        Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
     }
 
     public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
@@ -188,20 +180,23 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         Context.DrawIndexed((int) elements, 0, 0);
     }
 
-    public override void Present()
+    public override void Present(int swapInterval)
     {
-        _swapChain.Present(_swapInterval, PresentFlags.None);
+        _swapChain.Present(swapInterval, PresentFlags.None);
     }
 
     public override void ResizeMainFramebuffer(Size newSize)
     {
         Context.UnsetRenderTargets();
         _colorTargetView.Dispose();
+        //_depthStencilTargetView.Dispose();
         _colorTexture.Dispose();
+        //_depthStencilTexture.Dispose();
         
         _swapChain.ResizeBuffers(0, newSize.Width, newSize.Height);
         _colorTexture = _swapChain.GetBuffer<ID3D11Texture2D>(0);
         _colorTargetView = Device.CreateRenderTargetView(_colorTexture);
+        //CreateDepthStencilView(newSize);
         Viewport = new Rectangle(Point.Empty, newSize);
     }
 
@@ -212,5 +207,26 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         Device.Dispose();
         Context.Dispose();
         _dxgiFactory.Dispose();
+    }
+
+    private void CreateDepthStencilView(Size size)
+    {
+        Texture2DDescription texDesc = new Texture2DDescription()
+        {
+            Format = Format.D32_Float,
+            Width = size.Width,
+            Height = size.Height,
+            ArraySize = 1,
+            MipLevels = 1,
+            BindFlags = BindFlags.DepthStencil,
+            CPUAccessFlags = CpuAccessFlags.None,
+            MiscFlags = ResourceOptionFlags.None,
+            SampleDescription = new SampleDescription(1, 0),
+            Usage = ResourceUsage.Default
+        };
+        
+        _depthStencilTexture = Device.CreateTexture2D(Format.D32_Float, size.Width, size.Height, 1, 1, null, BindFlags.DepthStencil);
+        _depthStencilTargetView = Device.CreateDepthStencilView(_depthStencilTexture,
+            new DepthStencilViewDescription(_depthStencilTexture, DepthStencilViewDimension.Texture2D));
     }
 }

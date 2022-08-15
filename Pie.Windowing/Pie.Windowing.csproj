@@ -11,4 +11,8 @@
       <PackageReference Include="Silk.NET.GLFW" Version="2.16.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Pie\Pie.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -11,12 +11,8 @@ public abstract class GraphicsDevice : IDisposable
 {
     public abstract GraphicsApi Api { get; }
 
-    public abstract DepthMode DepthMode { get; set; }
-    
     public abstract Rectangle Viewport { get; set; }
-    
-    public abstract bool VSync { get; set; }
-    
+
     /// <summary>
     /// Clears the set Framebuffer with the given color and flags. If no framebuffer is set, this clears the back buffer.
     /// </summary>
@@ -167,7 +163,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <summary>
     /// Present to the screen.
     /// </summary>
-    public abstract void Present();
+    public abstract void Present(int swapInterval);
 
     /// <summary>
     /// Resize the main framebuffer.
@@ -185,9 +181,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="vsync">Whether vsync is enabled.</param>
     /// <param name="debug">Whether debug is enabled.</param>
     /// <returns></returns>
-    public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, bool vsync, bool debug)
+    public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, bool debug)
     {
-        return new OpenGL33GraphicsDevice(context, winSize, vsync, debug);
+        return new OpenGL33GraphicsDevice(context, winSize, debug);
     }
 
     /// <summary>
@@ -198,9 +194,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="vsync">Whether vsync is enabled.</param>
     /// <param name="debug">Whether debug is enabled.</param>
     /// <returns></returns>
-    public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, bool vsync, bool debug)
+    public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, bool debug)
     {
-        return new D3D11GraphicsDevice(hwnd, winSize, vsync, debug);
+        return new D3D11GraphicsDevice(hwnd, winSize, debug);
     }
 
     /// <summary>
