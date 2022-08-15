@@ -178,12 +178,11 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="context">The GL context.</param>
     /// <param name="winSize">The size of the window on startup.</param>
-    /// <param name="vsync">Whether vsync is enabled.</param>
-    /// <param name="debug">Whether debug is enabled.</param>
-    /// <returns></returns>
-    public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, bool debug)
+    /// <param name="flags">The creation flags for this graphics device, if any.</param>
+    /// <returns>The created graphics device.</returns>
+    public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
     {
-        return new OpenGL33GraphicsDevice(context, winSize, debug);
+        return new OpenGL33GraphicsDevice(context, winSize, flags);
     }
 
     /// <summary>
@@ -191,12 +190,11 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="hwnd">The HWND pointer.</param>
     /// <param name="winSize">The size of the window on startup.</param>
-    /// <param name="vsync">Whether vsync is enabled.</param>
-    /// <param name="debug">Whether debug is enabled.</param>
-    /// <returns></returns>
-    public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, bool debug)
+    /// <param name="flags">The creation flags for this graphics device, if any.</param>
+    /// <returns>The created graphics device.</returns>
+    public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
     {
-        return new D3D11GraphicsDevice(hwnd, winSize, debug);
+        return new D3D11GraphicsDevice(hwnd, winSize, flags);
     }
 
     /// <summary>

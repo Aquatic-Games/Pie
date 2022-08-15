@@ -69,7 +69,8 @@ public unsafe partial class Window : IDisposable
         _glfw.SetWindowPos(_handle, x + mode->Width / 2 - size.Width / 2, y + mode->Height / 2 - size.Height / 2);
     }
 
-    public static Window CreateWithGraphicsDevice(WindowSettings settings, GraphicsApi api, out GraphicsDevice device)
+    public static Window CreateWithGraphicsDevice(WindowSettings settings, GraphicsApi api, out GraphicsDevice device,
+        GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
     {
         Glfw glfw = Glfw.GetApi();
         if (!glfw.Init())
@@ -110,10 +111,10 @@ public unsafe partial class Window : IDisposable
         switch (api)
         {
             case GraphicsApi.OpenGl33:
-                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(glfw, handle), settings.Size, false);
+                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(glfw, handle), settings.Size, flags);
                 break;
             case GraphicsApi.D3D11:
-                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(glfw, handle).Win32!.Value.Hwnd, settings.Size, false);
+                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(glfw, handle).Win32!.Value.Hwnd, settings.Size, flags);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);

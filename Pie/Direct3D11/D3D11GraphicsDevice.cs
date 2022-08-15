@@ -26,8 +26,9 @@ internal class D3D11GraphicsDevice : GraphicsDevice
     private ID3D11RenderTargetView _colorTargetView;
     private ID3D11DepthStencilView _depthStencilTargetView;
 
-    public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, bool debug)
+    public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceCreationFlags creationFlags)
     {
+        bool debug = creationFlags.HasFlag(GraphicsDeviceCreationFlags.Debug);
         if (debug && !SdkLayersAvailable())
         {
             debug = false;
@@ -47,8 +48,6 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         DeviceCreationFlags flags = DeviceCreationFlags.BgraSupport;
         if (debug)
             flags |= DeviceCreationFlags.Debug;
-        
-        Console.WriteLine(flags);
 
         SwapChainDescription swapChainDescription = new SwapChainDescription()
         {

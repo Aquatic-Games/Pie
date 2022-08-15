@@ -35,16 +35,17 @@ public static class PieSilk
     /// </summary>
     /// <param name="window">The window object.</param>
     /// <param name="api">The graphics API to use.</param>
+    /// <param name="flags">The creation flags for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
-    public static GraphicsDevice CreateGraphicsDevice(this IWindow window, GraphicsApi api)
+    public static GraphicsDevice CreateGraphicsDevice(this IWindow window, GraphicsApi api, GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
     {
         Size winSize = new Size(window.Size.X, window.Size.Y);
         switch (api)
         {
             case GraphicsApi.OpenGl33:
-                return GraphicsDevice.CreateOpenGL33(window.GLContext, winSize, false);
+                return GraphicsDevice.CreateOpenGL33(window.GLContext, winSize, flags);
             case GraphicsApi.D3D11:
-                return GraphicsDevice.CreateD3D11(window.Native!.Win32!.Value.Hwnd, winSize, false);
+                return GraphicsDevice.CreateD3D11(window.Native!.Win32!.Value.Hwnd, winSize, flags);
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);
         }

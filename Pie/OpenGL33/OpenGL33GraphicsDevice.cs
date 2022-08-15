@@ -17,17 +17,17 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
     
-    public unsafe OpenGL33GraphicsDevice(IGLContext context, Size winSize, bool debug)
+    public unsafe OpenGL33GraphicsDevice(IGLContext context, Size winSize, GraphicsDeviceCreationFlags creationFlags)
     {
         _context = context;
         Gl = GL.GetApi(context);
         _vao = Gl.GenVertexArray();
         Gl.BindVertexArray(_vao);
-        Debug = debug;
+        Debug = creationFlags.HasFlag(GraphicsDeviceCreationFlags.Debug);
 
         Viewport = new Rectangle(Point.Empty, winSize);
 
-        if (debug)
+        if (Debug)
         {
             Logging.Log("!!!!!! DEBUG ENABLED !!!!!!");
             Logging.Log("Vendor info: " + Gl.GetStringS(StringName.Vendor));
