@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Audio", "Pie.Audio\Pie.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Windowing", "Pie.Windowing\Pie.Windowing.csproj", "{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Extensions.SilkWindowing", "Pie.Extensions.SilkWindowing\Pie.Extensions.SilkWindowing.csproj", "{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
