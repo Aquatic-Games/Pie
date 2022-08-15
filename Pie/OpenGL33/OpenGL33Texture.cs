@@ -14,10 +14,12 @@ internal class OpenGL33Texture : Texture
     
     public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size)
     {
-        
+        Handle = handle;
+        _format = format;
+        Size = size;
     }
 
-    public static unsafe Texture CreateTexture<T>(uint width, uint height, PixelFormat format, T[] data, TextureSample sample,
+    public static unsafe Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample,
         bool mipmap) where T : unmanaged
     {
         uint handle = Gl.GenTexture();
@@ -32,7 +34,7 @@ internal class OpenGL33Texture : Texture
 
         fixed (void* p = data)
         {
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, width, height, 0, fmt,
+            Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint) width, (uint) height, 0, fmt,
                 PixelType.UnsignedByte, p);
         }
 
@@ -50,8 +52,11 @@ internal class OpenGL33Texture : Texture
             TextureSample.Nearest => TextureMagFilter.Nearest,
             _ => throw new ArgumentOutOfRangeException(nameof(sample), sample, null)
         }));
+        
+        if (mipmap)
+            Gl.GenerateMipmap(TextureTarget.Texture2D);
 
-        return new OpenGL33Texture(handle, fmt, new Size((int) width, (int) height));
+        return new OpenGL33Texture(handle, fmt, new Size(width, height));
     }
 
     public override bool IsDisposed { get; protected set; }

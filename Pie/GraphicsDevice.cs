@@ -95,7 +95,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="mipmap">If true, mipmaps will be automatically generated on creation, as well as whenever <see cref="Texture.Update(int,int,uint,uint,x[])"/> is called.</param>
     /// <typeparam name="T">Any unmanaged type.</typeparam>
     /// <returns>The created texture.</returns>
-    public abstract Texture CreateTexture<T>(uint width, uint height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true) where T : unmanaged;
+    public abstract Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true) where T : unmanaged;
 
     /// <summary>
     /// Create a shader with the given shader attachments.
@@ -121,9 +121,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <summary>
     /// Set the texture that will be used on next draw.
     /// </summary>
-    /// <param name="slot">The slot (texture unit) to set this shader.</param>
+    /// <param name="bindingSlot"></param>
     /// <param name="texture">The texture to use.</param>
-    public abstract void SetTexture(uint slot, Texture texture);
+    public abstract void SetTexture(uint bindingSlot, Texture texture);
     
     /// <summary>
     /// Set the vertex buffer that will be used on next draw.
@@ -141,10 +141,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <summary>
     /// Set the uniform buffer that will be used on next draw.
     /// </summary>
-    /// <param name="stage">The stage that this uniform buffer is contained in.</param>
-    /// <param name="slot">The binding slot that this uniform buffer is.</param>
+    /// <param name="bindingSlot"></param>
     /// <param name="buffer">The buffer to use.</param>
-    public abstract void SetUniformBuffer(ShaderStage stage, uint slot, GraphicsBuffer buffer);
+    public abstract void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer);
 
     /// <summary>
     /// Draw to the screen with the given elements count.

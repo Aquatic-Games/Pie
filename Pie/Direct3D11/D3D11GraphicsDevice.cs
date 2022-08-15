@@ -122,9 +122,9 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
-    public override Texture CreateTexture<T>(uint width, uint height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true)
+    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true)
     {
-        throw new System.NotImplementedException();
+        return D3D11Texture.CreateTexture(width, height, format, data, sample, mipmap);
     }
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)
@@ -143,9 +143,11 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         sh.Use();
     }
 
-    public override void SetTexture(uint slot, Texture texture)
+    public override void SetTexture(uint bindingSlot, Texture texture)
     {
-        throw new System.NotImplementedException();
+        D3D11Texture tex = (D3D11Texture) texture;
+        Context.PSSetShaderResource((int) bindingSlot, tex.View);
+        Context.PSSetSampler((int) bindingSlot, tex.SamplerState);
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
@@ -161,20 +163,11 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         Context.IASetIndexBuffer(((D3D11GraphicsBuffer) buffer).Buffer, Format.R32_UInt, 0);
     }
 
-    public override void SetUniformBuffer(ShaderStage stage, uint slot, GraphicsBuffer buffer)
+    public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
     {
-        // I don't like this solution but it's the only one I can think of right now.
-        switch (stage)
-        {
-            case ShaderStage.Vertex:
-                Context.VSSetConstantBuffer((int) slot, ((D3D11GraphicsBuffer) buffer).Buffer);
-                break;
-            case ShaderStage.Fragment:
-                Context.PSSetConstantBuffer((int) slot, ((D3D11GraphicsBuffer) buffer).Buffer);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(stage), stage, null);
-        }
+        D3D11GraphicsBuffer buf = (D3D11GraphicsBuffer) buffer;
+        Context.VSSetConstantBuffer((int) bindingSlot, buf.Buffer);
+        Context.PSSetConstantBuffer((int) bindingSlot, buf.Buffer);
     }
 
     public override void Draw(uint elements)

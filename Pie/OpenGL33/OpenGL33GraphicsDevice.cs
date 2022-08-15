@@ -153,7 +153,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
-    public override Texture CreateTexture<T>(uint width, uint height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true)
+    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true)
     {
         return OpenGL33Texture.CreateTexture(width, height, format, data, sample, mipmap);
     }
@@ -175,11 +175,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         OpenGL33Shader.BoundHandle = glShader.Handle;
     }
 
-    public override void SetTexture(uint slot, Texture texture)
+    public override void SetTexture(uint bindingSlot, Texture texture)
     {
         OpenGL33Texture glTex = (OpenGL33Texture) texture;
         Gl.BindTexture(TextureTarget.Texture2D, glTex.Handle);
-        Gl.ActiveTexture(TextureUnit.Texture0 + (int) slot);
+        Gl.ActiveTexture(TextureUnit.Texture0 + (int) bindingSlot);
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
@@ -199,14 +199,10 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.BindBuffer(GLEnum.ElementArrayBuffer, glBuf.Handle);
     }
 
-    public override void SetUniformBuffer(ShaderStage stage, uint slot, GraphicsBuffer buffer)
+    public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
     {
-        // As mentioned in the direct3D graphics device, I don't like the shader stage solution, feels hacky.
-        // In the GL device we just ignore it entirely cause in GL different uniform buffers need to be assigned
-        // different slots even if they are in different shader stages.
-        
         //Gl.UniformBlockBinding(OpenGL33Shader.BoundHandle, slot, slot);
-        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, slot, ((OpenGL33GraphicsBuffer) buffer).Handle);
+        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, bindingSlot, ((OpenGL33GraphicsBuffer) buffer).Handle);
     }
 
     public override unsafe void Draw(uint elements)
