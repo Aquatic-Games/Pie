@@ -8,14 +8,15 @@ public unsafe partial class Window : IDisposable
 {
     private Glfw _glfw;
     private WindowHandle* _handle;
+    private WindowSettings _settings;
+    private GraphicsApi _api;
 
-    private string _title;
-
-    private Window(Glfw glfw, WindowHandle* handle, WindowSettings settings)
+    private Window(Glfw glfw, WindowHandle* handle, WindowSettings settings, GraphicsApi api)
     {
         _glfw = glfw;
         _handle = handle;
-        _title = settings.Title;
+        _settings = settings;
+        _api = api;
         EventDriven = settings.EventDriven;
         SetupCallbacks();
     }
@@ -44,10 +45,10 @@ public unsafe partial class Window : IDisposable
 
     public string Title
     {
-        get => _title;
+        get => _settings.Title;
         set
         {
-            _title = value;
+            _settings.Title = value;
             _glfw.SetWindowTitle(_handle, value);
         }
     }
@@ -69,8 +70,7 @@ public unsafe partial class Window : IDisposable
         _glfw.SetWindowPos(_handle, x + mode->Width / 2 - size.Width / 2, y + mode->Height / 2 - size.Height / 2);
     }
 
-    public static Window CreateWithGraphicsDevice(WindowSettings settings, GraphicsApi api, out GraphicsDevice device,
-        GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
+    public static Window CreateWindow(WindowSettings settings, GraphicsApi api)
     {
         Glfw glfw = Glfw.GetApi();
         if (!glfw.Init())
@@ -107,26 +107,51 @@ public unsafe partial class Window : IDisposable
         glfw.SetWindowPos(handle, x + mode->Width / 2 - settings.Size.Width / 2, y + mode->Height / 2 - settings.Size.Height / 2);
         
         glfw.MakeContextCurrent(handle);
+        glfw.ShowWindow(handle);
+        return new Window(glfw, handle, settings, api);
+    }
 
+    public static Window CreateWindow(WindowSettings settings)
+    {
+        return CreateWindow(settings, GraphicsDevice.GetBestApiForPlatform());
+    }
+
+    public static Window CreateWithGraphicsDevice(WindowSettings settings, GraphicsApi api, out GraphicsDevice device,
+        GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
+    {
+        Window window = CreateWindow(settings, api);
+        
         switch (api)
         {
             case GraphicsApi.OpenGl33:
-                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(glfw, handle), settings.Size, flags);
+                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(window._glfw, window._handle), settings.Size, flags);
                 break;
             case GraphicsApi.D3D11:
-                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(glfw, handle).Win32!.Value.Hwnd, settings.Size, flags);
+                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, settings.Size, flags);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);
         }
-        
-        glfw.ShowWindow(handle);
-        return new Window(glfw, handle, settings);
+
+        return window;
     }
 
     public static Window CreateWithGraphicsDevice(WindowSettings settings, out GraphicsDevice device)
     {
         return CreateWithGraphicsDevice(settings, GraphicsDevice.GetBestApiForPlatform(), out device);
+    }
+    
+    public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
+    {
+        _glfw.MakeContextCurrent(_handle);
+        return _api switch
+        {
+            GraphicsApi.OpenGl33 => GraphicsDevice.CreateOpenGL33(new GlfwContext(_glfw, _handle), _settings.Size,
+                flags),
+            GraphicsApi.D3D11 => GraphicsDevice.CreateD3D11(new GlfwNativeWindow(_glfw, _handle).Win32!.Value.Hwnd,
+                _settings.Size, flags),
+            _ => throw new ArgumentOutOfRangeException(nameof(_api), _api, null)
+        };
     }
 
     public void Dispose()
