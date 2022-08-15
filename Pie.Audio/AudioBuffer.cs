@@ -30,7 +30,7 @@ public struct AudioBuffer : IDisposable
         
         Al.BufferData(Handle, fmt, data, (int) sampleRate);
     }
-    
+
     public void Dispose()
     {
         Al.DeleteBuffer(Handle);

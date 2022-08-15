@@ -91,6 +91,35 @@ public unsafe class AudioDevice : IDisposable
                 Al.SetSourceProperty(source, SourceBoolean.Looping, _channels[i].Loop);
         }
     }
+    
+    public static AudioFormat GetFormat(int channels, int bitsPerSample)
+    {
+        switch (bitsPerSample)
+        {
+            case 8:
+                switch (channels)
+                {
+                    case 1:
+                        return AudioFormat.Mono8;
+                    case 2:
+                        return AudioFormat.Stereo8;
+                }
+
+                goto default;
+            case 16:
+                switch (channels)
+                {
+                    case 1:
+                        return AudioFormat.Mono16;
+                    case 2:
+                        return AudioFormat.Stereo16;
+                }
+                
+                goto default;
+            default:
+                throw new NotSupportedException("The provided audio format is not supported.");
+        }
+    }
 
     public void Dispose()
     {
