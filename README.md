@@ -24,3 +24,4 @@ Don't like this? Pie is fully compatible with [Silk.NET](https://github.com/dotn
 * [Silk.NET](https://github.com/dotnet/Silk.NET) - OpenGL, OpenAL, and GLFW bindings.
 * [Vortice.Windows](https://github.com/amerkoleci/Vortice.Windows) - Direct3D 11 bindings.
 * [Spirzza](https://github.com/TechPizzaDev/Spirzza) - shaderc & spirv-cross bindings.
+* Twitter for it's pie emoji (I don't own it!)
