@@ -77,7 +77,6 @@ public static class Compiler
         spvc_context_destroy(context);
         
         shaderc_result_release(result);
-        
         shaderc_compiler_release(compiler);
         
         return r;

@@ -74,7 +74,7 @@ internal class D3D11Texture : Texture
             AddressV = TextureAddressMode.Wrap,
             AddressW = TextureAddressMode.Wrap,
             MipLODBias = 0,
-            MaxAnisotropy = 1,
+            MaxAnisotropy = 0,
             ComparisonFunction = ComparisonFunction.Always,
             BorderColor = new Color4(0, 0, 0, 0),
             MinLOD = 0,

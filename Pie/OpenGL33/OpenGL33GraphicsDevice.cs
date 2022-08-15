@@ -38,8 +38,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             Gl.Enable(EnableCap.DebugOutputSynchronous);
             Gl.DebugMessageCallback(DebugCallback, null);
         }
-
-        RasterizerState = new OpenGL33RasterizerState();
+        
         DepthMode = DepthMode.LessEqual;
 
         VSync = vsync;
@@ -48,7 +47,6 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     private Rectangle _viewport;
 
     public override GraphicsApi Api => GraphicsApi.OpenGl33;
-    public override RasterizerState RasterizerState { get; set; }
 
     private DepthMode _depthMode;
 
@@ -168,6 +166,12 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33InputLayout(descriptions);
     }
 
+    public override RasterizerState CreateRasterizerState(CullFace face = CullFace.Back, CullDirection direction = CullDirection.Clockwise,
+        FillMode fillMode = FillMode.Solid, bool enableScissor = false)
+    {
+        return new OpenGL33RasterizerState(face, direction, fillMode, enableScissor);
+    }
+
     public override void SetShader(Shader shader)
     {
         OpenGL33Shader glShader = (OpenGL33Shader) shader;
@@ -180,6 +184,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         OpenGL33Texture glTex = (OpenGL33Texture) texture;
         Gl.BindTexture(TextureTarget.Texture2D, glTex.Handle);
         Gl.ActiveTexture(TextureUnit.Texture0 + (int) bindingSlot);
+    }
+
+    public override void SetRasterizerState(RasterizerState state)
+    {
+        ((OpenGL33RasterizerState) state).Set();
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)

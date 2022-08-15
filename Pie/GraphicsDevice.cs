@@ -10,9 +10,7 @@ namespace Pie;
 public abstract class GraphicsDevice : IDisposable
 {
     public abstract GraphicsApi Api { get; }
-    
-    public abstract RasterizerState RasterizerState { get; set; }
-    
+
     public abstract DepthMode DepthMode { get; set; }
     
     public abstract Rectangle Viewport { get; set; }
@@ -113,6 +111,15 @@ public abstract class GraphicsDevice : IDisposable
     public abstract InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions);
 
     /// <summary>
+    /// Create a new rasterizer state with the default parameters, typical for 3D.
+    /// </summary>
+    /// <param name="face">The face that will be culled on next draw. Set to <see cref="CullFace.None"/> to disable face culling.</param>
+    /// <param name="direction">The face cull direction. This will determine which is the front face and which is the back face.</param>
+    /// <param name="fillMode">The fill mode that will be used on next draw.</param>
+    /// <param name="enableScissor">Whether or not the scissor test will be enabled.</param>
+    public abstract RasterizerState CreateRasterizerState(CullFace face = CullFace.Back, CullDirection direction = CullDirection.Clockwise, FillMode fillMode = FillMode.Solid, bool enableScissor = false);
+
+    /// <summary>
     /// Set the shader that will be used on next draw.
     /// </summary>
     /// <param name="shader">The shader to use.</param>
@@ -121,9 +128,15 @@ public abstract class GraphicsDevice : IDisposable
     /// <summary>
     /// Set the texture that will be used on next draw.
     /// </summary>
-    /// <param name="bindingSlot"></param>
+    /// <param name="bindingSlot">The binding slot that this texture will be used in.</param>
     /// <param name="texture">The texture to use.</param>
     public abstract void SetTexture(uint bindingSlot, Texture texture);
+
+    /// <summary>
+    /// Set the rasterizer state that will be used on next draw.
+    /// </summary>
+    /// <param name="state">The rasterizer state to use.</param>
+    public abstract void SetRasterizerState(RasterizerState state);
     
     /// <summary>
     /// Set the vertex buffer that will be used on next draw.

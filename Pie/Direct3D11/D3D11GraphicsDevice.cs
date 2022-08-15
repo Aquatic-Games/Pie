@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using SharpGen.Runtime;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
+using Vortice.Direct3D11.Debug;
 using Vortice.DXGI;
 using Vortice.Mathematics;
 using static Vortice.DXGI.DXGI;
@@ -20,8 +21,9 @@ internal class D3D11GraphicsDevice : GraphicsDevice
     public static ID3D11Device Device;
     public static ID3D11DeviceContext Context;
     private IDXGISwapChain _swapChain;
-    private ID3D11RenderTargetView _renderTarget;
-    
+    private ID3D11Texture2D _colorTexture;
+    private ID3D11RenderTargetView _colorTargetView;
+
     public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, bool vsync, bool debug)
     {
         if (debug && !SdkLayersAvailable())
@@ -43,6 +45,8 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         DeviceCreationFlags flags = DeviceCreationFlags.BgraSupport;
         if (debug)
             flags |= DeviceCreationFlags.Debug;
+        
+        Console.WriteLine(flags);
 
         SwapChainDescription swapChainDescription = new SwapChainDescription()
         {
@@ -62,10 +66,10 @@ internal class D3D11GraphicsDevice : GraphicsDevice
             throw new PieException("Failed to create device or swapchain: " + res.Description);
         }
 
-        if ((res = _swapChain.GetBuffer(0, out ID3D11Texture2D backBuffer)).Failure)
+        if ((res = _swapChain.GetBuffer(0, out _colorTexture)).Failure)
             throw new PieException("Failed to get the back buffer: " + res.Description);
 
-        _renderTarget = Device.CreateRenderTargetView(backBuffer);
+        _colorTargetView = Device.CreateRenderTargetView(_colorTexture);
         
         Viewport = new Rectangle(Point.Empty, winSize);
         VSync = vsync;
@@ -73,7 +77,6 @@ internal class D3D11GraphicsDevice : GraphicsDevice
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
     
-    public override RasterizerState RasterizerState { get; set; }
     public override DepthMode DepthMode { get; set; }
     public override Rectangle Viewport { get; set; }
 
@@ -92,9 +95,9 @@ internal class D3D11GraphicsDevice : GraphicsDevice
 
     public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
     {
-        Context.ClearRenderTargetView(_renderTarget, new Color4(color));
+        Context.ClearRenderTargetView(_colorTargetView, new Color4(color));
         Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
-        Context.OMSetRenderTargets(_renderTarget);
+        Context.OMSetRenderTargets(_colorTargetView);
     }
 
     public override void Clear(ClearFlags flags)
@@ -137,6 +140,11 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11InputLayout(descriptions);
     }
 
+    public override RasterizerState CreateRasterizerState(CullFace face = CullFace.Back, CullDirection direction = CullDirection.Clockwise, FillMode fillMode = FillMode.Solid, bool enableScissor = false)
+    {
+        return new D3D11RasterizerState(face, direction, fillMode, enableScissor);
+    }
+
     public override void SetShader(Shader shader)
     {
         D3D11Shader sh = (D3D11Shader) shader;
@@ -148,6 +156,11 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         D3D11Texture tex = (D3D11Texture) texture;
         Context.PSSetShaderResource((int) bindingSlot, tex.View);
         Context.PSSetSampler((int) bindingSlot, tex.SamplerState);
+    }
+
+    public override void SetRasterizerState(RasterizerState state)
+    {
+        Context.RSSetState(((D3D11RasterizerState) state).State);
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
@@ -182,15 +195,19 @@ internal class D3D11GraphicsDevice : GraphicsDevice
 
     public override void ResizeMainFramebuffer(Size newSize)
     {
-        Context.Flush();
-        _renderTarget.Dispose();
+        Context.UnsetRenderTargets();
+        _colorTargetView.Dispose();
+        _colorTexture.Dispose();
+        
         _swapChain.ResizeBuffers(0, newSize.Width, newSize.Height);
-        _renderTarget = Device.CreateRenderTargetView(_swapChain.GetBuffer<ID3D11Texture2D>(0));
+        _colorTexture = _swapChain.GetBuffer<ID3D11Texture2D>(0);
+        _colorTargetView = Device.CreateRenderTargetView(_colorTexture);
+        Viewport = new Rectangle(Point.Empty, newSize);
     }
 
     public override void Dispose()
     {
-        _renderTarget.Dispose();
+        _colorTargetView.Dispose();
         _swapChain.Dispose();
         Device.Dispose();
         Context.Dispose();
