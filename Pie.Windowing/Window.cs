@@ -11,6 +11,8 @@ public unsafe partial class Window : IDisposable
     private WindowSettings _settings;
     private GraphicsApi _api;
 
+    private InputState _inputState;
+
     private Window(Glfw glfw, WindowHandle* handle, WindowSettings settings, GraphicsApi api)
     {
         _glfw = glfw;
@@ -19,6 +21,7 @@ public unsafe partial class Window : IDisposable
         _api = api;
         EventDriven = settings.EventDriven;
         SetupCallbacks();
+        _inputState = new InputState(this, handle, glfw);
     }
 
     public bool EventDriven;
@@ -53,12 +56,14 @@ public unsafe partial class Window : IDisposable
         }
     }
 
-    public void ProcessEvents()
+    public InputState ProcessEvents()
     {
+        _inputState.Update(_handle, _glfw);
         if (EventDriven)
             _glfw.WaitEvents();
         else
             _glfw.PollEvents();
+        return _inputState;
     }
 
     public void CenterWindow()
