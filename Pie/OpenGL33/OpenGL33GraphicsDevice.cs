@@ -178,7 +178,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         _context.SwapBuffers();
     }
 
-    public override void ResizeMainFramebuffer(Size newSize)
+    public override void ResizeSwapchain(Size newSize)
     {
         Viewport = new Rectangle(Point.Empty, newSize);
     }

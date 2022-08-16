@@ -166,10 +166,10 @@ public abstract class GraphicsDevice : IDisposable
     public abstract void Present(int swapInterval);
 
     /// <summary>
-    /// Resize the main framebuffer.
+    /// Resize the swapchain.
     /// </summary>
-    /// <param name="newSize">The new size of the framebuffer.</param>
-    public abstract void ResizeMainFramebuffer(Size newSize);
+    /// <param name="newSize">The new size of the swapchain.</param>
+    public abstract void ResizeSwapchain(Size newSize);
 
     public abstract void Dispose();
 

@@ -184,7 +184,7 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         _swapChain.Present(swapInterval, PresentFlags.None);
     }
 
-    public override void ResizeMainFramebuffer(Size newSize)
+    public override void ResizeSwapchain(Size newSize)
     {
         Context.UnsetRenderTargets();
         _colorTargetView.Dispose();

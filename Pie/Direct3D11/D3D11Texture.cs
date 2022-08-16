@@ -87,7 +87,8 @@ internal class D3D11Texture : Texture
     
     public override void Update<T>(int x, int y, uint width, uint height, T[] data)
     {
-        throw new System.NotImplementedException();
+        Context.UpdateSubresource(data, _texture, 0, (int) width * 4 * sizeof(byte),
+            region: new Box(x, 0, 0, (int) (x + width), (int) (y + height), 0));
     }
 
     public override void Dispose()
