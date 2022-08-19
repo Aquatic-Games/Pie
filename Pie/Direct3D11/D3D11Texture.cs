@@ -32,8 +32,7 @@ internal class D3D11Texture : Texture
         // ???
         Format fmt = format switch
         {
-            PixelFormat.RGB8 => Format.R8G8B8A8_UNorm,
-            PixelFormat.RGBA8 => Format.R8G8B8A8_UNorm,
+            PixelFormat.R8G8B8A8_UNorm => Format.R8G8B8A8_UNorm,
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
 

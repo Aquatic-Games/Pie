@@ -27,8 +27,7 @@ internal class OpenGL33Texture : Texture
 
         Silk.NET.OpenGL.PixelFormat fmt = format switch
         {
-            PixelFormat.RGB8 => Silk.NET.OpenGL.PixelFormat.Rgb,
-            PixelFormat.RGBA8 => Silk.NET.OpenGL.PixelFormat.Rgba,
+            PixelFormat.R8G8B8A8_UNorm => Silk.NET.OpenGL.PixelFormat.Rgba,
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
 
