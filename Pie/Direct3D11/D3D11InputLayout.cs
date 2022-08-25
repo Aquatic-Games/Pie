@@ -38,6 +38,8 @@ internal class D3D11InputLayout : InputLayout
 
         Stride = offset;
 
+        Descriptions = descriptions;
+
         Blob dummyBlob = GenerateDummyShader(descriptions);
         Layout = Device.CreateInputLayout(iedesc, dummyBlob);
         dummyBlob.Dispose();
@@ -83,7 +85,9 @@ internal class D3D11InputLayout : InputLayout
     }
 
     public override bool IsDisposed { get; protected set; }
-    
+
+    public override InputLayoutDescription[] Descriptions { get; }
+
     public override void Dispose()
     {
         if (IsDisposed)

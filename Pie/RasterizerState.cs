@@ -2,7 +2,7 @@ using System;
 
 namespace Pie;
 
-public abstract class RasterizerState : IDisposable
+public abstract class RasterizerState : IDisposable, IEquatable<RasterizerState>
 {
     /// <summary>
     /// Will return <see langword="true" /> when this rasterizer state has been disposed.
@@ -30,4 +30,24 @@ public abstract class RasterizerState : IDisposable
     public abstract bool EnableScissor { get; }
 
     public abstract void Dispose();
+
+    public bool Equals(RasterizerState other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return CullFace == other.CullFace && CullDirection == other.CullDirection && FillMode == other.FillMode && EnableScissor == other.EnableScissor;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((RasterizerState) obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine((int) CullFace, (int) CullDirection, (int) FillMode, EnableScissor);
+    }
 }

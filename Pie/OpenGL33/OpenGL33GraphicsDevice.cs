@@ -16,6 +16,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
+
+    private InputLayout _currentLayout;
+    private RasterizerState _currentState;
+    private int _boundTexture = -1;
+    private int _bindingSlot = -1;
     
     public unsafe OpenGL33GraphicsDevice(IGLContext context, Size winSize, GraphicsDeviceCreationFlags creationFlags)
     {
@@ -140,6 +145,8 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     public override void SetShader(Shader shader)
     {
         OpenGL33Shader glShader = (OpenGL33Shader) shader;
+        if (glShader.Handle == OpenGL33Shader.BoundHandle)
+            return;
         Gl.UseProgram(glShader.Handle);
         OpenGL33Shader.BoundHandle = glShader.Handle;
     }
@@ -147,18 +154,30 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     public override void SetTexture(uint bindingSlot, Texture texture)
     {
         OpenGL33Texture glTex = (OpenGL33Texture) texture;
+        //if (glTex.Handle == _boundTexture && bindingSlot == _bindingSlot)
+        //    return;
+        //_boundTexture = (int) glTex.Handle;
+        //_bindingSlot = (int) bindingSlot;
         Gl.BindTexture(TextureTarget.Texture2D, glTex.Handle);
         Gl.ActiveTexture(TextureUnit.Texture0 + (int) bindingSlot);
     }
 
     public override void SetRasterizerState(RasterizerState state)
     {
+        if (_currentState != null && _currentState.Equals(state))
+            return;
+        _currentState = state;
         ((OpenGL33RasterizerState) state).Set();
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
     {
-        ((OpenGL33InputLayout) layout).Set(OpenGL33Shader.BoundHandle);
+        if (_currentLayout == null || !_currentLayout.Equals(layout))
+        {
+            ((OpenGL33InputLayout) layout).Set(OpenGL33Shader.BoundHandle);
+            _currentLayout = layout;
+        }
+
         OpenGL33GraphicsBuffer glBuf = (OpenGL33GraphicsBuffer) buffer;
         if (glBuf.Target != BufferTargetARB.ArrayBuffer)
             throw new PieException("Given buffer is not a vertex buffer.");

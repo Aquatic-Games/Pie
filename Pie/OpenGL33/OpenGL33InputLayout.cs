@@ -37,7 +37,9 @@ internal class OpenGL33InputLayout : InputLayout
     }
 
     public override bool IsDisposed { get; protected set; }
-    
+
+    public override InputLayoutDescription[] Descriptions => _descriptions;
+
     public override void Dispose()
     {
         if (IsDisposed)

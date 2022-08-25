@@ -1,3 +1,5 @@
+using System;
+
 namespace Pie;
 
 public struct InputLayoutDescription
@@ -21,5 +23,10 @@ public struct InputLayoutDescription
     {
         Name = name;
         Type = type;
+    }
+
+    public bool Equals(InputLayoutDescription other)
+    {
+        return Name == other.Name && Type == other.Type;
     }
 }
