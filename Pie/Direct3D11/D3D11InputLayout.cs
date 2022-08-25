@@ -43,6 +43,11 @@ internal class D3D11InputLayout : InputLayout
         dummyBlob.Dispose();
     }
 
+    public D3D11InputLayout(uint stride, InputLayoutDescription[] descriptions) : this(descriptions)
+    {
+        Stride = (int) stride;
+    }
+
     private Blob GenerateDummyShader(InputLayoutDescription[] descriptions)
     {
         StringBuilder dummyShader = new StringBuilder();

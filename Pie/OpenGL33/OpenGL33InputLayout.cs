@@ -1,3 +1,4 @@
+using System;
 using Silk.NET.OpenGL;
 using static Pie.OpenGL33.OpenGL33GraphicsDevice;
 
@@ -14,6 +15,12 @@ internal class OpenGL33InputLayout : InputLayout
         _descriptions = descriptions;
         foreach (InputLayoutDescription description in descriptions)
             _stride += (uint) description.Type * 4;
+    }
+
+    public OpenGL33InputLayout(uint stride, InputLayoutDescription[] descriptions)
+    {
+        _descriptions = descriptions;
+        _stride = stride;
     }
 
     public unsafe void Set(uint handle)

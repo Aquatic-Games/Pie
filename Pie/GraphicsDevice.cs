@@ -105,6 +105,14 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="descriptions">The descriptions for this layout.</param>
     /// <returns>The created input layout.</returns>
     public abstract InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions);
+    
+    /// <summary>
+    /// Create an input layout which can be used with a vertex buffer, with a given stride value in bytes.
+    /// </summary>
+    /// <param name="stride">The stride size, in bytes, for this layout. Useful if the stride is larger than the input descriptions.</param>
+    /// <param name="descriptions">The descriptions for this layout.</param>
+    /// <returns>The created input layout.</returns>
+    public abstract InputLayout CreateInputLayout(uint stride, params InputLayoutDescription[] descriptions);
 
     /// <summary>
     /// Create a new rasterizer state with the default parameters, typical for 3D.

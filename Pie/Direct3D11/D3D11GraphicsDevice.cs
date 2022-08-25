@@ -131,6 +131,11 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11InputLayout(descriptions);
     }
 
+    public override InputLayout CreateInputLayout(uint stride, params InputLayoutDescription[] descriptions)
+    {
+        return new D3D11InputLayout(stride, descriptions);
+    }
+
     public override RasterizerState CreateRasterizerState(CullFace face = CullFace.Back, CullDirection direction = CullDirection.Clockwise, FillMode fillMode = FillMode.Solid, bool enableScissor = false)
     {
         return new D3D11RasterizerState(face, direction, fillMode, enableScissor);

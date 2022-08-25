@@ -126,6 +126,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33InputLayout(descriptions);
     }
 
+    public override InputLayout CreateInputLayout(uint stride, params InputLayoutDescription[] descriptions)
+    {
+        return new OpenGL33InputLayout(stride, descriptions);
+    }
+
     public override RasterizerState CreateRasterizerState(CullFace face = CullFace.Back, CullDirection direction = CullDirection.Clockwise,
         FillMode fillMode = FillMode.Solid, bool enableScissor = false)
     {
