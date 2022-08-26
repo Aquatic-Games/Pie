@@ -2,7 +2,7 @@ using System;
 
 namespace Pie;
 
-public struct InputLayoutDescription
+public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
 {
     /// <summary>
     /// The name of this attribute.
@@ -28,5 +28,15 @@ public struct InputLayoutDescription
     public bool Equals(InputLayoutDescription other)
     {
         return Name == other.Name && Type == other.Type;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is InputLayoutDescription other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Name, (int) Type);
     }
 }

@@ -11,12 +11,12 @@ internal class D3D11InputLayout : InputLayout
 {
     public readonly ID3D11InputLayout Layout;
 
-    public readonly int Stride;
-    
+    public override uint Stride { get; }
+
     public D3D11InputLayout(InputLayoutDescription[] descriptions)
     {
         InputElementDescription[] iedesc = new InputElementDescription[descriptions.Length];
-        int offset = 0;
+        uint offset = 0;
         for (int i = 0; i < iedesc.Length; i++)
         {
             ref InputElementDescription d = ref iedesc[i];
@@ -31,9 +31,9 @@ internal class D3D11InputLayout : InputLayout
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            d = new InputElementDescription("TEXCOORD", i, fmt, offset, 0, InputClassification.PerVertexData, 0);
+            d = new InputElementDescription("TEXCOORD", i, fmt, (int) offset, 0, InputClassification.PerVertexData, 0);
 
-            offset += (int) desc.Type * 4;
+            offset += (uint) desc.Type * 4;
         }
 
         Stride = offset;
@@ -47,7 +47,7 @@ internal class D3D11InputLayout : InputLayout
 
     public D3D11InputLayout(uint stride, InputLayoutDescription[] descriptions) : this(descriptions)
     {
-        Stride = (int) stride;
+        Stride = stride;
     }
 
     private Blob GenerateDummyShader(InputLayoutDescription[] descriptions)

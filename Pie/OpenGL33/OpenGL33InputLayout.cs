@@ -4,23 +4,23 @@ using static Pie.OpenGL33.OpenGL33GraphicsDevice;
 
 namespace Pie.OpenGL33;
 
-internal class OpenGL33InputLayout : InputLayout
+internal sealed class OpenGL33InputLayout : InputLayout
 {
     private readonly InputLayoutDescription[] _descriptions;
 
-    private readonly uint _stride;
+    public override uint Stride { get; }
 
     public OpenGL33InputLayout(InputLayoutDescription[] descriptions)
     {
         _descriptions = descriptions;
         foreach (InputLayoutDescription description in descriptions)
-            _stride += (uint) description.Type * 4;
+            Stride += (uint) description.Type * 4;
     }
 
     public OpenGL33InputLayout(uint stride, InputLayoutDescription[] descriptions)
     {
         _descriptions = descriptions;
-        _stride = stride;
+        Stride = stride;
     }
 
     public unsafe void Set(uint handle)
@@ -30,7 +30,7 @@ internal class OpenGL33InputLayout : InputLayout
         {
             uint location = (uint) Gl.GetAttribLocation(handle, description.Name);
             Gl.EnableVertexAttribArray(location);
-            Gl.VertexAttribPointer(location, (int) description.Type, VertexAttribPointerType.Float, false, _stride,
+            Gl.VertexAttribPointer(location, (int) description.Type, VertexAttribPointerType.Float, false, Stride,
                 (void*) offset);
             offset += (int) description.Type * 4;
         }

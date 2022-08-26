@@ -76,6 +76,8 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
     {
+        InvalidateCaches();
+        
         Gl.ClearColor(color.X, color.Y, color.Z, color.W);
 
         uint mask = (uint) ClearBufferMask.ColorBufferBit;
@@ -88,12 +90,19 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override void Clear(ClearFlags flags)
     {
+        InvalidateCaches();
         uint mask = 0;
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
             mask |= (uint) ClearBufferMask.DepthBufferBit;
         if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
             mask |= (uint) ClearBufferMask.StencilBufferBit;
         Gl.Clear(mask);
+    }
+
+    private void InvalidateCaches()
+    {
+        _currentLayout = null;
+        _currentState = null;
     }
 
     public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
@@ -172,16 +181,15 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
     {
+        OpenGL33GraphicsBuffer glBuf = (OpenGL33GraphicsBuffer) buffer;
+        if (glBuf.Target != BufferTargetARB.ArrayBuffer)
+            throw new PieException("Given buffer is not a vertex buffer.");
+        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, glBuf.Handle); 
         if (_currentLayout == null || !_currentLayout.Equals(layout))
         {
             ((OpenGL33InputLayout) layout).Set(OpenGL33Shader.BoundHandle);
             _currentLayout = layout;
         }
-
-        OpenGL33GraphicsBuffer glBuf = (OpenGL33GraphicsBuffer) buffer;
-        if (glBuf.Target != BufferTargetARB.ArrayBuffer)
-            throw new PieException("Given buffer is not a vertex buffer.");
-        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, glBuf.Handle);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer)

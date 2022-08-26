@@ -164,7 +164,7 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         D3D11InputLayout lt = (D3D11InputLayout) layout;
         Context.IASetInputLayout(lt.Layout);
         Context.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
-        Context.IASetVertexBuffer(0, ((D3D11GraphicsBuffer) buffer).Buffer, lt.Stride);
+        Context.IASetVertexBuffer(0, ((D3D11GraphicsBuffer) buffer).Buffer, (int) lt.Stride);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer)
