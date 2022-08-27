@@ -17,8 +17,10 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
 
+    // TODO: Implement these same optimizations for D3D
     private InputLayout _currentLayout;
-    private RasterizerState _currentState;
+    private RasterizerState _currentRState;
+    private BlendState _currentBState;
     private int _boundTexture = -1;
     private int _bindingSlot = -1;
     
@@ -100,7 +102,8 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     private void InvalidateCaches()
     {
         _currentLayout = null;
-        _currentState = null;
+        _currentRState = null;
+        _currentBState = null;
     }
 
     public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
@@ -175,14 +178,17 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override void SetRasterizerState(RasterizerState state)
     {
-        if (_currentState != null && _currentState.Equals(state))
+        if (_currentRState != null && _currentRState.Equals(state))
             return;
-        _currentState = state;
+        _currentRState = state;
         ((OpenGL33RasterizerState) state).Set();
     }
 
     public override void SetBlendState(BlendState state)
     {
+        if (_currentBState != null && _currentBState.Equals(state))
+            return;
+        _currentBState = state;
         ((OpenGL33BlendState) state).Set();
     }
 

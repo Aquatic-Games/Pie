@@ -71,7 +71,7 @@ internal class D3D11GraphicsDevice : GraphicsDevice
             throw new PieException("Failed to get the back buffer: " + res.Description);
 
         _colorTargetView = Device.CreateRenderTargetView(_colorTexture);
-        //CreateDepthStencilView(winSize);
+        CreateDepthStencilView(winSize);
         
         Viewport = new Rectangle(Point.Empty, winSize);
     }
@@ -82,6 +82,7 @@ internal class D3D11GraphicsDevice : GraphicsDevice
     public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
     {
         Clear(new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f));
+        Clear(flags);
     }
 
     public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
@@ -93,6 +94,12 @@ internal class D3D11GraphicsDevice : GraphicsDevice
     public override void Clear(ClearFlags flags)
     {
         Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
+        DepthStencilClearFlags cf = DepthStencilClearFlags.None;
+        if (flags.HasFlag(ClearFlags.Depth))
+            cf |= DepthStencilClearFlags.Depth;
+        if (flags.HasFlag(ClearFlags.Stencil))
+            cf |= DepthStencilClearFlags.Stencil;
+        Context.ClearDepthStencilView(_depthStencilTargetView, cf, 1, 0);
         Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
     }
 
@@ -203,14 +210,14 @@ internal class D3D11GraphicsDevice : GraphicsDevice
     {
         Context.UnsetRenderTargets();
         _colorTargetView.Dispose();
-        //_depthStencilTargetView.Dispose();
+        _depthStencilTargetView.Dispose();
         _colorTexture.Dispose();
-        //_depthStencilTexture.Dispose();
+        _depthStencilTexture.Dispose();
         
         _swapChain.ResizeBuffers(0, newSize.Width, newSize.Height);
         _colorTexture = _swapChain.GetBuffer<ID3D11Texture2D>(0);
         _colorTargetView = Device.CreateRenderTargetView(_colorTexture);
-        //CreateDepthStencilView(newSize);
+        CreateDepthStencilView(newSize);
         Viewport = new Rectangle(Point.Empty, newSize);
     }
 
