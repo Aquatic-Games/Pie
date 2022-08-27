@@ -9,25 +9,7 @@ public abstract class RasterizerState : IDisposable, IEquatable<RasterizerState>
     /// </summary>
     public abstract bool IsDisposed { get; protected set; }
     
-    /// <summary>
-    /// Get or set the face that will be culled on next draw. Set to <see cref="CullFace.None"/> to disable face culling.
-    /// </summary>
-    public abstract CullFace CullFace { get; }
-    
-    /// <summary>
-    /// Get or set the face cull direction. This will determine which is the front face and which is the back face.
-    /// </summary>
-    public abstract CullDirection CullDirection { get; }
-    
-    /// <summary>
-    /// Get or set the fill mode that will be used on next draw.
-    /// </summary>
-    public abstract FillMode FillMode { get; }
-
-    /// <summary>
-    /// Enable or disable the scissor test.
-    /// </summary>
-    public abstract bool EnableScissor { get; }
+    public abstract RasterizerStateDescription Description { get; }
 
     public abstract void Dispose();
 
@@ -35,7 +17,7 @@ public abstract class RasterizerState : IDisposable, IEquatable<RasterizerState>
     {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        return CullFace == other.CullFace && CullDirection == other.CullDirection && FillMode == other.FillMode && EnableScissor == other.EnableScissor;
+        return IsDisposed == other.IsDisposed && Description.Equals(other.Description);
     }
 
     public override bool Equals(object obj)
@@ -48,6 +30,16 @@ public abstract class RasterizerState : IDisposable, IEquatable<RasterizerState>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine((int) CullFace, (int) CullDirection, (int) FillMode, EnableScissor);
+        return HashCode.Combine(IsDisposed, Description);
+    }
+
+    public static bool operator ==(RasterizerState left, RasterizerState right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(RasterizerState left, RasterizerState right)
+    {
+        return !Equals(left, right);
     }
 }

@@ -136,9 +136,14 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11InputLayout(stride, descriptions);
     }
 
-    public override RasterizerState CreateRasterizerState(CullFace face = CullFace.Back, CullDirection direction = CullDirection.Clockwise, FillMode fillMode = FillMode.Solid, bool enableScissor = false)
+    public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)
     {
-        return new D3D11RasterizerState(face, direction, fillMode, enableScissor);
+        return new D3D11RasterizerState(description);
+    }
+
+    public override BlendState CreateBlendState(BlendStateDescription description)
+    {
+        return new D3D11BlendState(description);
     }
 
     public override void SetShader(Shader shader)
@@ -157,6 +162,11 @@ internal class D3D11GraphicsDevice : GraphicsDevice
     public override void SetRasterizerState(RasterizerState state)
     {
         Context.RSSetState(((D3D11RasterizerState) state).State);
+    }
+
+    public override void SetBlendState(BlendState state)
+    {
+        Context.OMSetBlendState(((D3D11BlendState) state).State);
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)

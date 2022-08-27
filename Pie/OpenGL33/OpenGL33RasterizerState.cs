@@ -6,48 +6,64 @@ namespace Pie.OpenGL33;
 
 internal sealed class OpenGL33RasterizerState : RasterizerState
 {
-    public override bool IsDisposed { get; protected set; }
-    public override CullFace CullFace { get; }
-    public override CullDirection CullDirection { get; }
-    public override FillMode FillMode { get; }
-    public override bool EnableScissor { get; }
-
-    public OpenGL33RasterizerState(CullFace face, CullDirection direction, FillMode fillMode, bool enableScissor)
-    {
-        CullFace = face;
-        CullDirection = direction;
-        FillMode = fillMode;
-        EnableScissor = enableScissor;
-    }
+    private bool _cullFaceEnabled;
+    private CullFaceMode _cullFaceMode;
+    private FrontFaceDirection _frontFace;
+    private PolygonMode _mode;
+    private bool _scissor;
     
-    public void Set()
+    public OpenGL33RasterizerState(RasterizerStateDescription description)
     {
-        if (CullFace == CullFace.None)
-            Gl.Disable(EnableCap.CullFace);
-        else
+        Description = description;
+
+        if (description.CullFace == CullFace.None)
+            _cullFaceEnabled = false;
         {
-            Gl.Enable(EnableCap.CullFace);
-            CullFaceMode cullMode = CullFace switch
+            _cullFaceEnabled = true;
+            _cullFaceMode = description.CullFace switch
             {
                 CullFace.Front => CullFaceMode.Front,
                 CullFace.Back => CullFaceMode.Back,
                 _ => throw new ArgumentOutOfRangeException()
             };
-            
-            Gl.CullFace(cullMode);
         }
 
-        FrontFaceDirection dir = CullDirection switch
+        _frontFace = description.CullDirection switch
         {
             CullDirection.Clockwise => FrontFaceDirection.CW,
             CullDirection.CounterClockwise => FrontFaceDirection.Ccw,
             _ => throw new ArgumentOutOfRangeException()
         };
-        Gl.FrontFace(dir);
 
-        Gl.PolygonMode(MaterialFace.FrontAndBack, FillMode == FillMode.Solid ? PolygonMode.Fill : PolygonMode.Line);
+        _mode = description.FillMode switch
+        {
+            FillMode.Solid => PolygonMode.Fill,
+            FillMode.Wireframe => PolygonMode.Line,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        _scissor = description.ScissorTest;
+    }
+    
+    public override bool IsDisposed { get; protected set; }
+
+    public override RasterizerStateDescription Description { get; }
+    
+    public void Set()
+    {
+        if (!_cullFaceEnabled)
+            Gl.Disable(EnableCap.CullFace);
+        else
+        {
+            Gl.Enable(EnableCap.CullFace);
+            Gl.CullFace(_cullFaceMode);
+        }
         
-        if (EnableScissor)
+        Gl.FrontFace(_frontFace);
+
+        Gl.PolygonMode(MaterialFace.FrontAndBack, _mode);
+        
+        if (_scissor)
             Gl.Enable(EnableCap.ScissorTest);
         else
             Gl.Disable(EnableCap.ScissorTest);

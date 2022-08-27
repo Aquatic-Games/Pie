@@ -121,8 +121,15 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="direction">The face cull direction. This will determine which is the front face and which is the back face.</param>
     /// <param name="fillMode">The fill mode that will be used on next draw.</param>
     /// <param name="enableScissor">Whether or not the scissor test will be enabled.</param>
-    public abstract RasterizerState CreateRasterizerState(CullFace face = CullFace.Back, CullDirection direction = CullDirection.Clockwise, FillMode fillMode = FillMode.Solid, bool enableScissor = false);
+    public abstract RasterizerState CreateRasterizerState(RasterizerStateDescription description);
 
+    /// <summary>
+    /// Create a new blend state from the blend state description.
+    /// </summary>
+    /// <param name="description">The blend state description to create from.</param>
+    /// <returns>The created blend state.</returns>
+    public abstract BlendState CreateBlendState(BlendStateDescription description);
+    
     /// <summary>
     /// Set the shader that will be used on next draw.
     /// </summary>
@@ -141,6 +148,12 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="state">The rasterizer state to use.</param>
     public abstract void SetRasterizerState(RasterizerState state);
+
+    /// <summary>
+    /// Set the blend state that will be used on next draw.
+    /// </summary>
+    /// <param name="state">The blend state to use.</param>
+    public abstract void SetBlendState(BlendState state);
     
     /// <summary>
     /// Set the vertex buffer that will be used on next draw.

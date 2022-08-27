@@ -47,9 +47,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.Enable(EnableCap.DepthTest);
         Gl.DepthFunc(DepthFunction.Lequal);
         
-        Gl.Enable(EnableCap.Blend);
-        Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-        // TODO: Add proper depth and blend states for direct3d
+        // TODO: Add proper depth states for direct3d
     }
 
     private Rectangle _viewport;
@@ -145,10 +143,14 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33InputLayout(stride, descriptions);
     }
 
-    public override RasterizerState CreateRasterizerState(CullFace face = CullFace.Back, CullDirection direction = CullDirection.Clockwise,
-        FillMode fillMode = FillMode.Solid, bool enableScissor = false)
+    public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)
     {
-        return new OpenGL33RasterizerState(face, direction, fillMode, enableScissor);
+        return new OpenGL33RasterizerState(description);
+    }
+
+    public override BlendState CreateBlendState(BlendStateDescription description)
+    {
+        return new OpenGL33BlendState(description);
     }
 
     public override void SetShader(Shader shader)
@@ -177,6 +179,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             return;
         _currentState = state;
         ((OpenGL33RasterizerState) state).Set();
+    }
+
+    public override void SetBlendState(BlendState state)
+    {
+        ((OpenGL33BlendState) state).Set();
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
