@@ -42,17 +42,18 @@ internal class OpenGL33Texture : Texture
         Gl.TexParameter(TextureTarget.Texture2D, GLEnum.TextureMinFilter, (int) (sample switch
         {
             TextureSample.Linear => mipmap ? TextureMinFilter.LinearMipmapLinear : TextureMinFilter.Linear,
-            TextureSample.Nearest => mipmap? TextureMinFilter.NearestMipmapNearest : TextureMinFilter.Nearest,
+            TextureSample.Nearest => mipmap ? anisotropicLevel > 0 ? TextureMinFilter.LinearMipmapLinear : TextureMinFilter.NearestMipmapLinear : TextureMinFilter.Nearest,
             _ => throw new ArgumentOutOfRangeException(nameof(sample), sample, null)
         }));
         Gl.TexParameter(TextureTarget.Texture2D, GLEnum.TextureMagFilter, (int) (sample switch
         {
             TextureSample.Linear => TextureMagFilter.Linear,
-            TextureSample.Nearest => TextureMagFilter.Nearest,
+            TextureSample.Nearest => mipmap && anisotropicLevel > 0 ? TextureMagFilter.Linear : TextureMagFilter.Nearest,
             _ => throw new ArgumentOutOfRangeException(nameof(sample), sample, null)
         }));
         
-        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropy, anisotropicLevel);
+        if (anisotropicLevel > 0)
+            Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropy, anisotropicLevel);
         
         if (mipmap)
             Gl.GenerateMipmap(TextureTarget.Texture2D);

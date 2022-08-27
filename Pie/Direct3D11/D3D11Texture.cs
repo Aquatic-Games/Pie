@@ -68,7 +68,7 @@ internal class D3D11Texture : Texture
 
         SamplerDescription samplerDescription = new SamplerDescription()
         {
-            Filter = sample == TextureSample.Linear ? Filter.MinMagMipLinear : Filter.MinMagPointMipLinear,
+            Filter = anisotropicLevel > 0 && mipmap ? Filter.Anisotropic : sample == TextureSample.Linear ? Filter.MinMagMipLinear : Filter.MinMagPointMipLinear,
             AddressU = TextureAddressMode.Wrap,
             AddressV = TextureAddressMode.Wrap,
             AddressW = TextureAddressMode.Wrap,
