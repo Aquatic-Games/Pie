@@ -20,7 +20,7 @@ internal class OpenGL33Texture : Texture
     }
 
     public static unsafe Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample,
-        bool mipmap) where T : unmanaged
+        bool mipmap, uint anisotropicLevel) where T : unmanaged
     {
         uint handle = Gl.GenTexture();
         Gl.BindTexture(TextureTarget.Texture2D, handle);
@@ -51,6 +51,8 @@ internal class OpenGL33Texture : Texture
             TextureSample.Nearest => TextureMagFilter.Nearest,
             _ => throw new ArgumentOutOfRangeException(nameof(sample), sample, null)
         }));
+        
+        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropy, anisotropicLevel);
         
         if (mipmap)
             Gl.GenerateMipmap(TextureTarget.Texture2D);

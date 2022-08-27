@@ -140,6 +140,7 @@ public unsafe partial class Window : IDisposable
         
         glfw.MakeContextCurrent(handle);
         glfw.ShowWindow(handle);
+
         return new Window(glfw, handle, settings, api);
     }
 

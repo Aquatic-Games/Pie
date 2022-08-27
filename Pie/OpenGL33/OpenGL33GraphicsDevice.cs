@@ -126,9 +126,9 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
-    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true)
+    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample, bool mipmap, uint anisotropicLevel)
     {
-        return OpenGL33Texture.CreateTexture(width, height, format, data, sample, mipmap);
+        return OpenGL33Texture.CreateTexture(width, height, format, data, sample, mipmap, anisotropicLevel);
     }
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)

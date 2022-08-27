@@ -87,9 +87,10 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="data">The data itself.</param>
     /// <param name="sample">The sample type of the texture.</param>
     /// <param name="mipmap">If true, mipmaps will be automatically generated on creation, as well as whenever <see cref="Texture.Update(int,int,uint,uint,x[])"/> is called.</param>
+    /// <param name="anisotropicLevel">The number of anisotropic levels the texture will have, if any. This is only used if <paramref name="mipmap"/> is enabled.</param>
     /// <typeparam name="T">Any unmanaged type.</typeparam>
     /// <returns>The created texture.</returns>
-    public abstract Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true) where T : unmanaged;
+    public abstract Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample, bool mipmap, uint anisotropicLevel) where T : unmanaged;
 
     /// <summary>
     /// Create a shader with the given shader attachments.

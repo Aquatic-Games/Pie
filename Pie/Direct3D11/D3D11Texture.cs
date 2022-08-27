@@ -27,7 +27,7 @@ internal class D3D11Texture : Texture
     }
 
     public static unsafe Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data,
-        TextureSample sample = TextureSample.Linear, bool mipmap = true) where T : unmanaged
+        TextureSample sample, bool mipmap, uint anisotropicLevel) where T : unmanaged
     {
         // ???
         Format fmt = format switch
@@ -41,7 +41,7 @@ internal class D3D11Texture : Texture
             Width = width,
             Height = height,
             Format = fmt,
-            MipLevels = 0,
+            MipLevels = mipmap ? 0 : 1,
             ArraySize = 1,
             SampleDescription = new SampleDescription(1, 0),
             Usage = ResourceUsage.Default,
@@ -65,15 +65,15 @@ internal class D3D11Texture : Texture
         };
         ID3D11ShaderResourceView view = Device.CreateShaderResourceView(texture, svDesc);
         Context.GenerateMips(view);
-        
+
         SamplerDescription samplerDescription = new SamplerDescription()
         {
-            Filter = Filter.MinMagMipLinear,
+            Filter = sample == TextureSample.Linear ? Filter.MinMagMipLinear : Filter.MinMagPointMipLinear,
             AddressU = TextureAddressMode.Wrap,
             AddressV = TextureAddressMode.Wrap,
             AddressW = TextureAddressMode.Wrap,
             MipLODBias = 0,
-            MaxAnisotropy = 0,
+            MaxAnisotropy = (int) anisotropicLevel,
             ComparisonFunction = ComparisonFunction.LessEqual,
             BorderColor = new Color4(0, 0, 0, 0),
             MinLOD = 0,

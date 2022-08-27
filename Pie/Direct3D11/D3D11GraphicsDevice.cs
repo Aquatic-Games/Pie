@@ -123,9 +123,9 @@ internal class D3D11GraphicsDevice : GraphicsDevice
         return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
-    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample = TextureSample.Linear, bool mipmap = true)
+    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample, bool mipmap, uint anisotropicLevel)
     {
-        return D3D11Texture.CreateTexture(width, height, format, data, sample, mipmap);
+        return D3D11Texture.CreateTexture(width, height, format, data, sample, mipmap, anisotropicLevel);
     }
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)
