@@ -56,6 +56,33 @@ public unsafe partial class Window : IDisposable
         }
     }
 
+    public MouseState MouseState
+    {
+        get
+        {
+            CursorModeValue state = (CursorModeValue) _glfw.GetInputMode(_handle, CursorStateAttribute.Cursor);
+            return state switch
+            {
+                CursorModeValue.CursorNormal => MouseState.Visible,
+                CursorModeValue.CursorHidden => MouseState.Hidden,
+                CursorModeValue.CursorDisabled => MouseState.Locked,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+        set
+        {
+            CursorModeValue val = value switch
+            {
+                MouseState.Visible => CursorModeValue.CursorNormal,
+                MouseState.Hidden => CursorModeValue.CursorHidden,
+                MouseState.Locked => CursorModeValue.CursorDisabled,
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            };
+            
+            _glfw.SetInputMode(_handle, CursorStateAttribute.Cursor, val);
+        }
+    }
+
     public InputState ProcessEvents()
     {
         _inputState.Update(_handle, _glfw);
