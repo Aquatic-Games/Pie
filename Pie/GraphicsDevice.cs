@@ -198,12 +198,18 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="state">The depth state to use.</param>
     public abstract void SetDepthState(DepthState state);
+
+    /// <summary>
+    /// Set the primitive type that will be used on next draw.
+    /// </summary>
+    /// <param name="type">The primitive type to draw with.</param>
+    public abstract void SetPrimitiveType(PrimitiveType type);
     
     /// <summary>
     /// Set the vertex buffer that will be used on next draw.
     /// </summary>
     /// <param name="buffer">The buffer to use.</param>
-    /// <param name="layout">The input layout to use for this vertex buffer.</param>
+    /// <param name="layout">The input layout that this vertex buffer will use.</param>
     public abstract void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout);
 
     /// <summary>

@@ -1,7 +1,6 @@
 TODO: A list of todos. Prefixed with TODO because rider has a very handy list. Written in order of importance.
 
 Important:
-- D3D11 optimizations like OpenGL
 - Make more items use D3D11-like description for objects, such as texture description (but not buffers, they will remain the same)
 - Render target support (very important for shadows)
 - Stencil states

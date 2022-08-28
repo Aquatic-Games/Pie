@@ -25,6 +25,13 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     private ID3D11Texture2D _depthStencilTexture;
     private ID3D11RenderTargetView _colorTargetView;
     private ID3D11DepthStencilView _depthStencilTargetView;
+    
+    private InputLayout _currentLayout;
+    private RasterizerState _currentRState;
+    private BlendState _currentBState;
+    private DepthState _currentDState;
+    private PrimitiveType _currentPType;
+    private bool _primitiveTypeInitialized;
 
     public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options)
     {
@@ -101,6 +108,14 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             cf |= DepthStencilClearFlags.Stencil;
         Context.ClearDepthStencilView(_depthStencilTargetView, cf, 1, 0);
         Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
+    }
+
+    private void InvalidateCache()
+    {
+        _currentLayout = null;
+        _currentRState = null;
+        _currentBState = null;
+        _currentDState = null;
     }
 
     public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
@@ -188,25 +203,53 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override void SetRasterizerState(RasterizerState state)
     {
+        if (state == _currentRState)
+            return;
+        _currentRState = state;
         Context.RSSetState(((D3D11RasterizerState) state).State);
     }
 
     public override void SetBlendState(BlendState state)
     {
+        if (state == _currentBState)
+            return;
+        _currentBState = state;
         Context.OMSetBlendState(((D3D11BlendState) state).State);
     }
 
     public override void SetDepthState(DepthState state)
     {
+        if (state == _currentDState)
+            return;
+        _currentDState = state;
         Context.OMSetDepthStencilState(((D3D11DepthState) state).State);
+    }
+
+    public override void SetPrimitiveType(PrimitiveType type)
+    {
+        if (_primitiveTypeInitialized && type == _currentPType)
+            return;
+        _primitiveTypeInitialized = true;
+        _currentPType = type;
+        PrimitiveTopology topology = type switch
+        {
+            PrimitiveType.TriangleList => PrimitiveTopology.TriangleList,
+            PrimitiveType.TriangleStrip => PrimitiveTopology.TriangleStrip,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+        Context.IASetPrimitiveTopology(topology);
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
     {
-        D3D11InputLayout lt = (D3D11InputLayout) layout;
-        Context.IASetInputLayout(lt.Layout);
-        Context.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
-        Context.IASetVertexBuffer(0, ((D3D11GraphicsBuffer) buffer).Buffer, (int) lt.Stride);
+        if (layout != _currentLayout)
+        {
+            _currentLayout = layout;
+            D3D11InputLayout lt = (D3D11InputLayout) layout;
+            Context.IASetInputLayout(lt.Layout);
+        }
+
+        Context.IASetVertexBuffer(0, ((D3D11GraphicsBuffer) buffer).Buffer, (int) _currentLayout.Stride);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer)

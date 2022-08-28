@@ -21,6 +21,10 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     private InputLayout _currentLayout;
     private RasterizerState _currentRState;
     private BlendState _currentBState;
+    private DepthState _currentDState;
+    private Silk.NET.OpenGL.PrimitiveType _glType;
+    private PrimitiveType _currentPType;
+    private bool _primitiveTypeInitialized;
     private int _boundTexture = -1;
     private int _bindingSlot = -1;
     
@@ -207,7 +211,24 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override void SetDepthState(DepthState state)
     {
+        if (_currentDState != null && _currentDState.Equals(state))
+            return;
+        _currentDState = state;
         ((OpenGL33DepthState) state).Set();
+    }
+
+    public override void SetPrimitiveType(PrimitiveType type)
+    {
+        if (_primitiveTypeInitialized && _currentPType == type)
+            return;
+        _primitiveTypeInitialized = true;
+        _currentPType = type;
+        _glType = type switch
+        {
+            PrimitiveType.TriangleList => Silk.NET.OpenGL.PrimitiveType.Triangles,
+            PrimitiveType.TriangleStrip => Silk.NET.OpenGL.PrimitiveType.TriangleStrip,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
@@ -239,7 +260,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override unsafe void Draw(uint elements)
     {
-        Gl.DrawElements(PrimitiveType.Triangles, elements, DrawElementsType.UnsignedInt, null);
+        Gl.DrawElements(_glType, elements, DrawElementsType.UnsignedInt, null);
     }
 
     public override void Present(int swapInterval)

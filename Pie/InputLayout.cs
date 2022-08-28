@@ -19,15 +19,7 @@ public abstract class InputLayout : IDisposable, IEquatable<InputLayout>
     {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        if (Stride != other.Stride || Descriptions.Length != other.Descriptions.Length)
-            return false;
-        for (int i = 0; i < Descriptions.Length; i++)
-        {
-            if (!Descriptions[i].Equals(other.Descriptions[i]))
-                return false;
-        }
-
-        return true;
+        return IsDisposed == other.IsDisposed && Descriptions.Equals(other.Descriptions) && Stride == other.Stride;
     }
 
     public override bool Equals(object obj)
@@ -40,6 +32,16 @@ public abstract class InputLayout : IDisposable, IEquatable<InputLayout>
 
     public override int GetHashCode()
     {
-        return (Descriptions != null ? Descriptions.GetHashCode() : 0);
+        return HashCode.Combine(IsDisposed, Descriptions, Stride);
+    }
+
+    public static bool operator ==(InputLayout left, InputLayout right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(InputLayout left, InputLayout right)
+    {
+        return !Equals(left, right);
     }
 }
