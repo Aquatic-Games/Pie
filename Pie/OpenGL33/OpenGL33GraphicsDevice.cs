@@ -24,13 +24,13 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     private int _boundTexture = -1;
     private int _bindingSlot = -1;
     
-    public unsafe OpenGL33GraphicsDevice(IGLContext context, Size winSize, GraphicsDeviceCreationFlags creationFlags)
+    public unsafe OpenGL33GraphicsDevice(IGLContext context, Size winSize, GraphicsDeviceOptions options)
     {
         _context = context;
         Gl = GL.GetApi(context);
         _vao = Gl.GenVertexArray();
         Gl.BindVertexArray(_vao);
-        Debug = creationFlags.HasFlag(GraphicsDeviceCreationFlags.Debug);
+        Debug = options.Debug;
 
         Viewport = new Rectangle(Point.Empty, winSize);
 
@@ -55,8 +55,6 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     private Rectangle _viewport;
 
     public override GraphicsApi Api => GraphicsApi.OpenGl33;
-
-    private DepthMode _depthMode;
 
     public override Rectangle Viewport
     {
@@ -156,6 +154,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33BlendState(description);
     }
 
+    public override DepthState CreateDepthState(DepthStateDescription description)
+    {
+        return new OpenGL33DepthState(description);
+    }
+
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
         ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, data);
@@ -205,6 +208,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             return;
         _currentBState = state;
         ((OpenGL33BlendState) state).Set();
+    }
+
+    public override void SetDepthState(DepthState state)
+    {
+        ((OpenGL33DepthState) state).Set();
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)

@@ -26,9 +26,9 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     private ID3D11RenderTargetView _colorTargetView;
     private ID3D11DepthStencilView _depthStencilTargetView;
 
-    public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceCreationFlags creationFlags)
+    public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options)
     {
-        bool debug = creationFlags.HasFlag(GraphicsDeviceCreationFlags.Debug);
+        bool debug = options.Debug;
         if (debug && !SdkLayersAvailable())
         {
             debug = false;
@@ -153,6 +153,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11BlendState(description);
     }
 
+    public override DepthState CreateDepthState(DepthStateDescription description)
+    {
+        return new D3D11DepthState(description);
+    }
+
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
         ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, data);
@@ -189,6 +194,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     public override void SetBlendState(BlendState state)
     {
         Context.OMSetBlendState(((D3D11BlendState) state).State);
+    }
+
+    public override void SetDepthState(DepthState state)
+    {
+        Context.OMSetDepthStencilState(((D3D11DepthState) state).State);
     }
 
     public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)

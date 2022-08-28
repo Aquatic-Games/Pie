@@ -11,9 +11,12 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
 
     public ID3D11Buffer Buffer;
 
-    public D3D11GraphicsBuffer(ID3D11Buffer buffer)
+    private bool _dynamic;
+
+    public D3D11GraphicsBuffer(ID3D11Buffer buffer, bool dynamic)
     {
         Buffer = buffer;
+        _dynamic = dynamic;
     }
 
     public static GraphicsBuffer CreateBuffer<T>(BufferType type, uint sizeInBytes, T[] data, bool dynamic) where T : unmanaged
@@ -34,23 +37,32 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
             CPUAccessFlags = dynamic ? CpuAccessFlags.Write : CpuAccessFlags.None
         };
         
-        return new D3D11GraphicsBuffer(Device.CreateBuffer(new ReadOnlySpan<T>(data), description));
+        return new D3D11GraphicsBuffer(Device.CreateBuffer(new ReadOnlySpan<T>(data), description), dynamic);
     }
     
     public unsafe void Update<T>(uint offsetInBytes, T[] data) where T : unmanaged
     {
         // TODO: IMPORTANT!! Implement buffer offset
-        // TODO: Implement buffer updating without dynamic flag (is it possible in D3D11?)
-        MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
-        Unsafe.Copy(subresource.DataPointer.ToPointer(), ref data);
-        Context.Unmap(Buffer);
+        if (_dynamic)
+        {
+            MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
+            Unsafe.Copy(subresource.DataPointer.ToPointer(), ref data);
+            Context.Unmap(Buffer);
+        }
+        else
+            Context.UpdateSubresource(data, Buffer);
     }
 
     public unsafe void Update<T>(uint offsetInBytes, T data) where T : unmanaged
     {
-        MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
-        Unsafe.Copy(subresource.DataPointer.ToPointer(), ref data);
-        Context.Unmap(Buffer);
+        if (_dynamic)
+        {
+            MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
+            Unsafe.Copy(subresource.DataPointer.ToPointer(), ref data);
+            Context.Unmap(Buffer);
+        }
+        else
+            Context.UpdateSubresource(data, Buffer);
     }
 
     public override void Dispose()

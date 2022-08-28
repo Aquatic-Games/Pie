@@ -130,6 +130,13 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="description">The blend state description to create from.</param>
     /// <returns>The created blend state.</returns>
     public abstract BlendState CreateBlendState(BlendStateDescription description);
+
+    /// <summary>
+    /// Create a new depth state from the depth state description.
+    /// </summary>
+    /// <param name="description">The depth state description to create from.</param>
+    /// <returns>The created depth state.</returns>
+    public abstract DepthState CreateDepthState(DepthStateDescription description);
     
     /// <summary>
     /// Update the given buffer with the given data at the given offset in bytes.
@@ -185,6 +192,12 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="state">The blend state to use.</param>
     public abstract void SetBlendState(BlendState state);
+
+    /// <summary>
+    /// Set the depth state that will be used on next draw.
+    /// </summary>
+    /// <param name="state">The depth state to use.</param>
+    public abstract void SetDepthState(DepthState state);
     
     /// <summary>
     /// Set the vertex buffer that will be used on next draw.
@@ -232,9 +245,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="winSize">The size of the window on startup.</param>
     /// <param name="flags">The creation flags for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
-    public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
+    public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
     {
-        return new OpenGL33GraphicsDevice(context, winSize, flags);
+        return new OpenGL33GraphicsDevice(context, winSize, options);
     }
 
     /// <summary>
@@ -244,9 +257,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="winSize">The size of the window on startup.</param>
     /// <param name="flags">The creation flags for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
-    public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
+    public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options = default)
     {
-        return new D3D11GraphicsDevice(hwnd, winSize, flags);
+        return new D3D11GraphicsDevice(hwnd, winSize, options);
     }
 
     /// <summary>

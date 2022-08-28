@@ -1,12 +1,7 @@
 namespace Pie;
 
-public enum DepthMode
+public enum DepthComparison
 {
-    /// <summary>
-    /// Disable depth testing.
-    /// </summary>
-    Disable,
-    
     /// <summary>
     /// The depth test never passes.
     /// </summary>

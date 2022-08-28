@@ -150,17 +150,17 @@ public unsafe partial class Window : IDisposable
     }
 
     public static Window CreateWithGraphicsDevice(WindowSettings settings, GraphicsApi api, out GraphicsDevice device,
-        GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
+        GraphicsDeviceOptions options = default)
     {
         Window window = CreateWindow(settings, api);
         
         switch (api)
         {
             case GraphicsApi.OpenGl33:
-                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(window._glfw, window._handle), settings.Size, flags);
+                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(window._glfw, window._handle), settings.Size, options);
                 break;
             case GraphicsApi.D3D11:
-                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, settings.Size, flags);
+                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, settings.Size, options);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);
@@ -174,15 +174,15 @@ public unsafe partial class Window : IDisposable
         return CreateWithGraphicsDevice(settings, GraphicsDevice.GetBestApiForPlatform(), out device);
     }
     
-    public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceCreationFlags flags = GraphicsDeviceCreationFlags.None)
+    public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions options = default)
     {
         _glfw.MakeContextCurrent(_handle);
         return _api switch
         {
             GraphicsApi.OpenGl33 => GraphicsDevice.CreateOpenGL33(new GlfwContext(_glfw, _handle), _settings.Size,
-                flags),
+                options),
             GraphicsApi.D3D11 => GraphicsDevice.CreateD3D11(new GlfwNativeWindow(_glfw, _handle).Win32!.Value.Hwnd,
-                _settings.Size, flags),
+                _settings.Size, options),
             _ => throw new ArgumentOutOfRangeException(nameof(_api), _api, null)
         };
     }
