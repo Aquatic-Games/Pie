@@ -5,7 +5,7 @@ using static Pie.OpenGL33.OpenGL33GraphicsDevice;
 
 namespace Pie.OpenGL33;
 
-internal class OpenGL33GraphicsBuffer : GraphicsBuffer
+internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
 {
     public override bool IsDisposed { get; protected set; }
 
@@ -57,14 +57,14 @@ internal class OpenGL33GraphicsBuffer : GraphicsBuffer
         return new OpenGL33GraphicsBuffer(handle, target);
     }
 
-    public override unsafe void Update<T>(uint offsetInBytes, T[] data)
+    public unsafe void Update<T>(uint offsetInBytes, T[] data) where T : unmanaged
     {
         Gl.BindBuffer(Target, Handle);
         fixed (void* d = data)
             Gl.BufferSubData(Target, (nint) offsetInBytes * Unsafe.SizeOf<T>(), (nuint) (data.Length * Unsafe.SizeOf<T>()), d);
     }
 
-    public override unsafe void Update<T>(uint offsetInBytes, T data)
+    public unsafe void Update<T>(uint offsetInBytes, T data) where T : unmanaged
     {
         Gl.BindBuffer(Target, Handle);
         Gl.BufferSubData(Target, (nint) offsetInBytes * Unsafe.SizeOf<T>(), (nuint) Unsafe.SizeOf<T>(), data);

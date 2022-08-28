@@ -5,7 +5,7 @@ using static Pie.OpenGL33.OpenGL33GraphicsDevice;
 
 namespace Pie.OpenGL33;
 
-internal class OpenGL33Texture : Texture
+internal sealed class OpenGL33Texture : Texture
 {
     public uint Handle;
 
@@ -64,7 +64,7 @@ internal class OpenGL33Texture : Texture
     public override bool IsDisposed { get; protected set; }
     public override Size Size { get; set; }
 
-    public override unsafe void Update<T>(int x, int y, uint width, uint height, T[] data)
+    public unsafe void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged
     {
         Gl.BindTexture(TextureTarget.Texture2D, Handle);
         fixed (void* d = data)

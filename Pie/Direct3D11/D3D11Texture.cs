@@ -8,7 +8,7 @@ using Size = System.Drawing.Size;
 
 namespace Pie.Direct3D11;
 
-internal class D3D11Texture : Texture
+internal sealed class D3D11Texture : Texture
 {
     private ID3D11Texture2D _texture;
     public ID3D11ShaderResourceView View;
@@ -83,7 +83,7 @@ internal class D3D11Texture : Texture
         return new D3D11Texture(texture, view, samplerState, new Size(width, height));
     }
     
-    public override void Update<T>(int x, int y, uint width, uint height, T[] data)
+    public void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged
     {
         // TODO: Implement texture mapping for fast transfers, i think.
         Context.UpdateSubresource(data, _texture, 0, (int) width * 4 * sizeof(byte),

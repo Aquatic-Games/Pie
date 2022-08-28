@@ -132,6 +132,36 @@ public abstract class GraphicsDevice : IDisposable
     public abstract BlendState CreateBlendState(BlendStateDescription description);
     
     /// <summary>
+    /// Update the given buffer with the given data at the given offset in bytes.
+    /// </summary>
+    /// <param name="buffer">The buffer to update.</param>
+    /// <param name="offsetInBytes">The offset in bytes, if any, where the data will be updated.</param>
+    /// <param name="data">The data itself</param>
+    /// <typeparam name="T">Any unmanaged type</typeparam>
+    public abstract void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data) where T : unmanaged;
+
+    /// <summary>
+    /// Update the given buffer with the given data at the given offset in bytes.
+    /// </summary>
+    /// <param name="buffer">The buffer to update.</param>
+    /// <param name="offsetInBytes">The offset in bytes, if any, where the data will be updated.</param>
+    /// <param name="data">The data itself</param>
+    /// <typeparam name="T">Any unmanaged type</typeparam>
+    public abstract void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data) where T : unmanaged;
+    
+    /// <summary>
+    /// Update a region of this texture with the given data.
+    /// </summary>
+    /// <param name="texture">The texture to update.</param>
+    /// <param name="x">The x-offset in pixels of the data.</param>
+    /// <param name="y">The y-offset in pixels of the data.</param>
+    /// <param name="width">The width in pixels of the data.</param>
+    /// <param name="height">The height in pixels of the data.</param>
+    /// <param name="data">The data itself.</param>
+    /// <typeparam name="T">Any unmanaged type, typically <see cref="byte"/> or <see cref="float"/>.</typeparam>
+    public abstract void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data) where T : unmanaged;
+    
+    /// <summary>
     /// Set the shader that will be used on next draw.
     /// </summary>
     /// <param name="shader">The shader to use.</param>

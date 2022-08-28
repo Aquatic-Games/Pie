@@ -156,6 +156,21 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33BlendState(description);
     }
 
+    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
+    {
+        ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, data);
+    }
+
+    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
+    {
+        ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, data);
+    }
+
+    public override void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
+    {
+        ((OpenGL33Texture) texture).Update(x, y, width, height, data);
+    }
+
     public override void SetShader(Shader shader)
     {
         OpenGL33Shader glShader = (OpenGL33Shader) shader;

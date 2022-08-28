@@ -6,7 +6,7 @@ using static Pie.OpenGL33.OpenGL33GraphicsDevice;
 
 namespace Pie.OpenGL33;
 
-internal class OpenGL33Shader : Shader
+internal sealed class OpenGL33Shader : Shader
 {
     public override bool IsDisposed { get; protected set; }
 

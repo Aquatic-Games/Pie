@@ -9,7 +9,7 @@ using static Pie.Direct3D11.D3D11GraphicsDevice;
 
 namespace Pie.Direct3D11;
 
-internal class D3D11Shader : Shader
+internal sealed class D3D11Shader : Shader
 {
     public override bool IsDisposed { get; protected set; }
 

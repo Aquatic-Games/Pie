@@ -5,7 +5,7 @@ using static Pie.Direct3D11.D3D11GraphicsDevice;
 
 namespace Pie.Direct3D11;
 
-internal class D3D11GraphicsBuffer : GraphicsBuffer
+internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
 {
     public override bool IsDisposed { get; protected set; }
 
@@ -37,7 +37,7 @@ internal class D3D11GraphicsBuffer : GraphicsBuffer
         return new D3D11GraphicsBuffer(Device.CreateBuffer(new ReadOnlySpan<T>(data), description));
     }
     
-    public override unsafe void Update<T>(uint offsetInBytes, T[] data)
+    public unsafe void Update<T>(uint offsetInBytes, T[] data) where T : unmanaged
     {
         // TODO: IMPORTANT!! Implement buffer offset
         // TODO: Implement buffer updating without dynamic flag (is it possible in D3D11?)
@@ -46,7 +46,7 @@ internal class D3D11GraphicsBuffer : GraphicsBuffer
         Context.Unmap(Buffer);
     }
 
-    public override unsafe void Update<T>(uint offsetInBytes, T data)
+    public unsafe void Update<T>(uint offsetInBytes, T data) where T : unmanaged
     {
         MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
         Unsafe.Copy(subresource.DataPointer.ToPointer(), ref data);
