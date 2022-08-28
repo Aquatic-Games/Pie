@@ -45,11 +45,6 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             Gl.Enable(EnableCap.DebugOutputSynchronous);
             Gl.DebugMessageCallback(DebugCallback, null);
         }
-        
-        Gl.Enable(EnableCap.DepthTest);
-        Gl.DepthFunc(DepthFunction.Lequal);
-        
-        // TODO: Add proper depth states for direct3d
     }
 
     private Rectangle _viewport;

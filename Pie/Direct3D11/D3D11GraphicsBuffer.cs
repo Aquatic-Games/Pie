@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using Vortice.Direct3D11;
+using Vortice.Mathematics;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
 
 namespace Pie.Direct3D11;
@@ -42,27 +43,35 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
     
     public unsafe void Update<T>(uint offsetInBytes, T[] data) where T : unmanaged
     {
-        // TODO: IMPORTANT!! Implement buffer offset
         if (_dynamic)
         {
             MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
-            Unsafe.Copy(subresource.DataPointer.ToPointer(), ref data);
+            Unsafe.Copy((subresource.DataPointer + (int) offsetInBytes).ToPointer(), ref data);
             Context.Unmap(Buffer);
         }
         else
-            Context.UpdateSubresource(data, Buffer);
+        {
+            Context.UpdateSubresource(data, Buffer,
+                region: new Box((int) offsetInBytes, 0, 0, (int) ((Unsafe.SizeOf<T>() * data.Length) + offsetInBytes),
+                    1, 1));
+        }
     }
 
     public unsafe void Update<T>(uint offsetInBytes, T data) where T : unmanaged
     {
+        // While these two functions are duplicates it avoids creating an array every time update is called.
         if (_dynamic)
         {
             MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
-            Unsafe.Copy(subresource.DataPointer.ToPointer(), ref data);
+            Unsafe.Copy((subresource.DataPointer + (int) offsetInBytes).ToPointer(), ref data);
             Context.Unmap(Buffer);
         }
         else
-            Context.UpdateSubresource(data, Buffer);
+        {
+            Context.UpdateSubresource(data, Buffer,
+                region: new Box((int) offsetInBytes, 0, 0, (int) (Unsafe.SizeOf<T>() + offsetInBytes),
+                    1, 1));
+        }
     }
 
     public override void Dispose()
