@@ -2,6 +2,8 @@ TODO: A list of todos. Prefixed with TODO because rider has a very handy list. W
 
 Important:
 - Make more items use D3D11-like description for objects, such as texture description (but not buffers, they will remain the same)
+- More Draw() functions, including support for vertex buffers without indices
+- Multiple VBOs/Instanced rendering support
 - Render target support (very important for shadows)
 - Stencil states
 - Deferred contexts (yes, even for OpenGL)
