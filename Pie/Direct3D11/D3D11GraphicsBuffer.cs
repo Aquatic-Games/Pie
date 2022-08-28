@@ -39,6 +39,8 @@ internal class D3D11GraphicsBuffer : GraphicsBuffer
     
     public override unsafe void Update<T>(uint offsetInBytes, T[] data)
     {
+        // TODO: IMPORTANT!! Implement buffer offset
+        // TODO: Implement buffer updating without dynamic flag (is it possible in D3D11?)
         MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
         Unsafe.Copy(subresource.DataPointer.ToPointer(), ref data);
         Context.Unmap(Buffer);

@@ -29,7 +29,6 @@ internal class D3D11Texture : Texture
     public static unsafe Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data,
         TextureSample sample, bool mipmap, uint anisotropicLevel) where T : unmanaged
     {
-        // ???
         Format fmt = format switch
         {
             PixelFormat.R8G8B8A8_UNorm => Format.R8G8B8A8_UNorm,
@@ -86,6 +85,7 @@ internal class D3D11Texture : Texture
     
     public override void Update<T>(int x, int y, uint width, uint height, T[] data)
     {
+        // TODO: Implement texture mapping for fast transfers, i think.
         Context.UpdateSubresource(data, _texture, 0, (int) width * 4 * sizeof(byte),
             region: new Box(x, 0, 0, (int) (x + width), (int) (y + height), 0));
     }
