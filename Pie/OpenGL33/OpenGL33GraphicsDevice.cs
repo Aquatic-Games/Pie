@@ -189,8 +189,8 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         //    return;
         //_boundTexture = (int) glTex.Handle;
         //_bindingSlot = (int) bindingSlot;
-        Gl.BindTexture(TextureTarget.Texture2D, glTex.Handle);
         Gl.ActiveTexture(TextureUnit.Texture0 + (int) bindingSlot);
+        Gl.BindTexture(TextureTarget.Texture2D, glTex.Handle);
     }
 
     public override void SetRasterizerState(RasterizerState state)
