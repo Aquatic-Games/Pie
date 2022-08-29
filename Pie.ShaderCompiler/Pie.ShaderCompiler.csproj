@@ -13,6 +13,22 @@
         <PackageId>Pie.ShaderCompiler</PackageId>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <Description>Make cross-platform graphics programming as easy as pie.</Description>
+        <RepositoryUrl>https://github.com/piegfx/Pie</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <Authors>Ollie Robinson</Authors>
+        <PackageProjectUrl>https://piegfx.com/pie/</PackageProjectUrl>
+        <PackageTags>graphics;opengl;directx;</PackageTags>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../LICENSE" Pack="true" PackagePath="\" />
+        <None Include="../README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
     <ItemGroup>
       <PackageReference Include="Spirzza.Interop.Shaderc" Version="0.0.1" />
       <PackageReference Include="Spirzza.Interop.SpirvCross" Version="0.0.1" />
