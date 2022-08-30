@@ -18,6 +18,7 @@ internal sealed class OpenGL33RasterizerState : RasterizerState
 
         if (description.CullFace == CullFace.None)
             _cullFaceEnabled = false;
+        else
         {
             _cullFaceEnabled = true;
             _cullFaceMode = description.CullFace switch

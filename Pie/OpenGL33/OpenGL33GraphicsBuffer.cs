@@ -61,13 +61,13 @@ internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
     {
         Gl.BindBuffer(Target, Handle);
         fixed (void* d = data)
-            Gl.BufferSubData(Target, (nint) offsetInBytes * Unsafe.SizeOf<T>(), (nuint) (data.Length * Unsafe.SizeOf<T>()), d);
+            Gl.BufferSubData(Target, (nint) offsetInBytes, (nuint) (data.Length * Unsafe.SizeOf<T>()), d);
     }
 
     public unsafe void Update<T>(uint offsetInBytes, T data) where T : unmanaged
     {
         Gl.BindBuffer(Target, Handle);
-        Gl.BufferSubData(Target, (nint) offsetInBytes * Unsafe.SizeOf<T>(), (nuint) Unsafe.SizeOf<T>(), data);
+        Gl.BufferSubData(Target, (nint) offsetInBytes, (nuint) Unsafe.SizeOf<T>(), data);
     }
 
     public override void Dispose()
