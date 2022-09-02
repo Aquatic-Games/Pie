@@ -14,19 +14,19 @@ public struct SamplerStateDescription
     
     public static readonly SamplerStateDescription LinearClamp =
         new SamplerStateDescription(TextureFilter.MinMagMipLinear, TextureAddress.ClampToEdge, TextureAddress.ClampToEdge,
-            TextureAddress.ClampToEdge, 16, Color.Black, 0, float.MaxValue);
+            TextureAddress.ClampToEdge, 0, Color.Black, 0, float.MaxValue);
     
     public static readonly SamplerStateDescription LinearRepeat =
         new SamplerStateDescription(TextureFilter.MinMagMipLinear, TextureAddress.Repeat, TextureAddress.Repeat,
-            TextureAddress.Repeat, 16, Color.Black, 0, float.MaxValue);
+            TextureAddress.Repeat, 0, Color.Black, 0, float.MaxValue);
     
     public static readonly SamplerStateDescription PointClamp =
         new SamplerStateDescription(TextureFilter.MinMagMipPoint, TextureAddress.ClampToEdge, TextureAddress.ClampToEdge,
-            TextureAddress.ClampToEdge, 16, Color.Black, 0, float.MaxValue);
+            TextureAddress.ClampToEdge, 0, Color.Black, 0, float.MaxValue);
     
     public static readonly SamplerStateDescription PointRepeat =
         new SamplerStateDescription(TextureFilter.MinMagMipPoint, TextureAddress.Repeat, TextureAddress.Repeat,
-            TextureAddress.Repeat, 16, Color.Black, 0, float.MaxValue);
+            TextureAddress.Repeat, 0, Color.Black, 0, float.MaxValue);
     
     public TextureFilter Filter;
 

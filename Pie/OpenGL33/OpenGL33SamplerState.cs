@@ -66,7 +66,10 @@ internal sealed class OpenGL33SamplerState : SamplerState
         Gl.SamplerParameter(Handle, SamplerParameterI.WrapT, (int) GetWrapModeFromTextureAddress(description.AddressV));
         Gl.SamplerParameter(Handle, SamplerParameterI.WrapR, (int) GetWrapModeFromTextureAddress(description.AddressW));
         Gl.SamplerParameter(Handle, SamplerParameterF.LodBias, 0);
-        Gl.SamplerParameter(Handle, SamplerParameterF.MaxAnisotropy, description.MaxAnisotropy);
+        // OpenGL doesn't have a specific anisotropic filter mode, so to make it behave like DirectX we just ignore the
+        // given anisotropy if we're not using anisotropic filtering.
+        if (description.Filter == TextureFilter.Anisotropic)
+            Gl.SamplerParameter(Handle, SamplerParameterF.MaxAnisotropy, description.MaxAnisotropy);
         Gl.SamplerParameter(Handle, SamplerParameterI.CompareFunc, (int) DepthFunction.Lequal);
         float[] bColor =
         {
