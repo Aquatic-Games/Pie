@@ -85,12 +85,10 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="height">The height, in pixels, of this texture.</param>
     /// <param name="format">The pixel format of the input data.</param>
     /// <param name="data">The data itself.</param>
-    /// <param name="sample">The sample type of the texture.</param>
     /// <param name="mipmap">If true, mipmaps will be automatically generated on creation, as well as whenever <see cref="Texture.Update(int,int,uint,uint,x[])"/> is called.</param>
-    /// <param name="anisotropicLevel">The number of anisotropic levels the texture will have, if any. This is only used if <paramref name="mipmap"/> is enabled.</param>
     /// <typeparam name="T">Any unmanaged type.</typeparam>
     /// <returns>The created texture.</returns>
-    public abstract Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample, bool mipmap, uint anisotropicLevel) where T : unmanaged;
+    public abstract Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, bool mipmap) where T : unmanaged;
 
     /// <summary>
     /// Create a shader with the given shader attachments.
@@ -137,6 +135,13 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="description">The depth state description to create from.</param>
     /// <returns>The created depth state.</returns>
     public abstract DepthState CreateDepthState(DepthStateDescription description);
+
+    /// <summary>
+    /// Create a new sampler state from the sampler state description.
+    /// </summary>
+    /// <param name="description">The sampler state description to create from.</param>
+    /// <returns>The created sampler state.</returns>
+    public abstract SamplerState CreateSamplerState(SamplerStateDescription description);
     
     /// <summary>
     /// Update the given buffer with the given data at the given offset in bytes.
@@ -179,7 +184,7 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="bindingSlot">The binding slot that this texture will be used in.</param>
     /// <param name="texture">The texture to use.</param>
-    public abstract void SetTexture(uint bindingSlot, Texture texture);
+    public abstract void SetTexture(uint bindingSlot, Texture texture, SamplerState samplerState);
 
     /// <summary>
     /// Set the rasterizer state that will be used on next draw.

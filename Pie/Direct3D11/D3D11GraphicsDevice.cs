@@ -138,9 +138,9 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
-    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample, bool mipmap, uint anisotropicLevel)
+    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, bool mipmap)
     {
-        return D3D11Texture.CreateTexture(width, height, format, data, sample, mipmap, anisotropicLevel);
+        return D3D11Texture.CreateTexture(width, height, format, data, mipmap);
     }
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)
@@ -173,6 +173,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11DepthState(description);
     }
 
+    public override SamplerState CreateSamplerState(SamplerStateDescription description)
+    {
+        return new D3D11SamplerState(description);
+    }
+
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
         ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, data);
@@ -194,11 +199,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         sh.Use();
     }
 
-    public override void SetTexture(uint bindingSlot, Texture texture)
+    public override void SetTexture(uint bindingSlot, Texture texture, SamplerState state)
     {
         D3D11Texture tex = (D3D11Texture) texture;
         Context.PSSetShaderResource((int) bindingSlot, tex.View);
-        Context.PSSetSampler((int) bindingSlot, tex.SamplerState);
+        Context.PSSetSampler((int) bindingSlot, ((D3D11SamplerState) state).State);
     }
 
     public override void SetRasterizerState(RasterizerState state)

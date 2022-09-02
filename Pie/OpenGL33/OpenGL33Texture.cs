@@ -12,15 +12,15 @@ internal sealed class OpenGL33Texture : Texture
     private Silk.NET.OpenGL.PixelFormat _format;
     private bool _mipmap;
     
-    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size)
+    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, bool mipmap)
     {
         Handle = handle;
         _format = format;
         Size = size;
+        _mipmap = mipmap;
     }
 
-    public static unsafe Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample,
-        bool mipmap, uint anisotropicLevel) where T : unmanaged
+    public static unsafe Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, bool mipmap) where T : unmanaged
     {
         uint handle = Gl.GenTexture();
         Gl.BindTexture(TextureTarget.Texture2D, handle);
@@ -37,28 +37,10 @@ internal sealed class OpenGL33Texture : Texture
                 PixelType.UnsignedByte, p);
         }
 
-        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int) TextureWrapMode.Repeat);
-        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int) TextureWrapMode.Repeat);
-        Gl.TexParameter(TextureTarget.Texture2D, GLEnum.TextureMinFilter, (int) (sample switch
-        {
-            TextureSample.Linear => mipmap ? TextureMinFilter.LinearMipmapLinear : TextureMinFilter.Linear,
-            TextureSample.Nearest => mipmap ? anisotropicLevel > 0 ? TextureMinFilter.LinearMipmapLinear : TextureMinFilter.NearestMipmapLinear : TextureMinFilter.Nearest,
-            _ => throw new ArgumentOutOfRangeException(nameof(sample), sample, null)
-        }));
-        Gl.TexParameter(TextureTarget.Texture2D, GLEnum.TextureMagFilter, (int) (sample switch
-        {
-            TextureSample.Linear => TextureMagFilter.Linear,
-            TextureSample.Nearest => mipmap && anisotropicLevel > 0 ? TextureMagFilter.Linear : TextureMagFilter.Nearest,
-            _ => throw new ArgumentOutOfRangeException(nameof(sample), sample, null)
-        }));
-        
-        if (anisotropicLevel > 0)
-            Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxAnisotropy, anisotropicLevel);
-        
         if (mipmap)
             Gl.GenerateMipmap(TextureTarget.Texture2D);
 
-        return new OpenGL33Texture(handle, fmt, new Size(width, height));
+        return new OpenGL33Texture(handle, fmt, new Size(width, height), mipmap);
     }
 
     public override bool IsDisposed { get; protected set; }

@@ -12,22 +12,19 @@ internal sealed class D3D11Texture : Texture
 {
     private ID3D11Texture2D _texture;
     public ID3D11ShaderResourceView View;
-    public ID3D11SamplerState SamplerState;
-    
+
     public override bool IsDisposed { get; protected set; }
     
     public override Size Size { get; set; }
 
-    public D3D11Texture(ID3D11Texture2D texture, ID3D11ShaderResourceView view, ID3D11SamplerState samplerState, Size size)
+    public D3D11Texture(ID3D11Texture2D texture, ID3D11ShaderResourceView view, Size size)
     {
         _texture = texture;
         View = view;
-        SamplerState = samplerState;
         Size = size;
     }
 
-    public static unsafe Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data,
-        TextureSample sample, bool mipmap, uint anisotropicLevel) where T : unmanaged
+    public static unsafe Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, bool mipmap) where T : unmanaged
     {
         Format fmt = format switch
         {
@@ -46,7 +43,7 @@ internal sealed class D3D11Texture : Texture
             Usage = ResourceUsage.Default,
             BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget,
             CPUAccessFlags = CpuAccessFlags.None,
-            MiscFlags = ResourceOptionFlags.GenerateMips
+            MiscFlags = mipmap ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
         };
 
         ID3D11Texture2D texture = Device.CreateTexture2D(description);
@@ -63,24 +60,10 @@ internal sealed class D3D11Texture : Texture
             }
         };
         ID3D11ShaderResourceView view = Device.CreateShaderResourceView(texture, svDesc);
-        Context.GenerateMips(view);
+        if (mipmap)
+            Context.GenerateMips(view);
 
-        SamplerDescription samplerDescription = new SamplerDescription()
-        {
-            Filter = anisotropicLevel > 0 && mipmap ? Filter.Anisotropic : sample == TextureSample.Linear ? Filter.MinMagMipLinear : Filter.MinMagPointMipLinear,
-            AddressU = TextureAddressMode.Wrap,
-            AddressV = TextureAddressMode.Wrap,
-            AddressW = TextureAddressMode.Wrap,
-            MipLODBias = 0,
-            MaxAnisotropy = (int) anisotropicLevel,
-            ComparisonFunction = ComparisonFunction.LessEqual,
-            BorderColor = new Color4(0, 0, 0, 0),
-            MinLOD = 0,
-            MaxLOD = float.MaxValue
-        };
-        ID3D11SamplerState samplerState = Device.CreateSamplerState(samplerDescription);
-        
-        return new D3D11Texture(texture, view, samplerState, new Size(width, height));
+        return new D3D11Texture(texture, view, new Size(width, height));
     }
     
     public void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged
@@ -94,6 +77,5 @@ internal sealed class D3D11Texture : Texture
     {
         _texture.Dispose();
         View.Dispose();
-        SamplerState.Dispose();
     }
 }

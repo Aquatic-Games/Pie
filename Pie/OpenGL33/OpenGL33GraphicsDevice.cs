@@ -123,9 +123,9 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
-    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, TextureSample sample, bool mipmap, uint anisotropicLevel)
+    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, bool mipmap)
     {
-        return OpenGL33Texture.CreateTexture(width, height, format, data, sample, mipmap, anisotropicLevel);
+        return OpenGL33Texture.CreateTexture(width, height, format, data, mipmap);
     }
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)
@@ -158,6 +158,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33DepthState(description);
     }
 
+    public override SamplerState CreateSamplerState(SamplerStateDescription description)
+    {
+        return new OpenGL33SamplerState(description);
+    }
+
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
         ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, data);
@@ -182,7 +187,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         OpenGL33Shader.BoundHandle = glShader.Handle;
     }
 
-    public override void SetTexture(uint bindingSlot, Texture texture)
+    public override void SetTexture(uint bindingSlot, Texture texture, SamplerState state)
     {
         OpenGL33Texture glTex = (OpenGL33Texture) texture;
         //if (glTex.Handle == _boundTexture && bindingSlot == _bindingSlot)
@@ -191,6 +196,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         //_bindingSlot = (int) bindingSlot;
         Gl.ActiveTexture(TextureUnit.Texture0 + (int) bindingSlot);
         Gl.BindTexture(TextureTarget.Texture2D, glTex.Handle);
+        Gl.BindSampler(bindingSlot, ((OpenGL33SamplerState) state).Handle);
     }
 
     public override void SetRasterizerState(RasterizerState state)
