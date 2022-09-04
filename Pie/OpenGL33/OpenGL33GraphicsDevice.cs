@@ -43,6 +43,8 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             Logging.Log("!!!!!! DEBUG ENABLED !!!!!!");
             Logging.Log("Vendor info: " + Gl.GetStringS(StringName.Vendor));
             Logging.Log("Version info: " + Gl.GetStringS(StringName.Version));
+            Logging.Log("GLSL Version: " + Gl.GetStringS(StringName.ShadingLanguageVersion));
+            Logging.Log("Renderer: " + Gl.GetStringS(StringName.Renderer));
             Logging.Log("Howdy! Thanks for using pie! Be sure to create an issue if you find any bugs.");
             
             Gl.Enable(EnableCap.DebugOutput);
