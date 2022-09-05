@@ -5,9 +5,21 @@ namespace Pie;
 
 public static class Logging
 {
-    internal static void Log(string message)
+    public static event OnLog DebugLog;
+    
+    internal static void Log(LogType type, string message)
     {
-        Console.WriteLine(message);
-        Debug.WriteLine(message);
+        DebugLog?.Invoke(type, message);
     }
+
+    public delegate void OnLog(LogType logType, string message);
+}
+
+public enum LogType
+{
+    Debug,
+    Info,
+    Warning,
+    Error,
+    Critical
 }

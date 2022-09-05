@@ -127,8 +127,8 @@ internal sealed class OpenGL33Shader : Shader
             if (Debug)
             {
                 string text =
-                    $"WARNING: Uniform \"{name}\" does not exist in shader. Fix ASAP, an exception will be thrown when debug is disabled.";
-                Logging.Log(text);
+                    $"Uniform \"{name}\" does not exist in shader. Fix ASAP, an exception will be thrown when debug is disabled.";
+                Logging.Log(LogType.Error, text);
                 return -1;
             }
             else
@@ -145,8 +145,7 @@ internal sealed class OpenGL33Shader : Shader
             Gl.UseProgram(Handle);
             if (Debug && !_hasShownPerfWarning)
             {
-                Logging.Log(
-                    "WARNING: For performance reasons, it's recommended before calling Set() that you call GraphicsDevice.SetShader()");
+                Logging.Log(LogType.Warning, "For performance reasons, it's recommended before calling Set() that you call GraphicsDevice.SetShader()");
                 _hasShownPerfWarning = true;
             }
         }

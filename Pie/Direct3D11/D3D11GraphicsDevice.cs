@@ -39,7 +39,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         if (debug && !SdkLayersAvailable())
         {
             debug = false;
-            Logging.Log("WARNING: Debug has been enabled however no SDK layers have been found. Direct3D debug has therefore been disabled.");
+            Logging.Log(LogType.Warning, "Debug has been enabled however no SDK layers have been found. Direct3D debug has therefore been disabled.");
         }
         
         Result res;

@@ -40,12 +40,12 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
         if (Debug)
         {
-            Logging.Log("!!!!!! DEBUG ENABLED !!!!!!");
-            Logging.Log("Vendor info: " + Gl.GetStringS(StringName.Vendor));
-            Logging.Log("Version info: " + Gl.GetStringS(StringName.Version));
-            Logging.Log("GLSL Version: " + Gl.GetStringS(StringName.ShadingLanguageVersion));
-            Logging.Log("Renderer: " + Gl.GetStringS(StringName.Renderer));
-            Logging.Log("Howdy! Thanks for using pie! Be sure to create an issue if you find any bugs.");
+            Logging.Log(LogType.Info, "!!!!!! DEBUG ENABLED !!!!!!");
+            Logging.Log(LogType.Info, "Vendor info: " + Gl.GetStringS(StringName.Vendor));
+            Logging.Log(LogType.Info, "Version info: " + Gl.GetStringS(StringName.Version));
+            Logging.Log(LogType.Info, "GLSL Version: " + Gl.GetStringS(StringName.ShadingLanguageVersion));
+            Logging.Log(LogType.Info, "Renderer: " + Gl.GetStringS(StringName.Renderer));
+            Logging.Log(LogType.Info, "Howdy! Thanks for using pie! Be sure to create an issue if you find any bugs.");
             
             Gl.Enable(EnableCap.DebugOutput);
             Gl.Enable(EnableCap.DebugOutputSynchronous);
@@ -292,8 +292,21 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     {
         string msg = Marshal.PtrToStringAnsi(message);
         DebugType debugType = (DebugType) type;
-        if (debugType == DebugType.DebugTypeError)
-            throw new PieException($"GL ERROR: {msg}");
-        Logging.Log(debugType.ToString().Replace("DebugType", "") + ": " + msg);
+        LogType logType = debugType switch
+        {
+            DebugType.DontCare => LogType.Debug,
+            DebugType.DebugTypeError => LogType.Critical,
+            DebugType.DebugTypeDeprecatedBehavior => LogType.Error,
+            DebugType.DebugTypeUndefinedBehavior => LogType.Critical,
+            DebugType.DebugTypePortability => LogType.Warning,
+            DebugType.DebugTypePerformance => LogType.Warning,
+            DebugType.DebugTypeOther => LogType.Info,
+            DebugType.DebugTypeMarker => LogType.Debug,
+            DebugType.DebugTypePushGroup => LogType.Debug,
+            DebugType.DebugTypePopGroup => LogType.Debug,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        
+        Logging.Log(logType, msg);
     }
 }
