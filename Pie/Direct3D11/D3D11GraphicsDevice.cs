@@ -84,7 +84,18 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     }
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
-    public override Rectangle Viewport { get; set; }
+    
+    private Rectangle _viewport;
+
+    public override Rectangle Viewport
+    {
+        get => _viewport;
+        set
+        {
+            _viewport = value;
+            Context.RSSetViewport(value.X, value.Y, value.Width, value.Height);
+        }
+    }
 
     public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
     {
