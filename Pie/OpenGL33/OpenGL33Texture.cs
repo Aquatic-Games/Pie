@@ -20,28 +20,54 @@ internal sealed class OpenGL33Texture : Texture
         _mipmap = mipmap;
     }
 
-    public static unsafe Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, bool mipmap) where T : unmanaged
+    public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
     {
-        uint handle = Gl.GenTexture();
-        Gl.BindTexture(TextureTarget.Texture2D, handle);
+        if (description.ArraySize < 1)
+            throw new PieException("Array size must be at least 1.");
 
-        Silk.NET.OpenGL.PixelFormat fmt = format switch
+        int bytesExpected = description.Width * description.Height * 4;
+        if (data != null && data.Length != bytesExpected)
+            throw new PieException($"{bytesExpected} bytes expected, {data.Length} bytes received.");
+        
+        uint handle = Gl.GenTexture();
+        TextureTarget target = description.TextureType switch
+        {
+            TextureType.Texture2D => TextureTarget.Texture2D,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        
+        Gl.BindTexture(target, handle);
+
+        Silk.NET.OpenGL.PixelFormat fmt = description.Format switch
         {
             PixelFormat.R8G8B8A8_UNorm => Silk.NET.OpenGL.PixelFormat.Rgba,
             PixelFormat.B8G8R8A8_UNorm => Silk.NET.OpenGL.PixelFormat.Bgra,
-            _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
+            _ => throw new ArgumentOutOfRangeException()
         };
 
         fixed (void* p = data)
         {
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint) width, (uint) height, 0, fmt,
-                PixelType.UnsignedByte, p);
+            switch (description.TextureType)
+            {
+                case TextureType.Texture2D:
+                    if (description.ArraySize == 1)
+                    {
+                        Gl.TexImage2D(target, 0, InternalFormat.Rgba8, (uint) description.Width,
+                            (uint) description.Height, 0, fmt, PixelType.UnsignedByte, p);
+                    }
+                    else
+                        throw new NotImplementedException("Currently texture arrays have not been implemented.");
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
-        if (mipmap)
+        if (description.Mipmap)
             Gl.GenerateMipmap(TextureTarget.Texture2D);
 
-        return new OpenGL33Texture(handle, fmt, new Size(width, height), mipmap);
+        return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description.Mipmap);
     }
 
     public override bool IsDisposed { get; protected set; }

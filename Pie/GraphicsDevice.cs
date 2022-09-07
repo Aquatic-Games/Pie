@@ -88,7 +88,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="mipmap">If true, mipmaps will be automatically generated on creation, as well as whenever <see cref="Texture.Update(int,int,uint,uint,x[])"/> is called.</param>
     /// <typeparam name="T">Any unmanaged type.</typeparam>
     /// <returns>The created texture.</returns>
-    public abstract Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, bool mipmap) where T : unmanaged;
+    public abstract Texture CreateTexture<T>(TextureDescription description, T[] data = null) where T : unmanaged;
 
     /// <summary>
     /// Create a shader with the given shader attachments.

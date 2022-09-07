@@ -18,6 +18,11 @@ public struct TextureDescription
     public int Height;
 
     /// <summary>
+    /// The pixel format of this texture.
+    /// </summary>
+    public PixelFormat Format;
+
+    /// <summary>
     /// Whether or not mipmaps will be generated.
     /// </summary>
     public bool Mipmap;
@@ -27,10 +32,13 @@ public struct TextureDescription
     /// </summary>
     public int ArraySize;
 
-    /// <summary>
+    /*/// <summary>
     /// Whether or not this texture is dynamic.
     /// </summary>
-    public bool Dynamic;
-    
-    
+    public bool Dynamic;*/
+
+    /// <summary>
+    /// The usage of this texture.
+    /// </summary>
+    public TextureUsage Usage;
 }

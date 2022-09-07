@@ -149,9 +149,9 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
-    public override Texture CreateTexture<T>(int width, int height, PixelFormat format, T[] data, bool mipmap)
+    public override Texture CreateTexture<T>(TextureDescription description, T[] data = null)
     {
-        return D3D11Texture.CreateTexture(width, height, format, data, mipmap);
+        return D3D11Texture.CreateTexture(description, data);
     }
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)
