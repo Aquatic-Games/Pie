@@ -83,6 +83,8 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         CreateDepthStencilView(winSize);
         
         Viewport = new Rectangle(Point.Empty, winSize);
+        
+        SetFramebuffer(null);
     }
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
