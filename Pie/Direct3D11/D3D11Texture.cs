@@ -16,12 +16,14 @@ internal sealed class D3D11Texture : Texture
     public override bool IsDisposed { get; protected set; }
     
     public override Size Size { get; set; }
+    public override TextureDescription Description { get; set; }
 
-    public D3D11Texture(ID3D11Resource texture, ID3D11ShaderResourceView view, Size size)
+    public D3D11Texture(ID3D11Resource texture, ID3D11ShaderResourceView view, Size size, TextureDescription description)
     {
         _texture = texture;
         View = view;
         Size = size;
+        Description = description;
     }
 
     public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
@@ -98,7 +100,7 @@ internal sealed class D3D11Texture : Texture
         if (description.Mipmap)
             Context.GenerateMips(view);
 
-        return new D3D11Texture(texture, view, new Size(description.Width, description.Height));
+        return new D3D11Texture(texture, view, new Size(description.Width, description.Height), description);
     }
     
     public void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged

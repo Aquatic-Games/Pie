@@ -12,12 +12,13 @@ internal sealed class OpenGL33Texture : Texture
     private Silk.NET.OpenGL.PixelFormat _format;
     private bool _mipmap;
     
-    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, bool mipmap)
+    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, bool mipmap, TextureDescription description)
     {
         Handle = handle;
         _format = format;
         Size = size;
         _mipmap = mipmap;
+        Description = description;
     }
 
     public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
@@ -67,11 +68,12 @@ internal sealed class OpenGL33Texture : Texture
         if (description.Mipmap)
             Gl.GenerateMipmap(TextureTarget.Texture2D);
 
-        return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description.Mipmap);
+        return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description.Mipmap, description);
     }
 
     public override bool IsDisposed { get; protected set; }
     public override Size Size { get; set; }
+    public override TextureDescription Description { get; set; }
 
     public unsafe void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged
     {

@@ -41,4 +41,15 @@ public struct TextureDescription
     /// The usage of this texture.
     /// </summary>
     public TextureUsage Usage;
+
+    public TextureDescription(TextureType textureType, int width, int height, PixelFormat format, bool mipmap, int arraySize, TextureUsage usage)
+    {
+        TextureType = textureType;
+        Width = width;
+        Height = height;
+        Format = format;
+        Mipmap = mipmap;
+        ArraySize = arraySize;
+        Usage = usage;
+    }
 }

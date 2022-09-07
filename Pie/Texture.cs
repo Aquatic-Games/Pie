@@ -14,6 +14,8 @@ public abstract class Texture : IDisposable
     /// The size, in pixels, of this texture.
     /// </summary>
     public abstract Size Size { get; set; }
+    
+    public abstract TextureDescription Description { get; set; }
 
     public abstract void Dispose();
 }
