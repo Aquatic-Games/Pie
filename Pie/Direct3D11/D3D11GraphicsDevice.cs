@@ -33,6 +33,8 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     private PrimitiveType _currentPType;
     private bool _primitiveTypeInitialized;
 
+    private D3D11Framebuffer _currentFramebuffer;
+
     public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options)
     {
         bool debug = options.Debug;
@@ -105,7 +107,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
     {
-        Context.ClearRenderTargetView(_colorTargetView, new Color4(color));
+        Context.ClearRenderTargetView(_currentFramebuffer?.Targets[0] ?? _colorTargetView, new Color4(color));
         Clear(flags);
     }
 
@@ -117,8 +119,8 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             cf |= DepthStencilClearFlags.Depth;
         if (flags.HasFlag(ClearFlags.Stencil))
             cf |= DepthStencilClearFlags.Stencil;
-        Context.ClearDepthStencilView(_depthStencilTargetView, cf, 1, 0);
-        Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
+        Context.ClearDepthStencilView(_currentFramebuffer?.DepthStencil ?? _depthStencilTargetView, cf, 1, 0);
+        //Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
     }
 
     private void InvalidateCache()
@@ -187,6 +189,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     public override SamplerState CreateSamplerState(SamplerStateDescription description)
     {
         return new D3D11SamplerState(description);
+    }
+
+    public override Framebuffer CreateFramebuffer(params FramebufferAttachment[] attachments)
+    {
+        return new D3D11Framebuffer(attachments);
     }
 
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
@@ -280,6 +287,18 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         Context.PSSetConstantBuffer((int) bindingSlot, buf.Buffer);
     }
 
+    public override void SetFramebuffer(Framebuffer framebuffer)
+    {
+        _currentFramebuffer = (D3D11Framebuffer) framebuffer;
+        if (framebuffer == null)
+            Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
+        else
+        {
+            Context.OMSetRenderTargets(_currentFramebuffer.Targets, _currentFramebuffer.DepthStencil);
+        }
+
+    }
+
     public override void Draw(uint elements)
     {
         Context.DrawIndexed((int) elements, 0, 0);
@@ -330,7 +349,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             Usage = ResourceUsage.Default
         };
         
-        _depthStencilTexture = Device.CreateTexture2D(Format.D32_Float, size.Width, size.Height, 1, 1, null, BindFlags.DepthStencil);
+        _depthStencilTexture = Device.CreateTexture2D(Format.D24_UNorm_S8_UInt, size.Width, size.Height, 1, 1, null, BindFlags.DepthStencil);
         _depthStencilTargetView = Device.CreateDepthStencilView(_depthStencilTexture,
             new DepthStencilViewDescription(_depthStencilTexture, DepthStencilViewDimension.Texture2D));
     }

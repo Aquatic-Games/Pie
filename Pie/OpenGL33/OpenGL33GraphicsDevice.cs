@@ -165,6 +165,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33SamplerState(description);
     }
 
+    public override Framebuffer CreateFramebuffer(params FramebufferAttachment[] attachments)
+    {
+        throw new NotImplementedException();
+    }
+
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
         ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, data);
@@ -264,6 +269,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     {
         //Gl.UniformBlockBinding(OpenGL33Shader.BoundHandle, slot, slot);
         Gl.BindBufferBase(BufferTargetARB.UniformBuffer, bindingSlot, ((OpenGL33GraphicsBuffer) buffer).Handle);
+    }
+
+    public override void SetFramebuffer(Framebuffer framebuffer)
+    {
+        throw new NotImplementedException();
     }
 
     public override unsafe void Draw(uint elements)

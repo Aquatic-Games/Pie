@@ -10,7 +10,7 @@ namespace Pie.Direct3D11;
 
 internal sealed class D3D11Texture : Texture
 {
-    private ID3D11Resource _texture;
+    public ID3D11Resource Texture;
     public ID3D11ShaderResourceView View;
 
     public override bool IsDisposed { get; protected set; }
@@ -20,7 +20,7 @@ internal sealed class D3D11Texture : Texture
 
     public D3D11Texture(ID3D11Resource texture, ID3D11ShaderResourceView view, Size size, TextureDescription description)
     {
-        _texture = texture;
+        Texture = texture;
         View = view;
         Size = size;
         Description = description;
@@ -34,16 +34,18 @@ internal sealed class D3D11Texture : Texture
         int bytesExpected = description.Width * description.Height * 4;
         if (data != null && data.Length != bytesExpected)
             throw new PieException($"{bytesExpected} bytes expected, {data.Length} bytes received.");
+
+        Format fmt = D3DHelper.ToDxgiFormat(description.Format,
+            (description.Usage & TextureUsage.DepthStencil) == TextureUsage.DepthStencil);
+
+        BindFlags flags = BindFlags.None;
+        if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
+            flags |= BindFlags.ShaderResource;
+        if ((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer || description.Mipmap)
+            flags |= BindFlags.RenderTarget;
+        if ((description.Usage & TextureUsage.DepthStencil) == TextureUsage.DepthStencil)
+            flags |= BindFlags.DepthStencil;
         
-        Format fmt = description.Format switch
-        {
-            PixelFormat.R8G8B8A8_UNorm => Format.R8G8B8A8_UNorm,
-            PixelFormat.B8G8R8A8_UNorm => Format.B8G8R8A8_UNorm,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
-        BindFlags bFlags = BindFlags.ShaderResource | BindFlags.RenderTarget;
-
         ID3D11Resource texture;
         ShaderResourceViewDescription svDesc = new ShaderResourceViewDescription()
         {
@@ -63,7 +65,7 @@ internal sealed class D3D11Texture : Texture
                     SampleDescription = new SampleDescription(1, 0),
                     //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
                     Usage = ResourceUsage.Default,
-                    BindFlags = bFlags,
+                    BindFlags = flags,
                     CPUAccessFlags = CpuAccessFlags.None,
                     MiscFlags = description.Mipmap ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
                 };
@@ -93,26 +95,32 @@ internal sealed class D3D11Texture : Texture
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        Context.UpdateSubresource(data, texture, 0, description.Width * 4 * sizeof(byte));
+        
+        if (data != null)
+            Context.UpdateSubresource(data, texture, 0, description.Width * 4 * sizeof(byte));
 
+        ID3D11ShaderResourceView view = null;
 
-        ID3D11ShaderResourceView view = Device.CreateShaderResourceView(texture, svDesc);
+        if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
+          view = Device.CreateShaderResourceView(texture, svDesc);
         if (description.Mipmap)
             Context.GenerateMips(view);
 
+        // TODO: Clean up D3D texture bits
+        
         return new D3D11Texture(texture, view, new Size(description.Width, description.Height), description);
     }
     
     public void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged
     {
         // TODO: Implement texture mapping for fast transfers, i think.
-        Context.UpdateSubresource(data, _texture, 0, (int) width * 4 * sizeof(byte),
+        Context.UpdateSubresource(data, Texture, 0, (int) width * 4 * sizeof(byte),
             region: new Box(x, 0, 0, (int) (x + width), (int) (y + height), 0));
     }
 
     public override void Dispose()
     {
-        _texture.Dispose();
+        Texture.Dispose();
         View.Dispose();
     }
 }

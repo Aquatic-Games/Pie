@@ -10,5 +10,7 @@ public enum PixelFormat
     /// <summary>
     /// Unsigned byte BGRA format, with 8 bits for blue, green, and red, as well as 8 bits for alpha.
     /// </summary>
-    B8G8R8A8_UNorm
+    B8G8R8A8_UNorm,
+    
+    D24_UNorm_S8_UInt
 }

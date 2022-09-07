@@ -142,6 +142,13 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="description">The sampler state description to create from.</param>
     /// <returns>The created sampler state.</returns>
     public abstract SamplerState CreateSamplerState(SamplerStateDescription description);
+
+    /// <summary>
+    /// Create a framebuffer, also known as a render target, that can be rendered to.
+    /// </summary>
+    /// <param name="attachments">The framebuffer attachments to attach.</param>
+    /// <returns>The created framebuffer.</returns>
+    public abstract Framebuffer CreateFramebuffer(params FramebufferAttachment[] attachments);
     
     /// <summary>
     /// Update the given buffer with the given data at the given offset in bytes.
@@ -229,6 +236,12 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="bindingSlot"></param>
     /// <param name="buffer">The buffer to use.</param>
     public abstract void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer);
+
+    /// <summary>
+    /// Set the framebuffer that will be used on next draw. Set as null to use the default back buffer.
+    /// </summary>
+    /// <param name="framebuffer">The framebuffer to use.</param>
+    public abstract void SetFramebuffer(Framebuffer framebuffer);
 
     /// <summary>
     /// Draw to the screen with the given elements count.
