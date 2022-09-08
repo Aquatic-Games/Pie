@@ -38,18 +38,22 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
             CPUAccessFlags = dynamic ? CpuAccessFlags.Write : CpuAccessFlags.None
         };
         
-        return new D3D11GraphicsBuffer(Device.CreateBuffer(data == null ? null : new ReadOnlySpan<T>(data), description), dynamic);
+        ID3D11Buffer buffer;
+        if (data == null)
+            buffer = Device.CreateBuffer(description);
+        else
+            buffer = Device.CreateBuffer(new ReadOnlySpan<T>(data), description);
+        return new D3D11GraphicsBuffer(buffer, dynamic);
     }
     
     public unsafe void Update<T>(uint offsetInBytes, T[] data) where T : unmanaged
     {
         if (_dynamic)
         {
-            // TODO when implementing deferred you will need to implement staging buffers as MapMode.Write is not supported
-            // in deferred contexts
+            // TODO check to make sure WriteDiscard works correctly
             
             // Thanks to veldrid source for helping me understand this mess
-            MappedSubresource subresource = Context.Map(Buffer, MapMode.Write);
+            MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
             fixed (void* dat = data)
                 Unsafe.CopyBlock((byte*) subresource.DataPointer + (int) offsetInBytes, dat, (uint) (Unsafe.SizeOf<T>() * data.Length));
             Context.Unmap(Buffer);
