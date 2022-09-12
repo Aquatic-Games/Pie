@@ -50,9 +50,23 @@ public unsafe class AudioDevice : IDisposable
         }
     }
 
-    public AudioBuffer CreateBuffer(bool loop = false) => new AudioBuffer(loop);
+    public AudioBuffer CreateBuffer() => new AudioBuffer();
+    
+    public void UpdateBuffer<T>(AudioBuffer buffer, AudioFormat format, T[] data, uint sampleRate) where T : unmanaged
+    {
+        BufferFormat fmt = format switch
+        {
+            AudioFormat.Mono8 => BufferFormat.Mono8,
+            AudioFormat.Mono16 => BufferFormat.Mono16,
+            AudioFormat.Stereo8 => BufferFormat.Stereo8,
+            AudioFormat.Stereo16 => BufferFormat.Stereo16,
+            _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
+        };
+        
+        Al.BufferData(buffer.Handle, fmt, data, (int) sampleRate);
+    }
 
-    public void PlayBuffer(uint channel, AudioBuffer buffer, float volume = 1, float pitch = 1)
+    public void PlayBuffer(uint channel, AudioBuffer buffer, float volume = 1, float pitch = 1, bool loop = false)
     {
         ref uint source = ref _sources[channel];
         Al.SourceStop(source);
@@ -63,14 +77,15 @@ public unsafe class AudioDevice : IDisposable
         Al.SetSourceProperty(source, SourceBoolean.Looping, buffer.Loop);
         Al.SourcePlay(source);
 
-        _channels[channel].Loop = buffer.Loop;
+        _channels[channel].Loop = loop;
     }
 
-    public void QueueBuffer(uint channel, AudioBuffer buffer)
+    public void QueueBuffer(uint channel, AudioBuffer buffer, bool loop = false)
     {
         ref uint source = ref _sources[channel];
-        Al.SourceQueueBuffers(source, 1, &buffer.Handle);
-        _channels[channel].Loop = buffer.Loop;
+        uint handle = buffer.Handle;
+        Al.SourceQueueBuffers(source, 1, &handle);
+        _channels[channel].Loop = loop;
     }
 
     public void Update()

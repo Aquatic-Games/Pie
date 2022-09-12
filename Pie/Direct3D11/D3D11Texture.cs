@@ -28,14 +28,11 @@ internal sealed class D3D11Texture : Texture
 
     public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
     {
-        if (description.ArraySize < 1)
-            throw new PieException("Array size must be at least 1.");
-
-        int bytesExpected = description.Width * description.Height * 4;
-        if (data != null && data.Length != bytesExpected)
-            throw new PieException($"{bytesExpected} bytes expected, {data.Length} bytes received.");
-
-        Format fmt = D3DHelper.ToDxgiFormat(description.Format,
+        PieUtils.CheckIfValid(description);
+        if (data != null)
+            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
+        
+        Format fmt = PieUtils.ToDxgiFormat(description.Format,
             (description.Usage & TextureUsage.DepthStencil) == TextureUsage.DepthStencil);
 
         BindFlags flags = BindFlags.None;

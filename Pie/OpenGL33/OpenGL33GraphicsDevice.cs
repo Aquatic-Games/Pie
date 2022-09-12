@@ -167,7 +167,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override Framebuffer CreateFramebuffer(params FramebufferAttachment[] attachments)
     {
-        throw new NotImplementedException();
+        return new OpenGL33Framebuffer(attachments);
     }
 
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
@@ -273,7 +273,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override void SetFramebuffer(Framebuffer framebuffer)
     {
-        throw new NotImplementedException();
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer == null ? 0 : ((OpenGL33Framebuffer) framebuffer).Handle);
     }
 
     public override unsafe void Draw(uint elements)

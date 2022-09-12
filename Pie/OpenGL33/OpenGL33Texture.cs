@@ -8,67 +8,100 @@ namespace Pie.OpenGL33;
 internal sealed class OpenGL33Texture : Texture
 {
     public uint Handle;
+    public bool IsRenderbuffer;
 
     private Silk.NET.OpenGL.PixelFormat _format;
     private bool _mipmap;
     
-    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, bool mipmap, TextureDescription description)
+    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, bool mipmap, TextureDescription description, bool isRenderbuffer)
     {
         Handle = handle;
         _format = format;
         Size = size;
         _mipmap = mipmap;
         Description = description;
+        IsRenderbuffer = isRenderbuffer;
     }
 
     public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
     {
-        if (description.ArraySize < 1)
-            throw new PieException("Array size must be at least 1.");
+        PieUtils.CheckIfValid(description);
 
-        int bytesExpected = description.Width * description.Height * 4;
-        if (data != null && data.Length != bytesExpected)
-            throw new PieException($"{bytesExpected} bytes expected, {data.Length} bytes received.");
+        if (data != null)
+            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
+
+        bool isRenderbuffer = (description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer &&
+                              (description.Usage & TextureUsage.ShaderResource) != TextureUsage.ShaderResource;
         
-        uint handle = Gl.GenTexture();
-        TextureTarget target = description.TextureType switch
+        Console.WriteLine(description.Usage);
+        Console.WriteLine(isRenderbuffer);
+
+        Silk.NET.OpenGL.PixelFormat fmt;
+        InternalFormat iFmt;
+
+        switch (description.Format)
         {
-            TextureType.Texture2D => TextureTarget.Texture2D,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+            case PixelFormat.R8G8B8A8_UNorm:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba8;
+                break;
+            case PixelFormat.B8G8R8A8_UNorm:
+                fmt = Silk.NET.OpenGL.PixelFormat.Bgra;
+                iFmt = InternalFormat.Rgba8;
+                break;
+            case PixelFormat.D24_UNorm_S8_UInt:
+                fmt = Silk.NET.OpenGL.PixelFormat.DepthStencil;
+                iFmt = InternalFormat.Depth24Stencil8;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
         
-        Gl.BindTexture(target, handle);
-
-        Silk.NET.OpenGL.PixelFormat fmt = description.Format switch
+        uint handle;
+        if (isRenderbuffer)
         {
-            PixelFormat.R8G8B8A8_UNorm => Silk.NET.OpenGL.PixelFormat.Rgba,
-            PixelFormat.B8G8R8A8_UNorm => Silk.NET.OpenGL.PixelFormat.Bgra,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
-        fixed (void* p = data)
+            handle = Gl.GenRenderbuffer();
+            if (Debug)
+                Logging.Log(LogType.Info, "Texture will be created as a Renderbuffer.");
+            Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, handle);
+            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, iFmt, (uint) description.Width, (uint) description.Height);
+        }
+        else
         {
-            switch (description.TextureType)
+            handle = Gl.GenTexture();
+            
+            TextureTarget target = description.TextureType switch
             {
-                case TextureType.Texture2D:
-                    if (description.ArraySize == 1)
-                    {
-                        Gl.TexImage2D(target, 0, InternalFormat.Rgba8, (uint) description.Width,
-                            (uint) description.Height, 0, fmt, PixelType.UnsignedByte, p);
-                    }
-                    else
-                        throw new NotImplementedException("Currently texture arrays have not been implemented.");
+                TextureType.Texture2D => TextureTarget.Texture2D,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        
+            Gl.BindTexture(target, handle);
+            
+            fixed (void* p = data)
+            {
+                switch (description.TextureType)
+                {
+                    case TextureType.Texture2D:
+                        if (description.ArraySize == 1)
+                        {
+                            Gl.TexImage2D(target, 0, iFmt, (uint) description.Width,
+                                (uint) description.Height, 0, fmt, PixelType.UnsignedByte, p);
+                        }
+                        else
+                            throw new NotImplementedException("Currently texture arrays have not been implemented.");
 
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
+
+            if (description.Mipmap)
+                Gl.GenerateMipmap(TextureTarget.Texture2D);
         }
 
-        if (description.Mipmap)
-            Gl.GenerateMipmap(TextureTarget.Texture2D);
-
-        return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description.Mipmap, description);
+        return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description.Mipmap, description, isRenderbuffer);
     }
 
     public override bool IsDisposed { get; protected set; }
@@ -90,6 +123,9 @@ internal sealed class OpenGL33Texture : Texture
         if (IsDisposed)
             return;
         IsDisposed = true;
-        Gl.DeleteTexture(Handle);
+        if (IsRenderbuffer)
+            Gl.DeleteRenderbuffer(Handle);
+        else
+            Gl.DeleteTexture(Handle);
     }
 }
