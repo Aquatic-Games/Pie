@@ -71,10 +71,11 @@ public unsafe class AudioDevice : IDisposable
         ref uint source = ref _sources[channel];
         Al.SourceStop(source);
         Al.SetSourceProperty(source, SourceInteger.Buffer, 0);
-        Al.SourceQueueBuffers(source, 1, &buffer.Handle);
+        uint buf = buffer.Handle;
+        Al.SourceQueueBuffers(source, 1, &buf);
         Al.SetSourceProperty(source, SourceFloat.Gain, volume);
         Al.SetSourceProperty(source, SourceFloat.Pitch, pitch);
-        Al.SetSourceProperty(source, SourceBoolean.Looping, buffer.Loop);
+        Al.SetSourceProperty(source, SourceBoolean.Looping, loop);
         Al.SourcePlay(source);
 
         _channels[channel].Loop = loop;
