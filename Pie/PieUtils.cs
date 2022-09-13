@@ -10,13 +10,13 @@ internal static class PieUtils
     public static Vector4 Normalize(this Color color) =>
         new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
     
-    public static Format ToDxgiFormat(PixelFormat format, bool depthFlag)
+    public static Format ToDxgiFormat(PixelFormat format, bool shaderResource)
     {
         return format switch
         {
             PixelFormat.R8G8B8A8_UNorm => Format.R8G8B8A8_UNorm,
             PixelFormat.B8G8R8A8_UNorm => Format.B8G8R8A8_UNorm,
-            PixelFormat.D24_UNorm_S8_UInt => depthFlag ? Format.R24G8_Typeless : Format.D24_UNorm_S8_UInt,
+            PixelFormat.D24_UNorm_S8_UInt => shaderResource ? Format.R24G8_Typeless : Format.D24_UNorm_S8_UInt,
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
     }

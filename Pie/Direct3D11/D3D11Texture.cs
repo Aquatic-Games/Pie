@@ -33,16 +33,17 @@ internal sealed class D3D11Texture : Texture
             PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
         
         Format fmt = PieUtils.ToDxgiFormat(description.Format,
-            (description.Usage & TextureUsage.DepthStencil) == TextureUsage.DepthStencil);
+            (description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource);
 
         BindFlags flags = BindFlags.None;
         if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
             flags |= BindFlags.ShaderResource;
         if ((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer || description.Mipmap)
             flags |= BindFlags.RenderTarget;
-        if ((description.Usage & TextureUsage.DepthStencil) == TextureUsage.DepthStencil)
+
+        if (description.Format == PixelFormat.D24_UNorm_S8_UInt)
             flags |= BindFlags.DepthStencil;
-        
+
         ID3D11Resource texture;
         ShaderResourceViewDescription svDesc = new ShaderResourceViewDescription()
         {

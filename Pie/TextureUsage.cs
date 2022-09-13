@@ -10,6 +10,4 @@ public enum TextureUsage
     ShaderResource = 1 << 1,
     
     Framebuffer = 1 << 2,
-    
-    DepthStencil = 1 << 3
 }
