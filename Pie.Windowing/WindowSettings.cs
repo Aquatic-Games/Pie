@@ -8,15 +8,21 @@ public struct WindowSettings
 
     public string Title;
 
-    public bool Resizable;
+    public WindowBorder Border;
 
     public bool EventDriven;
+
+    public Icon[] Icons;
+
+    public int? StartingMonitor;
 
     public WindowSettings()
     {
         Size = new Size(1280, 720);
         Title = "Pie Window";
-        Resizable = false;
+        Border = WindowBorder.Fixed;
         EventDriven = false;
+        Icons = null;
+        StartingMonitor = null;
     }
 }

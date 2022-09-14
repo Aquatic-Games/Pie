@@ -33,11 +33,7 @@ public unsafe partial class Window : IDisposable
             _glfw.GetWindowSize(_handle, out int width, out int height);
             return new Size(width, height);
         }
-        set
-        {
-            _glfw.SetWindowSize(_handle, value.Width, value.Height);
-            CenterWindow();
-        }
+        set => _glfw.SetWindowSize(_handle, value.Width, value.Height);
     }
 
     public bool ShouldClose
@@ -83,6 +79,45 @@ public unsafe partial class Window : IDisposable
         }
     }
 
+    private WindowBorder _border;
+    public WindowBorder Border
+    {
+        get => _border;
+        set
+        {
+            _border = value;
+            switch (value)
+            {
+                case WindowBorder.Fixed:
+                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Decorated, true);
+                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Resizable, false);
+                    break;
+                case WindowBorder.Borderless:
+                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Decorated, false);
+                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Resizable, false);
+                    break;
+                case WindowBorder.Resizable:
+                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Decorated, true);
+                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Resizable, true);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value), value, null);
+            }
+        }
+    }
+
+    public bool Visible
+    {
+        get => _glfw.GetWindowAttrib(_handle, WindowAttributeGetter.Visible);
+        set
+        {
+            if (value)
+                _glfw.ShowWindow(_handle);
+            else
+                _glfw.HideWindow(_handle);
+        }
+    }
+
     public InputState ProcessEvents()
     {
         _inputState.Update(_handle, _glfw);
@@ -93,13 +128,26 @@ public unsafe partial class Window : IDisposable
         return _inputState;
     }
 
-    public void CenterWindow()
+    public void Center()
     {
-        Monitor* monitor = _glfw.GetPrimaryMonitor();
-        VideoMode* mode = _glfw.GetVideoMode(monitor);
-        _glfw.GetMonitorPos(monitor, out int x, out int y);
+        Rectangle bounds = Monitor.PrimaryMonitor.Bounds;
         Size size = Size;
-        _glfw.SetWindowPos(_handle, x + mode->Width / 2 - size.Width / 2, y + mode->Height / 2 - size.Height / 2);
+        _glfw.SetWindowPos(_handle, bounds.X + bounds.Width / 2 - size.Width / 2, bounds.Y + bounds.Height / 2 - size.Height / 2);
+    }
+
+    public void Minimize()
+    {
+        _glfw.IconifyWindow(_handle);
+    }
+
+    public void Maximize()
+    {
+        _glfw.MaximizeWindow(_handle);
+    }
+
+    public void Restore()
+    {
+        _glfw.RestoreWindow(_handle);
     }
 
     public static Window CreateWindow(WindowSettings settings, GraphicsApi api)
@@ -109,7 +157,23 @@ public unsafe partial class Window : IDisposable
             throw new PieException("GLFW failed to initialize.");
         
         glfw.WindowHint(WindowHintBool.Visible, false);
-        glfw.WindowHint(WindowHintBool.Resizable, settings.Resizable);
+        switch (settings.Border)
+        {
+            case WindowBorder.Fixed:
+                glfw.WindowHint(WindowHintBool.Decorated, true);
+                glfw.WindowHint(WindowHintBool.Resizable, false);
+                break;
+            case WindowBorder.Borderless:
+                glfw.WindowHint(WindowHintBool.Decorated, false);
+                glfw.WindowHint(WindowHintBool.Resizable, false);
+                break;
+            case WindowBorder.Resizable:
+                glfw.WindowHint(WindowHintBool.Decorated, true);
+                glfw.WindowHint(WindowHintBool.Resizable, true);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
         switch (api)
         {
             case GraphicsApi.OpenGl33:
@@ -133,10 +197,45 @@ public unsafe partial class Window : IDisposable
                 $"The window could not be created. This most likely means the chosen graphics API ({api.ToFriendlyString()}) is not supported on the given platform/hardware.");
         }
 
-        Monitor* monitor = glfw.GetPrimaryMonitor();
-        VideoMode* mode = glfw.GetVideoMode(monitor);
-        glfw.GetMonitorPos(monitor, out int x, out int y);
-        glfw.SetWindowPos(handle, x + mode->Width / 2 - settings.Size.Width / 2, y + mode->Height / 2 - settings.Size.Height / 2);
+        Monitor.DetectMonitors(glfw);
+
+        Rectangle bounds = default;
+        if (settings.StartingMonitor == null)
+        {
+            glfw.GetCursorPos(handle, out double mx, out double my);
+            foreach (Monitor monitor in Monitor.ConnectedMonitors)
+            {
+                bounds = monitor.Bounds;
+                if (bounds.Contains((int) mx, (int) my))
+                    break;
+            }
+        }
+        else
+            bounds = Monitor.ConnectedMonitors[settings.StartingMonitor.Value].Bounds;
+
+        glfw.SetWindowPos(handle, bounds.X + bounds.Width / 2 - settings.Size.Width / 2,
+            bounds.Y + bounds.Height / 2 - settings.Size.Height / 2);
+
+        if (settings.Icons != null)
+        {
+            Image[] images = new Image[settings.Icons.Length];
+            for (int i = 0; i < images.Length; i++)
+            {
+                ref Icon icon = ref settings.Icons[i];
+                fixed (byte* pixels = icon.Data)
+                {
+                    images[i] = new Image()
+                    {
+                        Width = (int) icon.Width,
+                        Height = (int) icon.Height,
+                        Pixels = pixels
+                    };
+                }
+            }
+            
+            fixed (Image* imgs = images)
+                glfw.SetWindowIcon(handle, settings.Icons.Length, imgs);
+        }
         
         glfw.MakeContextCurrent(handle);
         glfw.ShowWindow(handle);

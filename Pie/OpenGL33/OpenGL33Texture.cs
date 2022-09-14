@@ -32,9 +32,6 @@ internal sealed class OpenGL33Texture : Texture
 
         bool isRenderbuffer = (description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer &&
                               (description.Usage & TextureUsage.ShaderResource) != TextureUsage.ShaderResource;
-        
-        Console.WriteLine(description.Usage);
-        Console.WriteLine(isRenderbuffer);
 
         Silk.NET.OpenGL.PixelFormat fmt;
         InternalFormat iFmt;
