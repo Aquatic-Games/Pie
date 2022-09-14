@@ -106,6 +106,8 @@ public unsafe partial class Window : IDisposable
         }
     }
 
+    public bool Focused => _glfw.GetWindowAttrib(_handle, WindowAttributeGetter.Focused);
+
     public bool Visible
     {
         get => _glfw.GetWindowAttrib(_handle, WindowAttributeGetter.Visible);
@@ -290,5 +292,10 @@ public unsafe partial class Window : IDisposable
     {
         _glfw.Terminate();
         _glfw.Dispose();
+    }
+
+    private static void CenterWindowInternal(Glfw glfw, WindowHandle* handle, Size size)
+    {
+        
     }
 }
