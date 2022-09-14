@@ -40,12 +40,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
         if (Debug)
         {
-            Logging.Log(LogType.Info, "!!!!!! DEBUG ENABLED !!!!!!");
             Logging.Log(LogType.Info, "Vendor info: " + Gl.GetStringS(StringName.Vendor));
             Logging.Log(LogType.Info, "Version info: " + Gl.GetStringS(StringName.Version));
             Logging.Log(LogType.Info, "GLSL Version: " + Gl.GetStringS(StringName.ShadingLanguageVersion));
             Logging.Log(LogType.Info, "Renderer: " + Gl.GetStringS(StringName.Renderer));
-            Logging.Log(LogType.Info, "Howdy! Thanks for using pie! Be sure to create an issue if you find any bugs.");
+            Logging.Log(LogType.Debug, "Howdy! Thanks for using pie! Be sure to create an issue if you find any bugs.");
             
             Gl.Enable(EnableCap.DebugOutput);
             Gl.Enable(EnableCap.DebugOutputSynchronous);
@@ -310,7 +309,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             DebugType.DebugTypeUndefinedBehavior => LogType.Critical,
             DebugType.DebugTypePortability => LogType.Warning,
             DebugType.DebugTypePerformance => LogType.Warning,
-            DebugType.DebugTypeOther => LogType.Info,
+            DebugType.DebugTypeOther => LogType.Debug,
             DebugType.DebugTypeMarker => LogType.Debug,
             DebugType.DebugTypePushGroup => LogType.Debug,
             DebugType.DebugTypePopGroup => LogType.Debug,
