@@ -1,8 +1,6 @@
 using System.Runtime.InteropServices;
-using FT_Short = System.Int16;
-using FT_Pos = System.Runtime.InteropServices.CLong;
 
-namespace Pie.Freetype;
+namespace Pie.Freetype.Native;
 
 [StructLayout(LayoutKind.Sequential)]
 public struct FT_Bitmap_Size

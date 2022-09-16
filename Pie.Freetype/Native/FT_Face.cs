@@ -1,11 +1,7 @@
+using System;
 using System.Runtime.InteropServices;
-using FT_Long = System.Runtime.InteropServices.CLong;
-using FT_String = System.Byte;
-using FT_Int = System.Int32;
-using FT_UShort = System.UInt16;
-using FT_Short = System.Int16;
 
-namespace Pie.Freetype;
+namespace Pie.Freetype.Native;
 
 [StructLayout(LayoutKind.Sequential)]
 public unsafe struct FT_Face
@@ -19,15 +15,15 @@ public unsafe struct FT_Face
     public FT_Long NumGlyphs;
 
     public FT_String* FamilyName;
-    public FT_String StyleName;
+    public FT_String* StyleName;
 
     public FT_Int NumFixedSizes;
     public FT_Bitmap_Size* AvailableSizes;
 
     public FT_Int NumCharmaps;
-    public IntPtr Charmaps; // TODO: FT_CharMap
+    public FT_CharMap** Charmaps;
 
-    public IntPtr Generic; // TODO: FT_Generic
+    public FT_Generic Generic;
 
     public FT_BBox BBox;
 
@@ -41,6 +37,19 @@ public unsafe struct FT_Face
 
     public FT_Short UnderlinePosition;
     public FT_Short UnderlineThickness;
+
+    public FT_GlyphSlot* Glyph;
+    public FT_Size* Size;
+    public FT_CharMap* Charmap;
+
+    private FT_Library Driver;
+    private IntPtr Memory;
+    private IntPtr Stream;
+
+    private IntPtr SizesList;
+
+    private FT_Generic AutoHint;
+    private void* Extensions;
     
-    
+    private IntPtr Internal;
 }

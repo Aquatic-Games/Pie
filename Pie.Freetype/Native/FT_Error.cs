@@ -1,4 +1,4 @@
-namespace Pie.Freetype;
+namespace Pie.Freetype.Native;
 
 public enum FT_Error
 {

@@ -1,7 +1,8 @@
-using FT_Pos = System.Runtime.InteropServices.CLong;
+using System.Runtime.InteropServices;
 
-namespace Pie.Freetype;
+namespace Pie.Freetype.Native;
 
+[StructLayout(LayoutKind.Sequential)]
 public struct FT_Glyph_Metrics
 {
     public FT_Pos Width;
