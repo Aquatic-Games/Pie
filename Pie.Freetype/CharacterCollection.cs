@@ -7,13 +7,13 @@ namespace Pie.Freetype;
 public unsafe class CharacterCollection
 {
     private FT_Face* _face;
-    private Dictionary<char, Character> _characters;
+    //private Dictionary<char, Character> _characters;
     
     internal int Size;
 
     internal CharacterCollection(FT_Face* face)
     {
-        _characters = new Dictionary<char, Character>();
+        //_characters = new Dictionary<char, Character>();
         _face = face;
     }
 
@@ -21,8 +21,8 @@ public unsafe class CharacterCollection
     {
         get
         {
-            if (!_characters.TryGetValue(c, out Character chr))
-            {
+            //if (!_characters.TryGetValue(c, out Character chr))
+            //{
                 FT_Set_Pixel_Sizes(_face, 0, (ushort) Size);
                 FT_Load_Char(_face, new FT_ULong(c), LoadRender);
                 FT_GlyphSlot* glyph = _face->Glyph;
@@ -42,7 +42,7 @@ public unsafe class CharacterCollection
                     }
                 }
                 
-                chr = new Character()
+                Character chr = new Character()
                 {
                     Width = (int) bitmap.Width,
                     Height = (int) bitmap.Rows,
@@ -52,8 +52,8 @@ public unsafe class CharacterCollection
                     BitmapTop = glyph->BitmapTop
                 };
                 
-                _characters.Add(c, chr);
-            }
+                //_characters.Add(c, chr);
+            //}
 
             return chr;
         }

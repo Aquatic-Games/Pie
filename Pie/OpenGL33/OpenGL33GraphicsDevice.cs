@@ -272,7 +272,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override void SetFramebuffer(Framebuffer framebuffer)
     {
-        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer == null ? 0 : ((OpenGL33Framebuffer) framebuffer).Handle);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, ((OpenGL33Framebuffer) framebuffer)?.Handle ?? 0);
     }
 
     public override unsafe void Draw(uint elements)

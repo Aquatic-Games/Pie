@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using Pie.Freetype.Native;
 
 namespace Pie.Freetype;
@@ -18,13 +19,18 @@ public unsafe class Face : IDisposable
         }
     }
 
-    public CharacterCollection Characters { get; }
+    public readonly string Family;
+    public readonly string Style;
 
-    internal Face(FT_Face* face)
+    public readonly CharacterCollection Characters;
+
+    internal Face(FT_Face* face, int initialSize)
     {
         _face = face;
         Characters = new CharacterCollection(_face);
-        Size = 0;
+        Size = initialSize;
+        Family = Marshal.PtrToStringAnsi((IntPtr) face->FamilyName);
+        Style = Marshal.PtrToStringAnsi((IntPtr) face->StyleName);
     }
     
     public void Dispose()

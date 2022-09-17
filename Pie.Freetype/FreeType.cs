@@ -15,17 +15,17 @@ public class FreeType : IDisposable
             throw new Exception("Could not initialize freetype.");
     }
 
-    public Face CreateFace(string path)
+    public Face CreateFace(string path, int initialSize)
     {
-        return CreateFace(File.ReadAllBytes(path));
+        return CreateFace(File.ReadAllBytes(path), initialSize);
     }
 
-    public unsafe Face CreateFace(byte[] data)
+    public unsafe Face CreateFace(byte[] data, int initialSize)
     {
         FT_Face* face;
         fixed (void* d = data)
             FT_New_Memory_Face(_library, (byte*) d, new FT_Long(data.Length), new FT_Long(0), out face);
-        return new Face(face);
+        return new Face(face, initialSize);
     }
 
     public void Dispose()
