@@ -244,10 +244,38 @@ public abstract class GraphicsDevice : IDisposable
     public abstract void SetFramebuffer(Framebuffer framebuffer);
 
     /// <summary>
-    /// Draw to the screen with the given elements count.
+    /// Draw to the screen with the given number of vertices.
     /// </summary>
-    /// <param name="elements">The number of elements (indices).</param>
-    public abstract void Draw(uint elements);
+    /// <param name="vertexCount">The number of vertices.</param>
+    public abstract void Draw(uint vertexCount);
+    
+    /// <summary>
+    /// Draw to the screen with the given number of vertices, at the given start vertex.
+    /// </summary>
+    /// <param name="vertexCount">The number of vertices.</param>
+    /// <param name="startVertex">The starting vertex of the vertices to draw.</param>
+    public abstract void Draw(uint vertexCount, uint startVertex);
+    
+    /// <summary>
+    /// Draw to the screen with the given indices count.
+    /// </summary>
+    /// <param name="indexCount">The number of indices.</param>
+    public abstract void DrawIndexed(uint indexCount);
+    
+    /// <summary>
+    /// Draw to the screen with the given indices count, at the given start index.
+    /// </summary>
+    /// <param name="indexCount">The number of indices.</param>
+    /// <param name="startIndex">The starting index of the indices to draw.</param>
+    public abstract void DrawIndexed(uint indexCount, uint startIndex);
+    
+    /// <summary>
+    /// Draw to the screen with the given indices count, at the given start index, at the given base vertex.
+    /// </summary>
+    /// <param name="indexCount">The number of indices (indices).</param>
+    /// <param name="startIndex">The starting index of the indices to draw.</param>
+    /// <param name="baseVertex">The base vertex of the indices to draw.</param>
+    public abstract void DrawIndexed(uint indexCount, uint startIndex, int baseVertex);
 
     /// <summary>
     /// Present to the screen.

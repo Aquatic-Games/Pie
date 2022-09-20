@@ -12,6 +12,9 @@ Pie currently supports the following APIs:
 
 ... with plans to expand further (although note that vulkan support anytime soon is unlikely).
 
+### Framework
+A simple XNA-inspired framework to remove some of the boilerplate 
+
 ### Audio
 Pie features a cross-platform audio library, which wraps around OpenAL-Soft. This is a rather minimal abstraction, however still implements an object-oriented API, as well as a few helpers to remove some of the most common sound loading boilerplate.
 

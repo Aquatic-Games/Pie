@@ -301,9 +301,29 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     }
 
-    public override void Draw(uint elements)
+    public override void Draw(uint vertexCount)
     {
-        Context.DrawIndexed((int) elements, 0, 0);
+        Context.Draw((int) vertexCount, 0);
+    }
+
+    public override void Draw(uint vertexCount, uint startVertex)
+    {
+        Context.Draw((int) vertexCount, (int) startVertex);
+    }
+
+    public override void DrawIndexed(uint indexCount)
+    {
+        Context.DrawIndexed((int) indexCount, 0, 0);
+    }
+
+    public override void DrawIndexed(uint indexCount, uint startIndex)
+    {
+        Context.DrawIndexed((int) indexCount, (int) startIndex, 0);
+    }
+
+    public override void DrawIndexed(uint indexCount, uint startIndex, int baseVertex)
+    {
+        Context.DrawIndexed((int) indexCount, (int) startIndex, baseVertex);
     }
 
     public override void Present(int swapInterval)

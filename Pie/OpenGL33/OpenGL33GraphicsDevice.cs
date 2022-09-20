@@ -270,14 +270,44 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.BindBufferBase(BufferTargetARB.UniformBuffer, bindingSlot, ((OpenGL33GraphicsBuffer) buffer).Handle);
     }
 
-    public override void SetFramebuffer(Framebuffer framebuffer)
+    public override unsafe void SetFramebuffer(Framebuffer framebuffer)
     {
-        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, ((OpenGL33Framebuffer) framebuffer)?.Handle ?? 0);
+        if (framebuffer == null)
+        {
+            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            Gl.DrawBuffer(DrawBufferMode.Front);
+            return;
+        }
+
+        OpenGL33Framebuffer fb = (OpenGL33Framebuffer) framebuffer;
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, fb.Handle);
+        fixed (GLEnum* e = fb.DrawBuffers)
+            Gl.DrawBuffers((uint) fb.DrawBuffers.Length, e);
     }
 
-    public override unsafe void Draw(uint elements)
+    public override void Draw(uint vertexCount)
     {
-        Gl.DrawElements(_glType, elements, DrawElementsType.UnsignedInt, null);
+        Gl.DrawArrays(_glType, 0, vertexCount);
+    }
+
+    public override void Draw(uint vertexCount, uint startVertex)
+    {
+        Gl.DrawArrays(_glType, (int) startVertex, vertexCount);
+    }
+
+    public override unsafe void DrawIndexed(uint indexCount)
+    {
+        Gl.DrawElements(_glType, indexCount, DrawElementsType.UnsignedInt, null);
+    }
+
+    public override unsafe void DrawIndexed(uint indexCount, uint startIndex)
+    {
+        Gl.DrawRangeElements(_glType, startIndex, indexCount, indexCount, DrawElementsType.UnsignedInt, null);
+    }
+
+    public override unsafe void DrawIndexed(uint indexCount, uint startIndex, int baseVertex)
+    {
+        Gl.DrawRangeElementsBaseVertex(_glType, startIndex, indexCount, indexCount, DrawElementsType.UnsignedInt, null, baseVertex);
     }
 
     public override void Present(int swapInterval)
