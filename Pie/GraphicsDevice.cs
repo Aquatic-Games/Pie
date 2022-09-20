@@ -12,6 +12,8 @@ public abstract class GraphicsDevice : IDisposable
     public abstract GraphicsApi Api { get; }
 
     public abstract Rectangle Viewport { get; set; }
+    
+    public abstract Rectangle Scissor { get; set; }
 
     /// <summary>
     /// Clears the set Framebuffer with the given color and flags. If no framebuffer is set, this clears the back buffer.

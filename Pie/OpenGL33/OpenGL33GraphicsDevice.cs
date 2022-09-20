@@ -51,11 +51,10 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             Gl.DebugMessageCallback(DebugCallback, null);
         }
     }
-
-    private Rectangle _viewport;
-
+    
     public override GraphicsApi Api => GraphicsApi.OpenGl33;
 
+    private Rectangle _viewport;
     public override Rectangle Viewport
     {
         get => _viewport;
@@ -63,6 +62,18 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         {
             Gl.Viewport(value.X, value.Y, (uint) value.Width, (uint) value.Height);
             _viewport = value;
+        }
+    }
+
+    private Rectangle _scissor;
+
+    public override Rectangle Scissor
+    {
+        get => _scissor;
+        set
+        {
+            Gl.Scissor(value.X, value.Y, (uint) value.Width, (uint) value.Height);
+            _scissor = value;
         }
     }
 

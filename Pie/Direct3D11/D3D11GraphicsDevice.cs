@@ -90,7 +90,6 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     public override GraphicsApi Api => GraphicsApi.D3D11;
     
     private Rectangle _viewport;
-
     public override Rectangle Viewport
     {
         get => _viewport;
@@ -98,6 +97,18 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         {
             _viewport = value;
             Context.RSSetViewport(value.X, value.Y, value.Width, value.Height);
+        }
+    }
+
+    private Rectangle _scissor;
+
+    public override Rectangle Scissor
+    {
+        get => _scissor;
+        set
+        {
+            _scissor = value;
+            Context.RSSetScissorRect(value.X, value.Y, value.Width, value.Height);
         }
     }
 
@@ -115,7 +126,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override void Clear(ClearFlags flags)
     {
-        Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
+        //Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
         DepthStencilClearFlags cf = DepthStencilClearFlags.None;
         if (flags.HasFlag(ClearFlags.Depth))
             cf |= DepthStencilClearFlags.Depth;
