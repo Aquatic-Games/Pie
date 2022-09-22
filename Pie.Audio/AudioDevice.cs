@@ -159,16 +159,14 @@ public unsafe class AudioDevice : IDisposable
         {
             ref uint source = ref _sources[i];
             Al.GetSourceProperty(source, GetSourceInteger.BuffersProcessed, out int buffersProcessed);
-            while (buffersProcessed > 0)
+            if (buffersProcessed > 0)
             {
                 Al.SourceUnqueueBuffers(source, 1, (uint*) &buffersProcessed);
-                BufferFinished?.Invoke(i);
-                buffersProcessed--;
+                BufferFinished?.Invoke(this, i);
+                Al.GetSourceProperty(source, GetSourceInteger.BuffersQueued, out int buffersQueued);
+                if (buffersQueued <= 1)
+                    Al.SetSourceProperty(source, SourceBoolean.Looping, _channels[i].Loop);
             }
-            
-            Al.GetSourceProperty(source, GetSourceInteger.BuffersQueued, out int buffersQueued);
-            if (buffersQueued <= 1)
-                Al.SetSourceProperty(source, SourceBoolean.Looping, _channels[i].Loop);
         }
     }
     
@@ -225,5 +223,5 @@ public unsafe class AudioDevice : IDisposable
         public Priority Priority;
     }
 
-    public delegate void OnBufferFinished(uint channel);
+    public delegate void OnBufferFinished(AudioDevice device, uint channel);
 }
