@@ -124,8 +124,7 @@ public unsafe class AudioDevice : IDisposable
     {
         for (int i = 0; i < Channels; i++)
         {
-            Al.GetSourceProperty(_sources[i], GetSourceInteger.SourceState, out int state);
-            if (state == (int) SourceState.Stopped)
+            if (!IsPlaying(i))
                 return i;
         }
 
@@ -153,10 +152,21 @@ public unsafe class AudioDevice : IDisposable
         }
     }
 
+    public bool IsPlaying(int channel)
+    {
+        if (channel < 0)
+            return false;
+        
+        Al.GetSourceProperty(_sources[channel], GetSourceInteger.SourceState, out int state);
+        return state != (int) SourceState.Stopped;
+    }
+
     public void Update()
     {
         for (uint i = 0; i < Channels; i++)
         {
+            if (!IsPlaying((int) i))
+                continue;
             ref uint source = ref _sources[i];
             Al.GetSourceProperty(source, GetSourceInteger.BuffersProcessed, out int buffersProcessed);
             if (buffersProcessed > 0)
