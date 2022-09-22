@@ -163,7 +163,7 @@ public unsafe class AudioDevice : IDisposable
             return false;
         
         Al.GetSourceProperty(_sources[channel], GetSourceInteger.SourceState, out int state);
-        return state != (int) SourceState.Stopped;
+        return state == (int) SourceState.Playing;
     }
 
     public void UnqueueAllBuffers(int channel)
