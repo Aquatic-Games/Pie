@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using Silk.NET.OpenAL;
@@ -50,7 +51,8 @@ public unsafe class AudioDevice : IDisposable
         {
             _channels[i] = new ChannelInfo()
             {
-                ChannelID = i
+                ChannelID = i,
+                QueuedBuffers = new Queue<uint>()
             };
         }
 
@@ -96,6 +98,7 @@ public unsafe class AudioDevice : IDisposable
 
         _channels[channel].Loop = loop;
         _channels[channel].Priority = priority;
+        _channels[channel].QueuedBuffers.Enqueue(buffer.Handle);
     }
 
     public void Queue(int channel, AudioBuffer buffer, bool loop = false)
@@ -106,6 +109,7 @@ public unsafe class AudioDevice : IDisposable
         uint handle = buffer.Handle;
         Al.SourceQueueBuffers(source, 1, &handle);
         _channels[channel].Loop = loop;
+        _channels[channel].QueuedBuffers.Enqueue(buffer.Handle);
     }
 
     public void Stop(int channel)
@@ -113,6 +117,7 @@ public unsafe class AudioDevice : IDisposable
         if (channel < 0)
             return;
         Al.SourceStop(_sources[channel]);
+        UnqueueAllBuffers(channel);
     }
     
 
@@ -161,6 +166,15 @@ public unsafe class AudioDevice : IDisposable
         return state != (int) SourceState.Stopped;
     }
 
+    public void UnqueueAllBuffers(int channel)
+    {
+        if (channel < 0)
+            return;
+        
+        Al.SourceUnqueueBuffers(_sources[channel], _channels[channel].QueuedBuffers.ToArray());
+        _channels[channel].QueuedBuffers.Clear();
+    }
+
     public void Update()
     {
         for (uint i = 0; i < Channels; i++)
@@ -171,7 +185,8 @@ public unsafe class AudioDevice : IDisposable
             Al.GetSourceProperty(source, GetSourceInteger.BuffersProcessed, out int buffersProcessed);
             if (buffersProcessed > 0)
             {
-                Al.SourceUnqueueBuffers(source, 1, (uint*) &buffersProcessed);
+                uint queuedBuffer = _channels[i].QueuedBuffers.Dequeue();
+                Al.SourceUnqueueBuffers(source, 1, &queuedBuffer);
                 BufferFinished?.Invoke(this, i);
                 Al.GetSourceProperty(source, GetSourceInteger.BuffersQueued, out int buffersQueued);
                 if (buffersQueued <= 1)
@@ -231,6 +246,7 @@ public unsafe class AudioDevice : IDisposable
         public int ChannelID;
         public bool Loop;
         public Priority Priority;
+        public Queue<uint> QueuedBuffers;
     }
 
     public delegate void OnBufferFinished(AudioDevice device, uint channel);
