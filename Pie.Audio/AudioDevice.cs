@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Timers;
 using Silk.NET.OpenAL;
 
@@ -7,6 +8,8 @@ namespace Pie.Audio;
 public unsafe class AudioDevice : IDisposable
 {
     public event OnBufferFinished BufferFinished;
+
+    public const int MaxAllowableChannels = 256;
     
     internal static AL Al;
     private ALContext _alc;
@@ -26,8 +29,12 @@ public unsafe class AudioDevice : IDisposable
     /// </summary>
     /// <param name="maxChannels">The maximum number of sounds that can be played at once.</param>
     /// <param name="updateFrequencyInMs">The auto-update frequency in milliseconds. Set to 0 to disable automatic update and allow manual updating instead.</param>
-    public AudioDevice(uint maxChannels, uint updateFrequencyInMs = 100)
+    public AudioDevice(uint maxChannels = MaxAllowableChannels, uint updateFrequencyInMs = 100)
     {
+        if (maxChannels > MaxAllowableChannels)
+            throw new Exception("Number of channels exceeds the maximum allowable amount of " + MaxAllowableChannels +
+                                ".");
+        
         Channels = maxChannels;
         
         _alc = ALContext.GetApi(true);
@@ -39,7 +46,14 @@ public unsafe class AudioDevice : IDisposable
         
         _sources = Al.GenSources((int) maxChannels);
         _channels = new ChannelInfo[maxChannels];
-        
+        for (int i = 0; i < maxChannels; i++)
+        {
+            _channels[i] = new ChannelInfo()
+            {
+                ChannelID = i
+            };
+        }
+
         Al.SetListenerProperty(ListenerFloat.Gain, 1);
 
         if (updateFrequencyInMs > 0)
@@ -66,8 +80,10 @@ public unsafe class AudioDevice : IDisposable
         Al.BufferData(buffer.Handle, fmt, data, (int) sampleRate);
     }
 
-    public void PlayBuffer(uint channel, AudioBuffer buffer, float volume = 1, float pitch = 1, bool loop = false)
+    public void Play(int channel, AudioBuffer buffer, float volume = 1, float pitch = 1, bool loop = false, Priority priority = Priority.Low)
     {
+        if (channel < 0)
+            return;
         ref uint source = ref _sources[channel];
         Al.SourceStop(source);
         Al.SetSourceProperty(source, SourceInteger.Buffer, 0);
@@ -79,14 +95,62 @@ public unsafe class AudioDevice : IDisposable
         Al.SourcePlay(source);
 
         _channels[channel].Loop = loop;
+        _channels[channel].Priority = priority;
     }
 
-    public void QueueBuffer(uint channel, AudioBuffer buffer, bool loop = false)
+    public void Queue(int channel, AudioBuffer buffer, bool loop = false)
     {
+        if (channel < 0)
+            return;
         ref uint source = ref _sources[channel];
         uint handle = buffer.Handle;
         Al.SourceQueueBuffers(source, 1, &handle);
         _channels[channel].Loop = loop;
+    }
+
+    public void Stop(int channel)
+    {
+        if (channel < 0)
+            return;
+        Al.SourceStop(_sources[channel]);
+    }
+    
+
+    /// <summary>
+    /// Finds the next free channel. If none are available, returns -1.
+    /// </summary>
+    /// <returns></returns>
+    public int FindFreeChannelIfAvailable()
+    {
+        for (int i = 0; i < Channels; i++)
+        {
+            Al.GetSourceProperty(_sources[i], GetSourceInteger.SourceState, out int state);
+            if (state == (int) SourceState.Stopped)
+                return i;
+        }
+
+        return -1;
+    }
+
+    /// <summary>
+    /// Finds the next available channel. If none are available, the currently playing channels are sorted by priority.
+    /// If all channels have <see cref="Priority.Song"/> priority, a value of -1 is returned.
+    /// </summary>
+    /// <returns></returns>
+    public int FindChannel()
+    {
+        int channel;
+        if ((channel = FindFreeChannelIfAvailable()) >= 0)
+            return channel;
+
+        try
+        {
+            return _channels.Where(info => info.Priority != Priority.Song).MinBy(info => (int) info.Priority).ChannelID;
+        }
+        catch (InvalidOperationException)
+        {
+            return -1;
+        }
     }
 
     public void Update()
@@ -156,7 +220,9 @@ public unsafe class AudioDevice : IDisposable
 
     private struct ChannelInfo
     {
+        public int ChannelID;
         public bool Loop;
+        public Priority Priority;
     }
 
     public delegate void OnBufferFinished(uint channel);
