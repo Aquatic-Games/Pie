@@ -29,6 +29,8 @@ internal sealed class OpenGL33InputLayout : InputLayout
         foreach (InputLayoutDescription description in _descriptions)
         {
             uint location = (uint) Gl.GetAttribLocation(handle, description.Name);
+            if (location == uint.MaxValue)
+                continue;
             Gl.EnableVertexAttribArray(location);
             Gl.VertexAttribPointer(location, (int) description.Type, VertexAttribPointerType.Float, false, Stride,
                 (void*) offset);
