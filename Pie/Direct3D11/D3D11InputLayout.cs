@@ -24,10 +24,17 @@ internal sealed class D3D11InputLayout : InputLayout
 
             Format fmt = desc.Type switch
             {
+                AttributeType.Int => Format.R32_SInt,
+                AttributeType.Int2 => Format.R32G32_SInt,
+                AttributeType.Int3 => Format.R32G32_SInt,
+                AttributeType.Int4 => Format.R32G32B32_SInt,
                 AttributeType.Float => Format.R32_Float,
-                AttributeType.Vec2 => Format.R32G32_Float,
-                AttributeType.Vec3 => Format.R32G32B32_Float,
-                AttributeType.Vec4 => Format.R32G32B32A32_Float,
+                AttributeType.Float2 => Format.R32G32_Float,
+                AttributeType.Float3 => Format.R32G32B32_Float,
+                AttributeType.Float4 => Format.R32G32B32A32_Float,
+                AttributeType.Byte => Format.R8_UNorm,
+                AttributeType.Byte2 => Format.R8G8_UNorm,
+                AttributeType.Byte4 => Format.R8G8B8A8_UNorm,
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -60,16 +67,28 @@ internal sealed class D3D11InputLayout : InputLayout
 
             switch (desc.Type)
             {
+                case AttributeType.Int:
+                    dummyShader.Append("int ");
+                    break;
+                case AttributeType.Int2:
+                    dummyShader.Append("int2 ");
+                    break;
+                case AttributeType.Int3:
+                    dummyShader.Append("int3 ");
+                    break;
+                case AttributeType.Int4:
+                    dummyShader.Append("int4 ");
+                    break;
                 case AttributeType.Float:
                     dummyShader.Append("float ");
                     break;
-                case AttributeType.Vec2:
+                case AttributeType.Float2:
                     dummyShader.Append("float2 ");
                     break;
-                case AttributeType.Vec3:
+                case AttributeType.Float3:
                     dummyShader.Append("float3 ");
                     break;
-                case AttributeType.Vec4:
+                case AttributeType.Float4:
                     dummyShader.Append("float4 ");
                     break;
                 default:

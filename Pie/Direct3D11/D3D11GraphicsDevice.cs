@@ -169,6 +169,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return D3D11Texture.CreateTexture(description, data);
     }
 
+    public override Texture CreateTexture(TextureDescription description, IntPtr data)
+    {
+        return D3D11Texture.CreateTexture(description, data);
+    }
+
     public override Shader CreateShader(params ShaderAttachment[] attachments)
     {
         return new D3D11Shader(attachments);

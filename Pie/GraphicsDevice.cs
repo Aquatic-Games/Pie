@@ -79,18 +79,23 @@ public abstract class GraphicsDevice : IDisposable
     /// <typeparam name="T">Any unmanaged type.</typeparam>
     /// <returns>The created graphics buffer.</returns>
     public abstract GraphicsBuffer CreateBuffer<T>(BufferType bufferType, uint sizeInBytes, T data, bool dynamic = false) where T : unmanaged;
-
+    
     /// <summary>
-    /// Create a texture with the given data.
+    /// Create a texture with the given description and data.
     /// </summary>
-    /// <param name="width">The width, in pixels, of this texture.</param>
-    /// <param name="height">The height, in pixels, of this texture.</param>
-    /// <param name="format">The pixel format of the input data.</param>
-    /// <param name="data">The data itself.</param>
-    /// <param name="mipmap">If true, mipmaps will be automatically generated on creation, as well as whenever <see cref="Texture.Update(int,int,uint,uint,x[])"/> is called.</param>
-    /// <typeparam name="T">Any unmanaged type.</typeparam>
+    /// <param name="description">The description of the texture.</param>
+    /// <param name="data">The initial data of the texture.</param>
+    /// <typeparam name="T">Any unmanaged type (typically byte).</typeparam>
     /// <returns>The created texture.</returns>
     public abstract Texture CreateTexture<T>(TextureDescription description, T[] data = null) where T : unmanaged;
+
+    /// <summary>
+    /// Create a texture with the given description and data.
+    /// </summary>
+    /// <param name="description">The description of the texture.</param>
+    /// <param name="data">The pointer to the initial data of the texture.</param>
+    /// <returns>The created texture.</returns>
+    public abstract Texture CreateTexture(TextureDescription description, IntPtr data);
 
     /// <summary>
     /// Create a shader with the given shader attachments.

@@ -140,6 +140,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return OpenGL33Texture.CreateTexture(description, data);
     }
 
+    public override Texture CreateTexture(TextureDescription description, IntPtr data)
+    {
+        return OpenGL33Texture.CreateTexture(description, data);
+    }
+
     public override Shader CreateShader(params ShaderAttachment[] attachments)
     {
         return new OpenGL33Shader(attachments);

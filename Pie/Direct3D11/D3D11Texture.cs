@@ -26,12 +26,10 @@ internal sealed class D3D11Texture : Texture
         Description = description;
     }
 
-    public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
+    public static Texture CreateTexture(TextureDescription description, IntPtr data)
     {
         PieUtils.CheckIfValid(description);
-        if (data != null)
-            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
-        
+
         Format fmt = PieUtils.ToDxgiFormat(description.Format,
             (description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource);
 
@@ -107,6 +105,15 @@ internal sealed class D3D11Texture : Texture
         // TODO: Clean up D3D texture bits
         
         return new D3D11Texture(texture, view, new Size(description.Width, description.Height), description);
+    }
+
+    public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
+    {
+        if (data != null)
+            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
+
+        fixed (void* dat = data)
+            return CreateTexture(description, (IntPtr) dat);
     }
     
     public void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged

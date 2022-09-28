@@ -8,37 +8,52 @@ public enum AttributeType
     Int = 1,
     
     /// <summary>
+    /// This attribute is a two-component integer.
+    /// </summary>
+    Int2,
+    
+    /// <summary>
+    /// This attribute is a three-component integer.
+    /// </summary>
+    Int3,
+    
+    /// <summary>
+    /// This attribute is a four-component integer.
+    /// </summary>
+    Int4,
+    
+    /// <summary>
     /// This attribute is a float.
     /// </summary>
-    Float = Int,
+    Float,
+
+    /// <summary>
+    /// This attribute is a two-component float.
+    /// </summary>
+    Float2,
     
     /// <summary>
-    /// This attribute is a vec2. (Equivalent to <see cref="Float2"/>.)
+    /// This attribute is a three-component float.
     /// </summary>
-    Vec2 = 2,
+    Float3,
     
     /// <summary>
-    /// This attribute is a vec3. (Equivalent to <see cref="Float3"/>.)
+    /// This attribute is a four-component float.
     /// </summary>
-    Vec3 = 3,
+    Float4,
     
     /// <summary>
-    /// This attribute is a vec4. (Equivalent to <see cref="Float4"/>.)
+    /// This attribute is a byte.
     /// </summary>
-    Vec4 = 4,
+    Byte,
     
     /// <summary>
-    /// This attribute is a float2. (Equivalent to <see cref="Vec2"/>.)
+    /// This attribute is a two-component byte.
     /// </summary>
-    Float2 = Vec2,
-    
+    Byte2,
+
     /// <summary>
-    /// This attribute is a float3. (Equivalent to <see cref="Vec3"/>.)
+    /// This attribute is a four-component byte.
     /// </summary>
-    Float3 = Vec3,
-    
-    /// <summary>
-    /// This attribute is a float4. (Equivalent to <see cref="Vec4"/>.)
-    /// </summary>
-    Float4 = Vec4
+    Byte4
 }
