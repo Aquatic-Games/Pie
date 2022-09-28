@@ -23,7 +23,7 @@ internal sealed class OpenGL33Texture : Texture
         IsRenderbuffer = isRenderbuffer;
     }
 
-    public static unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
+    public static unsafe Texture CreateTexture(TextureDescription description, IntPtr? data)
     {
         PieUtils.CheckIfValid(description);
 
@@ -77,8 +77,11 @@ internal sealed class OpenGL33Texture : Texture
                 case TextureType.Texture2D:
                     if (description.ArraySize == 1)
                     {
+                        void* dat = null;
+                        if (data.HasValue)
+                            dat = data.Value.ToPointer();
                         Gl.TexImage2D(target, 0, iFmt, (uint) description.Width,
-                            (uint) description.Height, 0, fmt, PixelType.UnsignedByte, data);
+                            (uint) description.Height, 0, fmt, PixelType.UnsignedByte, dat);
                     }
                     else
                         throw new NotImplementedException("Currently texture arrays have not been implemented.");
@@ -100,8 +103,13 @@ internal sealed class OpenGL33Texture : Texture
         if (data != null)
             PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
 
-        fixed (void* dat = data)
-            return CreateTexture(description, (IntPtr) dat);
+        if (data != null)
+        {
+            fixed (void* dat = data)
+                return CreateTexture(description, (IntPtr) dat);
+        }
+        else
+            return CreateTexture(description, null);
     }
 
     public override bool IsDisposed { get; protected set; }
