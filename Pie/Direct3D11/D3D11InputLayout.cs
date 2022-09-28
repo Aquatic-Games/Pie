@@ -22,25 +22,61 @@ internal sealed class D3D11InputLayout : InputLayout
             ref InputElementDescription d = ref iedesc[i];
             ref InputLayoutDescription desc = ref descriptions[i];
 
-            Format fmt = desc.Type switch
+            Format fmt;
+            uint offsetToAdd;
+            switch (desc.Type)
             {
-                AttributeType.Int => Format.R32_SInt,
-                AttributeType.Int2 => Format.R32G32_SInt,
-                AttributeType.Int3 => Format.R32G32_SInt,
-                AttributeType.Int4 => Format.R32G32B32_SInt,
-                AttributeType.Float => Format.R32_Float,
-                AttributeType.Float2 => Format.R32G32_Float,
-                AttributeType.Float3 => Format.R32G32B32_Float,
-                AttributeType.Float4 => Format.R32G32B32A32_Float,
-                AttributeType.Byte => Format.R8_UNorm,
-                AttributeType.Byte2 => Format.R8G8_UNorm,
-                AttributeType.Byte4 => Format.R8G8B8A8_UNorm,
-                _ => throw new ArgumentOutOfRangeException()
-            };
+                case AttributeType.Int:
+                    fmt = Format.R32_SInt;
+                    offsetToAdd = 4;
+                    break;
+                case AttributeType.Int2:
+                    fmt = Format.R32G32_SInt;
+                    offsetToAdd = 8;
+                    break;
+                case AttributeType.Int3:
+                    fmt = Format.R32G32B32_SInt;
+                    offsetToAdd = 12;
+                    break;
+                case AttributeType.Int4:
+                    fmt = Format.R32G32B32A32_SInt;
+                    offsetToAdd = 16;
+                    break;
+                case AttributeType.Float:
+                    fmt = Format.R32_Float;
+                    offsetToAdd = 4;
+                    break;
+                case AttributeType.Float2:
+                    fmt = Format.R32G32_Float;
+                    offsetToAdd = 8;
+                    break;
+                case AttributeType.Float3:
+                    fmt = Format.R32G32B32_Float;
+                    offsetToAdd = 12;
+                    break;
+                case AttributeType.Float4:
+                    fmt = Format.R32G32B32A32_Float;
+                    offsetToAdd = 16;
+                    break;
+                case AttributeType.Byte:
+                    fmt = Format.R8_UNorm;
+                    offsetToAdd = 4;
+                    break;
+                case AttributeType.Byte2:
+                    fmt = Format.R8G8_UNorm;
+                    offsetToAdd = 8;
+                    break;
+                case AttributeType.Byte4:
+                    fmt = Format.R8G8B8A8_UNorm;
+                    offsetToAdd = 16;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             d = new InputElementDescription("TEXCOORD", i, fmt, (int) offset, 0, InputClassification.PerVertexData, 0);
 
-            offset += (uint) desc.Type * 4;
+            offset += offsetToAdd;
         }
 
         Stride = offset;

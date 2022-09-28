@@ -150,11 +150,6 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33Shader(attachments);
     }
 
-    public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
-    {
-        return new OpenGL33InputLayout(descriptions);
-    }
-
     public override InputLayout CreateInputLayout(uint stride, params InputLayoutDescription[] descriptions)
     {
         return new OpenGL33InputLayout(stride, descriptions);

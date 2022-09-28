@@ -179,11 +179,6 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11Shader(attachments);
     }
 
-    public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
-    {
-        return new D3D11InputLayout(descriptions);
-    }
-
     public override InputLayout CreateInputLayout(uint stride, params InputLayoutDescription[] descriptions)
     {
         return new D3D11InputLayout(stride, descriptions);

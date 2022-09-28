@@ -10,13 +10,6 @@ internal sealed class OpenGL33InputLayout : InputLayout
 
     public override uint Stride { get; }
 
-    public OpenGL33InputLayout(InputLayoutDescription[] descriptions)
-    {
-        _descriptions = descriptions;
-        foreach (InputLayoutDescription description in descriptions)
-            Stride += (uint) description.Type * 4;
-    }
-
     public OpenGL33InputLayout(uint stride, InputLayoutDescription[] descriptions)
     {
         _descriptions = descriptions;
@@ -38,42 +31,52 @@ internal sealed class OpenGL33InputLayout : InputLayout
             {
                 case AttributeType.Int:
                     Gl.VertexAttribIPointer(location, 1, VertexAttribIType.Int, Stride, (void*) offset);
+                    offset += 4;
                     break;
                 case AttributeType.Int2:
                     Gl.VertexAttribIPointer(location, 2, VertexAttribIType.Int, Stride, (void*) offset);
+                    offset += 8;
                     break;
                 case AttributeType.Int3:
                     Gl.VertexAttribIPointer(location, 3, VertexAttribIType.Int, Stride, (void*) offset);
+                    offset += 12;
                     break;
                 case AttributeType.Int4:
                     Gl.VertexAttribIPointer(location, 4, VertexAttribIType.Int, Stride, (void*) offset);
+                    offset += 16;
                     break;
                 case AttributeType.Float:
                     Gl.VertexAttribPointer(location, 1, VertexAttribPointerType.Float, false, Stride, (void*) offset);
+                    offset += 4;
                     break;
                 case AttributeType.Float2:
                     Gl.VertexAttribPointer(location, 2, VertexAttribPointerType.Float, false, Stride, (void*) offset);
+                    offset += 8;
                     break;
                 case AttributeType.Float3:
                     Gl.VertexAttribPointer(location, 3, VertexAttribPointerType.Float, false, Stride, (void*) offset);
+                    offset += 12;
                     break;
                 case AttributeType.Float4:
                     Gl.VertexAttribPointer(location, 4, VertexAttribPointerType.Float, false, Stride, (void*) offset);
+                    offset += 16;
                     break;
                 case AttributeType.Byte:
                     Gl.VertexAttribPointer(location, 1, VertexAttribPointerType.UnsignedByte, false, Stride, (void*) offset);
+                    offset += 1;
                     break;
                 case AttributeType.Byte2:
                     Gl.VertexAttribPointer(location, 2, VertexAttribPointerType.UnsignedByte, false, Stride, (void*) offset);
+                    offset += 2;
                     break;
                 case AttributeType.Byte4:
                     Gl.VertexAttribPointer(location, 4, VertexAttribPointerType.UnsignedByte, false, Stride, (void*) offset);
+                    offset += 4;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
             
-            offset += (int) description.Type * 4;
             location++;
         }
     }
