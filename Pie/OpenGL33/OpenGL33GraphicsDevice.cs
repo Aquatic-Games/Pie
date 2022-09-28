@@ -260,11 +260,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         if (glBuf.Target != BufferTargetARB.ArrayBuffer)
             throw new PieException("Given buffer is not a vertex buffer.");
         Gl.BindBuffer(BufferTargetARB.ArrayBuffer, glBuf.Handle); 
-        if (_currentLayout == null || !_currentLayout.Equals(layout))
-        {
+        //if (_currentLayout == null || !_currentLayout.Equals(layout))
+        //{
             ((OpenGL33InputLayout) layout).Set(OpenGL33Shader.BoundHandle);
-            _currentLayout = layout;
-        }
+        //    _currentLayout = layout;
+        //}
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer)
