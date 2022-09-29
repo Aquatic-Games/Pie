@@ -59,16 +59,28 @@ internal sealed class D3D11InputLayout : InputLayout
                     offsetToAdd = 16;
                     break;
                 case AttributeType.Byte:
-                    fmt = Format.R8_UNorm;
-                    offsetToAdd = 4;
+                    fmt = Format.R8_UInt;
+                    offsetToAdd = 1;
                     break;
                 case AttributeType.Byte2:
-                    fmt = Format.R8G8_UNorm;
-                    offsetToAdd = 8;
+                    fmt = Format.R8G8_UInt;
+                    offsetToAdd = 2;
                     break;
                 case AttributeType.Byte4:
+                    fmt = Format.R8G8B8A8_UInt;
+                    offsetToAdd = 4;
+                    break;
+                case AttributeType.NByte:
+                    fmt = Format.R8_UNorm;
+                    offsetToAdd = 1;
+                    break;
+                case AttributeType.NByte2:
+                    fmt = Format.R8G8_UNorm;
+                    offsetToAdd = 2;
+                    break;
+                case AttributeType.NByte4:
                     fmt = Format.R8G8B8A8_UNorm;
-                    offsetToAdd = 16;
+                    offsetToAdd = 4;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -125,6 +137,24 @@ internal sealed class D3D11InputLayout : InputLayout
                     dummyShader.Append("float3 ");
                     break;
                 case AttributeType.Float4:
+                    dummyShader.Append("float4 ");
+                    break;
+                case AttributeType.Byte:
+                    dummyShader.Append("int ");
+                    break;
+                case AttributeType.Byte2:
+                    dummyShader.Append("int2 ");
+                    break;
+                case AttributeType.Byte4:
+                    dummyShader.Append("int4 ");
+                    break;
+                case AttributeType.NByte:
+                    dummyShader.Append("float ");
+                    break;
+                case AttributeType.NByte2:
+                    dummyShader.Append("float2 ");
+                    break;
+                case AttributeType.NByte4:
                     dummyShader.Append("float4 ");
                     break;
                 default:

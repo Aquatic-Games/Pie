@@ -73,6 +73,18 @@ internal sealed class OpenGL33InputLayout : InputLayout
                     Gl.VertexAttribPointer(location, 4, VertexAttribPointerType.UnsignedByte, false, Stride, (void*) offset);
                     offset += 4;
                     break;
+                case AttributeType.NByte:
+                    Gl.VertexAttribPointer(location, 1, VertexAttribPointerType.UnsignedByte, true, Stride, (void*) offset);
+                    offset += 1;
+                    break;
+                case AttributeType.NByte2:
+                    Gl.VertexAttribPointer(location, 2, VertexAttribPointerType.UnsignedByte, true, Stride, (void*) offset);
+                    offset += 2;
+                    break;
+                case AttributeType.NByte4:
+                    Gl.VertexAttribPointer(location, 4, VertexAttribPointerType.UnsignedByte, true, Stride, (void*) offset);
+                    offset += 2;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

@@ -55,5 +55,20 @@ public enum AttributeType
     /// <summary>
     /// This attribute is a four-component byte.
     /// </summary>
-    Byte4
+    Byte4,
+    
+    /// <summary>
+    /// This attribute is a normalized byte.
+    /// </summary>
+    NByte,
+    
+    /// <summary>
+    /// This attribute is a normalized two-component byte.
+    /// </summary>
+    NByte2,
+    
+    /// <summary>
+    /// This attribute is a normalized four-component byte.
+    /// </summary>
+    NByte4
 }

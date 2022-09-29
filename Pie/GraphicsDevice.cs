@@ -228,7 +228,8 @@ public abstract class GraphicsDevice : IDisposable
     /// Set the index buffer that will be used on next draw.
     /// </summary>
     /// <param name="buffer">The buffer to use.</param>
-    public abstract void SetIndexBuffer(GraphicsBuffer buffer);
+    /// <param name="type">The type of indices.</param>
+    public abstract void SetIndexBuffer(GraphicsBuffer buffer, IndexType type);
 
     /// <summary>
     /// Set the uniform buffer that will be used on next draw.

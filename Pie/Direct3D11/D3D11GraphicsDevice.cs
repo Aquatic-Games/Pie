@@ -288,9 +288,16 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         Context.IASetVertexBuffer(0, ((D3D11GraphicsBuffer) buffer).Buffer, (int) _currentLayout.Stride);
     }
 
-    public override void SetIndexBuffer(GraphicsBuffer buffer)
+    public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
     {
-        Context.IASetIndexBuffer(((D3D11GraphicsBuffer) buffer).Buffer, Format.R32_UInt, 0);
+        Format fmt = type switch
+        {
+            IndexType.UShort => Format.R16_UInt,
+            IndexType.UInt => Format.R32_UInt,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+        
+        Context.IASetIndexBuffer(((D3D11GraphicsBuffer) buffer).Buffer, fmt, 0);
     }
 
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)

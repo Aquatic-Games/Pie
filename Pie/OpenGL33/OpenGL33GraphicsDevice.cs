@@ -24,6 +24,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     private DepthState _currentDState;
     private Silk.NET.OpenGL.PrimitiveType _glType;
     private PrimitiveType _currentPType;
+    private DrawElementsType _currentEType;
     private bool _primitiveTypeInitialized;
     private int _boundTexture = -1;
     private int _bindingSlot = -1;
@@ -267,12 +268,19 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         //}
     }
 
-    public override void SetIndexBuffer(GraphicsBuffer buffer)
+    public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
     {
         OpenGL33GraphicsBuffer glBuf = (OpenGL33GraphicsBuffer) buffer;
         if (glBuf.Target != BufferTargetARB.ElementArrayBuffer)
             throw new PieException("Given buffer is not an index buffer.");
         Gl.BindBuffer(GLEnum.ElementArrayBuffer, glBuf.Handle);
+
+        _currentEType = type switch
+        {
+            IndexType.UShort => DrawElementsType.UnsignedShort,
+            IndexType.UInt => DrawElementsType.UnsignedInt,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
     }
 
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
