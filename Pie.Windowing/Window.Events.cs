@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Numerics;
 using Silk.NET.GLFW;
 
 namespace Pie.Windowing;
@@ -8,12 +9,17 @@ public unsafe partial class Window
     public event OnResize Resize;
     public event OnKeyDown KeyDown;
     public event OnKeyUp KeyUp;
+    public event OnMouseButtonDown MouseButtonDown;
+    public event OnMouseButtonUp MouseButtonUp;
+    public event OnMouseMove MouseMove;
 
     public event OnTextInput TextInput;
     
     private GlfwCallbacks.WindowSizeCallback _windowSizeCallback;
     private GlfwCallbacks.KeyCallback _keyCallback;
     private GlfwCallbacks.CharCallback _charCallback;
+    private GlfwCallbacks.MouseButtonCallback _mouseButtonCallback;
+    private GlfwCallbacks.CursorPosCallback _cursorPosCallback;
 
     private void SetupCallbacks()
     {
@@ -25,6 +31,26 @@ public unsafe partial class Window
         _glfw.SetWindowSizeCallback(_handle, _windowSizeCallback);
         _glfw.SetKeyCallback(_handle, _keyCallback);
         _glfw.SetCharCallback(_handle, _charCallback);
+        _glfw.SetMouseButtonCallback(_handle, MouseButtonCallback);
+        _glfw.SetCursorPosCallback(_handle, CursorPosCallback);
+    }
+
+    private void CursorPosCallback(WindowHandle* window, double x, double y)
+    {
+        MouseMove?.Invoke(new Vector2((float) x, (float) y));
+    }
+
+    private void MouseButtonCallback(WindowHandle* window, Silk.NET.GLFW.MouseButton button, InputAction action, KeyModifiers mods)
+    {
+        switch (action)
+        {
+            case InputAction.Press:
+                MouseButtonDown?.Invoke((MouseButton) button);
+                break;
+            case InputAction.Release:
+                MouseButtonUp?.Invoke((MouseButton) button);
+                break;
+        }
     }
 
     private void KeyCallback(WindowHandle* window, Silk.NET.GLFW.Keys key, int scancode, InputAction action, KeyModifiers mods)
@@ -32,10 +58,10 @@ public unsafe partial class Window
         switch (action)
         {
             case InputAction.Press:
-                KeyDown?.Invoke((Keys) key);
+                KeyDown?.Invoke((Key) key);
                 break;
             case InputAction.Release:
-                KeyUp?.Invoke((Keys) key);
+                KeyUp?.Invoke((Key) key);
                 break;
         }
     }
@@ -52,9 +78,15 @@ public unsafe partial class Window
 
     public delegate void OnResize(Size size);
 
-    public delegate void OnKeyDown(Keys key);
+    public delegate void OnKeyDown(Key key);
 
-    public delegate void OnKeyUp(Keys key);
+    public delegate void OnKeyUp(Key key);
 
     public delegate void OnTextInput(char c);
+
+    public delegate void OnMouseButtonDown(MouseButton button);
+
+    public delegate void OnMouseButtonUp(MouseButton button);
+
+    public delegate void OnMouseMove(Vector2 position);
 }

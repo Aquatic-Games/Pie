@@ -1,6 +1,6 @@
 namespace Pie.Windowing;
 
-public enum Keys
+public enum Key
 {
     Unknown = -1,
     
