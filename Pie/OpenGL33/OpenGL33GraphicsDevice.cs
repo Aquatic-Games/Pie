@@ -318,7 +318,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override unsafe void DrawIndexed(uint indexCount, uint startIndex, int baseVertex)
     {
-        Gl.DrawRangeElementsBaseVertex(_glType, startIndex, indexCount, indexCount, DrawElementsType.UnsignedInt, null, baseVertex);
+        Gl.DrawRangeElementsBaseVertex(_glType, startIndex, startIndex + indexCount, indexCount, DrawElementsType.UnsignedInt, null, baseVertex);
     }
 
     public override void Present(int swapInterval)
