@@ -254,7 +254,7 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="vertexCount">The number of vertices.</param>
     /// <param name="startVertex">The starting vertex of the vertices to draw.</param>
-    public abstract void Draw(uint vertexCount, uint startVertex);
+    public abstract void Draw(uint vertexCount, int startVertex);
     
     /// <summary>
     /// Draw to the screen with the given indices count.
@@ -267,7 +267,7 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="indexCount">The number of indices.</param>
     /// <param name="startIndex">The starting index of the indices to draw.</param>
-    public abstract void DrawIndexed(uint indexCount, uint startIndex);
+    public abstract void DrawIndexed(uint indexCount, int startIndex);
     
     /// <summary>
     /// Draw to the screen with the given indices count, at the given start index, at the given base vertex.
@@ -275,7 +275,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="indexCount">The number of indices (indices).</param>
     /// <param name="startIndex">The starting index of the indices to draw.</param>
     /// <param name="baseVertex">The base vertex of the indices to draw.</param>
-    public abstract void DrawIndexed(uint indexCount, uint startIndex, int baseVertex);
+    public abstract void DrawIndexed(uint indexCount, int startIndex, int baseVertex);
 
     /// <summary>
     /// Present to the screen.

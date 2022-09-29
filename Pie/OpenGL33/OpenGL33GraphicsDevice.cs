@@ -301,9 +301,9 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.DrawArrays(_glType, 0, vertexCount);
     }
 
-    public override void Draw(uint vertexCount, uint startVertex)
+    public override void Draw(uint vertexCount, int startVertex)
     {
-        Gl.DrawArrays(_glType, (int) startVertex, vertexCount);
+        Gl.DrawArrays(_glType, startVertex, vertexCount);
     }
 
     public override unsafe void DrawIndexed(uint indexCount)
@@ -311,14 +311,14 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.DrawElements(_glType, indexCount, DrawElementsType.UnsignedInt, null);
     }
 
-    public override unsafe void DrawIndexed(uint indexCount, uint startIndex)
+    public override unsafe void DrawIndexed(uint indexCount, int startIndex)
     {
-        Gl.DrawRangeElements(_glType, startIndex, indexCount, indexCount, DrawElementsType.UnsignedInt, null);
+        Gl.DrawElements(_glType, indexCount, DrawElementsType.UnsignedInt, (void*) startIndex);
     }
 
-    public override unsafe void DrawIndexed(uint indexCount, uint startIndex, int baseVertex)
+    public override unsafe void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
-        Gl.DrawRangeElementsBaseVertex(_glType, startIndex, startIndex + indexCount, indexCount, DrawElementsType.UnsignedInt, null, baseVertex);
+        Gl.DrawElementsBaseVertex(_glType, indexCount, DrawElementsType.UnsignedInt, (void*) startIndex, baseVertex);
     }
 
     public override void Present(int swapInterval)
