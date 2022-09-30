@@ -318,35 +318,35 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     {
         Gl.DrawArrays(_glType, 0, vertexCount);
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += vertexCount;
+        PieMetrics.TriCount += vertexCount / 3;
     }
 
     public override void Draw(uint vertexCount, int startVertex)
     {
         Gl.DrawArrays(_glType, startVertex, vertexCount);
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += vertexCount;
+        PieMetrics.TriCount += (ulong) (vertexCount - startVertex) / 3;
     }
 
     public override unsafe void DrawIndexed(uint indexCount)
     {
         Gl.DrawElements(_glType, indexCount, _currentEType, null);
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += indexCount;
+        PieMetrics.TriCount += indexCount / 3;
     }
 
     public override unsafe void DrawIndexed(uint indexCount, int startIndex)
     {
         Gl.DrawElements(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize));
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += indexCount;
+        PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
     }
 
     public override unsafe void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
         Gl.DrawElementsBaseVertex(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize), baseVertex);
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += indexCount;
+        PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
     }
 
     public override void Present(int swapInterval)
