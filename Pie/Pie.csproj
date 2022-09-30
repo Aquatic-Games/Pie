@@ -5,6 +5,7 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Deterministic>false</Deterministic>
     </PropertyGroup>
     
     <PropertyGroup>
@@ -16,6 +17,7 @@
         <PackageTags>graphics;opengl;directx;</PackageTags>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Version>0.6.0-pre</Version>
     </PropertyGroup>
     
     <ItemGroup>

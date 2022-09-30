@@ -1,7 +1,12 @@
+using System;
+using System.Reflection;
+
 namespace Pie;
 
 public static class PieMetrics
 {
+    public static readonly Version Version = Assembly.GetExecutingAssembly().GetName().Version;
+    
     /// <summary>
     /// The total number of vertex buffers currently active in the application.
     /// </summary>
