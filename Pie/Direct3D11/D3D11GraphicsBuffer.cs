@@ -11,24 +11,38 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
     public override bool IsDisposed { get; protected set; }
 
     public ID3D11Buffer Buffer;
+    private BufferType _type;
 
     private bool _dynamic;
 
-    public D3D11GraphicsBuffer(ID3D11Buffer buffer, bool dynamic)
+    public D3D11GraphicsBuffer(ID3D11Buffer buffer, bool dynamic, BufferType type)
     {
         Buffer = buffer;
         _dynamic = dynamic;
+        _type = type;
     }
 
     public static GraphicsBuffer CreateBuffer<T>(BufferType type, uint sizeInBytes, T[] data, bool dynamic) where T : unmanaged
     {
-        BindFlags flags = type switch
+        BindFlags flags;
+
+        switch (type)
         {
-            BufferType.VertexBuffer => BindFlags.VertexBuffer,
-            BufferType.IndexBuffer => BindFlags.IndexBuffer,
-            BufferType.UniformBuffer => BindFlags.ConstantBuffer,
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
+            case BufferType.VertexBuffer:
+                flags = BindFlags.VertexBuffer;
+                PieMetrics.VertexBufferCount++;
+                break;
+            case BufferType.IndexBuffer:
+                flags = BindFlags.IndexBuffer;
+                PieMetrics.IndexBufferCount++;
+                break;
+            case BufferType.UniformBuffer:
+                flags = BindFlags.ConstantBuffer;
+                PieMetrics.UniformBufferCount++;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(type), type, null);
+        }
 
         BufferDescription description = new BufferDescription()
         {
@@ -43,7 +57,7 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
             buffer = Device.CreateBuffer(description);
         else
             buffer = Device.CreateBuffer(new ReadOnlySpan<T>(data), description);
-        return new D3D11GraphicsBuffer(buffer, dynamic);
+        return new D3D11GraphicsBuffer(buffer, dynamic, type);
     }
     
     public unsafe void Update<T>(uint offsetInBytes, T[] data) where T : unmanaged
@@ -86,5 +100,19 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
     public override void Dispose()
     {
         Buffer.Dispose();
+        switch (_type)
+        {
+            case BufferType.VertexBuffer:
+                PieMetrics.VertexBufferCount--;
+                break;
+            case BufferType.IndexBuffer:
+                PieMetrics.IndexBufferCount--;
+                break;
+            case BufferType.UniformBuffer:
+                PieMetrics.UniformBufferCount--;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 }

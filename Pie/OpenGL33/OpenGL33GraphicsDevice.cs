@@ -115,6 +115,8 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         _currentLayout = null;
         _currentRState = null;
         _currentBState = null;
+        PieMetrics.DrawCalls = 0;
+        PieMetrics.TriCount = 0;
     }
 
     public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
@@ -315,26 +317,36 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     public override void Draw(uint vertexCount)
     {
         Gl.DrawArrays(_glType, 0, vertexCount);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += vertexCount;
     }
 
     public override void Draw(uint vertexCount, int startVertex)
     {
         Gl.DrawArrays(_glType, startVertex, vertexCount);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += vertexCount;
     }
 
     public override unsafe void DrawIndexed(uint indexCount)
     {
         Gl.DrawElements(_glType, indexCount, _currentEType, null);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += indexCount;
     }
 
     public override unsafe void DrawIndexed(uint indexCount, int startIndex)
     {
         Gl.DrawElements(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize));
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += indexCount;
     }
 
     public override unsafe void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
         Gl.DrawElementsBaseVertex(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize), baseVertex);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += indexCount;
     }
 
     public override void Present(int swapInterval)
