@@ -25,6 +25,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     private Silk.NET.OpenGL.PrimitiveType _glType;
     private PrimitiveType _currentPType;
     private DrawElementsType _currentEType;
+    private int _eTypeSize;
     private bool _primitiveTypeInitialized;
     private int _boundTexture = -1;
     private int _bindingSlot = -1;
@@ -73,7 +74,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         get => _scissor;
         set
         {
-            Gl.Scissor(value.X, value.Y, (uint) value.Width, (uint) value.Height);
+            Gl.Scissor(value.X, _viewport.Height - value.Y - value.Height, (uint) value.Width, (uint) value.Height);
             _scissor = value;
         }
     }
@@ -275,12 +276,19 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             throw new PieException("Given buffer is not an index buffer.");
         Gl.BindBuffer(GLEnum.ElementArrayBuffer, glBuf.Handle);
 
-        _currentEType = type switch
+        switch (type)
         {
-            IndexType.UShort => DrawElementsType.UnsignedShort,
-            IndexType.UInt => DrawElementsType.UnsignedInt,
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
+            case IndexType.UShort:
+                _currentEType = DrawElementsType.UnsignedShort;
+                _eTypeSize = 2;
+                break;
+            case IndexType.UInt:
+                _currentEType = DrawElementsType.UnsignedInt;
+                _eTypeSize = 4;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(type), type, null);
+        }
     }
 
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
@@ -321,12 +329,12 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override unsafe void DrawIndexed(uint indexCount, int startIndex)
     {
-        Gl.DrawElements(_glType, indexCount, _currentEType, (void*) startIndex);
+        Gl.DrawElements(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize));
     }
 
     public override unsafe void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
-        Gl.DrawElementsBaseVertex(_glType, indexCount, _currentEType, (void*) startIndex, baseVertex);
+        Gl.DrawElementsBaseVertex(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize), baseVertex);
     }
 
     public override void Present(int swapInterval)

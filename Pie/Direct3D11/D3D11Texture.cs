@@ -26,9 +26,12 @@ internal sealed class D3D11Texture : Texture
         Description = description;
     }
 
-    public static Texture CreateTexture(TextureDescription description, IntPtr data)
+    public static Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
     {
         PieUtils.CheckIfValid(description);
+        
+        if (data != null)
+            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
 
         Format fmt = PieUtils.ToDxgiFormat(description.Format,
             (description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource);
@@ -36,7 +39,7 @@ internal sealed class D3D11Texture : Texture
         BindFlags flags = BindFlags.None;
         if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
             flags |= BindFlags.ShaderResource;
-        if ((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer || description.Mipmap)
+        if (((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer && description.Format != PixelFormat.D24_UNorm_S8_UInt) || description.Mipmap)
             flags |= BindFlags.RenderTarget;
 
         if (description.Format == PixelFormat.D24_UNorm_S8_UInt)
@@ -107,20 +110,18 @@ internal sealed class D3D11Texture : Texture
         return new D3D11Texture(texture, view, new Size(description.Width, description.Height), description);
     }
 
-    public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
+    public static unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
     {
-        if (data != null)
-            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
-
-        fixed (void* dat = data)
-            return CreateTexture(description, (IntPtr) dat);
+        // TODO remove *4 and replace with an amount that changes based on the format.
+        ReadOnlySpan<byte> bData = new ReadOnlySpan<byte>(data.ToPointer(), description.Width * description.Height * 4);
+        return CreateTexture(description, bData.ToArray());
     }
     
     public void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged
     {
         // TODO: Implement texture mapping for fast transfers, i think.
         Context.UpdateSubresource(data, Texture, 0, (int) width * 4 * sizeof(byte),
-            region: new Box(x, 0, 0, (int) (x + width), (int) (y + height), 0));
+            region: new Box(x, y, 0, (int) (x + width), (int) (y + height), 1));
     }
 
     public override void Dispose()

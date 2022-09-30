@@ -23,9 +23,12 @@ internal sealed class OpenGL33Texture : Texture
         IsRenderbuffer = isRenderbuffer;
     }
 
-    public static unsafe Texture CreateTexture(TextureDescription description, IntPtr? data)
+    public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
     {
         PieUtils.CheckIfValid(description);
+        
+        if (data != null)
+            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
 
         bool isRenderbuffer = (description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer &&
                               (description.Usage & TextureUsage.ShaderResource) != TextureUsage.ShaderResource;
@@ -87,24 +90,24 @@ internal sealed class OpenGL33Texture : Texture
             };
         
             Gl.BindTexture(target, handle);
-            
-            switch (description.TextureType)
-            {
-                case TextureType.Texture2D:
-                    if (description.ArraySize == 1)
-                    {
-                        void* dat = null;
-                        if (data.HasValue)
-                            dat = data.Value.ToPointer();
-                        Gl.TexImage2D(target, 0, iFmt, (uint) description.Width,
-                            (uint) description.Height, 0, fmt, PixelType.UnsignedByte, dat);
-                    }
-                    else
-                        throw new NotImplementedException("Currently texture arrays have not been implemented.");
 
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+            fixed (void* p = data)
+            {
+                switch (description.TextureType)
+                {
+                    case TextureType.Texture2D:
+                        if (description.ArraySize == 1)
+                        {
+                            Gl.TexImage2D(target, 0, iFmt, (uint) description.Width,
+                                (uint) description.Height, 0, fmt, PixelType.UnsignedByte, p);
+                        }
+                        else
+                            throw new NotImplementedException("Currently texture arrays have not been implemented.");
+
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
             if (description.Mipmap)
@@ -114,18 +117,10 @@ internal sealed class OpenGL33Texture : Texture
         return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description.Mipmap, description, isRenderbuffer);
     }
 
-    public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
+    public static unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
     {
-        if (data != null)
-            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
-
-        if (data != null)
-        {
-            fixed (void* dat = data)
-                return CreateTexture(description, (IntPtr) dat);
-        }
-        else
-            return CreateTexture(description, null);
+        ReadOnlySpan<byte> bData = new ReadOnlySpan<byte>(data.ToPointer(), description.Width * description.Height * 4);
+        return CreateTexture(description, bData.ToArray());
     }
 
     public override bool IsDisposed { get; protected set; }
