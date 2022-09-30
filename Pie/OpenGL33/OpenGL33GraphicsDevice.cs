@@ -302,7 +302,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         if (framebuffer == null)
         {
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            Gl.DrawBuffer(DrawBufferMode.Front);
+            //Gl.DrawBuffer(DrawBufferMode.Front);
             return;
         }
 
