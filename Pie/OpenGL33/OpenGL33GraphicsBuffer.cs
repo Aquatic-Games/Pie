@@ -20,13 +20,25 @@ internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
 
     public static unsafe GraphicsBuffer CreateBuffer<T>(BufferType type, uint sizeInBytes, T[] data, bool dynamic) where T : unmanaged
     {
-        BufferTargetARB target = type switch
+        BufferTargetARB target;
+
+        switch (type)
         {
-            BufferType.VertexBuffer => BufferTargetARB.ArrayBuffer,
-            BufferType.IndexBuffer => BufferTargetARB.ElementArrayBuffer,
-            BufferType.UniformBuffer => BufferTargetARB.UniformBuffer,
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
+            case BufferType.VertexBuffer:
+                target = BufferTargetARB.ArrayBuffer;
+                PieMetrics.VertexBufferCount++;
+                break;
+            case BufferType.IndexBuffer:
+                target = BufferTargetARB.ElementArrayBuffer;
+                PieMetrics.IndexBufferCount++;
+                break;
+            case BufferType.UniformBuffer:
+                target = BufferTargetARB.UniformBuffer;
+                PieMetrics.UniformBufferCount++;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(type), type, null);
+        }
 
         BufferUsageARB usage = dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw;
 
@@ -38,20 +50,6 @@ internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
         {
             fixed (void* d = data)
                 Gl.BufferData(target, sizeInBytes, d, usage);
-        }
-
-        switch (type)
-        {
-            case BufferType.VertexBuffer:
-                PieMetrics.VertexBufferCount++;
-                break;
-            case BufferType.IndexBuffer:
-                PieMetrics.IndexBufferCount++;
-                break;
-            case BufferType.UniformBuffer:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
 
         return new OpenGL33GraphicsBuffer(handle, target);
@@ -83,6 +81,9 @@ internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
                 break;
             case BufferTargetARB.ElementArrayBuffer:
                 PieMetrics.IndexBufferCount--;
+                break;
+            case BufferTargetARB.UniformBuffer:
+                PieMetrics.UniformBufferCount--;
                 break;
         }
     }

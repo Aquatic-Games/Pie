@@ -133,6 +133,8 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         if (flags.HasFlag(ClearFlags.Stencil))
             cf |= DepthStencilClearFlags.Stencil;
         Context.ClearDepthStencilView(_currentFramebuffer?.DepthStencil ?? _depthStencilTargetView, cf, 1, 0);
+        PieMetrics.DrawCalls = 0;
+        PieMetrics.TriCount = 0;
         //Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
     }
 
@@ -322,26 +324,36 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     public override void Draw(uint vertexCount)
     {
         Context.Draw((int) vertexCount, 0);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += vertexCount / 3;
     }
 
     public override void Draw(uint vertexCount, int startVertex)
     {
         Context.Draw((int) vertexCount, startVertex);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += (ulong) (vertexCount - startVertex) / 3;
     }
 
     public override void DrawIndexed(uint indexCount)
     {
         Context.DrawIndexed((int) indexCount, 0, 0);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += indexCount / 3;
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex)
     {
         Context.DrawIndexed((int) indexCount, startIndex, 0);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
         Context.DrawIndexed((int) indexCount, startIndex, baseVertex);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
     }
 
     public override void Present(int swapInterval)
