@@ -17,6 +17,10 @@ internal static class PieUtils
             PixelFormat.R8G8B8A8_UNorm => Format.R8G8B8A8_UNorm,
             PixelFormat.B8G8R8A8_UNorm => Format.B8G8R8A8_UNorm,
             PixelFormat.D24_UNorm_S8_UInt => shaderResource ? Format.R24G8_Typeless : Format.D24_UNorm_S8_UInt,
+            PixelFormat.R8_UNorm => Format.R8_UNorm,
+            PixelFormat.R8G8_UNorm => Format.R8G8_UNorm,
+            PixelFormat.R16G16B16A16_Float => Format.R16G16B16A16_Float,
+            PixelFormat.R32G32B32A32_Float => Format.R32G32B32A32_Float,
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
     }

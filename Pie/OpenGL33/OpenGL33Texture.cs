@@ -47,6 +47,22 @@ internal sealed class OpenGL33Texture : Texture
                 fmt = Silk.NET.OpenGL.PixelFormat.DepthStencil;
                 iFmt = InternalFormat.Depth24Stencil8;
                 break;
+            case PixelFormat.R8_UNorm:
+                fmt = Silk.NET.OpenGL.PixelFormat.Red;
+                iFmt = InternalFormat.R8;
+                break;
+            case PixelFormat.R8G8_UNorm:
+                fmt = Silk.NET.OpenGL.PixelFormat.RG;
+                iFmt = InternalFormat.RG8;
+                break;
+            case PixelFormat.R16G16B16A16_Float:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba16f;
+                break;
+            case PixelFormat.R32G32B32A32_Float:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba32f;
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
