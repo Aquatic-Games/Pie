@@ -16,7 +16,7 @@ namespace Pie.Freetype.Native;
 
 public static unsafe class FreetypeNative
 {
-    public const string LibraryName = "freetype";
+    public const string LibraryName = "libfreetype";
 
     public const int LoadRender = 1 << 2;
 
@@ -30,7 +30,7 @@ public static unsafe class FreetypeNative
     public static extern FT_Error FT_New_Face(FT_Library library, string path, FT_Long index, out FT_Face* face);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern FT_Error FT_New_Memory_Face(FT_Library library, FT_Byte* @base, FT_Long fileSize,
+    public static extern FT_Error FT_New_Memory_Face(FT_Library library, FT_Byte* file, FT_Long fileSize,
         FT_Long faceIndex, out FT_Face* face);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
@@ -40,5 +40,5 @@ public static unsafe class FreetypeNative
     public static extern FT_Error FT_Load_Char(FT_Face* face, FT_ULong charCode, FT_Int loadFlags);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern FT_Error FT_Set_Pixel_Sizes(FT_Face* face, FT_UInt pixelWidth, FT_UShort pixelHeight);
+    public static extern FT_Error FT_Set_Pixel_Sizes(FT_Face* face, FT_UInt pixelWidth, FT_UInt pixelHeight);
 }

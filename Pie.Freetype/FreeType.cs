@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using Pie.Freetype.Native;
 using static Pie.Freetype.Native.FreetypeNative;
 
@@ -15,16 +16,19 @@ public class FreeType : IDisposable
             throw new Exception("Could not initialize freetype.");
     }
 
-    public Face CreateFace(string path, int initialSize)
+    public unsafe Face CreateFace(string path, int initialSize)
     {
-        return CreateFace(File.ReadAllBytes(path), initialSize);
+        //return CreateFace(File.ReadAllBytes(path), initialSize);
+        FT_Face* face;
+        FT_New_Face(_library, path, new FT_Long(0), out face);
+        return new Face(face, initialSize);
     }
 
     public unsafe Face CreateFace(byte[] data, int initialSize)
     {
         FT_Face* face;
-        fixed (void* d = data)
-            FT_New_Memory_Face(_library, (byte*) d, new FT_Long(data.Length), new FT_Long(0), out face);
+        fixed (byte* d = data)
+            FT_New_Memory_Face(_library, d, new FT_Long(data.Length), new FT_Long(0), out face);
         return new Face(face, initialSize);
     }
 

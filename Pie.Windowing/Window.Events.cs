@@ -13,6 +13,8 @@ public unsafe partial class Window
     public event OnMouseButtonUp MouseButtonUp;
     public event OnMouseMove MouseMove;
 
+    public event OnScroll Scroll;
+
     public event OnTextInput TextInput;
     
     private GlfwCallbacks.WindowSizeCallback _windowSizeCallback;
@@ -20,19 +22,29 @@ public unsafe partial class Window
     private GlfwCallbacks.CharCallback _charCallback;
     private GlfwCallbacks.MouseButtonCallback _mouseButtonCallback;
     private GlfwCallbacks.CursorPosCallback _cursorPosCallback;
+    private GlfwCallbacks.ScrollCallback _scrollCallback;
 
     private void SetupCallbacks()
     {
         _windowSizeCallback = WindowSizeCallback;
         _keyCallback = KeyCallback;
         _charCallback = CharCallback;
+        _mouseButtonCallback = MouseButtonCallback;
+        _cursorPosCallback = CursorPosCallback;
+        _scrollCallback = ScrollCallback;
         // TODO: Add all glfw callbacks https://www.glfw.org/docs/3.3/input_guide.html
 
         _glfw.SetWindowSizeCallback(_handle, _windowSizeCallback);
         _glfw.SetKeyCallback(_handle, _keyCallback);
         _glfw.SetCharCallback(_handle, _charCallback);
-        _glfw.SetMouseButtonCallback(_handle, MouseButtonCallback);
-        _glfw.SetCursorPosCallback(_handle, CursorPosCallback);
+        _glfw.SetMouseButtonCallback(_handle, _mouseButtonCallback);
+        _glfw.SetCursorPosCallback(_handle, _cursorPosCallback);
+        _glfw.SetScrollCallback(_handle, _scrollCallback);
+    }
+
+    private void ScrollCallback(WindowHandle* window, double offsetx, double offsety)
+    {
+        Scroll?.Invoke(new Vector2((float) offsetx, (float) offsety));
     }
 
     private void CursorPosCallback(WindowHandle* window, double x, double y)
@@ -89,4 +101,6 @@ public unsafe partial class Window
     public delegate void OnMouseButtonUp(MouseButton button);
 
     public delegate void OnMouseMove(Vector2 position);
+
+    public delegate void OnScroll(Vector2 scroll);
 }
