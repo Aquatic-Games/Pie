@@ -30,7 +30,7 @@ internal sealed class D3D11Texture : Texture
     {
         PieUtils.CheckIfValid(description);
         
-        if (data != null)
+        if (data != null && description.TextureType != TextureType.Cubemap)
             PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
 
         Format fmt = PieUtils.ToDxgiFormat(description.Format,
@@ -91,11 +91,47 @@ internal sealed class D3D11Texture : Texture
                 }
                 
                 break;
+            case TextureType.Cubemap:
+                Texture2DDescription cDesc = new Texture2DDescription()
+                {
+                    Width = description.Width,
+                    Height = description.Height,
+                    Format = fmt,
+                    MipLevels = description.Mipmap ? 0 : 1,
+                    ArraySize = description.ArraySize * 6,
+                    SampleDescription = new SampleDescription(1, 0),
+                    //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
+                    Usage = ResourceUsage.Default,
+                    BindFlags = flags,
+                    CPUAccessFlags = CpuAccessFlags.None,
+                    MiscFlags = ResourceOptionFlags.TextureCube | (description.Mipmap ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None)
+                };
+
+                SubresourceData[] subresourceDatas = new SubresourceData[cDesc.ArraySize];
+                for (int i = 0; i < cDesc.ArraySize; i++)
+                {
+                    unsafe
+                    {
+                        CubemapData cData = (CubemapData) (object) data[i];
+                        subresourceDatas[i] = new SubresourceData(cData.Data, description.Width * 4 * sizeof(byte));
+                    }
+                }
+
+                texture = Device.CreateTexture2D(cDesc, subresourceDatas);
+                
+                svDesc.ViewDimension = ShaderResourceViewDimension.TextureCube;
+                svDesc.Texture2D = new Texture2DShaderResourceView()
+                {
+                    MipLevels = -1,
+                    MostDetailedMip = 0
+                };
+                
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
         
-        if (data != null)
+        if (data != null && description.TextureType != TextureType.Cubemap)
             Context.UpdateSubresource(data, texture, 0, description.Width * 4 * sizeof(byte));
 
         ID3D11ShaderResourceView view = null;

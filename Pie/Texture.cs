@@ -18,4 +18,17 @@ public abstract class Texture : IDisposable
     public abstract TextureDescription Description { get; set; }
 
     public abstract void Dispose();
+
+    public unsafe struct CubemapData
+    {
+        public readonly byte* Data;
+        public readonly uint DataLength;
+        
+        public CubemapData(byte[] data)
+        {
+            fixed (byte* dat = data)
+                Data = dat;
+            DataLength = (uint) data.Length;
+        }
+    }
 }

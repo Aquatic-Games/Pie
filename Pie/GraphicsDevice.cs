@@ -179,7 +179,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="data">The data itself.</param>
     /// <typeparam name="T">Any unmanaged type, typically <see cref="byte"/> or <see cref="float"/>.</typeparam>
     public abstract void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data) where T : unmanaged;
-    
+
     /// <summary>
     /// Set the shader that will be used on next draw.
     /// </summary>

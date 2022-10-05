@@ -216,7 +216,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         //_boundTexture = (int) glTex.Handle;
         //_bindingSlot = (int) bindingSlot;
         Gl.ActiveTexture(TextureUnit.Texture0 + (int) bindingSlot);
-        Gl.BindTexture(TextureTarget.Texture2D, glTex.Handle);
+        Gl.BindTexture(glTex.Target, glTex.Handle);
         Gl.BindSampler(bindingSlot, ((OpenGL33SamplerState) state).Handle);
     }
 

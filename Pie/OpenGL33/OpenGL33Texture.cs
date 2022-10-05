@@ -9,11 +9,12 @@ internal sealed class OpenGL33Texture : Texture
 {
     public uint Handle;
     public bool IsRenderbuffer;
+    public TextureTarget Target;
 
     private Silk.NET.OpenGL.PixelFormat _format;
     private bool _mipmap;
     
-    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, bool mipmap, TextureDescription description, bool isRenderbuffer)
+    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, bool mipmap, TextureDescription description, bool isRenderbuffer, TextureTarget target)
     {
         Handle = handle;
         _format = format;
@@ -21,13 +22,14 @@ internal sealed class OpenGL33Texture : Texture
         _mipmap = mipmap;
         Description = description;
         IsRenderbuffer = isRenderbuffer;
+        Target = target;
     }
 
     public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
     {
         PieUtils.CheckIfValid(description);
         
-        if (data != null)
+        if (data != null && description.TextureType != TextureType.Cubemap)
             PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
 
         bool isRenderbuffer = (description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer &&
@@ -69,6 +71,8 @@ internal sealed class OpenGL33Texture : Texture
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        TextureTarget target = TextureTarget.Texture2D;
         
         uint handle;
         if (isRenderbuffer)
@@ -83,9 +87,10 @@ internal sealed class OpenGL33Texture : Texture
         {
             handle = Gl.GenTexture();
             
-            TextureTarget target = description.TextureType switch
+            target = description.TextureType switch
             {
                 TextureType.Texture2D => TextureTarget.Texture2D,
+                TextureType.Cubemap => TextureTarget.TextureCubeMap,
                 _ => throw new ArgumentOutOfRangeException()
             };
         
@@ -103,6 +108,13 @@ internal sealed class OpenGL33Texture : Texture
                         }
                         else
                             throw new NotImplementedException("Currently texture arrays have not been implemented.");
+                        break;
+                    case TextureType.Cubemap:
+                        for (int i = 0; i < data.Length; i++)
+                        {
+                            Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
+                                PixelType.UnsignedByte, ((CubemapData) (object) data[i]).Data);
+                        }
 
                         break;
                     default:
@@ -111,10 +123,12 @@ internal sealed class OpenGL33Texture : Texture
             }
 
             if (description.Mipmap)
-                Gl.GenerateMipmap(TextureTarget.Texture2D);
+                Gl.GenerateMipmap(target);
+            else
+                Gl.TexParameter(target, TextureParameterName.TextureMaxLevel, 0);
         }
 
-        return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description.Mipmap, description, isRenderbuffer);
+        return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description.Mipmap, description, isRenderbuffer, target);
     }
 
     public static unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
