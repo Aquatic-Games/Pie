@@ -289,6 +289,12 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="newSize">The new size of the swapchain.</param>
     public abstract void ResizeSwapchain(Size newSize);
 
+    /// <summary>
+    /// Generate mipmaps for the given texture.
+    /// </summary>
+    /// <param name="texture"></param>
+    public abstract void GenerateMipmaps(Texture texture);
+
     public abstract void Dispose();
 
     /// <summary>

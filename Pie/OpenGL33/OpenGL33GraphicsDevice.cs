@@ -360,6 +360,13 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Viewport = new Rectangle(Point.Empty, newSize);
     }
 
+    public override void GenerateMipmaps(Texture texture)
+    {
+        OpenGL33Texture tex = (OpenGL33Texture) texture;
+        Gl.BindTexture(tex.Target, tex.Handle);
+        Gl.GenerateMipmap(tex.Target);
+    }
+
     public override void Dispose()
     {
         Gl.BindVertexArray(0);

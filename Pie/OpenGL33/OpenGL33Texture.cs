@@ -12,14 +12,12 @@ internal sealed class OpenGL33Texture : Texture
     public TextureTarget Target;
 
     private Silk.NET.OpenGL.PixelFormat _format;
-    private bool _mipmap;
-    
-    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, bool mipmap, TextureDescription description, bool isRenderbuffer, TextureTarget target)
+
+    public unsafe OpenGL33Texture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, TextureDescription description, bool isRenderbuffer, TextureTarget target)
     {
         Handle = handle;
         _format = format;
         Size = size;
-        _mipmap = mipmap;
         Description = description;
         IsRenderbuffer = isRenderbuffer;
         Target = target;
@@ -121,14 +119,12 @@ internal sealed class OpenGL33Texture : Texture
                         throw new ArgumentOutOfRangeException();
                 }
             }
-
-            if (description.Mipmap)
-                Gl.GenerateMipmap(target);
-            else
-                Gl.TexParameter(target, TextureParameterName.TextureMaxLevel, 0);
+            
+            if (description.MipLevels != 0)
+                Gl.TexParameter(target, TextureParameterName.TextureMaxLevel, description.MipLevels - 1);
         }
 
-        return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description.Mipmap, description, isRenderbuffer, target);
+        return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description, isRenderbuffer, target);
     }
 
     public static unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
@@ -146,9 +142,6 @@ internal sealed class OpenGL33Texture : Texture
         Gl.BindTexture(TextureTarget.Texture2D, Handle);
         fixed (void* d = data)
             Gl.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, width, height, _format, PixelType.UnsignedByte, d);
-        
-        if (_mipmap)
-            Gl.GenerateMipmap(TextureTarget.Texture2D);
     }
 
     public override void Dispose()

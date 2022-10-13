@@ -376,6 +376,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         Viewport = new Rectangle(Point.Empty, newSize);
     }
 
+    public override void GenerateMipmaps(Texture texture)
+    {
+        Context.GenerateMips(((D3D11Texture) texture).View);
+    }
+
     public override void Dispose()
     {
         _colorTargetView.Dispose();

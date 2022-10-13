@@ -39,7 +39,7 @@ internal sealed class D3D11Texture : Texture
         BindFlags flags = BindFlags.None;
         if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
             flags |= BindFlags.ShaderResource;
-        if (((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer && description.Format != PixelFormat.D24_UNorm_S8_UInt) || description.Mipmap)
+        if (((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer && description.Format != PixelFormat.D24_UNorm_S8_UInt) || description.MipLevels != 1)
             flags |= BindFlags.RenderTarget;
 
         if (description.Format == PixelFormat.D24_UNorm_S8_UInt)
@@ -59,14 +59,14 @@ internal sealed class D3D11Texture : Texture
                     Width = description.Width,
                     Height = description.Height,
                     Format = fmt,
-                    MipLevels = description.Mipmap ? 0 : 1,
+                    MipLevels = description.MipLevels,
                     ArraySize = description.ArraySize,
                     SampleDescription = new SampleDescription(1, 0),
                     //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
                     Usage = ResourceUsage.Default,
                     BindFlags = flags,
                     CPUAccessFlags = CpuAccessFlags.None,
-                    MiscFlags = description.Mipmap ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
+                    MiscFlags = description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
                 };
 
                 texture = Device.CreateTexture2D(desc);
@@ -97,14 +97,14 @@ internal sealed class D3D11Texture : Texture
                     Width = description.Width,
                     Height = description.Height,
                     Format = fmt,
-                    MipLevels = description.Mipmap ? 0 : 1,
+                    MipLevels = description.MipLevels,
                     ArraySize = description.ArraySize * 6,
                     SampleDescription = new SampleDescription(1, 0),
                     //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
                     Usage = ResourceUsage.Default,
                     BindFlags = flags,
                     CPUAccessFlags = CpuAccessFlags.None,
-                    MiscFlags = ResourceOptionFlags.TextureCube | (description.Mipmap ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None)
+                    MiscFlags = ResourceOptionFlags.TextureCube | (description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None)
                 };
 
                 SubresourceData[] subresourceDatas = new SubresourceData[cDesc.ArraySize];
@@ -138,8 +138,6 @@ internal sealed class D3D11Texture : Texture
 
         if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
           view = Device.CreateShaderResourceView(texture, svDesc);
-        if (description.Mipmap)
-            Context.GenerateMips(view);
 
         // TODO: Clean up D3D texture bits
         

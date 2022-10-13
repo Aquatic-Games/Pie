@@ -23,9 +23,9 @@ public struct TextureDescription
     public PixelFormat Format;
 
     /// <summary>
-    /// Whether or not mipmaps will be generated.
+    /// The number of mipmaps generated with this texture.
     /// </summary>
-    public bool Mipmap;
+    public int MipLevels;
 
     /// <summary>
     /// The number of arrays in this texture. 
@@ -42,13 +42,13 @@ public struct TextureDescription
     /// </summary>
     public TextureUsage Usage;
 
-    public TextureDescription(TextureType textureType, int width, int height, PixelFormat format, bool mipmap, int arraySize, TextureUsage usage)
+    public TextureDescription(TextureType textureType, int width, int height, PixelFormat format, int mipLevels, int arraySize, TextureUsage usage)
     {
         TextureType = textureType;
         Width = width;
         Height = height;
         Format = format;
-        Mipmap = mipmap;
+        MipLevels = mipLevels;
         ArraySize = arraySize;
         Usage = usage;
     }
