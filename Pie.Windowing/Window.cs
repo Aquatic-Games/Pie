@@ -24,8 +24,15 @@ public unsafe partial class Window : IDisposable
         _inputState = new InputState(this, handle, glfw);
     }
 
+    /// <summary>
+    /// Whether or not this window is event driven. If true, <see cref="ProcessEvents"/> will block the thread until
+    /// an event occurs (such as mouse movement, key press, etc.)
+    /// </summary>
     public bool EventDriven;
 
+    /// <summary>
+    /// The size, in pixels, of this window.
+    /// </summary>
     public Size Size
     {
         get
@@ -36,12 +43,18 @@ public unsafe partial class Window : IDisposable
         set => _glfw.SetWindowSize(_handle, value.Width, value.Height);
     }
 
+    /// <summary>
+    /// Whether or not the window should close. Use this in your application loop.
+    /// </summary>
     public bool ShouldClose
     {
         get => _glfw.WindowShouldClose(_handle);
         set => _glfw.SetWindowShouldClose(_handle, value);
     }
 
+    /// <summary>
+    /// The title of this window, as displayed in the title bar.
+    /// </summary>
     public string Title
     {
         get => _settings.Title;
@@ -52,6 +65,10 @@ public unsafe partial class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// The current <see cref="Pie.Windowing.MouseState"/> of this window.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if an invalid enum value is provided.</exception>
     public MouseState MouseState
     {
         get
@@ -80,6 +97,10 @@ public unsafe partial class Window : IDisposable
     }
 
     private WindowBorder _border;
+    /// <summary>
+    /// The border of this window. Set as <see cref="WindowBorder.Resizable"/> to make this window resizable.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if an invalid enum value is provided.</exception>
     public WindowBorder Border
     {
         get => _border;
@@ -106,8 +127,14 @@ public unsafe partial class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// Whether or not this window is focused.
+    /// </summary>
     public bool Focused => _glfw.GetWindowAttrib(_handle, WindowAttributeGetter.Focused);
 
+    /// <summary>
+    /// Whether or not this window is visible.
+    /// </summary>
     public bool Visible
     {
         get => _glfw.GetWindowAttrib(_handle, WindowAttributeGetter.Visible);
@@ -120,6 +147,27 @@ public unsafe partial class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// Whether or not this window is full screen. If set true, the window will become fullscreen at its current <see cref="Size"/>,
+    /// and will use the refresh rate of the current monitor. Use <see cref="SetFullscreen"/> for more control.
+    /// </summary>
+    public bool Fullscreen
+    {
+        get => _glfw.GetWindowMonitor(_handle) != null;
+        set
+        {
+            Monitor primary = Monitor.PrimaryMonitor;
+            Size size = Size;
+            _glfw.SetWindowMonitor(_handle, value ? _glfw.GetPrimaryMonitor() : null, 0, 0, size.Width, size.Height, primary.VideoMode.RefreshRate);
+            if (!value)
+                Center();
+        }
+    }
+
+    /// <summary>
+    /// Process events such as keyboard and mouse input, resize events, and handling the close button being clicked.
+    /// </summary>
+    /// <returns></returns>
     public InputState ProcessEvents()
     {
         _inputState.Update(_handle, _glfw);
@@ -130,6 +178,9 @@ public unsafe partial class Window : IDisposable
         return _inputState;
     }
 
+    /// <summary>
+    /// Center this window on the primary monitor.
+    /// </summary>
     public void Center()
     {
         Rectangle bounds = Monitor.PrimaryMonitor.Bounds;
@@ -137,19 +188,42 @@ public unsafe partial class Window : IDisposable
         _glfw.SetWindowPos(_handle, bounds.X + bounds.Width / 2 - size.Width / 2, bounds.Y + bounds.Height / 2 - size.Height / 2);
     }
 
+    /// <summary>
+    /// Minimize this window to the taskbar.
+    /// </summary>
     public void Minimize()
     {
         _glfw.IconifyWindow(_handle);
     }
 
+    /// <summary>
+    /// Maximize this window.
+    /// </summary>
     public void Maximize()
     {
         _glfw.MaximizeWindow(_handle);
     }
 
+    /// <summary>
+    /// Restores this window if it has been minimized.
+    /// </summary>
     public void Restore()
     {
         _glfw.RestoreWindow(_handle);
+    }
+
+    /// <summary>
+    /// Set this window's full screen mode.
+    /// </summary>
+    /// <param name="fullscreen">Whether or not the window is fullscreen.</param>
+    /// <param name="resolution">The new resolution of the window.</param>
+    /// <param name="refreshRate">The refresh rate, if any. Set as -1 to use the monitor's refresh rate.</param>
+    /// <param name="monitorIndex">The monitor index. 0 is the primary monitor.</param>
+    public void SetFullscreen(bool fullscreen, Size resolution, int refreshRate = -1, int monitorIndex = 0)
+    {
+        _glfw.SetWindowMonitor(_handle, fullscreen ? _glfw.GetMonitors(out _)[monitorIndex] : null, 0, 0, resolution.Width, resolution.Height, refreshRate);
+        if (!fullscreen)
+            Center();
     }
 
     public static Window CreateWindow(WindowSettings settings, GraphicsApi api)
@@ -201,6 +275,8 @@ public unsafe partial class Window : IDisposable
 
         Monitor.DetectMonitors(glfw);
 
+        // Set the window position to 0 as on Windows the window starts up in a seemingly random position
+        glfw.SetWindowPos(handle, 0, 0);
         Rectangle bounds = default;
         if (settings.StartingMonitor == null)
         {
@@ -240,7 +316,8 @@ public unsafe partial class Window : IDisposable
         }
         
         glfw.MakeContextCurrent(handle);
-        glfw.ShowWindow(handle);
+        if (settings.StartVisible)
+            glfw.ShowWindow(handle);
 
         return new Window(glfw, handle, settings, api);
     }

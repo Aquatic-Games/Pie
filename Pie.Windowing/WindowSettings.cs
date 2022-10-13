@@ -14,6 +14,8 @@ public struct WindowSettings
 
     public Icon[] Icons;
 
+    public bool StartVisible;
+
     public int? StartingMonitor;
 
     public WindowSettings()
@@ -23,6 +25,7 @@ public struct WindowSettings
         Border = WindowBorder.Fixed;
         EventDriven = false;
         Icons = null;
+        StartVisible = true;
         StartingMonitor = null;
     }
 }
