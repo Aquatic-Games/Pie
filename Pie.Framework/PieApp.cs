@@ -3,45 +3,50 @@ using Pie.Windowing;
 
 namespace Pie.Framework;
 
-public abstract class Game : IDisposable
+public abstract class PieApp : IDisposable
 {
     private WindowSettings _settings;
     private GameTime _gameTime;
-    
-    public Window Window { get; private set; }
-    public GraphicsDevice GraphicsDevice { get; private set; }
 
-    public Game(WindowSettings settings)
+    public Window Window;
+    public GraphicsDevice GraphicsDevice;
+
+    public bool VSync;
+
+    public PieApp(WindowSettings settings)
     {
         _settings = settings;
+        VSync = true;
     }
 
     public virtual void Initialize() { }
 
-    public virtual void Update(GameTime gameTime) { }
+    public virtual void Update(GameTime gameTime, InputState state) { }
 
     public virtual void Draw(GameTime gameTime) { }
 
     public void Run()
     {
-        Window = Window.CreateWithGraphicsDevice(_settings, out GraphicsDevice gd);
-        GraphicsDevice = gd;
-        
+        Window = Window.CreateWithGraphicsDevice(_settings, out GraphicsDevice);
+
         Initialize();
 
         _gameTime = new GameTime();
 
         while (!Window.ShouldClose)
         {
-            Window.ProcessEvents();
+            InputState state = Window.ProcessEvents();
             _gameTime.Update();
-            Update(_gameTime);
+            Update(_gameTime, state);
             Draw(_gameTime);
-            GraphicsDevice.Present(1);
+            GraphicsDevice.Present(VSync ? 1 : 0);
         }
     }
 
-    public virtual void Close() { }
+    public virtual void Close()
+    {
+        Window.ShouldClose = true;
+    }
 
     public void Dispose()
     {

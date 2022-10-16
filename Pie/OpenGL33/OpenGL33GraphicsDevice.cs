@@ -154,9 +154,9 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33Shader(attachments);
     }
 
-    public override InputLayout CreateInputLayout(uint stride, params InputLayoutDescription[] descriptions)
+    public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
     {
-        return new OpenGL33InputLayout(stride, descriptions);
+        return new OpenGL33InputLayout(descriptions);
     }
 
     public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)
@@ -258,7 +258,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         };
     }
 
-    public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
+    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
     {
         OpenGL33GraphicsBuffer glBuf = (OpenGL33GraphicsBuffer) buffer;
         if (glBuf.Target != BufferTargetARB.ArrayBuffer)
@@ -266,7 +266,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.BindBuffer(BufferTargetARB.ArrayBuffer, glBuf.Handle); 
         //if (_currentLayout == null || !_currentLayout.Equals(layout))
         //{
-            ((OpenGL33InputLayout) layout).Set(OpenGL33Shader.BoundHandle);
+            ((OpenGL33InputLayout) layout).Set(slot, stride);
         //    _currentLayout = layout;
         //}
     }
@@ -347,6 +347,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.DrawElementsBaseVertex(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize), baseVertex);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
+    }
+
+    public override unsafe void DrawIndexedInstanced(uint indexCount, uint instanceCount)
+    {
+        Gl.DrawElementsInstanced(_glType, indexCount, _currentEType, null, instanceCount);
     }
 
     public override void Present(int swapInterval)

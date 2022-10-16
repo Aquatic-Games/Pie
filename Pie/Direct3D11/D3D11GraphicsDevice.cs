@@ -181,9 +181,9 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11Shader(attachments);
     }
 
-    public override InputLayout CreateInputLayout(uint stride, params InputLayoutDescription[] descriptions)
+    public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
     {
-        return new D3D11InputLayout(stride, descriptions);
+        return new D3D11InputLayout(descriptions);
     }
 
     public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)
@@ -278,7 +278,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         Context.IASetPrimitiveTopology(topology);
     }
 
-    public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
+    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
     {
         if (layout != _currentLayout)
         {
@@ -287,7 +287,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             Context.IASetInputLayout(lt.Layout);
         }
 
-        Context.IASetVertexBuffer(0, ((D3D11GraphicsBuffer) buffer).Buffer, (int) _currentLayout.Stride);
+        Context.IASetVertexBuffer((int) slot, ((D3D11GraphicsBuffer) buffer).Buffer, (int) stride);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
@@ -354,6 +354,12 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         Context.DrawIndexed((int) indexCount, startIndex, baseVertex);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
+    }
+
+    public override void DrawIndexedInstanced(uint indexCount, uint instanceCount)
+    {
+        Context.DrawIndexedInstanced((int) indexCount, (int) instanceCount, 0, 0, 0);
+        PieMetrics.DrawCalls++;
     }
 
     public override void Present(int swapInterval)

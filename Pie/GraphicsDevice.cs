@@ -108,10 +108,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <summary>
     /// Create an input layout which can be used with a vertex buffer, with a given stride value in bytes.
     /// </summary>
-    /// <param name="stride">The stride size, in bytes, for this layout.</param>
     /// <param name="descriptions">The descriptions for this layout.</param>
     /// <returns>The created input layout.</returns>
-    public abstract InputLayout CreateInputLayout(uint stride, params InputLayoutDescription[] descriptions);
+    public abstract InputLayout CreateInputLayout(params InputLayoutDescription[] inputLayoutDescriptions);
 
     /// <summary>
     /// Create a new rasterizer state with the default parameters, typical for 3D.
@@ -220,9 +219,11 @@ public abstract class GraphicsDevice : IDisposable
     /// <summary>
     /// Set the vertex buffer that will be used on next draw.
     /// </summary>
+    /// <param name="slot">The input slot.</param>
     /// <param name="buffer">The buffer to use.</param>
+    /// <param name="stride">The stride, in bytes, for the input layout.</param>
     /// <param name="layout">The input layout that this vertex buffer will use.</param>
-    public abstract void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout);
+    public abstract void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout);
 
     /// <summary>
     /// Set the index buffer that will be used on next draw.
@@ -277,6 +278,8 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="startIndex">The starting index of the indices to draw.</param>
     /// <param name="baseVertex">The base vertex of the indices to draw.</param>
     public abstract void DrawIndexed(uint indexCount, int startIndex, int baseVertex);
+
+    public abstract void DrawIndexedInstanced(uint indexCount, uint instanceCount);
 
     /// <summary>
     /// Present to the screen.

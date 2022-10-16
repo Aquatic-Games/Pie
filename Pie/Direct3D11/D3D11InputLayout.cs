@@ -11,98 +11,41 @@ internal sealed class D3D11InputLayout : InputLayout
 {
     public readonly ID3D11InputLayout Layout;
 
-    public override uint Stride { get; }
-
     public D3D11InputLayout(InputLayoutDescription[] descriptions)
     {
         InputElementDescription[] iedesc = new InputElementDescription[descriptions.Length];
-        uint offset = 0;
         for (int i = 0; i < iedesc.Length; i++)
         {
             ref InputElementDescription d = ref iedesc[i];
             ref InputLayoutDescription desc = ref descriptions[i];
 
-            Format fmt;
-            uint offsetToAdd;
-            switch (desc.Type)
+            Format fmt = desc.Type switch
             {
-                case AttributeType.Int:
-                    fmt = Format.R32_SInt;
-                    offsetToAdd = 4;
-                    break;
-                case AttributeType.Int2:
-                    fmt = Format.R32G32_SInt;
-                    offsetToAdd = 8;
-                    break;
-                case AttributeType.Int3:
-                    fmt = Format.R32G32B32_SInt;
-                    offsetToAdd = 12;
-                    break;
-                case AttributeType.Int4:
-                    fmt = Format.R32G32B32A32_SInt;
-                    offsetToAdd = 16;
-                    break;
-                case AttributeType.Float:
-                    fmt = Format.R32_Float;
-                    offsetToAdd = 4;
-                    break;
-                case AttributeType.Float2:
-                    fmt = Format.R32G32_Float;
-                    offsetToAdd = 8;
-                    break;
-                case AttributeType.Float3:
-                    fmt = Format.R32G32B32_Float;
-                    offsetToAdd = 12;
-                    break;
-                case AttributeType.Float4:
-                    fmt = Format.R32G32B32A32_Float;
-                    offsetToAdd = 16;
-                    break;
-                case AttributeType.Byte:
-                    fmt = Format.R8_UInt;
-                    offsetToAdd = 1;
-                    break;
-                case AttributeType.Byte2:
-                    fmt = Format.R8G8_UInt;
-                    offsetToAdd = 2;
-                    break;
-                case AttributeType.Byte4:
-                    fmt = Format.R8G8B8A8_UInt;
-                    offsetToAdd = 4;
-                    break;
-                case AttributeType.NByte:
-                    fmt = Format.R8_UNorm;
-                    offsetToAdd = 1;
-                    break;
-                case AttributeType.NByte2:
-                    fmt = Format.R8G8_UNorm;
-                    offsetToAdd = 2;
-                    break;
-                case AttributeType.NByte4:
-                    fmt = Format.R8G8B8A8_UNorm;
-                    offsetToAdd = 4;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                AttributeType.Int => Format.R32_SInt,
+                AttributeType.Int2 => Format.R32G32_SInt,
+                AttributeType.Int3 => Format.R32G32B32_SInt,
+                AttributeType.Int4 => Format.R32G32B32A32_SInt,
+                AttributeType.Float => Format.R32_Float,
+                AttributeType.Float2 => Format.R32G32_Float,
+                AttributeType.Float3 => Format.R32G32B32_Float,
+                AttributeType.Float4 => Format.R32G32B32A32_Float,
+                AttributeType.Byte => Format.R8_UInt,
+                AttributeType.Byte2 => Format.R8G8_UInt,
+                AttributeType.Byte4 => Format.R8G8B8A8_UInt,
+                AttributeType.NByte => Format.R8_UNorm,
+                AttributeType.NByte2 => Format.R8G8_UNorm,
+                AttributeType.NByte4 => Format.R8G8B8A8_UNorm,
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
-            d = new InputElementDescription("TEXCOORD", i, fmt, (int) offset, 0, InputClassification.PerVertexData, 0);
-
-            offset += offsetToAdd;
+            d = new InputElementDescription("TEXCOORD", i, fmt, (int) desc.Offset, (int) desc.Slot, (InputClassification) desc.Type, 0);
         }
-
-        Stride = offset;
 
         Descriptions = descriptions;
 
         Blob dummyBlob = GenerateDummyShader(descriptions);
         Layout = Device.CreateInputLayout(iedesc, dummyBlob);
         dummyBlob.Dispose();
-    }
-
-    public D3D11InputLayout(uint stride, InputLayoutDescription[] descriptions) : this(descriptions)
-    {
-        Stride = stride;
     }
 
     private Blob GenerateDummyShader(InputLayoutDescription[] descriptions)

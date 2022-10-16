@@ -13,4 +13,14 @@
       <ProjectReference Include="..\Pie\Pie.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="StbImageSharp" Version="2.27.13" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="StbImageSharp">
+        <HintPath>..\..\..\..\.nuget\packages\stbimagesharp\2.27.13\lib\netstandard2.0\StbImageSharp.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
