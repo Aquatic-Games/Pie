@@ -64,6 +64,8 @@ public static class Compiler
              case GraphicsApi.D3D11:
                  spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_SHADER_MODEL,
                      50);
+                 spvc_compiler_options_set_bool(options,
+                     spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_FLATTEN_MATRIX_VERTEX_INPUT_SEMANTICS, SPVC_TRUE);
                  break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);
@@ -78,7 +80,7 @@ public static class Compiler
         
         shaderc_result_release(result);
         shaderc_compiler_release(compiler);
-        
+
         return r;
     }
 

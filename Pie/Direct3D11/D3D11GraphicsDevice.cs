@@ -114,8 +114,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
     {
-        Clear(new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f));
-        Clear(flags);
+        Clear(new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f), flags);
     }
 
     public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
@@ -280,12 +279,12 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
     {
-        if (layout != _currentLayout)
-        {
-            _currentLayout = layout;
+        //if (layout != _currentLayout)
+        //{
+        //    _currentLayout = layout;
             D3D11InputLayout lt = (D3D11InputLayout) layout;
             Context.IASetInputLayout(lt.Layout);
-        }
+        //}
 
         Context.IASetVertexBuffer((int) slot, ((D3D11GraphicsBuffer) buffer).Buffer, (int) stride);
     }

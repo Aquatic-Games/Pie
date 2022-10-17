@@ -38,7 +38,7 @@ internal sealed class D3D11InputLayout : InputLayout
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            d = new InputElementDescription("TEXCOORD", i, fmt, (int) desc.Offset, (int) desc.Slot, (InputClassification) desc.Type, 0);
+            d = new InputElementDescription("TEXCOORD", i, fmt, (int) desc.Offset, (int) desc.Slot, (InputClassification) desc.InputType, (int) desc.InputType);
         }
 
         Descriptions = descriptions;
@@ -104,10 +104,12 @@ internal sealed class D3D11InputLayout : InputLayout
                     throw new ArgumentOutOfRangeException();
             }
 
-            dummyShader.AppendLine(desc.Name + ": TEXCOORD" + i + ";");
+            dummyShader.AppendLine("var" + i + ": TEXCOORD" + i + ";");
         }
 
         dummyShader.AppendLine("}; void main(DummyInput input) {}");
+        
+        Console.WriteLine(dummyShader.ToString());
 
         return D3D11Shader.CompileShader(dummyShader.ToString(), "main", "vs_5_0");
     }
