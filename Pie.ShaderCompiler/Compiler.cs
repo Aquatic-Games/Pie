@@ -9,7 +9,7 @@ namespace Pie.ShaderCompiler;
 
 public static class Compiler
 {
-    public static unsafe string TranspileShader(ShaderStage stage, GraphicsApi api, string source, string entryPoint)
+    public static unsafe CompilerResult TranspileShader(ShaderStage stage, GraphicsApi api, string source, string entryPoint, bool reflect = false)
     {
         shaderc_compiler* compiler = shaderc_compiler_initialize();
         shaderc_compilation_result* result;
@@ -32,23 +32,51 @@ public static class Compiler
         if (shaderc_result_get_compilation_status(result) !=
             shaderc_compilation_status.shaderc_compilation_status_success)
         {
-            throw new PieException($"Failed to convert {stage.ToString().ToLower()} shader: " + ConvertToString(shaderc_result_get_error_message(result)));
+            return new CompilerResult(string.Empty, false,
+                $"Failed to convert {stage.ToString().ToLower()} shader: " +
+                ConvertToString(shaderc_result_get_error_message(result)), null, stage);
         }
 
+        spvc_backend backend = api switch
+        {
+            GraphicsApi.OpenGl33 => spvc_backend.SPVC_BACKEND_GLSL,
+            GraphicsApi.OpenGLES20 => spvc_backend.SPVC_BACKEND_GLSL,
+            GraphicsApi.D3D11 => spvc_backend.SPVC_BACKEND_HLSL,
+            _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)
+        };
+
+        string compiled = ShadercResultToCompiledSpirV(api, backend, result);
+
+        ReflectionInfo? info = null;
+
+        if (reflect)
+            info = ReflectionInfo.FromJson(ShadercResultToCompiledSpirV(api, spvc_backend.SPVC_BACKEND_JSON, result), stage);
+
+        shaderc_result_release(result);
+        shaderc_compiler_release(compiler);
+
+        return new CompilerResult(compiled, true, string.Empty, info, stage);
+    }
+
+    private static sbyte[] GetFromString(string text)
+    {
+        return (sbyte[]) (Array) Encoding.ASCII.GetBytes(text);
+    }
+
+    private static unsafe string ConvertToString(sbyte* text)
+    {
+        return Marshal.PtrToStringAnsi((IntPtr) text);
+    }
+
+    private static unsafe string ShadercResultToCompiledSpirV(GraphicsApi api, spvc_backend backend, shaderc_compilation_result* result)
+    {
         spvc_context* context;
         spvc_context_create(&context);
 
         spvc_parsed_ir* ir;
         spvc_context_parse_spirv(context, (SpvId*) shaderc_result_get_bytes(result),
             (nuint) ((int) shaderc_result_get_length(result) / sizeof(SpvId)), &ir);
-
-        spvc_backend backend = api switch
-        {
-            GraphicsApi.OpenGl33 => spvc_backend.SPVC_BACKEND_GLSL,
-            GraphicsApi.D3D11 => spvc_backend.SPVC_BACKEND_HLSL,
-            _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)
-        };
-
+        
         spvc_compiler* compl;
         spvc_context_create_compiler(context, backend, ir,
             spvc_capture_mode.SPVC_CAPTURE_MODE_TAKE_OWNERSHIP, &compl);
@@ -61,6 +89,10 @@ public static class Compiler
                 spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 330);
                 spvc_compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, SPVC_FALSE);
                 break;
+            case GraphicsApi.OpenGLES20:
+                spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 100);
+                spvc_compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, SPVC_TRUE);
+                break;
              case GraphicsApi.D3D11:
                  spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_SHADER_MODEL,
                      50);
@@ -72,25 +104,12 @@ public static class Compiler
         }
         spvc_compiler_install_compiler_options(compl, options);
 
-        sbyte* res;
-        spvc_compiler_compile(compl, &res);
-        string r = ConvertToString(res);
-
-        spvc_context_destroy(context);
+        sbyte* compiledResult;
+        spvc_compiler_compile(compl, &compiledResult);
+        string compiled = ConvertToString(compiledResult);
         
-        shaderc_result_release(result);
-        shaderc_compiler_release(compiler);
+        spvc_context_destroy(context);
 
-        return r;
-    }
-
-    private static sbyte[] GetFromString(string text)
-    {
-        return (sbyte[]) (Array) Encoding.ASCII.GetBytes(text);
-    }
-
-    private static unsafe string ConvertToString(sbyte* text)
-    {
-        return Marshal.PtrToStringAnsi((IntPtr) text);
+        return compiled;
     }
 }

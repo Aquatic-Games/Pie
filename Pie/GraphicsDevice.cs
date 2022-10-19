@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using Pie.Direct3D11;
 using Pie.OpenGL33;
+using Pie.OpenGLES20;
 using Silk.NET.Core.Contexts;
 
 namespace Pie;
@@ -310,6 +311,11 @@ public abstract class GraphicsDevice : IDisposable
     public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
     {
         return new OpenGL33GraphicsDevice(context, winSize, options);
+    }
+
+    public static GraphicsDevice CreateOpenGLES20(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
+    {
+        return new OpenGLES20GraphicsDevice(context, winSize, options);
     }
 
     /// <summary>

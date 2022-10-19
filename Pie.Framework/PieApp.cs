@@ -27,7 +27,9 @@ public abstract class PieApp : IDisposable
 
     public void Run()
     {
-        Window = Window.CreateWithGraphicsDevice(_settings, out GraphicsDevice);
+        Logging.DebugLog += (type, message) => Console.WriteLine(type + ": " + message);
+        GraphicsDeviceOptions options = new GraphicsDeviceOptions(true);
+        Window = Window.CreateWithGraphicsDevice(_settings, GraphicsApi.OpenGLES20, out GraphicsDevice, options);
 
         Initialize();
 

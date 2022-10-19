@@ -10,6 +10,11 @@ public enum GraphicsApi
     OpenGl33,
     
     /// <summary>
+    /// OpenGL ES 2.0, GLSL ES version 100.
+    /// </summary>
+    OpenGLES20,
+    
+    /// <summary>
     /// Direct3D 11, shader model 5.0
     /// </summary>
     D3D11

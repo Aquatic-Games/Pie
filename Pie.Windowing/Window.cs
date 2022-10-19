@@ -253,10 +253,16 @@ public unsafe partial class Window : IDisposable
         switch (api)
         {
             case GraphicsApi.OpenGl33:
+                glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.OpenGL);
                 glfw.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
                 glfw.WindowHint(WindowHintInt.ContextVersionMajor, 3);
                 glfw.WindowHint(WindowHintInt.ContextVersionMinor, 3);
                 glfw.WindowHint(WindowHintBool.OpenGLForwardCompat, true);
+                break;
+            case GraphicsApi.OpenGLES20:
+                glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.OpenGLES);
+                glfw.WindowHint(WindowHintInt.ContextVersionMajor, 2);
+                glfw.WindowHint(WindowHintInt.ContextVersionMinor, 0);
                 break;
             case GraphicsApi.D3D11:
                 glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.NoApi);
@@ -336,6 +342,9 @@ public unsafe partial class Window : IDisposable
         {
             case GraphicsApi.OpenGl33:
                 device = GraphicsDevice.CreateOpenGL33(new GlfwContext(window._glfw, window._handle), settings.Size, options);
+                break;
+            case GraphicsApi.OpenGLES20:
+                device = GraphicsDevice.CreateOpenGLES20(new GlfwContext(window._glfw, window._handle), settings.Size, options);
                 break;
             case GraphicsApi.D3D11:
                 device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, settings.Size, options);
