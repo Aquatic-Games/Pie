@@ -108,8 +108,6 @@ internal sealed class D3D11InputLayout : InputLayout
         }
 
         dummyShader.AppendLine("}; void main(DummyInput input) {}");
-        
-        Console.WriteLine(dummyShader.ToString());
 
         return D3D11Shader.CompileShader(dummyShader.ToString(), "main", "vs_5_0");
     }
