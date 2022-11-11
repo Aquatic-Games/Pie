@@ -67,7 +67,7 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
             // TODO check to make sure WriteDiscard works correctly
             
             // Thanks to veldrid source for helping me understand this mess
-            MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
+            MappedSubresource subresource = Context.Map(Buffer, Vortice.Direct3D11.MapMode.WriteDiscard);
             fixed (void* dat = data)
                 Unsafe.CopyBlock((byte*) subresource.DataPointer + (int) offsetInBytes, dat, (uint) (Unsafe.SizeOf<T>() * data.Length));
             Context.Unmap(Buffer);
@@ -85,7 +85,7 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
         // While these two functions are duplicates it avoids creating an array every time update is called.
         if (_dynamic)
         {
-            MappedSubresource subresource = Context.Map(Buffer, MapMode.WriteDiscard);
+            MappedSubresource subresource = Context.Map(Buffer, Vortice.Direct3D11.MapMode.WriteDiscard);
             Unsafe.CopyBlock((byte*) subresource.DataPointer + (int) offsetInBytes,&data, (uint) Unsafe.SizeOf<T>());
             Context.Unmap(Buffer);
         }

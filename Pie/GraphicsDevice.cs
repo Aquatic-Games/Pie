@@ -180,6 +180,10 @@ public abstract class GraphicsDevice : IDisposable
     /// <typeparam name="T">Any unmanaged type, typically <see cref="byte"/> or <see cref="float"/>.</typeparam>
     public abstract void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data) where T : unmanaged;
 
+    public abstract IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode);
+
+    public abstract void UnmapBuffer(GraphicsBuffer buffer);
+
     /// <summary>
     /// Set the shader that will be used on next draw.
     /// </summary>

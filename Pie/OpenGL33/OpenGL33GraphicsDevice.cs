@@ -199,6 +199,18 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         ((OpenGL33Texture) texture).Update(x, y, width, height, data);
     }
 
+    public override unsafe IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
+    {
+        OpenGL33GraphicsBuffer glBuf = (OpenGL33GraphicsBuffer) buffer;
+        Gl.BindBuffer(glBuf.Target, glBuf.Handle);
+        return (IntPtr) Gl.MapBuffer(glBuf.Target, mode.ToGlMapMode());
+    }
+
+    public override void UnmapBuffer(GraphicsBuffer buffer)
+    {
+        Gl.UnmapBuffer(((OpenGL33GraphicsBuffer) buffer).Target);
+    }
+
     public override void SetShader(Shader shader)
     {
         OpenGL33Shader glShader = (OpenGL33Shader) shader;

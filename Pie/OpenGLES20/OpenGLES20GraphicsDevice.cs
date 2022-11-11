@@ -194,6 +194,16 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         ((OpenGLES20Texture) texture).Update(x, y, width, height, data);
     }
 
+    public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void UnmapBuffer(GraphicsBuffer buffer)
+    {
+        throw new NotImplementedException();
+    }
+
     public override void SetShader(Shader shader)
     {
         OpenGLES20Shader glShader = (OpenGLES20Shader) shader;

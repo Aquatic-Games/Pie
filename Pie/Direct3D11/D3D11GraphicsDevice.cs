@@ -225,6 +225,17 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         ((D3D11Texture) texture).Update(x, y, width, height, data);
     }
 
+    public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
+    {
+        MappedSubresource resource = Context.Map(((D3D11GraphicsBuffer) buffer).Buffer, mode.ToDx11MapMode());
+        return resource.DataPointer;
+    }
+
+    public override void UnmapBuffer(GraphicsBuffer buffer)
+    {
+        Context.Unmap(((D3D11GraphicsBuffer) buffer).Buffer);
+    }
+
     public override void SetShader(Shader shader)
     {
         D3D11Shader sh = (D3D11Shader) shader;
