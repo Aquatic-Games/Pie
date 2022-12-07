@@ -8,9 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Update="libfreetype.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <Content Include="libfreetype.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+            <PackagePath>runtimes/win-x64/native/</PackagePath>
+        </Content>
     </ItemGroup>
 
 </Project>
