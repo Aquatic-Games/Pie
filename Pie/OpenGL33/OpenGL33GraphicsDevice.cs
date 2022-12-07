@@ -131,6 +131,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
     }
 
+    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
+    {
+        return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, null, dynamic);
+    }
+
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
         return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);

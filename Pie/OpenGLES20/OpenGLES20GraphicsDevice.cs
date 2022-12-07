@@ -124,6 +124,11 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         return OpenGLES20GraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), new T[] { data }, dynamic);
     }
 
+    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
+    {
+        throw new NotImplementedException();
+    }
+
     public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
         throw new NotImplementedException();

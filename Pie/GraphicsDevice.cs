@@ -42,9 +42,8 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="bufferType">The type of buffer that should be created.</param>
     /// <param name="data">The data itself.</param>
-    /// <param name="dynamic">Whether or not this buffer is dynamic. You <b>MUST</b> set this value if you plan on updating this buffer's data afterwards.</param>
+    /// <param name="dynamic">Whether or not this buffer is dynamic.</param>
     /// <typeparam name="T">Any unmanaged type.</typeparam>
-    /// <remarks>The sizeInBytes as found in other overloads is calculated as <c>data.Length * sizeof(T)</c></remarks>
     /// <returns>The created graphics buffer.</returns>
     public abstract GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false) where T : unmanaged;
     
@@ -53,14 +52,38 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="bufferType">The type of buffer that should be created.</param>
     /// <param name="data">The data itself.</param>
-    /// <param name="dynamic">Whether or not this buffer is dynamic. You <b>MUST</b> set this value if you plan on updating this buffer's data afterwards.</param>
+    /// <param name="dynamic">Whether or not this buffer is dynamic.</param>
     /// <typeparam name="T">Any unmanaged type.</typeparam>
-    /// <remarks>The sizeInBytes as found in other overloads is calculated as <c>sizeof(T)</c></remarks>
     /// <returns>The created graphics buffer.</returns>
     public abstract GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false) where T : unmanaged;
 
+    /// <summary>
+    /// Create an empty graphics buffer with the given size.
+    /// </summary>
+    /// <param name="bufferType">The type of buffer that should be created.</param>
+    /// <param name="sizeInBytes">The size, in bytes, that this buffer should be.</param>
+    /// <param name="dynamic">Whether or not this buffer is dynamic.</param>
+    /// <returns>The created graphics buffer.</returns>
+    public abstract GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false);
+
+    /// <summary>
+    /// Create a graphics buffer with the given type and data.
+    /// </summary>
+    /// <param name="bufferType">The type of buffer that should be created.</param>
+    /// <param name="sizeInBytes">The size, in bytes, that this buffer should be.</param>
+    /// <param name="data">The data pointer.</param>
+    /// <param name="dynamic">Whether or not this buffer is dynamic.</param>
+    /// <returns>The created graphics buffer.</returns>
     public abstract GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false);
 
+    /// <summary>
+    /// Create a graphics buffer with the given type and data.
+    /// </summary>
+    /// <param name="bufferType">The type of buffer that should be created.</param>
+    /// <param name="sizeInBytes">The size, in bytes, that this buffer should be.</param>
+    /// <param name="data">The data pointer.</param>
+    /// <param name="dynamic">Whether or not this buffer is dynamic.</param>
+    /// <returns>The created graphics buffer.</returns>
     public abstract unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false);
     
     /// <summary>

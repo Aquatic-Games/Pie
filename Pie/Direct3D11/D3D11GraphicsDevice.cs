@@ -157,6 +157,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             return D3D11GraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
     }
 
+    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
+    {
+        return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, null, dynamic);
+    }
+
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
         return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);
