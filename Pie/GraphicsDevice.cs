@@ -85,23 +85,16 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="dynamic">Whether or not this buffer is dynamic.</param>
     /// <returns>The created graphics buffer.</returns>
     public abstract unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false);
-    
-    /// <summary>
-    /// Create a texture with the given description and data.
-    /// </summary>
-    /// <param name="description">The description of the texture.</param>
-    /// <param name="data">The initial data of the texture.</param>
-    /// <typeparam name="T">Any unmanaged type (typically byte).</typeparam>
-    /// <returns>The created texture.</returns>
-    public abstract Texture CreateTexture<T>(TextureDescription description, T[] data = null) where T : unmanaged;
 
     /// <summary>
     /// Create a texture with the given description and data.
     /// </summary>
     /// <param name="description">The description of the texture.</param>
-    /// <param name="data">The pointer to the initial data of the texture.</param>
+    /// <param name="data">The initial data of the texture.</param>
     /// <returns>The created texture.</returns>
-    public abstract Texture CreateTexture(TextureDescription description, IntPtr data);
+    public abstract Texture CreateTexture(TextureDescription description, TextureData[] data);
+
+    public abstract unsafe Texture CreateTexture(TextureDescription description, TextureData* data);
 
     /// <summary>
     /// Create a shader with the given shader attachments.
@@ -172,7 +165,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="data">The data itself</param>
     /// <typeparam name="T">Any unmanaged type</typeparam>
     public abstract void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data) where T : unmanaged;
-    
+
     /// <summary>
     /// Update a region of this texture with the given data.
     /// </summary>
@@ -182,8 +175,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="width">The width in pixels of the data.</param>
     /// <param name="height">The height in pixels of the data.</param>
     /// <param name="data">The data itself.</param>
-    /// <typeparam name="T">Any unmanaged type, typically <see cref="byte"/> or <see cref="float"/>.</typeparam>
-    public abstract void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data) where T : unmanaged;
+    public abstract void UpdateTexture(Texture texture, int x, int y, uint width, uint height, TextureData data);
 
     public abstract IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode);
 

@@ -110,8 +110,8 @@ internal sealed class OpenGLES20Texture : Texture
                     case TextureType.Cubemap:
                         for (int i = 0; i < data.Length; i++)
                         {
-                            Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
-                                PixelType.UnsignedByte, ((CubemapData) (object) data[i]).Data);
+                            //Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
+                            //    PixelType.UnsignedByte, ((CubemapData) (object) data[i]).Data);
                         }
 
                         break;

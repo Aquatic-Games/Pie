@@ -139,14 +139,9 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
-    public override Texture CreateTexture<T>(TextureDescription description, T[] data = null)
+    public override Texture CreateTexture(TextureDescription description, TextureData[] data)
     {
-        return OpenGLES20Texture.CreateTexture(description, data);
-    }
-
-    public override Texture CreateTexture(TextureDescription description, IntPtr data)
-    {
-        return OpenGLES20Texture.CreateTexture(description, data);
+        throw new NotImplementedException();
     }
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)

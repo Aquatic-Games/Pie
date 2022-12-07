@@ -100,6 +100,21 @@ public static class PieUtils
             throw new PieException("Array size must be at least 1.");
     }
 
+    internal static int GetSizeMultiplier(PixelFormat format)
+    {
+        return format switch
+        {
+            PixelFormat.R8_UNorm => 1,
+            PixelFormat.R8G8_UNorm => 2,
+            PixelFormat.R8G8B8A8_UNorm => 4,
+            PixelFormat.B8G8R8A8_UNorm => 4,
+            PixelFormat.R16G16B16A16_Float => 8,
+            PixelFormat.R32G32B32A32_Float => 16,
+            PixelFormat.D24_UNorm_S8_UInt => 16,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+
     internal static void CheckIfValid(int expected, int received)
     {
         if (received != expected)

@@ -12,7 +12,7 @@ public class Texture2D : IDisposable
     {
         ImageResult result = ImageResult.FromMemory(File.ReadAllBytes(path), ColorComponents.RedGreenBlueAlpha);
         PieTexture = device.CreateTexture(new TextureDescription(TextureType.Texture2D, result.Width, result.Height,
-            PixelFormat.R8G8B8A8_UNorm, 0, 1, TextureUsage.ShaderResource), result.Data);
+            PixelFormat.R8G8B8A8_UNorm, 0, 1, TextureUsage.ShaderResource), new [] { new TextureData(result.Data) });
         device.GenerateMipmaps(PieTexture);
     }
 

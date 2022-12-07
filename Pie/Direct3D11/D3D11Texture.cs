@@ -26,12 +26,10 @@ internal sealed class D3D11Texture : Texture
         Description = description;
     }
 
-    public static Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
+    public static unsafe Texture CreateTexture(TextureDescription description, TextureData* data)
     {
         PieUtils.CheckIfValid(description);
-        
-        if (data != null && description.TextureType != TextureType.Cubemap)
-            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
+        int sizeMultiplier = PieUtils.GetSizeMultiplier(description.Format);
 
         Format fmt = PieUtils.ToDxgiFormat(description.Format,
             (description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource);
@@ -44,7 +42,6 @@ internal sealed class D3D11Texture : Texture
 
         if (description.Format == PixelFormat.D24_UNorm_S8_UInt)
             flags |= BindFlags.DepthStencil;
-
         ID3D11Resource texture;
         ShaderResourceViewDescription svDesc = new ShaderResourceViewDescription()
         {
@@ -68,9 +65,14 @@ internal sealed class D3D11Texture : Texture
                     CPUAccessFlags = CpuAccessFlags.None,
                     MiscFlags = description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
                 };
-
+                
+                Console.WriteLine(description.Width * description.Height * sizeMultiplier);
+                Console.WriteLine(data[0].DataLength);
+                
                 texture = Device.CreateTexture2D(desc);
-
+                //Context.UpdateSubresource(new ReadOnlySpan<byte>(data[0].DataPtr, (int) data[0].DataLength), texture, 0, description.Width * sizeMultiplier);
+                Context.UpdateSubresource(texture, 0, null, new IntPtr(data[0].DataPtr), description.Width * sizeMultiplier, 0);
+                
                 if (description.ArraySize == 1)
                 {
                     svDesc.ViewDimension = ShaderResourceViewDimension.Texture2D;
@@ -110,11 +112,8 @@ internal sealed class D3D11Texture : Texture
                 SubresourceData[] subresourceDatas = new SubresourceData[cDesc.ArraySize];
                 for (int i = 0; i < cDesc.ArraySize; i++)
                 {
-                    unsafe
-                    {
-                        CubemapData cData = (CubemapData) (object) data[i];
-                        subresourceDatas[i] = new SubresourceData(cData.Data, description.Width * 4 * sizeof(byte));
-                    }
+                    TextureData tData = data[i];
+                    subresourceDatas[i] = new SubresourceData(tData.DataPtr, description.Width * sizeMultiplier);
                 }
 
                 texture = Device.CreateTexture2D(cDesc, subresourceDatas);
@@ -130,9 +129,6 @@ internal sealed class D3D11Texture : Texture
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        
-        if (data != null && description.TextureType != TextureType.Cubemap)
-            Context.UpdateSubresource(data, texture, 0, description.Width * 4 * sizeof(byte));
 
         ID3D11ShaderResourceView view = null;
 
@@ -144,18 +140,11 @@ internal sealed class D3D11Texture : Texture
         return new D3D11Texture(texture, view, new Size(description.Width, description.Height), description);
     }
 
-    public static unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
-    {
-        // TODO remove *4 and replace with an amount that changes based on the format.
-        ReadOnlySpan<byte> bData = new ReadOnlySpan<byte>(data.ToPointer(), description.Width * description.Height * 4);
-        return CreateTexture(description, bData.ToArray());
-    }
-    
-    public void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged
+    public unsafe void Update(int x, int y, uint width, uint height, TextureData data)
     {
         // TODO: Implement texture mapping for fast transfers, i think.
-        Context.UpdateSubresource(data, Texture, 0, (int) width * 4 * sizeof(byte),
-            region: new Box(x, y, 0, (int) (x + width), (int) (y + height), 1));
+        Context.UpdateSubresource(Texture, 0, new Box(x, y, 0, (int) (x + width), (int) (y + height), 1),
+            new IntPtr(data.DataPtr), (int) (width * PieUtils.GetSizeMultiplier(Description.Format)), 0);
     }
 
     public override void Dispose()

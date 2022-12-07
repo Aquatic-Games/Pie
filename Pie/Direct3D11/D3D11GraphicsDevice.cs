@@ -172,12 +172,16 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
-    public override Texture CreateTexture<T>(TextureDescription description, T[] data = null)
+    public override unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
     {
-        return D3D11Texture.CreateTexture(description, data);
+        if (description.ArraySize != data.Length)
+            throw new PieException(description.ArraySize + " data sets expected, " + data.Length + " provided.");
+        
+        fixed (TextureData* dat = data)
+            return D3D11Texture.CreateTexture(description, dat);
     }
 
-    public override Texture CreateTexture(TextureDescription description, IntPtr data)
+    public override unsafe Texture CreateTexture(TextureDescription description, TextureData* data)
     {
         return D3D11Texture.CreateTexture(description, data);
     }
@@ -229,7 +233,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
     }
 
-    public override void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
+    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, TextureData data)
     {
         ((D3D11Texture) texture).Update(x, y, width, height, data);
     }
