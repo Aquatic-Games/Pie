@@ -18,7 +18,7 @@ internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
         Target = target;
     }
 
-    public static unsafe GraphicsBuffer CreateBuffer<T>(BufferType type, uint sizeInBytes, T[] data, bool dynamic) where T : unmanaged
+    public static unsafe GraphicsBuffer CreateBuffer(BufferType type, uint sizeInBytes, void* data, bool dynamic)
     {
         BufferTargetARB target;
 
@@ -44,28 +44,15 @@ internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
 
         uint handle = Gl.GenBuffer();
         Gl.BindBuffer(target, handle);
-        if (data == null)
-            Gl.BufferData(target, sizeInBytes, null, usage);
-        else
-        {
-            fixed (void* d = data)
-                Gl.BufferData(target, sizeInBytes, d, usage);
-        }
+        Gl.BufferData(target, sizeInBytes, data, usage);
 
         return new OpenGL33GraphicsBuffer(handle, target);
     }
 
-    public unsafe void Update<T>(uint offsetInBytes, T[] data) where T : unmanaged
+    public unsafe void Update(uint offsetInBytes, uint sizeInBytes, void* data)
     {
         Gl.BindBuffer(Target, Handle);
-        fixed (void* d = data)
-            Gl.BufferSubData(Target, (nint) offsetInBytes, (nuint) (data.Length * Unsafe.SizeOf<T>()), d);
-    }
-
-    public unsafe void Update<T>(uint offsetInBytes, T data) where T : unmanaged
-    {
-        Gl.BindBuffer(Target, Handle);
-        Gl.BufferSubData(Target, (nint) offsetInBytes, (nuint) Unsafe.SizeOf<T>(), data);
+        Gl.BufferSubData(Target, (nint) offsetInBytes, (nuint) sizeInBytes, data);
     }
 
     public override void Dispose()

@@ -119,24 +119,26 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         PieMetrics.TriCount = 0;
     }
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
-        return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), data, dynamic);
+        fixed (void* dat = data)
+            return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), dat, dynamic);
     }
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
     {
-        return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), new T[] { data }, dynamic);
+        fixed (void* dat = new T[] { data })
+            return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
     }
 
-    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
-        throw new NotImplementedException();
+        return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
-        throw new NotImplementedException();
+        return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
     public override Texture CreateTexture<T>(TextureDescription description, T[] data = null)
@@ -184,14 +186,16 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return new OpenGL33Framebuffer(attachments);
     }
 
-    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
+    public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
-        ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, data);
+        fixed (void* dat = data)
+            ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, (uint) (data.Length * Unsafe.SizeOf<T>()), dat);
     }
 
-    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
+    public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
     {
-        ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, data);
+        fixed (void* dat = new T[] { data })
+            ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
     }
 
     public override void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
