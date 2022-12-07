@@ -13,7 +13,7 @@ Pie currently supports the following APIs:
 ... with plans to expand further (although note that vulkan support anytime soon is unlikely).
 
 ### Framework
-A simple XNA-inspired framework to remove some of the boilerplate 
+A simple XNA-inspired framework to remove some of the boilerplate code necessary to use Pie. Providing a game loop, and some QOL features, such as easy Texture2Ds, Pie.Framework is a good middle ground between doing it all yourself, and using a game engine.
 
 ### Audio
 Pie features a cross-platform audio library, which wraps around OpenAL-Soft. This is a rather minimal abstraction, however still implements an object-oriented API, as well as a few helpers to remove some of the most common sound loading boilerplate.
@@ -27,4 +27,5 @@ Don't like this? Pie is fully compatible with [Silk.NET](https://github.com/dotn
 * [Silk.NET](https://github.com/dotnet/Silk.NET) - OpenGL, OpenAL, and GLFW bindings.
 * [Vortice.Windows](https://github.com/amerkoleci/Vortice.Windows) - Direct3D 11 bindings.
 * [Spirzza](https://github.com/TechPizzaDev/Spirzza) - shaderc & spirv-cross bindings.
+* [StbImageSharp](https://github.com/StbSharp/StbImageSharp) - Bitmap loader used in Pie.Framework.
 * Twitter for it's pie emoji (I don't own it!)
