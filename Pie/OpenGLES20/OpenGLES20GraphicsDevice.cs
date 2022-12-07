@@ -139,6 +139,11 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
+    public override Texture CreateTexture(TextureDescription description)
+    {
+        throw new NotImplementedException();
+    }
+
     public override Texture CreateTexture(TextureDescription description, TextureData[] data)
     {
         throw new NotImplementedException();

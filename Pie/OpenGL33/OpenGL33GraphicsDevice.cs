@@ -146,6 +146,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
+    public override unsafe Texture CreateTexture(TextureDescription description)
+    {
+        return OpenGL33Texture.CreateTexture(description, null);
+    }
+
     public override unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
     {
         fixed (TextureData* dat = data)

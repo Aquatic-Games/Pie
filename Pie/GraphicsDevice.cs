@@ -86,6 +86,8 @@ public abstract class GraphicsDevice : IDisposable
     /// <returns>The created graphics buffer.</returns>
     public abstract unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false);
 
+    public abstract Texture CreateTexture(TextureDescription description);
+    
     /// <summary>
     /// Create a texture with the given description and data.
     /// </summary>

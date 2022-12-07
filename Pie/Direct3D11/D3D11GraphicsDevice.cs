@@ -172,6 +172,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
+    public override unsafe Texture CreateTexture(TextureDescription description)
+    {
+        return D3D11Texture.CreateTexture(description, null);
+    }
+
     public override unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
     {
         if (description.ArraySize != data.Length)
