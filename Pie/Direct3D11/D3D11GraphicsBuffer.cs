@@ -22,7 +22,7 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
         _type = type;
     }
 
-    public static GraphicsBuffer CreateBuffer<T>(BufferType type, uint sizeInBytes, T[] data, bool dynamic) where T : unmanaged
+    public static unsafe GraphicsBuffer CreateBuffer(BufferType type, uint sizeInBytes, void* data, bool dynamic)
     {
         BindFlags flags;
 
@@ -56,11 +56,11 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
         if (data == null)
             buffer = Device.CreateBuffer(description);
         else
-            buffer = Device.CreateBuffer(new ReadOnlySpan<T>(data), description);
+            buffer = Device.CreateBuffer(description, new SubresourceData(data));
         return new D3D11GraphicsBuffer(buffer, dynamic, type);
     }
     
-    public unsafe void Update<T>(uint offsetInBytes, T[] data) where T : unmanaged
+    public unsafe void Update(uint offsetInBytes, uint sizeInBytes, void* data)
     {
         if (_dynamic)
         {
@@ -68,19 +68,17 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
             
             // Thanks to veldrid source for helping me understand this mess
             MappedSubresource subresource = Context.Map(Buffer, Vortice.Direct3D11.MapMode.WriteDiscard);
-            fixed (void* dat = data)
-                Unsafe.CopyBlock((byte*) subresource.DataPointer + (int) offsetInBytes, dat, (uint) (Unsafe.SizeOf<T>() * data.Length));
+            Unsafe.CopyBlock((byte*) subresource.DataPointer + (int) offsetInBytes, data, sizeInBytes);
             Context.Unmap(Buffer);
         }
         else
         {
-            Context.UpdateSubresource(data, Buffer,
-                region: new Box((int) offsetInBytes, 0, 0, (int) ((Unsafe.SizeOf<T>() * data.Length) + offsetInBytes),
-                    1, 1));
+            Context.UpdateSubresource(Buffer, 0,
+                new Box((int) offsetInBytes, 0, 0, (int) (sizeInBytes + offsetInBytes), 1, 1), (IntPtr) data, 0, 0);
         }
     }
 
-    public unsafe void Update<T>(uint offsetInBytes, T data) where T : unmanaged
+    /*public unsafe void Update<T>(uint offsetInBytes, T data) where T : unmanaged
     {
         // While these two functions are duplicates it avoids creating an array every time update is called.
         if (_dynamic)
@@ -95,7 +93,7 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
                 region: new Box((int) offsetInBytes, 0, 0, (int) (Unsafe.SizeOf<T>() + offsetInBytes),
                     1, 1));
         }
-    }
+    }*/
 
     public override void Dispose()
     {

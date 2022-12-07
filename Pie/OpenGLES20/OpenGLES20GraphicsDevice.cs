@@ -124,14 +124,14 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         return OpenGLES20GraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), new T[] { data }, dynamic);
     }
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, uint sizeInBytes, T[] data, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
-        return OpenGLES20GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
+        throw new NotImplementedException();
     }
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, uint sizeInBytes, T data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
-        return OpenGLES20GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
+        throw new NotImplementedException();
     }
 
     public override Texture CreateTexture<T>(TextureDescription description, T[] data = null)

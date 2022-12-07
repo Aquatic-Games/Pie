@@ -58,28 +58,10 @@ public abstract class GraphicsDevice : IDisposable
     /// <remarks>The sizeInBytes as found in other overloads is calculated as <c>sizeof(T)</c></remarks>
     /// <returns>The created graphics buffer.</returns>
     public abstract GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false) where T : unmanaged;
-    
-    /// <summary>
-    /// Create a graphics buffer with the given type and data.
-    /// </summary>
-    /// <param name="bufferType">The type of buffer that should be created.</param>
-    /// <param name="sizeInBytes">The size in bytes of the buffer.</param>
-    /// <param name="data">The data itself.</param>
-    /// <param name="dynamic">Whether or not this buffer is dynamic. You <b>MUST</b> set this value if you plan on updating this buffer's data afterwards.</param>
-    /// <typeparam name="T">Any unmanaged type.</typeparam>
-    /// <returns>The created graphics buffer.</returns>
-    public abstract GraphicsBuffer CreateBuffer<T>(BufferType bufferType, uint sizeInBytes, T[] data, bool dynamic = false) where T : unmanaged;
-    
-    /// <summary>
-    /// Create a graphics buffer with the given type and data.
-    /// </summary>
-    /// <param name="bufferType">The type of buffer that should be created.</param>
-    /// <param name="sizeInBytes">The size in bytes of the buffer.</param>
-    /// <param name="data">The data itself.</param>
-    /// <param name="dynamic">Whether or not this buffer is dynamic. You <b>MUST</b> set this value if you plan on updating this buffer's data afterwards.</param>
-    /// <typeparam name="T">Any unmanaged type.</typeparam>
-    /// <returns>The created graphics buffer.</returns>
-    public abstract GraphicsBuffer CreateBuffer<T>(BufferType bufferType, uint sizeInBytes, T data, bool dynamic = false) where T : unmanaged;
+
+    public abstract GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false);
+
+    public abstract unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false);
     
     /// <summary>
     /// Create a texture with the given description and data.

@@ -145,24 +145,26 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         _currentDState = null;
     }
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
-        return D3D11GraphicsBuffer.CreateBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), data, dynamic);
+        fixed (void* dat = data) 
+            return D3D11GraphicsBuffer.CreateBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), dat, dynamic);
     }
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
     {
-        return D3D11GraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), new T[] { data }, dynamic);
+        fixed (void* dat = new T[] { data })
+            return D3D11GraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
     }
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, uint sizeInBytes, T[] data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
+    {
+        return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);
+    }
+
+    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
         return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
-    }
-
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, uint sizeInBytes, T data, bool dynamic = false)
-    {
-        return D3D11GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, new T[] { data }, dynamic);
     }
 
     public override Texture CreateTexture<T>(TextureDescription description, T[] data = null)
@@ -210,14 +212,16 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11Framebuffer(attachments);
     }
 
-    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
+    public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
-        ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, data);
+        fixed (void* dat = data)
+            ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, (uint) (data.Length * Unsafe.SizeOf<T>()), dat);
     }
 
-    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
+    public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
     {
-        ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, data);
+        fixed (void* dat = new T[] { data })
+            ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
     }
 
     public override void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
