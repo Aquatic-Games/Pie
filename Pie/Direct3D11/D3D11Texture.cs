@@ -68,7 +68,8 @@ internal sealed class D3D11Texture : Texture
 
                 texture = Device.CreateTexture2D(desc);
                 //Context.UpdateSubresource(new ReadOnlySpan<byte>(data[0].DataPtr, (int) data[0].DataLength), texture, 0, description.Width * sizeMultiplier);
-                Context.UpdateSubresource(texture, 0, null, new IntPtr(data[0].DataPtr), description.Width * sizeMultiplier, 0);
+                if (data != null)
+                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data[0].DataPtr), description.Width * sizeMultiplier, 0);
                 
                 if (description.ArraySize == 1)
                 {

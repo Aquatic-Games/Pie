@@ -95,8 +95,10 @@ internal sealed class OpenGL33Texture : Texture
                 case TextureType.Texture2D:
                     if (description.ArraySize == 1)
                     {
+                        void* dataPtr = data == null ? null : data[0].DataPtr;
+                        
                         Gl.TexImage2D(target, 0, iFmt, (uint) description.Width,
-                            (uint) description.Height, 0, fmt, PixelType.UnsignedByte, data[0].DataPtr);
+                            (uint) description.Height, 0, fmt, PixelType.UnsignedByte, dataPtr);
                     }
                     else
                         throw new NotImplementedException("Currently texture arrays have not been implemented.");
@@ -104,8 +106,10 @@ internal sealed class OpenGL33Texture : Texture
                 case TextureType.Cubemap:
                     for (int i = 0; i < 6; i++)
                     {
+                        void* dataPtr = data == null ? null : data[0].DataPtr;
+                        
                         Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
-                            PixelType.UnsignedByte, data[i].DataPtr);
+                            PixelType.UnsignedByte, dataPtr);
                     }
 
                     break;
