@@ -255,32 +255,32 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override void SetRasterizerState(RasterizerState state)
     {
-        if (state == _currentRState)
-            return;
+        //if (state == _currentRState)
+        //    return;
         _currentRState = state;
         Context.RSSetState(((D3D11RasterizerState) state).State);
     }
 
     public override void SetBlendState(BlendState state)
     {
-        if (state == _currentBState)
-            return;
+        //if (state == _currentBState)
+        //    return;
         _currentBState = state;
         Context.OMSetBlendState(((D3D11BlendState) state).State);
     }
 
     public override void SetDepthState(DepthState state)
     {
-        if (state == _currentDState)
-            return;
+        //if (state == _currentDState)
+        //    return;
         _currentDState = state;
         Context.OMSetDepthStencilState(((D3D11DepthState) state).State);
     }
 
     public override void SetPrimitiveType(PrimitiveType type)
     {
-        if (_primitiveTypeInitialized && type == _currentPType)
-            return;
+        //if (_primitiveTypeInitialized && type == _currentPType)
+        //    return;
         _primitiveTypeInitialized = true;
         _currentPType = type;
         PrimitiveTopology topology = type switch
