@@ -144,6 +144,11 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
+    public override unsafe Texture CreateTexture(TextureDescription description, TextureData* data)
+    {
+        throw new NotImplementedException();
+    }
+
     public override Shader CreateShader(params ShaderAttachment[] attachments)
     {
         return new OpenGLES20Shader(attachments);
@@ -189,9 +194,9 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         ((OpenGLES20GraphicsBuffer) buffer).Update(offsetInBytes, data);
     }
 
-    public override void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
+    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, TextureData data)
     {
-        ((OpenGLES20Texture) texture).Update(x, y, width, height, data);
+        throw new NotImplementedException();
     }
 
     public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)

@@ -23,12 +23,9 @@ internal sealed class OpenGL33Texture : Texture
         Target = target;
     }
 
-    public static unsafe Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged
+    public static unsafe Texture CreateTexture(TextureDescription description, TextureData* data)
     {
         PieUtils.CheckIfValid(description);
-        
-        if (data != null && description.TextureType != TextureType.Cubemap)
-            PieUtils.CheckIfValid(description.Width * description.Height * 4, data.Length);
 
         bool isRenderbuffer = (description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer &&
                               (description.Usage & TextureUsage.ShaderResource) != TextureUsage.ShaderResource;
@@ -93,31 +90,27 @@ internal sealed class OpenGL33Texture : Texture
             };
         
             Gl.BindTexture(target, handle);
-
-            fixed (void* p = data)
+            switch (description.TextureType)
             {
-                switch (description.TextureType)
-                {
-                    case TextureType.Texture2D:
-                        if (description.ArraySize == 1)
-                        {
-                            Gl.TexImage2D(target, 0, iFmt, (uint) description.Width,
-                                (uint) description.Height, 0, fmt, PixelType.UnsignedByte, p);
-                        }
-                        else
-                            throw new NotImplementedException("Currently texture arrays have not been implemented.");
-                        break;
-                    case TextureType.Cubemap:
-                        for (int i = 0; i < data.Length; i++)
-                        {
-                            //Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
-                            //    PixelType.UnsignedByte, ((CubemapData) (object) data[i]).Data);
-                        }
+                case TextureType.Texture2D:
+                    if (description.ArraySize == 1)
+                    {
+                        Gl.TexImage2D(target, 0, iFmt, (uint) description.Width,
+                            (uint) description.Height, 0, fmt, PixelType.UnsignedByte, data[0].DataPtr);
+                    }
+                    else
+                        throw new NotImplementedException("Currently texture arrays have not been implemented.");
+                    break;
+                case TextureType.Cubemap:
+                    for (int i = 0; i < 6; i++)
+                    {
+                        Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
+                            PixelType.UnsignedByte, data[i].DataPtr);
+                    }
 
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
             
             if (description.MipLevels != 0)
@@ -127,21 +120,14 @@ internal sealed class OpenGL33Texture : Texture
         return new OpenGL33Texture(handle, fmt, new Size(description.Width, description.Height), description, isRenderbuffer, target);
     }
 
-    public static unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
-    {
-        ReadOnlySpan<byte> bData = new ReadOnlySpan<byte>(data.ToPointer(), description.Width * description.Height * 4);
-        return CreateTexture(description, bData.ToArray());
-    }
-
     public override bool IsDisposed { get; protected set; }
     public override Size Size { get; set; }
     public override TextureDescription Description { get; set; }
 
-    public unsafe void Update<T>(int x, int y, uint width, uint height, T[] data) where T : unmanaged
+    public unsafe void Update(int x, int y, uint width, uint height, TextureData data)
     {
         Gl.BindTexture(TextureTarget.Texture2D, Handle);
-        fixed (void* d = data)
-            Gl.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, width, height, _format, PixelType.UnsignedByte, d);
+        Gl.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, width, height, _format, PixelType.UnsignedByte, data.DataPtr);
     }
 
     public override void Dispose()

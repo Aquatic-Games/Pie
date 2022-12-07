@@ -146,9 +146,15 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return OpenGL33GraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
-    public override Texture CreateTexture(TextureDescription description, TextureData[] data)
+    public override unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
     {
-        throw new NotImplementedException();
+        fixed (TextureData* dat = data)
+            return OpenGL33Texture.CreateTexture(description, dat);
+    }
+
+    public override unsafe Texture CreateTexture(TextureDescription description, TextureData* data)
+    {
+        return OpenGL33Texture.CreateTexture(description, data);
     }
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)
@@ -198,7 +204,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
     }
 
-    public override void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
+    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, TextureData data)
     {
         ((OpenGL33Texture) texture).Update(x, y, width, height, data);
     }

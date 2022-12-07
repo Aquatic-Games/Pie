@@ -65,10 +65,7 @@ internal sealed class D3D11Texture : Texture
                     CPUAccessFlags = CpuAccessFlags.None,
                     MiscFlags = description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
                 };
-                
-                Console.WriteLine(description.Width * description.Height * sizeMultiplier);
-                Console.WriteLine(data[0].DataLength);
-                
+
                 texture = Device.CreateTexture2D(desc);
                 //Context.UpdateSubresource(new ReadOnlySpan<byte>(data[0].DataPtr, (int) data[0].DataLength), texture, 0, description.Width * sizeMultiplier);
                 Context.UpdateSubresource(texture, 0, null, new IntPtr(data[0].DataPtr), description.Width * sizeMultiplier, 0);
