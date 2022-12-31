@@ -4,9 +4,10 @@ using Silk.NET.Windowing;
 
 namespace Pie.Extensions.SilkWindowing;
 
-public static class PieSilk
+// A beautiful silk pie. It's like a cottage pie, but silky smooth.
+public static class SilkPie
 {
-    public static IWindow CreateWindow(WindowOptions options, GraphicsApi api)
+    public static IWindow CreateWindow(ref WindowOptions options, GraphicsApi api)
     {
         options.ShouldSwapAutomatically = false;
         switch (api)
@@ -25,9 +26,9 @@ public static class PieSilk
         return Window.Create(options);
     }
 
-    public static IWindow CreateWindow(WindowOptions options)
+    public static IWindow CreateWindow(ref WindowOptions options)
     {
-        return CreateWindow(options, GraphicsDevice.GetBestApiForPlatform());
+        return CreateWindow(ref options, GraphicsDevice.GetBestApiForPlatform());
     }
     
     /// <summary>
