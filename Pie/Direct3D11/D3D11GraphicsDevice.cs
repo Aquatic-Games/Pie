@@ -179,7 +179,8 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
     {
-        if (description.ArraySize != data.Length)
+        // TODO: This for opengl
+        if (description.ArraySize != data.Length && description.TextureType != TextureType.Cubemap)
             throw new PieException(description.ArraySize + " data sets expected, " + data.Length + " provided.");
         
         fixed (TextureData* dat = data)
