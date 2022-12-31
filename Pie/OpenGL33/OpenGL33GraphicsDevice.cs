@@ -39,6 +39,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Debug = options.Debug;
 
         Viewport = new Rectangle(Point.Empty, winSize);
+        _renderSize = winSize;
 
         if (Debug)
         {
@@ -56,13 +57,14 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     
     public override GraphicsApi Api => GraphicsApi.OpenGl33;
 
+    private Size _renderSize;
     private Rectangle _viewport;
     public override Rectangle Viewport
     {
         get => _viewport;
         set
         {
-            Gl.Viewport(value.X, value.Y, (uint) value.Width, (uint) value.Height);
+            Gl.Viewport(value.X, _renderSize.Height - value.Height - value.Y, (uint) value.Width, (uint) value.Height);
             _viewport = value;
         }
     }
@@ -390,6 +392,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     public override void ResizeSwapchain(Size newSize)
     {
         Viewport = new Rectangle(Point.Empty, newSize);
+        _renderSize = newSize;
     }
 
     public override void GenerateMipmaps(Texture texture)
