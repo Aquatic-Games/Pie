@@ -29,6 +29,8 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     private bool _primitiveTypeInitialized;
     private int _boundTexture = -1;
     private int _bindingSlot = -1;
+
+    private bool _isFramebuffer;
     
     public unsafe OpenGL33GraphicsDevice(IGLContext context, Size winSize, GraphicsDeviceOptions options)
     {
@@ -64,7 +66,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         get => _viewport;
         set
         {
-            Gl.Viewport(value.X, _renderSize.Height - value.Height - value.Y, (uint) value.Width, (uint) value.Height);
+            Gl.Viewport(value.X, _isFramebuffer ? value.Y : _renderSize.Height - value.Height - value.Y, (uint) value.Width, (uint) value.Height);
             _viewport = value;
         }
     }
@@ -333,6 +335,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         if (framebuffer == null)
         {
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            _isFramebuffer = false;
             //Gl.DrawBuffer(DrawBufferMode.Front);
             return;
         }
@@ -341,6 +344,7 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.BindFramebuffer(FramebufferTarget.Framebuffer, fb.Handle);
         fixed (GLEnum* e = fb.DrawBuffers)
             Gl.DrawBuffers((uint) fb.DrawBuffers.Length, e);
+        _isFramebuffer = true;
     }
 
     public override void Draw(uint vertexCount)
