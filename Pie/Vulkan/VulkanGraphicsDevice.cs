@@ -33,6 +33,10 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
         
         VkHelper.CreateLogicalDevice(physicalDevice.Value, extensions, validationLayers, options.Debug, queueFamilyIndices);
         VkHelper.CreateSwapchain(swapchainSupportDetails, queueFamilyIndices, winSize);
+        VkHelper.CreateCommandPoolAndBuffer(queueFamilyIndices);
+        VkHelper.CreateSyncObjects();
+        
+        Console.WriteLine("All done successfully.");
     }
 
     public override GraphicsApi Api => GraphicsApi.Vulkan;

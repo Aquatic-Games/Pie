@@ -7,6 +7,7 @@ using Silk.NET.Core.Native;
 using Silk.NET.Vulkan;
 using Silk.NET.Vulkan.Extensions.EXT;
 using Silk.NET.Vulkan.Extensions.KHR;
+using VFramebuffer = Silk.NET.Vulkan.Framebuffer;
 
 namespace Pie.Vulkan;
 
@@ -15,6 +16,12 @@ public static unsafe class VkHelper
     public static Vk VK;
     public static Instance Instance;
     public static Device Device;
+    public static CommandPool CommandPool;
+    public static CommandBuffer CommandBuffer;
+
+    public static Semaphore ImageAvailableSemaphore;
+    public static Semaphore RenderFinishedSemaphore;
+    public static Fence InFrameFence;
 
     public static Queue DeviceQueue;
     public static Queue PresentQueue;
@@ -29,6 +36,9 @@ public static unsafe class VkHelper
     private static KhrSwapchain _swapchainExt;
     private static Image[] _images;
     private static ImageView[] _imageViews;
+
+    private static RenderPass _renderPass;
+    private static VFramebuffer[] _framebuffers;
 
     #region Vulkan initialization
     
@@ -394,6 +404,78 @@ public static unsafe class VkHelper
         }
         
         Console.WriteLine("Swapchain created.");
+        
+        CreateRenderPass(format);
+        CreateFramebuffers(size);
+        
+        Console.WriteLine("Created render pass and framebuffer.");
+    }
+
+    public static void CreateRenderPass(Format format)
+    {
+        AttachmentDescription colorAttachment = new AttachmentDescription();
+        colorAttachment.Format = format;
+        colorAttachment.Samples = SampleCountFlags.Count1Bit;
+        colorAttachment.LoadOp = AttachmentLoadOp.Clear;
+        colorAttachment.StoreOp = AttachmentStoreOp.Store;
+        colorAttachment.StencilLoadOp = AttachmentLoadOp.DontCare;
+        colorAttachment.StencilStoreOp = AttachmentStoreOp.DontCare;
+        colorAttachment.InitialLayout = ImageLayout.Undefined;
+        colorAttachment.FinalLayout = ImageLayout.PresentSrcKhr;
+
+        AttachmentReference colorAttachmentRef = new AttachmentReference();
+        colorAttachmentRef.Attachment = 0;
+        colorAttachmentRef.Layout = ImageLayout.ColorAttachmentOptimal;
+
+        SubpassDescription subpass = new SubpassDescription();
+        subpass.PipelineBindPoint = PipelineBindPoint.Graphics;
+        subpass.ColorAttachmentCount = 1;
+        subpass.PColorAttachments = &colorAttachmentRef;
+
+        SubpassDependency dependency = new SubpassDependency();
+        dependency.SrcSubpass = Vk.SubpassExternal;
+        dependency.DstSubpass = 0;
+
+        dependency.SrcStageMask = PipelineStageFlags.ColorAttachmentOutputBit;
+        dependency.SrcAccessMask = AccessFlags.None;
+        dependency.DstStageMask = PipelineStageFlags.ColorAttachmentOutputBit;
+        dependency.DstAccessMask = AccessFlags.ColorAttachmentWriteBit;
+
+        RenderPassCreateInfo renderPassInfo = new RenderPassCreateInfo();
+        renderPassInfo.SType = StructureType.RenderPassCreateInfo;
+        renderPassInfo.AttachmentCount = 1;
+        renderPassInfo.PAttachments = &colorAttachment;
+        renderPassInfo.SubpassCount = 1;
+        renderPassInfo.PSubpasses = &subpass;
+        renderPassInfo.DependencyCount = 1;
+        renderPassInfo.PDependencies = &dependency;
+
+        Result result;
+        if ((result = VK.CreateRenderPass(Device, &renderPassInfo, null, out _renderPass)) != Result.Success)
+            throw new PieException("Failed to create render pass: " + result);
+    }
+
+    public static void CreateFramebuffers(Size size)
+    {
+        _framebuffers = new VFramebuffer[_imageViews.Length];
+        Result result;
+
+        for (int i = 0; i < _imageViews.Length; i++)
+        {
+            ImageView imageView = _imageViews[i];
+
+            FramebufferCreateInfo framebufferInfo = new FramebufferCreateInfo();
+            framebufferInfo.SType = StructureType.FramebufferCreateInfo;
+            framebufferInfo.RenderPass = _renderPass;
+            framebufferInfo.AttachmentCount = 1;
+            framebufferInfo.PAttachments = &imageView;
+            framebufferInfo.Width = (uint) size.Width;
+            framebufferInfo.Height = (uint) size.Height;
+            framebufferInfo.Layers = 1;
+
+            if ((result = VK.CreateFramebuffer(Device, &framebufferInfo, null, out _framebuffers[i])) != Result.Success)
+                throw new PieException("Failed to create framebuffer: " + result);
+        }
     }
 
     public static bool CheckDeviceSupportsFormat(in SwapchainSupportDetails details, in Format desiredFormat, in ColorSpaceKHR colorSpace)
@@ -408,9 +490,67 @@ public static unsafe class VkHelper
     }
 
     #endregion
+    
+    #region Command pools & sync
+
+    public static void CreateCommandPoolAndBuffer(in QueueFamilyIndices indices)
+    {
+        CommandPoolCreateInfo poolInfo = new CommandPoolCreateInfo();
+        poolInfo.SType = StructureType.CommandPoolCreateInfo;
+        poolInfo.Flags = CommandPoolCreateFlags.ResetCommandBufferBit;
+        poolInfo.QueueFamilyIndex = indices.GraphicsFamily!.Value;
+
+        Result result;
+        if ((result = VK.CreateCommandPool(Device, &poolInfo, null, out CommandPool)) != Result.Success)
+            throw new PieException("Failed to create command pool: " + result);
+
+        CommandBufferAllocateInfo allocInfo = new CommandBufferAllocateInfo();
+        allocInfo.SType = StructureType.CommandBufferAllocateInfo;
+        allocInfo.CommandPool = CommandPool;
+        allocInfo.Level = CommandBufferLevel.Primary;
+        allocInfo.CommandBufferCount = 1;
+
+        if ((result = VK.AllocateCommandBuffers(Device, &allocInfo, out CommandBuffer)) != Result.Success)
+            throw new Exception("Failed to allocate command buffer: " + result);
+        
+        Console.WriteLine("Command pool + buffer created.");
+    }
+
+    public static void CreateSyncObjects()
+    {
+        SemaphoreCreateInfo sci = new SemaphoreCreateInfo();
+        sci.SType = StructureType.SemaphoreCreateInfo;
+
+        FenceCreateInfo fci = new FenceCreateInfo();
+        fci.SType = StructureType.FenceCreateInfo;
+        fci.Flags = FenceCreateFlags.SignaledBit;
+
+        Result result;
+        if ((result = VK.CreateSemaphore(Device, &sci, null, out ImageAvailableSemaphore)) != Result.Success)
+            throw new PieException("Failed to create image semaphore: " + result);
+        if ((result = VK.CreateSemaphore(Device, &sci, null, out RenderFinishedSemaphore)) != Result.Success)
+            throw new PieException("Failed to create render semaphore: " + result);
+        if ((result = VK.CreateFence(Device, &fci, null, out InFrameFence)) != Result.Success)
+            throw new PieException("Failed to create fence: " + result);
+        
+        Console.WriteLine("Sync objects created.");
+    }
+    
+    #endregion
 
     public static void Dispose()
     {
+        VK.DestroySemaphore(Device, ImageAvailableSemaphore, null);
+        VK.DestroySemaphore(Device, RenderFinishedSemaphore, null);
+        VK.DestroyFence(Device, InFrameFence, null);
+
+        VK.DestroyCommandPool(Device, CommandPool, null);
+        
+        for (int i = 0; i < _framebuffers.Length; i++)
+            VK.DestroyFramebuffer(Device, _framebuffers[i], null);
+        
+        VK.DestroyRenderPass(Device, _renderPass, null);
+        
         foreach (ImageView view in _imageViews)
             VK.DestroyImageView(Device, view, null);
         

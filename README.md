@@ -7,10 +7,9 @@ The cross-platform graphics toolkit. Featuring a Direct3D-style cross-platform g
 Pie's API is styled similarly to Direct3D 11. It is fully object-oriented, and does a fair amount of the hard work for you.
 
 Pie currently supports the following APIs:
+* Vulkan (**experimental**)
 * Direct3D 11
 * OpenGL 3.3
-
-... with plans to expand further (although note that vulkan support anytime soon is unlikely).
 
 ### Framework
 A simple XNA-inspired framework to remove some of the boilerplate code necessary to use Pie. Providing a game loop, and some QOL features, such as easy Texture2Ds, Pie.Framework is a good middle ground between doing it all yourself, and using a game engine.
