@@ -37,6 +37,8 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
         VkHelper.CreateSyncObjects();
         
         Console.WriteLine("All done successfully.");
+        
+        VkHelper.BeginNewPass();
     }
 
     public override GraphicsApi Api => GraphicsApi.Vulkan;
@@ -237,7 +239,15 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
 
     public override void Present(int swapInterval)
     {
+        Vk vk = VkHelper.VK;
         
+        VkHelper.Present();
+        
+        Fence fence = VkHelper.InFrameFence;
+        vk.WaitForFences(VkHelper.Device, 1, &fence, true, ulong.MaxValue);
+        vk.ResetFences(VkHelper.Device, 1, &fence);
+        
+        VkHelper.BeginNewPass();
     }
 
     public override void ResizeSwapchain(Size newSize)

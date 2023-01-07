@@ -18,6 +18,8 @@ public static unsafe class VkHelper
     public static Device Device;
     public static CommandPool CommandPool;
     public static CommandBuffer CommandBuffer;
+    public static uint CurrentImage;
+    public static Extent2D CurrentExtent;
 
     public static Semaphore ImageAvailableSemaphore;
     public static Semaphore RenderFinishedSemaphore;
@@ -328,6 +330,7 @@ public static unsafe class VkHelper
         const PresentModeKHR presentMode = PresentModeKHR.FifoKhr;
 
         Extent2D swapchainSize = new Extent2D((uint) size.Width, (uint) size.Height);
+        CurrentExtent = swapchainSize;
         
         Console.WriteLine(details.Capabilities.CurrentExtent);
 
@@ -523,7 +526,6 @@ public static unsafe class VkHelper
 
         FenceCreateInfo fci = new FenceCreateInfo();
         fci.SType = StructureType.FenceCreateInfo;
-        fci.Flags = FenceCreateFlags.SignaledBit;
 
         Result result;
         if ((result = VK.CreateSemaphore(Device, &sci, null, out ImageAvailableSemaphore)) != Result.Success)
@@ -538,8 +540,96 @@ public static unsafe class VkHelper
     
     #endregion
 
+    public static void BeginNewPass()
+    {
+        // TODO: End previous render pass if not ended.
+
+        _swapchainExt.AcquireNextImage(Device, Swapchain, ulong.MaxValue, ImageAvailableSemaphore, new Fence(),
+            ref CurrentImage);
+
+        VK.ResetCommandBuffer(CommandBuffer, CommandBufferResetFlags.None);
+
+        // One time submit bit because the command buffer is rerecorded every time.
+        CommandBufferBeginInfo beginInfo = new CommandBufferBeginInfo();
+        beginInfo.SType = StructureType.CommandBufferBeginInfo;
+        beginInfo.Flags = CommandBufferUsageFlags.OneTimeSubmitBit;
+        beginInfo.PInheritanceInfo = null;
+
+        Result result;
+        if ((result = VK.BeginCommandBuffer(CommandBuffer, &beginInfo)) != Result.Success)
+            throw new PieException("Failed to begin command buffer: " + result);
+        
+        ClearColorValue value = new ClearColorValue(1.0f, 0.0f, 1.0f, 1.0f);
+
+        ImageSubresourceRange range = new ImageSubresourceRange();
+        range.AspectMask = ImageAspectFlags.ColorBit;
+        range.LayerCount = 1;
+        range.BaseArrayLayer = 0;
+        range.LevelCount = 1;
+        range.BaseMipLevel = 0;
+        
+        //VK.CmdClearColorImage(CommandBuffer, _images[CurrentImage], ImageLayout.TransferDstOptimal, &value, 1,
+        //    &range);
+
+        ClearValue clearValue = new ClearValue(value);
+
+        RenderPassBeginInfo renderPassInfo = new RenderPassBeginInfo();
+        renderPassInfo.SType = StructureType.RenderPassBeginInfo;
+        renderPassInfo.RenderPass = _renderPass;
+        renderPassInfo.Framebuffer = _framebuffers[CurrentImage];
+        renderPassInfo.RenderArea = new Rect2D(new Offset2D(0, 0), CurrentExtent);
+        renderPassInfo.ClearValueCount = 1;
+        renderPassInfo.PClearValues = &clearValue;
+
+        VK.CmdBeginRenderPass(CommandBuffer, &renderPassInfo, SubpassContents.Inline);
+    }
+
+    public static void Present()
+    {
+        VK.CmdEndRenderPass(CommandBuffer);
+        
+        Result result;
+        if ((result = VK.EndCommandBuffer(CommandBuffer)) != Result.Success)
+            throw new PieException("Failed to end the command buffer: " + result);
+
+        SubmitInfo submitInfo = new SubmitInfo();
+        submitInfo.SType = StructureType.SubmitInfo;
+
+        Semaphore waitSemaphore = ImageAvailableSemaphore;
+        PipelineStageFlags waitFlags = PipelineStageFlags.ColorAttachmentOutputBit;
+        CommandBuffer commandBuffer = CommandBuffer;
+        Semaphore signalSemaphore = RenderFinishedSemaphore;
+
+        submitInfo.WaitSemaphoreCount = 1;
+        submitInfo.PWaitSemaphores = &waitSemaphore;
+        submitInfo.PWaitDstStageMask = &waitFlags;
+        submitInfo.CommandBufferCount = 1;
+        submitInfo.PCommandBuffers = &commandBuffer;
+        submitInfo.SignalSemaphoreCount = 1;
+        submitInfo.PSignalSemaphores = &signalSemaphore;
+
+        if ((result = VK.QueueSubmit(DeviceQueue, 1, &submitInfo, InFrameFence)) != Result.Success)
+            throw new PieException("Failed to submit command buffer: " + result);
+
+        PresentInfoKHR presentInfo = new PresentInfoKHR();
+        presentInfo.SType = StructureType.PresentInfoKhr;
+        presentInfo.WaitSemaphoreCount = 1;
+        presentInfo.PWaitSemaphores = &signalSemaphore;
+
+        uint imageIndex = CurrentImage;
+        
+        SwapchainKHR swapchain = Swapchain;
+        presentInfo.SwapchainCount = 1;
+        presentInfo.PSwapchains = &swapchain;
+        presentInfo.PImageIndices = &imageIndex;
+
+        _swapchainExt.QueuePresent(PresentQueue, &presentInfo);
+    }
+
     public static void Dispose()
     {
+        VK.DeviceWaitIdle(Device);
+        
         VK.DestroySemaphore(Device, ImageAvailableSemaphore, null);
         VK.DestroySemaphore(Device, RenderFinishedSemaphore, null);
         VK.DestroyFence(Device, InFrameFence, null);
