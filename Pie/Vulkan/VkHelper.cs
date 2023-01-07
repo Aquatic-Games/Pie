@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using Silk.NET.Core;
 using Silk.NET.Core.Native;
@@ -17,12 +18,17 @@ public static unsafe class VkHelper
 
     public static Queue DeviceQueue;
     public static Queue PresentQueue;
+    public static SwapchainKHR Swapchain;
 
     private static ExtDebugUtils _debugUtilsExt;
     private static DebugUtilsMessengerEXT _debugMessenger;
 
     private static KhrSurface _surfaceExt;
     private static SurfaceKHR _surface;
+
+    private static KhrSwapchain _swapchainExt;
+    private static Image[] _images;
+    private static ImageView[] _imageViews;
 
     #region Vulkan initialization
     
@@ -296,8 +302,120 @@ public static unsafe class VkHelper
     
     #endregion
 
+    #region Swapchain
+
+    public static void CreateSwapchain(in SwapchainSupportDetails details, in QueueFamilyIndices indices, in Size size)
+    {
+        const Format format = Format.B8G8R8A8Unorm;
+        const ColorSpaceKHR colorSpace = ColorSpaceKHR.SpaceSrgbNonlinearKhr;
+
+        Result result;
+
+        if (!CheckDeviceSupportsFormat(details, format, colorSpace))
+            throw new PieException("Given swapchain format is not supported on this graphics device.");
+
+        // TODO: Disable vsync?
+        const PresentModeKHR presentMode = PresentModeKHR.FifoKhr;
+
+        Extent2D swapchainSize = new Extent2D((uint) size.Width, (uint) size.Height);
+        
+        Console.WriteLine(details.Capabilities.CurrentExtent);
+
+        uint imageCount = details.Capabilities.MinImageCount + 1;
+        if (details.Capabilities.MaxImageCount > 0 && imageCount > details.Capabilities.MaxImageCount)
+            imageCount = details.Capabilities.MaxImageCount;
+
+        uint[] queueFamilyIndices = { indices.GraphicsFamily!.Value, indices.PresentFamily!.Value };
+
+        fixed (uint* queuePtr = queueFamilyIndices)
+        {
+            SwapchainCreateInfoKHR createInfo = new SwapchainCreateInfoKHR();
+            createInfo.SType = StructureType.SwapchainCreateInfoKhr;
+            createInfo.Surface = _surface;
+            createInfo.MinImageCount = imageCount;
+            createInfo.ImageFormat = format;
+            createInfo.ImageColorSpace = colorSpace;
+            createInfo.ImageExtent = swapchainSize;
+            createInfo.ImageArrayLayers = 1;
+            createInfo.ImageUsage = ImageUsageFlags.ColorAttachmentBit;
+            createInfo.PreTransform = details.Capabilities.CurrentTransform;
+            createInfo.CompositeAlpha = CompositeAlphaFlagsKHR.OpaqueBitKhr;
+            createInfo.PresentMode = presentMode;
+            createInfo.Clipped = true;
+
+            if (indices.GraphicsFamily != indices.PresentFamily)
+            {
+                createInfo.ImageSharingMode = SharingMode.Concurrent;
+                createInfo.QueueFamilyIndexCount = 2;
+                createInfo.PQueueFamilyIndices = queuePtr;
+            }
+            else
+            {
+                createInfo.ImageSharingMode = SharingMode.Exclusive;
+                createInfo.QueueFamilyIndexCount = 0;
+                createInfo.PQueueFamilyIndices = null;
+            }
+
+            VK.TryGetDeviceExtension(Instance, Device, out _swapchainExt);
+
+            if ((result = _swapchainExt.CreateSwapchain(Device, &createInfo, null, out Swapchain)) != Result.Success)
+                throw new PieException("Failed to create swapchain: " + result);
+        }
+
+        uint images;
+        _swapchainExt.GetSwapchainImages(Device, Swapchain, &images, null);
+        _images = new Image[images];
+        fixed (Image* image = _images)
+            _swapchainExt.GetSwapchainImages(Device, Swapchain, &images, image);
+
+        _imageViews = new ImageView[_images.Length];
+        for (int i = 0; i < _images.Length; i++)
+        {
+            ImageViewCreateInfo info = new ImageViewCreateInfo();
+            info.SType = StructureType.ImageViewCreateInfo;
+            info.Image = _images[i];
+            info.ViewType = ImageViewType.Type2D;
+            info.Format = format;
+            info.Components.R = ComponentSwizzle.Identity;
+            info.Components.G = ComponentSwizzle.Identity;
+            info.Components.B = ComponentSwizzle.Identity;
+            info.Components.A = ComponentSwizzle.Identity;
+            info.SubresourceRange.AspectMask = ImageAspectFlags.ColorBit;
+            info.SubresourceRange.BaseMipLevel = 0;
+            info.SubresourceRange.LevelCount = 1;
+            info.SubresourceRange.BaseArrayLayer = 0;
+            info.SubresourceRange.LayerCount = 1;
+
+            ImageView view;
+            if ((result = VK.CreateImageView(Device, &info, null, out view)) != Result.Success)
+                throw new PieException("Failed to create image view: " + result);
+
+            _imageViews[i] = view;
+        }
+        
+        Console.WriteLine("Swapchain created.");
+    }
+
+    public static bool CheckDeviceSupportsFormat(in SwapchainSupportDetails details, in Format desiredFormat, in ColorSpaceKHR colorSpace)
+    {
+        foreach (SurfaceFormatKHR format in details.Formats)
+        {
+            if (format.Format == desiredFormat && format.ColorSpace == colorSpace)
+                return true;
+        }
+
+        return false;
+    }
+
+    #endregion
+
     public static void Dispose()
     {
+        foreach (ImageView view in _imageViews)
+            VK.DestroyImageView(Device, view, null);
+        
+        _swapchainExt.DestroySwapchain(Device, Swapchain, null);
+        
         VK.DestroyDevice(Device, null);
         _surfaceExt.DestroySurface(Instance, _surface, null);
         

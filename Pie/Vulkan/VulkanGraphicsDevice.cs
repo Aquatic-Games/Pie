@@ -32,6 +32,7 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
             throw new PieException("No suitable Vulkan graphics device was found.");
         
         VkHelper.CreateLogicalDevice(physicalDevice.Value, extensions, validationLayers, options.Debug, queueFamilyIndices);
+        VkHelper.CreateSwapchain(swapchainSupportDetails, queueFamilyIndices, winSize);
     }
 
     public override GraphicsApi Api => GraphicsApi.Vulkan;
