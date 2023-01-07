@@ -183,12 +183,6 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         if (description.ArraySize != data.Length && description.TextureType != TextureType.Cubemap)
             throw new PieException(description.ArraySize + " data sets expected, " + data.Length + " provided.");
         
-        fixed (TextureData* dat = data)
-            return D3D11Texture.CreateTexture(description, dat);
-    }
-
-    public override unsafe Texture CreateTexture(TextureDescription description, TextureData* data)
-    {
         return D3D11Texture.CreateTexture(description, data);
     }
 

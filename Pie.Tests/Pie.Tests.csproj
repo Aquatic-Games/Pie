@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Pie.ShaderCompiler\Pie.ShaderCompiler.csproj" />
+      <ProjectReference Include="..\Pie.Utils\Pie.Utils.csproj" />
+      <ProjectReference Include="..\Pie.Windowing\Pie.Windowing.csproj" />
+      <ProjectReference Include="..\Pie\Pie.csproj" />
+    </ItemGroup>
+
+</Project>

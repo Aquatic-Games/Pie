@@ -155,14 +155,9 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
     {
-        fixed (TextureData* dat = data)
-            return OpenGL33Texture.CreateTexture(description, dat);
-    }
-
-    public override unsafe Texture CreateTexture(TextureDescription description, TextureData* data)
-    {
         return OpenGL33Texture.CreateTexture(description, data);
     }
+
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)
     {

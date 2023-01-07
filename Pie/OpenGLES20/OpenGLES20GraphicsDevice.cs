@@ -149,11 +149,6 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
-    public override unsafe Texture CreateTexture(TextureDescription description, TextureData* data)
-    {
-        throw new NotImplementedException();
-    }
-
     public override Shader CreateShader(params ShaderAttachment[] attachments)
     {
         return new OpenGLES20Shader(attachments);

@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Drawing;
+using Pie.Vulkan;
+using Silk.NET.Core.Native;
 using Silk.NET.GLFW;
+using Silk.NET.Vulkan;
+using Image = Silk.NET.GLFW.Image;
 
 namespace Pie.Windowing;
 
@@ -267,6 +271,9 @@ public unsafe partial class Window : IDisposable
             case GraphicsApi.D3D11:
                 glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.NoApi);
                 break;
+            case GraphicsApi.Vulkan:
+                glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.NoApi);
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);
         }
@@ -348,6 +355,19 @@ public unsafe partial class Window : IDisposable
                 break;
             case GraphicsApi.D3D11:
                 device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, settings.Size, options);
+                break;
+            case GraphicsApi.Vulkan:
+                byte** extensionPtr = window._glfw.GetRequiredInstanceExtensions(out uint count);
+                string[] extensions = SilkMarshal.PtrToStringArray((IntPtr) extensionPtr, (int) count);
+                VkHelper.InitVulkan(extensions, options.Debug);
+
+                VkNonDispatchableHandle surface = new VkNonDispatchableHandle();
+                Result result = (Result) window._glfw.CreateWindowSurface(VkHelper.Instance.ToHandle(), window._handle, null, &surface);
+                if (result != Result.Success)
+                    throw new PieException("Failed to create window surface: " + result);
+                SurfaceKHR khrSurface = surface.ToSurface();
+                
+                device = GraphicsDevice.CreateVulkan(khrSurface, settings.Size, options);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);

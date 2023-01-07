@@ -4,7 +4,9 @@ using System.Numerics;
 using Pie.Direct3D11;
 using Pie.OpenGL33;
 using Pie.OpenGLES20;
+using Pie.Vulkan;
 using Silk.NET.Core.Contexts;
+using Silk.NET.Vulkan;
 
 namespace Pie;
 
@@ -95,8 +97,6 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="data">The initial data of the texture.</param>
     /// <returns>The created texture.</returns>
     public abstract Texture CreateTexture(TextureDescription description, TextureData[] data);
-
-    public abstract unsafe Texture CreateTexture(TextureDescription description, TextureData* data);
 
     /// <summary>
     /// Create a shader with the given shader attachments.
@@ -331,6 +331,11 @@ public abstract class GraphicsDevice : IDisposable
     public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options = default)
     {
         return new D3D11GraphicsDevice(hwnd, winSize, options);
+    }
+
+    public static unsafe GraphicsDevice CreateVulkan(in SurfaceKHR surface, Size winSize, GraphicsDeviceOptions options = default)
+    {
+        return new VulkanGraphicsDevice(surface, winSize, options);
     }
 
     /// <summary>

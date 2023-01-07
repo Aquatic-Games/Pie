@@ -17,7 +17,12 @@ public enum GraphicsApi
     /// <summary>
     /// Direct3D 11, shader model 5.0
     /// </summary>
-    D3D11
+    D3D11,
+    
+    /// <summary>
+    /// !! EXPERIMENTAL - WILL BE SLOW AND BUGGY !! Vulkan 1.0
+    /// </summary>
+    Vulkan
 }
 
 public static class GraphicsApiExtensions
