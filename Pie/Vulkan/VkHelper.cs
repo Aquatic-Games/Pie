@@ -318,7 +318,7 @@ public static unsafe class VkHelper
 
     public static void CreateSwapchain(in SwapchainSupportDetails details, in QueueFamilyIndices indices, in Size size)
     {
-        const Format format = Format.B8G8R8A8Unorm;
+        const Format format = Format.B8G8R8A8Srgb;
         const ColorSpaceKHR colorSpace = ColorSpaceKHR.SpaceSrgbNonlinearKhr;
 
         Result result;
@@ -419,11 +419,11 @@ public static unsafe class VkHelper
         AttachmentDescription colorAttachment = new AttachmentDescription();
         colorAttachment.Format = format;
         colorAttachment.Samples = SampleCountFlags.Count1Bit;
-        colorAttachment.LoadOp = AttachmentLoadOp.Clear;
+        colorAttachment.LoadOp = AttachmentLoadOp.Load;
         colorAttachment.StoreOp = AttachmentStoreOp.Store;
         colorAttachment.StencilLoadOp = AttachmentLoadOp.DontCare;
         colorAttachment.StencilStoreOp = AttachmentStoreOp.DontCare;
-        colorAttachment.InitialLayout = ImageLayout.Undefined;
+        colorAttachment.InitialLayout = ImageLayout.ColorAttachmentOptimal;
         colorAttachment.FinalLayout = ImageLayout.PresentSrcKhr;
 
         AttachmentReference colorAttachmentRef = new AttachmentReference();
@@ -578,10 +578,12 @@ public static unsafe class VkHelper
         renderPassInfo.RenderPass = _renderPass;
         renderPassInfo.Framebuffer = _framebuffers[CurrentImage];
         renderPassInfo.RenderArea = new Rect2D(new Offset2D(0, 0), CurrentExtent);
-        renderPassInfo.ClearValueCount = 1;
-        renderPassInfo.PClearValues = &clearValue;
 
         VK.CmdBeginRenderPass(CommandBuffer, &renderPassInfo, SubpassContents.Inline);
+        
+        ClearAttachment attachment = new ClearAttachment(ImageAspectFlags.ColorBit, CurrentImage, clearValue);
+        ClearRect rect = new ClearRect(new Rect2D(new Offset2D(0, 0), new Extent2D(1280, 720)), 0, 1);
+        VK.CmdClearAttachments(CommandBuffer, 1, &attachment, 1, &rect);
     }
 
     public static void Present()
