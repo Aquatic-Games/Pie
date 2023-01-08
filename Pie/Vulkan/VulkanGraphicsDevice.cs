@@ -37,8 +37,6 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
         VkHelper.CreateSyncObjects();
         
         Console.WriteLine("All done successfully.");
-        
-        VkHelper.BeginNewPass();
     }
 
     public override GraphicsApi Api => GraphicsApi.Vulkan;
@@ -49,12 +47,12 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
     
     public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
     {
-        throw new NotImplementedException();
+        Clear(color.Normalize(), flags);
     }
 
     public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
     {
-        throw new NotImplementedException();
+        VkHelper.BeginNewPass(new ClearValue(new ClearColorValue(color.X, color.Y, color.Z, color.W)));
     }
 
     public override void Clear(ClearFlags flags)
@@ -246,8 +244,6 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
         Fence fence = VkHelper.InFrameFence;
         vk.WaitForFences(VkHelper.Device, 1, &fence, true, ulong.MaxValue);
         vk.ResetFences(VkHelper.Device, 1, &fence);
-        
-        VkHelper.BeginNewPass();
     }
 
     public override void ResizeSwapchain(Size newSize)

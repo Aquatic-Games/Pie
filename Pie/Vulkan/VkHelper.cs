@@ -42,6 +42,9 @@ public static unsafe class VkHelper
     private static RenderPass _renderPass;
     private static VFramebuffer[] _framebuffers;
 
+    private static bool _isInRenderPass;
+    private static bool _isInFrame;
+
     #region Vulkan initialization
     
     public static void InitVulkan(string[] instanceExtensions, bool debug)
@@ -318,7 +321,7 @@ public static unsafe class VkHelper
 
     public static void CreateSwapchain(in SwapchainSupportDetails details, in QueueFamilyIndices indices, in Size size)
     {
-        const Format format = Format.B8G8R8A8Srgb;
+        const Format format = Format.B8G8R8A8Unorm;
         const ColorSpaceKHR colorSpace = ColorSpaceKHR.SpaceSrgbNonlinearKhr;
 
         Result result;
@@ -419,11 +422,11 @@ public static unsafe class VkHelper
         AttachmentDescription colorAttachment = new AttachmentDescription();
         colorAttachment.Format = format;
         colorAttachment.Samples = SampleCountFlags.Count1Bit;
-        colorAttachment.LoadOp = AttachmentLoadOp.Load;
+        colorAttachment.LoadOp = AttachmentLoadOp.Clear;
         colorAttachment.StoreOp = AttachmentStoreOp.Store;
         colorAttachment.StencilLoadOp = AttachmentLoadOp.DontCare;
         colorAttachment.StencilStoreOp = AttachmentStoreOp.DontCare;
-        colorAttachment.InitialLayout = ImageLayout.ColorAttachmentOptimal;
+        colorAttachment.InitialLayout = ImageLayout.Undefined;
         colorAttachment.FinalLayout = ImageLayout.PresentSrcKhr;
 
         AttachmentReference colorAttachmentRef = new AttachmentReference();
@@ -540,10 +543,52 @@ public static unsafe class VkHelper
     
     #endregion
 
-    public static void BeginNewPass()
+    public static void BeginNewPass(ClearValue clearValue)
     {
-        // TODO: End previous render pass if not ended.
+        EndRenderPassIfNotEnded();
+        NewFrameIfPresented();
 
+        _isInRenderPass = true;
+
+        ClearColorValue value = new ClearColorValue(1.0f, 0.0f, 1.0f, 1.0f);
+
+        ImageSubresourceRange range = new ImageSubresourceRange();
+        range.AspectMask = ImageAspectFlags.ColorBit;
+        range.LayerCount = 1;
+        range.BaseArrayLayer = 0;
+        range.LevelCount = 1;
+        range.BaseMipLevel = 0;
+        
+        //VK.CmdClearColorImage(CommandBuffer, _images[CurrentImage], ImageLayout.TransferDstOptimal, &value, 1,
+        //    &range);
+
+        RenderPassBeginInfo renderPassInfo = new RenderPassBeginInfo();
+        renderPassInfo.SType = StructureType.RenderPassBeginInfo;
+        renderPassInfo.RenderPass = _renderPass;
+        renderPassInfo.Framebuffer = _framebuffers[CurrentImage];
+        renderPassInfo.RenderArea = new Rect2D(new Offset2D(0, 0), CurrentExtent);
+        renderPassInfo.ClearValueCount = 1;
+        renderPassInfo.PClearValues = &clearValue;
+
+        VK.CmdBeginRenderPass(CommandBuffer, &renderPassInfo, SubpassContents.Inline);
+    }
+
+    public static bool EndRenderPassIfNotEnded()
+    {
+        if (!_isInRenderPass)
+            return false;
+        
+        VK.CmdEndRenderPass(CommandBuffer);
+
+        _isInRenderPass = false;
+        return true;
+    }
+
+    public static bool NewFrameIfPresented()
+    {
+        if (_isInFrame)
+            return false;
+        
         _swapchainExt.AcquireNextImage(Device, Swapchain, ulong.MaxValue, ImageAvailableSemaphore, new Fence(),
             ref CurrentImage);
 
@@ -558,42 +603,19 @@ public static unsafe class VkHelper
         Result result;
         if ((result = VK.BeginCommandBuffer(CommandBuffer, &beginInfo)) != Result.Success)
             throw new PieException("Failed to begin command buffer: " + result);
-        
-        ClearColorValue value = new ClearColorValue(1.0f, 0.0f, 1.0f, 1.0f);
 
-        ImageSubresourceRange range = new ImageSubresourceRange();
-        range.AspectMask = ImageAspectFlags.ColorBit;
-        range.LayerCount = 1;
-        range.BaseArrayLayer = 0;
-        range.LevelCount = 1;
-        range.BaseMipLevel = 0;
-        
-        //VK.CmdClearColorImage(CommandBuffer, _images[CurrentImage], ImageLayout.TransferDstOptimal, &value, 1,
-        //    &range);
-
-        ClearValue clearValue = new ClearValue(value);
-
-        RenderPassBeginInfo renderPassInfo = new RenderPassBeginInfo();
-        renderPassInfo.SType = StructureType.RenderPassBeginInfo;
-        renderPassInfo.RenderPass = _renderPass;
-        renderPassInfo.Framebuffer = _framebuffers[CurrentImage];
-        renderPassInfo.RenderArea = new Rect2D(new Offset2D(0, 0), CurrentExtent);
-
-        VK.CmdBeginRenderPass(CommandBuffer, &renderPassInfo, SubpassContents.Inline);
-        
-        ClearAttachment attachment = new ClearAttachment(ImageAspectFlags.ColorBit, CurrentImage, clearValue);
-        ClearRect rect = new ClearRect(new Rect2D(new Offset2D(0, 0), new Extent2D(1280, 720)), 0, 1);
-        VK.CmdClearAttachments(CommandBuffer, 1, &attachment, 1, &rect);
+        _isInFrame = true;
+        return true;
     }
 
     public static void Present()
     {
-        VK.CmdEndRenderPass(CommandBuffer);
-        
+        EndRenderPassIfNotEnded();
+
         Result result;
         if ((result = VK.EndCommandBuffer(CommandBuffer)) != Result.Success)
             throw new PieException("Failed to end the command buffer: " + result);
-
+        
         SubmitInfo submitInfo = new SubmitInfo();
         submitInfo.SType = StructureType.SubmitInfo;
 
@@ -609,7 +631,7 @@ public static unsafe class VkHelper
         submitInfo.PCommandBuffers = &commandBuffer;
         submitInfo.SignalSemaphoreCount = 1;
         submitInfo.PSignalSemaphores = &signalSemaphore;
-
+        
         if ((result = VK.QueueSubmit(DeviceQueue, 1, &submitInfo, InFrameFence)) != Result.Success)
             throw new PieException("Failed to submit command buffer: " + result);
 
@@ -624,6 +646,8 @@ public static unsafe class VkHelper
         presentInfo.SwapchainCount = 1;
         presentInfo.PSwapchains = &swapchain;
         presentInfo.PImageIndices = &imageIndex;
+        
+        _isInFrame = false;
 
         _swapchainExt.QueuePresent(PresentQueue, &presentInfo);
     }
