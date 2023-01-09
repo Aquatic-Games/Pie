@@ -153,7 +153,24 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         return OpenGL33Texture.CreateTexture(description, null);
     }
 
-    public override unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
+    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[] data)
+    {
+        fixed (void* ptr = data)
+            return OpenGL33Texture.CreateTexture(description, ptr);
+    }
+
+    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[][] data)
+    {
+        fixed (void* ptr = PieUtils.Combine(data))
+            return OpenGL33Texture.CreateTexture(description, ptr);
+    }
+
+    public override unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
+    {
+        return OpenGL33Texture.CreateTexture(description, data.ToPointer());
+    }
+
+    public override unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
         return OpenGL33Texture.CreateTexture(description, data);
     }
@@ -206,9 +223,20 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
     }
 
-    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, TextureData data)
+    public override unsafe void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
     {
-        ((OpenGL33Texture) texture).Update(x, y, width, height, data);
+        fixed (void* ptr = data)
+            ((OpenGL33Texture) texture).Update(x, y, width, height, ptr);
+    }
+
+    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, IntPtr data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override unsafe void UpdateTexture(Texture texture, int x, int y, uint width, uint height, void* data)
+    {
+        throw new NotImplementedException();
     }
 
     public override unsafe IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)

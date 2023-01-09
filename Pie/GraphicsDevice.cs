@@ -89,14 +89,20 @@ public abstract class GraphicsDevice : IDisposable
     public abstract unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false);
 
     public abstract Texture CreateTexture(TextureDescription description);
-    
+
     /// <summary>
     /// Create a texture with the given description and data.
     /// </summary>
     /// <param name="description">The description of the texture.</param>
     /// <param name="data">The initial data of the texture.</param>
     /// <returns>The created texture.</returns>
-    public abstract Texture CreateTexture(TextureDescription description, TextureData[] data);
+    public abstract Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged;
+    
+    public abstract Texture CreateTexture<T>(TextureDescription description, T[][] data) where T : unmanaged;
+
+    public abstract Texture CreateTexture(TextureDescription description, IntPtr data);
+
+    public abstract unsafe Texture CreateTexture(TextureDescription description, void* data);
 
     /// <summary>
     /// Create a shader with the given shader attachments.
@@ -177,7 +183,11 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="width">The width in pixels of the data.</param>
     /// <param name="height">The height in pixels of the data.</param>
     /// <param name="data">The data itself.</param>
-    public abstract void UpdateTexture(Texture texture, int x, int y, uint width, uint height, TextureData data);
+    public abstract void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data) where T : unmanaged;
+
+    public abstract void UpdateTexture(Texture texture, int x, int y, uint width, uint height, IntPtr data);
+
+    public abstract unsafe void UpdateTexture(Texture texture, int x, int y, uint width, uint height, void* data);
 
     public abstract IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode);
 

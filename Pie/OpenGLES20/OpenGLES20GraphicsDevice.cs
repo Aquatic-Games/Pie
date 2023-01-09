@@ -144,7 +144,22 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
-    public override Texture CreateTexture(TextureDescription description, TextureData[] data)
+    public override Texture CreateTexture<T>(TextureDescription description, T[] data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Texture CreateTexture<T>(TextureDescription description, T[][] data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Texture CreateTexture(TextureDescription description, IntPtr data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
         throw new NotImplementedException();
     }
@@ -194,7 +209,17 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         ((OpenGLES20GraphicsBuffer) buffer).Update(offsetInBytes, data);
     }
 
-    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, TextureData data)
+    public override void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, IntPtr data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override unsafe void UpdateTexture(Texture texture, int x, int y, uint width, uint height, void* data)
     {
         throw new NotImplementedException();
     }

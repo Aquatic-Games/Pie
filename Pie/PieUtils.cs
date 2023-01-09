@@ -21,6 +21,28 @@ public static class PieUtils
         if (!condition)
             throw new PieException(message);
     }
+    
+    public static unsafe T[] Combine<T>(params T[][] data) where T : unmanaged
+    {
+        int totalSize = 0;
+        for (int i = 0; i < data.Length; i++)
+            totalSize += data[i].Length;
+        T[] result = new T[totalSize];
+
+        totalSize = 0;
+        fixed (void* ptr = result)
+        {
+            for (int i = 0; i < data.Length; i++)
+            {
+                fixed (void* dataPtr = data[i])
+                    Unsafe.CopyBlock((byte*) ptr + totalSize, dataPtr, (uint) (data[i].Length * sizeof(T)));
+
+                totalSize += data[i].Length;
+            }
+        }
+
+        return result;
+    }
 
     /// <summary>
     /// Copy the given data to a section in unmanaged memory (useful for copying data to a mapped buffer in a safe

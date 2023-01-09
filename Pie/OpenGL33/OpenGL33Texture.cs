@@ -23,7 +23,7 @@ internal sealed class OpenGL33Texture : Texture
         Target = target;
     }
 
-    public static unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
+    public static unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
         PieUtils.CheckIfValid(description);
 
@@ -95,23 +95,20 @@ internal sealed class OpenGL33Texture : Texture
                 case TextureType.Texture2D:
                     if (description.ArraySize == 1)
                     {
-                        fixed (void* dataPtr = data?[0].Data)
-                        {
-                            Gl.TexImage2D(target, 0, iFmt, (uint) description.Width,
-                                (uint) description.Height, 0, fmt, PixelType.UnsignedByte, dataPtr);
-                        }
+                        void* dataPtr = data == null ? null : data;
+                        Gl.TexImage2D(target, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
+                            PixelType.UnsignedByte, dataPtr);
                     }
                     else
                         throw new NotImplementedException("Currently texture arrays have not been implemented.");
                     break;
                 case TextureType.Cubemap:
+                    int size = description.Width * description.Height * PieUtils.GetSizeMultiplier(description.Format);
+                    
                     for (int i = 0; i < 6; i++)
                     {
-                        fixed (void* dataPtr = data?[i].Data)
-                        {
-                            Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width,
-                                (uint) description.Height, 0, fmt, PixelType.UnsignedByte, dataPtr);
-                        }
+                        void* dataPtr = data == null ? null : (byte*) data + i * size;
+                        Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt, PixelType.UnsignedByte, dataPtr);
                     }
 
                     break;
@@ -130,11 +127,10 @@ internal sealed class OpenGL33Texture : Texture
     public override Size Size { get; set; }
     public override TextureDescription Description { get; set; }
 
-    public unsafe void Update(int x, int y, uint width, uint height, TextureData data)
+    public unsafe void Update(int x, int y, uint width, uint height, void* data)
     {
         Gl.BindTexture(TextureTarget.Texture2D, Handle);
-        fixed (void* ptr = data.Data)
-            Gl.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, width, height, _format, PixelType.UnsignedByte, ptr);
+        Gl.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, width, height, _format, PixelType.UnsignedByte, data);
     }
 
     public override void Dispose()
