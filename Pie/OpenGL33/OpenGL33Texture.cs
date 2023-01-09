@@ -107,7 +107,7 @@ internal sealed class OpenGL33Texture : Texture
                 case TextureType.Cubemap:
                     for (int i = 0; i < 6; i++)
                     {
-                        fixed (void* dataPtr = data?[0].Data)
+                        fixed (void* dataPtr = data?[i].Data)
                         {
                             Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width,
                                 (uint) description.Height, 0, fmt, PixelType.UnsignedByte, dataPtr);
