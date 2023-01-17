@@ -348,13 +348,13 @@ public unsafe partial class Window : IDisposable
         switch (api)
         {
             case GraphicsApi.OpenGl33:
-                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(window._glfw, window._handle), settings.Size, options);
+                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(window._glfw, window._handle), window.Size, options);
                 break;
             case GraphicsApi.OpenGLES20:
-                device = GraphicsDevice.CreateOpenGLES20(new GlfwContext(window._glfw, window._handle), settings.Size, options);
+                device = GraphicsDevice.CreateOpenGLES20(new GlfwContext(window._glfw, window._handle), window.Size, options);
                 break;
             case GraphicsApi.D3D11:
-                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, settings.Size, options);
+                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, window.Size, options);
                 break;
             case GraphicsApi.Vulkan:
                 byte** extensionPtr = window._glfw.GetRequiredInstanceExtensions(out uint count);
@@ -367,7 +367,7 @@ public unsafe partial class Window : IDisposable
                     throw new PieException("Failed to create window surface: " + result);
                 SurfaceKHR khrSurface = surface.ToSurface();
                 
-                device = GraphicsDevice.CreateVulkan(khrSurface, settings.Size, options);
+                device = GraphicsDevice.CreateVulkan(khrSurface, window.Size, options);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);

@@ -107,7 +107,7 @@ internal sealed class D3D11Shader : Shader
         }
     }
 
-    internal static Blob CompileShader(string code, string entryPoint, string profile)
+    internal static Blob CompileShader(byte[] code, string entryPoint, string profile)
     {
         Result res = Compiler.Compile(code, entryPoint, "main", profile, out Blob mainBlob, out Blob errorBlob);
         if (res.Failure)

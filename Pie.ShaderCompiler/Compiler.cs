@@ -9,7 +9,7 @@ namespace Pie.ShaderCompiler;
 
 public static class Compiler
 {
-    public static unsafe CompilerResult TranspileShader(ShaderStage stage, GraphicsApi api, string source, string entryPoint, bool reflect = false)
+    public static unsafe CompilerResult TranspileShader(ShaderStage stage, GraphicsApi api, byte[] source, string entryPoint, bool reflect = false)
     {
         shaderc_compiler* compiler = shaderc_compiler_initialize();
         shaderc_compilation_result* result;
@@ -21,7 +21,7 @@ public static class Compiler
             _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
 
-        fixed (sbyte* src = GetFromString(source))
+        fixed (sbyte* src = (sbyte[]) (Array) source)
         fixed (sbyte* fn = GetFromString("main"))
         fixed (sbyte* entpt = GetFromString(entryPoint))
         {
@@ -32,7 +32,7 @@ public static class Compiler
         if (shaderc_result_get_compilation_status(result) !=
             shaderc_compilation_status.shaderc_compilation_status_success)
         {
-            return new CompilerResult(string.Empty, false,
+            return new CompilerResult(null, false,
                 $"Failed to convert {stage.ToString().ToLower()} shader: " +
                 ConvertToString(shaderc_result_get_error_message(result)), null, stage);
         }
@@ -45,12 +45,12 @@ public static class Compiler
             _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)
         };
 
-        string compiled = ShadercResultToCompiledSpirV(api, backend, result);
+        byte[] compiled = ShadercResultToCompiledSpirV(api, backend, result);
 
         ReflectionInfo? info = null;
 
         if (reflect)
-            info = ReflectionInfo.FromJson(ShadercResultToCompiledSpirV(api, spvc_backend.SPVC_BACKEND_JSON, result), stage);
+            info = ReflectionInfo.FromJson(Encoding.UTF8.GetString(ShadercResultToCompiledSpirV(api, spvc_backend.SPVC_BACKEND_JSON, result)), stage);
 
         shaderc_result_release(result);
         shaderc_compiler_release(compiler);
@@ -63,12 +63,12 @@ public static class Compiler
         return (sbyte[]) (Array) Encoding.ASCII.GetBytes(text);
     }
 
-    private static unsafe string ConvertToString(sbyte* text)
+    private static unsafe byte[] ConvertToString(sbyte* text)
     {
-        return Marshal.PtrToStringAnsi((IntPtr) text);
+        return Encoding.UTF8.GetBytes(Marshal.PtrToStringAnsi((IntPtr) text));
     }
 
-    private static unsafe string ShadercResultToCompiledSpirV(GraphicsApi api, spvc_backend backend, shaderc_compilation_result* result)
+    private static unsafe byte[] ShadercResultToCompiledSpirV(GraphicsApi api, spvc_backend backend, shaderc_compilation_result* result)
     {
         spvc_context* context;
         spvc_context_create(&context);
@@ -106,7 +106,7 @@ public static class Compiler
 
         sbyte* compiledResult;
         spvc_compiler_compile(compl, &compiledResult);
-        string compiled = ConvertToString(compiledResult);
+        byte[] compiled = ConvertToString(compiledResult);
         
         spvc_context_destroy(context);
 

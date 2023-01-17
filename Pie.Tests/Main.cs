@@ -1,6 +1,9 @@
 using System;
 using System.Drawing;
 using System.Numerics;
+using System.Text;
+using Pie.ShaderCompiler;
+using Pie.Utils;
 using Pie.Windowing;
 
 namespace Pie.Tests;
@@ -12,19 +15,77 @@ public class Main : IDisposable
 
     public void Run()
     {
-        _window = Window.CreateWithGraphicsDevice(new WindowSettings(), GraphicsApi.Vulkan, out GraphicsDevice,
+        _window = Window.CreateWithGraphicsDevice(new WindowSettings(), GraphicsApi.OpenGl33, out GraphicsDevice,
             new GraphicsDeviceOptions(true));
 
-        int i = 0;
+        VertexPositionColor[] vpcs = new[]
+        {
+            new VertexPositionColor(new Vector3(-0.5f, -0.5f, 0.0f), new Vector4(1, 0, 0, 1)),
+            new VertexPositionColor(new Vector3(0.5f, -0.5f, 0.0f), new Vector4(0, 1, 0, 1)),
+            new VertexPositionColor(new Vector3(0.5f, 0.5f, 0.0f), new Vector4(0, 0, 1, 1)),
+            new VertexPositionColor(new Vector3(-0.5f, 0.5f, 0.0f), new Vector4(0, 0, 0, 1))
+        };
 
+        GraphicsDevice.Viewport = new Rectangle(0, 0, 1280, 720);
+
+        uint[] indices = new[]
+        {
+            0u, 1u, 3u,
+            1u, 2u, 3u
+        };
+
+        GraphicsBuffer vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, vpcs);
+        GraphicsBuffer indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, indices);
+
+        const string vertex = @"
+#version 450
+
+layout (location = 0) in vec3 aPosition;
+layout (location = 1) in vec4 aColor;
+
+layout (location = 0) out vec4 frag_color;
+
+void main()
+{
+    gl_Position = vec4(aPosition, 1.0);
+    frag_color = aColor;
+}";
+
+        const string fragment = @"
+#version 450
+
+layout (location = 0) in vec4 frag_color;
+
+layout (location = 0) out vec4 out_color;
+
+void main()
+{
+    out_color = frag_color;
+}";
+        
+        Console.WriteLine(Encoding.UTF8.GetString(Compiler.TranspileShader(ShaderStage.Vertex, GraphicsApi.D3D11, Encoding.UTF8.GetBytes(vertex), "main").Result));
+
+        Shader shader = GraphicsDevice.CreateCrossPlatformShader(new ShaderAttachment(ShaderStage.Vertex, vertex),
+            new ShaderAttachment(ShaderStage.Fragment, fragment));
+
+        InputLayout layout = GraphicsDevice.CreateInputLayout(
+            new InputLayoutDescription("aPosition", AttributeType.Float3, 0, 0, InputType.PerVertex),
+            new InputLayoutDescription("aColor", AttributeType.Float4, 12, 0, InputType.PerVertex));
+
+        RasterizerState rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone);
+        
         while (!_window.ShouldClose)
         {
-            i = (i + 1) % 255;
-            Vector4 color = new Vector4(i / 255f, 0, (255 - 1) / 255f, 1);
-            
             _window.ProcessEvents();
-            GraphicsDevice.Clear(color);
-
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+            
+            GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
+            GraphicsDevice.SetShader(shader);
+            GraphicsDevice.SetRasterizerState(rasterizerState);
+            GraphicsDevice.SetVertexBuffer(0, vertexBuffer, VertexPositionColor.SizeInBytes, layout);
+            GraphicsDevice.SetIndexBuffer(indexBuffer, IndexType.UInt);
+            GraphicsDevice.DrawIndexed((uint) indices.Length);
+            
             GraphicsDevice.Present(1);
         }
     }

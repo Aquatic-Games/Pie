@@ -17,7 +17,7 @@ internal sealed class OpenGLES20Shader : Shader
 
     private bool _hasShownPerfWarning;
 
-    public OpenGLES20Shader(ShaderAttachment[] attachments)
+    public unsafe OpenGLES20Shader(ShaderAttachment[] attachments)
     {
         Handle = Gl.CreateProgram();
         for (int i = 0; i < attachments.Length; i++)
@@ -31,7 +31,8 @@ internal sealed class OpenGLES20Shader : Shader
 
             uint handle = Gl.CreateShader(type);
             attachments[i].TempHandle = handle;
-            Gl.ShaderSource(handle, attachments[i].Source);
+            fixed (byte* src = attachments[i].Source)
+                Gl.ShaderSource(handle, 1, src, attachments[i].Source.Length);
             Gl.CompileShader(handle);
             Gl.GetShader(handle, ShaderParameterName.CompileStatus, out int compStatus);
             if (compStatus != (int) GLEnum.True)

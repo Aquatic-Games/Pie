@@ -109,7 +109,7 @@ internal sealed class D3D11InputLayout : InputLayout
 
         dummyShader.AppendLine("}; void main(DummyInput input) {}");
 
-        return D3D11Shader.CompileShader(dummyShader.ToString(), "main", "vs_5_0");
+        return D3D11Shader.CompileShader(Encoding.UTF8.GetBytes(dummyShader.ToString()), "main", "vs_5_0");
     }
 
     public override bool IsDisposed { get; protected set; }
