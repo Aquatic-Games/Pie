@@ -177,12 +177,25 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return D3D11Texture.CreateTexture(description, null);
     }
 
-    public override unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
+    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[] data)
     {
-        // TODO: This for opengl
-        if (description.ArraySize != data.Length && description.TextureType != TextureType.Cubemap)
-            throw new PieException(description.ArraySize + " data sets expected, " + data.Length + " provided.");
-        
+        fixed (void* ptr = data)
+            return D3D11Texture.CreateTexture(description, ptr);
+    }
+
+    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[][] data)
+    {
+        fixed (void* ptr = PieUtils.Combine(data))
+            return D3D11Texture.CreateTexture(description, ptr);
+    }
+
+    public override unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
+    {
+        return D3D11Texture.CreateTexture(description, data.ToPointer());
+    }
+
+    public override unsafe Texture CreateTexture(TextureDescription description, void* data)
+    {
         return D3D11Texture.CreateTexture(description, data);
     }
 
@@ -233,9 +246,20 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
     }
 
-    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, TextureData data)
+    public override unsafe void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
     {
-        ((D3D11Texture) texture).Update(x, y, width, height, data);
+        fixed (void* ptr = data)
+            ((D3D11Texture) texture).Update(x, y, width, height, ptr);
+    }
+
+    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, IntPtr data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override unsafe void UpdateTexture(Texture texture, int x, int y, uint width, uint height, void* data)
+    {
+        throw new NotImplementedException();
     }
 
     public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)

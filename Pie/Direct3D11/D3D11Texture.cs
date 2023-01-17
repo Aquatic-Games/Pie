@@ -26,7 +26,7 @@ internal sealed class D3D11Texture : Texture
         Description = description;
     }
 
-    public static unsafe Texture CreateTexture(TextureDescription description, TextureData[] data)
+    public static unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
         PieUtils.CheckIfValid(description);
         int sizeMultiplier = PieUtils.GetSizeMultiplier(description.Format);
@@ -70,11 +70,8 @@ internal sealed class D3D11Texture : Texture
                 //Context.UpdateSubresource(new ReadOnlySpan<byte>(data[0].DataPtr, (int) data[0].DataLength), texture, 0, description.Width * sizeMultiplier);
                 if (data != null)
                 {
-                    fixed (void* ptr = data[0].Data)
-                    {
-                        Context.UpdateSubresource(texture, 0, null, new IntPtr(ptr), description.Width * sizeMultiplier,
-                            0);
-                    }
+                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), description.Width * sizeMultiplier,
+                        0);
                 }
 
                 if (description.ArraySize == 1)
@@ -114,11 +111,11 @@ internal sealed class D3D11Texture : Texture
                 };
 
                 SubresourceData[] subresourceDatas = new SubresourceData[cDesc.ArraySize];
+                int size = description.Width * description.Height * sizeMultiplier;
                 for (int i = 0; i < cDesc.ArraySize; i++)
                 {
-                    ref TextureData tData = ref data[i];
-                    fixed (void* ptr = tData.Data)
-                        subresourceDatas[i] = new SubresourceData(ptr, description.Width * sizeMultiplier);
+                    void* ptr = (byte*) data + i * size;
+                    subresourceDatas[i] = new SubresourceData(ptr, description.Width * sizeMultiplier);
                 }
 
                 texture = Device.CreateTexture2D(cDesc, subresourceDatas);
@@ -145,14 +142,11 @@ internal sealed class D3D11Texture : Texture
         return new D3D11Texture(texture, view, new Size(description.Width, description.Height), description);
     }
 
-    public unsafe void Update(int x, int y, uint width, uint height, TextureData data)
+    public unsafe void Update(int x, int y, uint width, uint height, void* data)
     {
-        // TODO: Implement texture mapping for fast transfers, i think.
-        fixed (void* ptr = data.Data)
-        {
-            Context.UpdateSubresource(Texture, 0, new Box(x, y, 0, (int) (x + width), (int) (y + height), 1),
-                new IntPtr(ptr), (int) (width * PieUtils.GetSizeMultiplier(Description.Format)), 0);
-        }
+        // TODO: Implement texture mapping for fast transfers, i think
+        Context.UpdateSubresource(Texture, 0, new Box(x, y, 0, (int) (x + width), (int) (y + height), 1),
+            new IntPtr(data), (int) (width * PieUtils.GetSizeMultiplier(Description.Format)), 0);
     }
 
     public override void Dispose()
