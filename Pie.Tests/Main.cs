@@ -15,7 +15,7 @@ public class Main : IDisposable
 
     public void Run()
     {
-        _window = Window.CreateWithGraphicsDevice(new WindowSettings(), GraphicsApi.OpenGl33, out GraphicsDevice,
+        _window = Window.CreateWithGraphicsDevice(new WindowSettings(), GraphicsApi.Vulkan, out GraphicsDevice,
             new GraphicsDeviceOptions(true));
 
         VertexPositionColor[] vpcs = new[]
@@ -37,7 +37,7 @@ public class Main : IDisposable
         GraphicsBuffer vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, vpcs);
         GraphicsBuffer indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, indices);
 
-        const string vertex = @"
+        /*const string vertex = @"
 #version 450
 
 layout (location = 0) in vec3 aPosition;
@@ -62,8 +62,6 @@ void main()
 {
     out_color = frag_color;
 }";
-        
-        Console.WriteLine(Encoding.UTF8.GetString(Compiler.TranspileShader(ShaderStage.Vertex, GraphicsApi.D3D11, Encoding.UTF8.GetBytes(vertex), "main").Result));
 
         Shader shader = GraphicsDevice.CreateCrossPlatformShader(new ShaderAttachment(ShaderStage.Vertex, vertex),
             new ShaderAttachment(ShaderStage.Fragment, fragment));
@@ -72,19 +70,19 @@ void main()
             new InputLayoutDescription("aPosition", AttributeType.Float3, 0, 0, InputType.PerVertex),
             new InputLayoutDescription("aColor", AttributeType.Float4, 12, 0, InputType.PerVertex));
 
-        RasterizerState rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone);
+        RasterizerState rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone);*/
         
         while (!_window.ShouldClose)
         {
             _window.ProcessEvents();
             GraphicsDevice.Clear(Color.CornflowerBlue);
             
-            GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
-            GraphicsDevice.SetShader(shader);
-            GraphicsDevice.SetRasterizerState(rasterizerState);
-            GraphicsDevice.SetVertexBuffer(0, vertexBuffer, VertexPositionColor.SizeInBytes, layout);
-            GraphicsDevice.SetIndexBuffer(indexBuffer, IndexType.UInt);
-            GraphicsDevice.DrawIndexed((uint) indices.Length);
+            //GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
+            //GraphicsDevice.SetShader(shader);
+            //GraphicsDevice.SetRasterizerState(rasterizerState);
+            //GraphicsDevice.SetVertexBuffer(0, vertexBuffer, VertexPositionColor.SizeInBytes, layout);
+            //GraphicsDevice.SetIndexBuffer(indexBuffer, IndexType.UInt);
+            //GraphicsDevice.DrawIndexed((uint) indices.Length);
             
             GraphicsDevice.Present(1);
         }

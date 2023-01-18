@@ -62,7 +62,8 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
 
     public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
-        throw new NotImplementedException();
+        fixed (void* ptr = data)
+            return new VkGraphicsBuffer(bufferType, (uint) (data.Length * sizeof(T)), ptr, dynamic);
     }
 
     public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)

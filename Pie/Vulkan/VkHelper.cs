@@ -45,6 +45,8 @@ public static unsafe class VkHelper
     private static bool _isInRenderPass;
     private static bool _isInFrame;
 
+    private static PhysicalDeviceMemoryProperties _physicalProperties;
+
     #region Vulkan initialization
     
     public static void InitVulkan(string[] instanceExtensions, bool debug)
@@ -213,6 +215,8 @@ public static unsafe class VkHelper
         
         VK.GetDeviceQueue(Device, indices.GraphicsFamily!.Value, 0, out DeviceQueue);
         VK.GetDeviceQueue(Device, indices.PresentFamily!.Value, 0, out PresentQueue);
+        
+        VK.GetPhysicalDeviceMemoryProperties(physicalDevice, out _physicalProperties);
         
         Console.WriteLine("Logical device & queues created.");
     }
@@ -542,6 +546,72 @@ public static unsafe class VkHelper
     }
     
     #endregion
+
+    public static uint GetMemoryTypeIndex(uint typeBits, MemoryPropertyFlags properties)
+    {
+        for (uint i = 0; i < _physicalProperties.MemoryTypeCount; i++)
+        {
+            if ((typeBits & 1) == 1 && (_physicalProperties.MemoryTypes[(int) i].PropertyFlags & properties) == properties)
+                return i;
+            typeBits >>= 1;
+        }
+
+        throw new PieException("Could not find a suitable memory type.");
+    }
+
+    public static CommandBuffer CreateCommandBuffer(bool begin)
+    {
+        CommandBuffer cmdBuffer;
+
+        CommandBufferAllocateInfo allocInfo = new CommandBufferAllocateInfo();
+        allocInfo.SType = StructureType.CommandBufferAllocateInfo;
+        allocInfo.CommandPool = CommandPool;
+        allocInfo.Level = CommandBufferLevel.Primary;
+        allocInfo.CommandBufferCount = 1;
+
+        Result result;
+        if ((result = VK.AllocateCommandBuffers(Device, &allocInfo, &cmdBuffer)) != Result.Success)
+            throw new PieException("Failed to create comamnd buffer: " + result);
+
+        if (begin)
+        {
+            CommandBufferBeginInfo cbbi = new CommandBufferBeginInfo();
+            cbbi.SType = StructureType.CommandBufferBeginInfo;
+            cbbi.Flags = CommandBufferUsageFlags.OneTimeSubmitBit;
+            if ((result = VK.BeginCommandBuffer(cmdBuffer, &cbbi)) != Result.Success)
+                throw new PieException("Failed to begin command buffer: " + result);
+        }
+
+        return cmdBuffer;
+    }
+
+    public static void FlushAndDeleteCommandBuffer(CommandBuffer buffer)
+    {
+        Result result;
+        if ((result = VK.EndCommandBuffer(buffer)) != Result.Success)
+            throw new PieException("Failed to end command buffer:" + result);
+
+        SubmitInfo submitInfo = new SubmitInfo();
+        submitInfo.SType = StructureType.SubmitInfo;
+        submitInfo.CommandBufferCount = 1;
+        submitInfo.PCommandBuffers = &buffer;
+
+        FenceCreateInfo fci = new FenceCreateInfo();
+        fci.SType = StructureType.FenceCreateInfo;
+        fci.Flags = FenceCreateFlags.None;
+
+        Fence fence;
+        if ((result = VK.CreateFence(Device, &fci, null, &fence)) != Result.Success)
+            throw new PieException("Failed to create fence: " + result);
+
+        if ((result = VK.QueueSubmit(DeviceQueue, 1, &submitInfo, fence)) != Result.Success)
+            throw new PieException("Failed to submit queue: " + result);
+
+        VK.WaitForFences(Device, 1, &fence, true, ulong.MaxValue);
+        
+        VK.DestroyFence(Device, fence, null);
+        VK.FreeCommandBuffers(Device, CommandPool, 1, &buffer);
+    }
 
     public static void BeginNewPass(ClearValue clearValue)
     {
