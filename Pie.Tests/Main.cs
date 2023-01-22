@@ -37,7 +37,7 @@ public class Main : IDisposable
         GraphicsBuffer vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, vpcs);
         GraphicsBuffer indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, indices);
 
-        /*const string vertex = @"
+        const string vertex = @"
 #version 450
 
 layout (location = 0) in vec3 aPosition;
@@ -66,7 +66,7 @@ void main()
         Shader shader = GraphicsDevice.CreateCrossPlatformShader(new ShaderAttachment(ShaderStage.Vertex, vertex),
             new ShaderAttachment(ShaderStage.Fragment, fragment));
 
-        InputLayout layout = GraphicsDevice.CreateInputLayout(
+        /*InputLayout layout = GraphicsDevice.CreateInputLayout(
             new InputLayoutDescription("aPosition", AttributeType.Float3, 0, 0, InputType.PerVertex),
             new InputLayoutDescription("aColor", AttributeType.Float4, 12, 0, InputType.PerVertex));
 
