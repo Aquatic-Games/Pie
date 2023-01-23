@@ -50,6 +50,7 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
     }
     
     public override GraphicsApi Api => GraphicsApi.OpenGLES20;
+    public override Swapchain Swapchain { get; }
 
     private Rectangle _viewport;
     public override Rectangle Viewport

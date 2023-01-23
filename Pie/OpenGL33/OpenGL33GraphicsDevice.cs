@@ -37,9 +37,13 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         _vao = Gl.GenVertexArray();
         Gl.BindVertexArray(_vao);
         Debug = options.Debug;
+        
+        Swapchain = new Swapchain()
+        {
+            Size = winSize
+        };
 
         Viewport = new Rectangle(Point.Empty, winSize);
-        _renderSize = winSize;
 
         if (Debug)
         {
@@ -56,15 +60,15 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
     }
     
     public override GraphicsApi Api => GraphicsApi.OpenGl33;
-
-    private Size _renderSize;
+    public override Swapchain Swapchain { get; }
+    
     private Rectangle _viewport;
     public override Rectangle Viewport
     {
         get => _viewport;
         set
         {
-            Gl.Viewport(value.X, _renderSize.Height - value.Height - value.Y, (uint) value.Width, (uint) value.Height);
+            Gl.Viewport(value.X, Swapchain.Size.Height - value.Height - value.Y, (uint) value.Width, (uint) value.Height);
             _viewport = value;
         }
     }
@@ -414,8 +418,8 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
 
     public override void ResizeSwapchain(Size newSize)
     {
-        Viewport = new Rectangle(Point.Empty, newSize);
-        _renderSize = newSize;
+        // OpenGL has no swapchain so nothing to resize.
+        Swapchain.Size = newSize;
     }
 
     public override void GenerateMipmaps(Texture texture)

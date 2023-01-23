@@ -40,7 +40,8 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
     }
 
     public override GraphicsApi Api => GraphicsApi.Vulkan;
-    
+    public override Swapchain Swapchain { get; }
+
     public override Rectangle Viewport { get; set; }
     
     public override Rectangle Scissor { get; set; }

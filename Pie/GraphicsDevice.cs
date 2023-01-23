@@ -14,6 +14,8 @@ public abstract class GraphicsDevice : IDisposable
 {
     public abstract GraphicsApi Api { get; }
 
+    public abstract Swapchain Swapchain { get; }
+
     public abstract Rectangle Viewport { get; set; }
     
     public abstract Rectangle Scissor { get; set; }

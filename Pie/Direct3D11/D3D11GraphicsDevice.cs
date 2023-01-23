@@ -83,12 +83,17 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         CreateDepthStencilView(winSize);
         
         Viewport = new Rectangle(Point.Empty, winSize);
-        
+        Swapchain = new Swapchain()
+        {
+            Size = winSize
+        };
+
         SetFramebuffer(null);
     }
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
-    
+    public override Swapchain Swapchain { get; }
+
     private Rectangle _viewport;
     public override Rectangle Viewport
     {
@@ -426,7 +431,8 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         _colorTexture = _swapChain.GetBuffer<ID3D11Texture2D>(0);
         _colorTargetView = Device.CreateRenderTargetView(_colorTexture);
         CreateDepthStencilView(newSize);
-        Viewport = new Rectangle(Point.Empty, newSize);
+
+        Swapchain.Size = newSize;
     }
 
     public override void GenerateMipmaps(Texture texture)
