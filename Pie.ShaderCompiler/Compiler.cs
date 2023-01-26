@@ -75,9 +75,9 @@ public static class Compiler
         return (sbyte[]) (Array) Encoding.ASCII.GetBytes(text);
     }
 
-    private static unsafe byte[] ConvertToString(sbyte* text)
+    private static unsafe string ConvertToString(sbyte* text)
     {
-        return Encoding.UTF8.GetBytes(Marshal.PtrToStringAnsi((IntPtr) text));
+        return Marshal.PtrToStringAnsi((IntPtr) text);
     }
 
     private static unsafe byte[] ShadercResultToCompiledSpirV(GraphicsApi api, spvc_backend backend, shaderc_compilation_result* result)
@@ -120,7 +120,7 @@ public static class Compiler
 
         sbyte* compiledResult;
         spvc_compiler_compile(compl, &compiledResult);
-        byte[] compiled = ConvertToString(compiledResult);
+        byte[] compiled = Encoding.UTF8.GetBytes(ConvertToString(compiledResult));
         
         spvc_context_destroy(context);
 
