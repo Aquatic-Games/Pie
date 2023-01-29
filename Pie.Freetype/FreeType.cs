@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using Pie.Freetype.Native;
 using static Pie.Freetype.Native.FreetypeNative;
 
@@ -20,7 +21,8 @@ public class FreeType : IDisposable
     {
         //return CreateFace(File.ReadAllBytes(path), initialSize);
         FT_Face* face;
-        FT_New_Face(_library, path, new FT_Long(0), out face);
+        fixed (byte* bytes = Encoding.ASCII.GetBytes(path))
+            FT_New_Face(_library, (sbyte*) bytes, new FT_Long(0), out face);
         return new Face(face, initialSize);
     }
 
