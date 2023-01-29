@@ -42,11 +42,11 @@ public unsafe struct FT_Face
     public FT_Size* Size;
     public FT_CharMap* Charmap;
 
-    private FT_Library Driver;
-    private IntPtr Memory;
-    private IntPtr Stream;
+    private IntPtr Driver;
+    private FT_Memory Memory;
+    private FT_Stream Stream;
 
-    private IntPtr SizesList;
+    private FT_List SizesList;
 
     private FT_Generic AutoHint;
     private void* Extensions;
