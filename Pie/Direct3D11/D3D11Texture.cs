@@ -31,16 +31,16 @@ internal sealed class D3D11Texture : Texture
         PieUtils.CheckIfValid(description);
         int sizeMultiplier = PieUtils.GetSizeMultiplier(description.Format);
 
-        Format fmt = PieUtils.ToDxgiFormat(description.Format,
+        Vortice.DXGI.Format fmt = PieUtils.ToDxgiFormat(description.Format,
             (description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource);
 
         BindFlags flags = BindFlags.None;
         if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
             flags |= BindFlags.ShaderResource;
-        if (((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer && description.Format != PixelFormat.D24_UNorm_S8_UInt) || description.MipLevels != 1)
+        if (((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer && description.Format != Format.D24_UNorm_S8_UInt) || description.MipLevels != 1)
             flags |= BindFlags.RenderTarget;
 
-        if (description.Format == PixelFormat.D24_UNorm_S8_UInt)
+        if (description.Format == Format.D24_UNorm_S8_UInt)
             flags |= BindFlags.DepthStencil;
         ID3D11Resource texture;
         ShaderResourceViewDescription svDesc = new ShaderResourceViewDescription()

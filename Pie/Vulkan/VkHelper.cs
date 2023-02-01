@@ -325,7 +325,7 @@ public static unsafe class VkHelper
 
     public static void CreateSwapchain(in SwapchainSupportDetails details, in QueueFamilyIndices indices, in Size size)
     {
-        const Format format = Format.B8G8R8A8Unorm;
+        const Silk.NET.Vulkan.Format format = Silk.NET.Vulkan.Format.B8G8R8A8Unorm;
         const ColorSpaceKHR colorSpace = ColorSpaceKHR.SpaceSrgbNonlinearKhr;
 
         Result result;
@@ -421,7 +421,7 @@ public static unsafe class VkHelper
         Console.WriteLine("Created render pass and framebuffer.");
     }
 
-    public static void CreateRenderPass(Format format)
+    public static void CreateRenderPass(Silk.NET.Vulkan.Format format)
     {
         AttachmentDescription colorAttachment = new AttachmentDescription();
         colorAttachment.Format = format;
@@ -488,7 +488,7 @@ public static unsafe class VkHelper
         }
     }
 
-    public static bool CheckDeviceSupportsFormat(in SwapchainSupportDetails details, in Format desiredFormat, in ColorSpaceKHR colorSpace)
+    public static bool CheckDeviceSupportsFormat(in SwapchainSupportDetails details, in Silk.NET.Vulkan.Format desiredFormat, in ColorSpaceKHR colorSpace)
     {
         foreach (SurfaceFormatKHR format in details.Formats)
         {

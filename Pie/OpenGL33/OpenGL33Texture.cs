@@ -35,33 +35,169 @@ internal sealed class OpenGL33Texture : Texture
 
         switch (description.Format)
         {
-            case PixelFormat.R8G8B8A8_UNorm:
+            case Format.R8G8B8A8_UNorm:
                 fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba8;
                 break;
-            case PixelFormat.B8G8R8A8_UNorm:
+            case Format.B8G8R8A8_UNorm:
                 fmt = Silk.NET.OpenGL.PixelFormat.Bgra;
                 iFmt = InternalFormat.Rgba8;
                 break;
-            case PixelFormat.D24_UNorm_S8_UInt:
+            case Format.D24_UNorm_S8_UInt:
                 fmt = Silk.NET.OpenGL.PixelFormat.DepthStencil;
                 iFmt = InternalFormat.Depth24Stencil8;
                 break;
-            case PixelFormat.R8_UNorm:
+            case Format.R8_UNorm:
                 fmt = Silk.NET.OpenGL.PixelFormat.Red;
                 iFmt = InternalFormat.R8;
                 break;
-            case PixelFormat.R8G8_UNorm:
+            case Format.R8G8_UNorm:
                 fmt = Silk.NET.OpenGL.PixelFormat.RG;
                 iFmt = InternalFormat.RG8;
                 break;
-            case PixelFormat.R16G16B16A16_Float:
+            case Format.R16G16B16A16_Float:
                 fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba16f;
                 break;
-            case PixelFormat.R32G32B32A32_Float:
+            case Format.R32G32B32A32_Float:
                 fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba32f;
+                break;
+            case Format.R16G16B16A16_UNorm:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba16;
+                break;
+            case Format.R16G16B16A16_SNorm:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba16SNorm;
+                break;
+            case Format.R16G16B16A16_SInt:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba16i;
+                break;
+            case Format.R16G16B16A16_UInt:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba16ui;
+                break;
+            case Format.R32G32_SInt:
+                fmt = Silk.NET.OpenGL.PixelFormat.RG;
+                iFmt = InternalFormat.RG32i;
+                break;
+            case Format.R32G32_UInt:
+                fmt = Silk.NET.OpenGL.PixelFormat.RG;
+                iFmt = InternalFormat.RG32ui;
+                break;
+            case Format.R32G32_Float:
+                fmt = Silk.NET.OpenGL.PixelFormat.RG;
+                iFmt = InternalFormat.RG32f;
+                break;
+            case Format.R32G32B32_SInt:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgb;
+                iFmt = InternalFormat.Rgb32i;
+                break;
+            case Format.R32G32B32_UInt:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgb;
+                iFmt = InternalFormat.Rgb32ui;
+                break;
+            case Format.R32G32B32_Float:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgb;
+                iFmt = InternalFormat.Rgb32f;
+                break;
+            case Format.R32G32B32A32_SInt:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba32i;
+                break;
+            case Format.R32G32B32A32_UInt:
+                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba32ui;
+                break;
+            case Format.R8_SNorm:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R8SNorm;
+                break;
+            case Format.R8_SInt:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R8i;
+                break;
+            case Format.R8_UInt:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R8ui;
+                break;
+            case Format.R8G8_SNorm:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG8SNorm;
+                break;
+            case Format.R8G8_SInt:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG8i;
+                break;
+            case Format.R8G8_UInt:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG8ui;
+                break;
+            case Format.R8G8B8A8_SNorm:
+                fmt = PixelFormat.Rgb;
+                iFmt = InternalFormat.Rgba8SNorm;
+                break;
+            case Format.R8G8B8A8_SInt:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba8i;
+                break;
+            case Format.R8G8B8A8_UInt:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.Rgba8ui;
+                break;
+            case Format.R16_UNorm:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R16;
+                break;
+            case Format.R16_SNorm:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R16SNorm;
+                break;
+            case Format.R16_SInt:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R16i;
+                break;
+            case Format.R16_UInt:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R16ui;
+                break;
+            case Format.R16_Float:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R16f;
+                break;
+            case Format.R16G16_UNorm:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16;
+                break;
+            case Format.R16G16_SNorm:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16SNorm;
+                break;
+            case Format.R16G16_SInt:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16i;
+                break;
+            case Format.R16G16_UInt:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16ui;
+                break;
+            case Format.R16G16_Float:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16f;
+                break;
+            case Format.R32_SInt:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R32i;
+                break;
+            case Format.R32_UInt:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R32ui;
+                break;
+            case Format.R32_Float:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.R32f;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

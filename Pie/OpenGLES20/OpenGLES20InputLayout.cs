@@ -29,7 +29,7 @@ internal sealed class OpenGLES20InputLayout : InputLayout
             //    continue;
             Gl.EnableVertexAttribArray(location);
             
-            switch (description.Type)
+            /*switch (description.Format)
             {
                 case AttributeType.Int:
                     throw new NotSupportedException("Integer types are not (currently) supported in OpenGL ES 2.0.");
@@ -79,7 +79,7 @@ internal sealed class OpenGLES20InputLayout : InputLayout
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
+            }*/
             
             Gl.VertexAttribDivisor(location, (uint) description.InputType);
             

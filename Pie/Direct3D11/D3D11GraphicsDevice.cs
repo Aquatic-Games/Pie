@@ -344,10 +344,10 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
     {
-        Format fmt = type switch
+        Vortice.DXGI.Format fmt = type switch
         {
-            IndexType.UShort => Format.R16_UInt,
-            IndexType.UInt => Format.R32_UInt,
+            IndexType.UShort => Vortice.DXGI.Format.R16_UInt,
+            IndexType.UInt => Vortice.DXGI.Format.R32_UInt,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
         
@@ -453,7 +453,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     {
         Texture2DDescription texDesc = new Texture2DDescription()
         {
-            Format = Format.D32_Float,
+            Format = Vortice.DXGI.Format.D32_Float,
             Width = size.Width,
             Height = size.Height,
             ArraySize = 1,
@@ -465,7 +465,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             Usage = ResourceUsage.Default
         };
         
-        _depthStencilTexture = Device.CreateTexture2D(Format.D24_UNorm_S8_UInt, size.Width, size.Height, 1, 1, null, BindFlags.DepthStencil);
+        _depthStencilTexture = Device.CreateTexture2D(Vortice.DXGI.Format.D24_UNorm_S8_UInt, size.Width, size.Height, 1, 1, null, BindFlags.DepthStencil);
         _depthStencilTargetView = Device.CreateDepthStencilView(_depthStencilTexture,
             new DepthStencilViewDescription(_depthStencilTexture, DepthStencilViewDimension.Texture2D));
     }

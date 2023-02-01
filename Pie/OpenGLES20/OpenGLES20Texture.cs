@@ -38,31 +38,31 @@ internal sealed class OpenGLES20Texture : Texture
 
         switch (description.Format)
         {
-            case PixelFormat.R8G8B8A8_UNorm:
+            case Format.R8G8B8A8_UNorm:
                 fmt = Silk.NET.OpenGLES.PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba8;
                 break;
-            case PixelFormat.B8G8R8A8_UNorm:
+            case Format.B8G8R8A8_UNorm:
                 fmt = Silk.NET.OpenGLES.PixelFormat.Bgra;
                 iFmt = InternalFormat.Rgba8;
                 break;
-            case PixelFormat.D24_UNorm_S8_UInt:
+            case Format.D24_UNorm_S8_UInt:
                 fmt = Silk.NET.OpenGLES.PixelFormat.DepthStencil;
                 iFmt = InternalFormat.Depth24Stencil8;
                 break;
-            case PixelFormat.R8_UNorm:
+            case Format.R8_UNorm:
                 fmt = Silk.NET.OpenGLES.PixelFormat.Red;
                 iFmt = InternalFormat.R8;
                 break;
-            case PixelFormat.R8G8_UNorm:
+            case Format.R8G8_UNorm:
                 fmt = Silk.NET.OpenGLES.PixelFormat.RG;
                 iFmt = InternalFormat.RG8;
                 break;
-            case PixelFormat.R16G16B16A16_Float:
+            case Format.R16G16B16A16_Float:
                 fmt = Silk.NET.OpenGLES.PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba16f;
                 break;
-            case PixelFormat.R32G32B32A32_Float:
+            case Format.R32G32B32A32_Float:
                 fmt = Silk.NET.OpenGLES.PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba32f;
                 break;

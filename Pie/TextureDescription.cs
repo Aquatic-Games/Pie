@@ -20,7 +20,7 @@ public struct TextureDescription
     /// <summary>
     /// The pixel format of this texture.
     /// </summary>
-    public PixelFormat Format;
+    public Format Format;
 
     /// <summary>
     /// The number of mipmaps generated with this texture.
@@ -42,7 +42,7 @@ public struct TextureDescription
     /// </summary>
     public TextureUsage Usage;
 
-    public TextureDescription(TextureType textureType, int width, int height, PixelFormat format, int mipLevels, int arraySize, TextureUsage usage)
+    public TextureDescription(TextureType textureType, int width, int height, Format format, int mipLevels, int arraySize, TextureUsage usage)
     {
         TextureType = textureType;
         Width = width;

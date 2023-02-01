@@ -19,7 +19,7 @@ internal sealed class D3D11Framebuffer : Framebuffer
         List<ID3D11RenderTargetView> targets = new List<ID3D11RenderTargetView>();
         foreach (FramebufferAttachment attachment in attachments)
         {
-            Format fmt = PieUtils.ToDxgiFormat(attachment.Texture.Description.Format, false);
+            Vortice.DXGI.Format fmt = PieUtils.ToDxgiFormat(attachment.Texture.Description.Format, false);
             
             switch (attachment.AttachmentType)
             {

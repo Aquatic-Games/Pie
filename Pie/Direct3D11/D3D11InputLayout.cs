@@ -19,24 +19,7 @@ internal sealed class D3D11InputLayout : InputLayout
             ref InputElementDescription d = ref iedesc[i];
             ref InputLayoutDescription desc = ref descriptions[i];
 
-            Format fmt = desc.Type switch
-            {
-                AttributeType.Int => Format.R32_SInt,
-                AttributeType.Int2 => Format.R32G32_SInt,
-                AttributeType.Int3 => Format.R32G32B32_SInt,
-                AttributeType.Int4 => Format.R32G32B32A32_SInt,
-                AttributeType.Float => Format.R32_Float,
-                AttributeType.Float2 => Format.R32G32_Float,
-                AttributeType.Float3 => Format.R32G32B32_Float,
-                AttributeType.Float4 => Format.R32G32B32A32_Float,
-                AttributeType.Byte => Format.R8_UInt,
-                AttributeType.Byte2 => Format.R8G8_UInt,
-                AttributeType.Byte4 => Format.R8G8B8A8_UInt,
-                AttributeType.NByte => Format.R8_UNorm,
-                AttributeType.NByte2 => Format.R8G8_UNorm,
-                AttributeType.NByte4 => Format.R8G8B8A8_UNorm,
-                _ => throw new ArgumentOutOfRangeException()
-            };
+            Vortice.DXGI.Format fmt = PieUtils.ToDxgiFormat(desc.Format, false);
 
             d = new InputElementDescription("TEXCOORD", i, fmt, (int) desc.Offset, (int) desc.Slot, (InputClassification) desc.InputType, (int) desc.InputType);
         }
@@ -56,49 +39,128 @@ internal sealed class D3D11InputLayout : InputLayout
         {
             ref InputLayoutDescription desc = ref descriptions[i];
 
-            switch (desc.Type)
+            switch (desc.Format)
             {
-                case AttributeType.Int:
-                    dummyShader.Append("int ");
+                case Format.R8_UNorm:
+                    dummyShader.Append("float1 ");
                     break;
-                case AttributeType.Int2:
+                case Format.R8G8_UNorm:
+                    dummyShader.Append("float2 ");
+                    break;
+                case Format.R8G8B8A8_UNorm:
+                    dummyShader.Append("float4 ");
+                    break;
+                case Format.B8G8R8A8_UNorm:
+                    break;
+                case Format.R16G16B16A16_UNorm:
+                    dummyShader.Append("half4 ");
+                    break;
+                case Format.R16G16B16A16_SNorm:
+                    dummyShader.Append("half4 ");
+                    break;
+                case Format.R16G16B16A16_SInt:
+                    dummyShader.Append("int4 ");
+                    break;
+                case Format.R16G16B16A16_UInt:
+                    dummyShader.Append("uint4 ");
+                    break;
+                case Format.R16G16B16A16_Float:
+                    dummyShader.Append("half4 ");
+                    break;
+                case Format.R32G32_SInt:
                     dummyShader.Append("int2 ");
                     break;
-                case AttributeType.Int3:
+                case Format.R32G32_UInt:
+                    dummyShader.Append("uint2 ");
+                    break;
+                case Format.R32G32_Float:
+                    dummyShader.Append("float2 ");
+                    break;
+                case Format.R32G32B32_SInt:
                     dummyShader.Append("int3 ");
                     break;
-                case AttributeType.Int4:
-                    dummyShader.Append("int4 ");
+                case Format.R32G32B32_UInt:
+                    dummyShader.Append("uint3 ");
                     break;
-                case AttributeType.Float:
-                    dummyShader.Append("float ");
-                    break;
-                case AttributeType.Float2:
+                case Format.R32G32B32_Float:
                     dummyShader.Append("float2 ");
                     break;
-                case AttributeType.Float3:
-                    dummyShader.Append("float3 ");
+                case Format.R32G32B32A32_SInt:
+                    dummyShader.Append("int4 ");
                     break;
-                case AttributeType.Float4:
+                case Format.R32G32B32A32_UInt:
+                    dummyShader.Append("uint4 ");
+                    break;
+                case Format.R32G32B32A32_Float:
                     dummyShader.Append("float4 ");
                     break;
-                case AttributeType.Byte:
-                    dummyShader.Append("int ");
+                case Format.D24_UNorm_S8_UInt:
                     break;
-                case AttributeType.Byte2:
+                case Format.R8_SNorm:
+                    dummyShader.Append("float1 ");
+                    break;
+                case Format.R8_SInt:
+                    dummyShader.Append("int1 ");
+                    break;
+                case Format.R8_UInt:
+                    dummyShader.Append("uint1 ");
+                    break;
+                case Format.R8G8_SNorm:
+                    dummyShader.Append("float2 ");
+                    break;
+                case Format.R8G8_SInt:
                     dummyShader.Append("int2 ");
                     break;
-                case AttributeType.Byte4:
+                case Format.R8G8_UInt:
+                    dummyShader.Append("uint2 ");
+                    break;
+                case Format.R8G8B8A8_SNorm:
+                    dummyShader.Append("float4 ");
+                    break;
+                case Format.R8G8B8A8_SInt:
                     dummyShader.Append("int4 ");
                     break;
-                case AttributeType.NByte:
-                    dummyShader.Append("float ");
+                case Format.R8G8B8A8_UInt:
+                    dummyShader.Append("uint4 ");
                     break;
-                case AttributeType.NByte2:
-                    dummyShader.Append("float2 ");
+                case Format.R16_UNorm:
+                    dummyShader.Append("half1 ");
                     break;
-                case AttributeType.NByte4:
-                    dummyShader.Append("float4 ");
+                case Format.R16_SNorm:
+                    dummyShader.Append("half1 ");
+                    break;
+                case Format.R16_SInt:
+                    dummyShader.Append("int1 ");
+                    break;
+                case Format.R16_UInt:
+                    dummyShader.Append("uint1 ");
+                    break;
+                case Format.R16_Float:
+                    dummyShader.Append("half1 ");
+                    break;
+                case Format.R16G16_UNorm:
+                    dummyShader.Append("half2 ");
+                    break;
+                case Format.R16G16_SNorm:
+                    dummyShader.Append("half2 ");
+                    break;
+                case Format.R16G16_SInt:
+                    dummyShader.Append("int2 ");
+                    break;
+                case Format.R16G16_UInt:
+                    dummyShader.Append("uint2 ");
+                    break;
+                case Format.R16G16_Float:
+                    dummyShader.Append("half2 ");
+                    break;
+                case Format.R32_SInt:
+                    dummyShader.Append("int1 ");
+                    break;
+                case Format.R32_UInt:
+                    dummyShader.Append("uint1 ");
+                    break;
+                case Format.R32_Float:
+                    dummyShader.Append("float1 ");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

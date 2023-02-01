@@ -10,9 +10,9 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
     public readonly string Name;
     
     /// <summary>
-    /// The type of this attribute. This is also used to determine its size.
+    /// The format of this attribute. This is also used to determine its size.
     /// </summary>
-    public readonly AttributeType Type;
+    public readonly Format Format;
 
     public readonly uint Offset;
 
@@ -22,7 +22,7 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
     public uint Slot;
 
     /// <summary>
-    /// The input type of data.
+    /// The input format of data.
     /// </summary>
     public InputType InputType;
 
@@ -30,11 +30,11 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
     /// Create a new input layout description for use with an <see cref="InputLayout"/>.
     /// </summary>
     /// <param name="name">The name of this attribute.</param>
-    /// <param name="type">The type of this attribute. This is also used to determine its size.</param>
-    public InputLayoutDescription(string name, AttributeType type, uint offset, uint slot, InputType inputType)
+    /// <param name="format">The format of this attribute. This is also used to determine its size.</param>
+    public InputLayoutDescription(string name, Format format, uint offset, uint slot, InputType inputType)
     {
         Name = name;
-        Type = type;
+        Format = format;
         Offset = offset;
         Slot = slot;
         InputType = inputType;
@@ -42,7 +42,7 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
 
     public bool Equals(InputLayoutDescription other)
     {
-        return Name == other.Name && Type == other.Type;
+        return Name == other.Name && Format == other.Format;
     }
 
     public override bool Equals(object obj)
@@ -52,6 +52,6 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Name, (int) Type);
+        return HashCode.Combine(Name, (int) Format);
     }
 }
