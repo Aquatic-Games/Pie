@@ -210,6 +210,16 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         ((OpenGLES20GraphicsBuffer) buffer).Update(offsetInBytes, data);
     }
 
+    public override void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data)
+    {
+        throw new NotImplementedException();
+    }
+
     public override void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
     {
         throw new NotImplementedException();

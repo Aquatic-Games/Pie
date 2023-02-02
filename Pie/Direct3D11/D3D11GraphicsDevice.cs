@@ -251,6 +251,16 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
     }
 
+    public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data)
+    {
+        ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data.ToPointer());
+    }
+
+    public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data)
+    {
+        ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data);
+    }
+
     public override unsafe void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
     {
         fixed (void* ptr = data)

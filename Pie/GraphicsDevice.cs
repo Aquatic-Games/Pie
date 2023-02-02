@@ -12,12 +12,25 @@ namespace Pie;
 
 public abstract class GraphicsDevice : IDisposable
 {
+    /// <summary>
+    /// Get the <see cref="GraphicsApi"/> this device is using.
+    /// </summary>
     public abstract GraphicsApi Api { get; }
 
+    /// <summary>
+    /// Get the <see cref="Swapchain"/> of this device.
+    /// </summary>
     public abstract Swapchain Swapchain { get; }
+    
 
+    /// <summary>
+    /// Get or set the viewport of this device.
+    /// </summary>
     public abstract Rectangle Viewport { get; set; }
     
+    /// <summary>
+    /// Get or set the scissor rectangle of this device.
+    /// </summary>
     public abstract Rectangle Scissor { get; set; }
 
     /// <summary>
@@ -90,6 +103,11 @@ public abstract class GraphicsDevice : IDisposable
     /// <returns>The created graphics buffer.</returns>
     public abstract unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false);
 
+    /// <summary>
+    /// Create an empty texture with the given description.
+    /// </summary>
+    /// <param name="description">The description of the texture.</param>
+    /// <returns>The created texture.</returns>
     public abstract Texture CreateTexture(TextureDescription description);
 
     /// <summary>
@@ -97,13 +115,34 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="description">The description of the texture.</param>
     /// <param name="data">The initial data of the texture.</param>
+    /// <typeparam name="T">The data type, typically byte or float. This type should match the <see cref="Format"/> in the <paramref name="description"/>.</typeparam>
     /// <returns>The created texture.</returns>
     public abstract Texture CreateTexture<T>(TextureDescription description, T[] data) where T : unmanaged;
     
+    /// <summary>
+    /// Create a texture with the given description and <b>array</b> data.
+    /// </summary>
+    /// <param name="description">The description of the texture.</param>
+    /// <param name="data">The initial array data of the texture.</param>
+    /// <typeparam name="T">The data type, typically byte or float. This type should match the <see cref="Format"/> in the <paramref name="description"/>.</typeparam>
+    /// <returns>The created texture.</returns>
+    /// <remarks>As this takes in array data, this method should only be used with array textures and cubemaps.</remarks>
     public abstract Texture CreateTexture<T>(TextureDescription description, T[][] data) where T : unmanaged;
 
+    /// <summary>
+    /// Create a texture with the given description and data.
+    /// </summary>
+    /// <param name="description">The description of the texture.</param>
+    /// <param name="data">The pointer to the data.</param>
+    /// <returns>The created texture.</returns>
     public abstract Texture CreateTexture(TextureDescription description, IntPtr data);
 
+    /// <summary>
+    /// Create a texture with the given description and data.
+    /// </summary>
+    /// <param name="description">The description of the texture.</param>
+    /// <param name="data">The pointer to the data.</param>
+    /// <returns>The created texture.</returns>
     public abstract unsafe Texture CreateTexture(TextureDescription description, void* data);
 
     /// <summary>
@@ -115,19 +154,17 @@ public abstract class GraphicsDevice : IDisposable
     public abstract Shader CreateShader(params ShaderAttachment[] attachments);
 
     /// <summary>
-    /// Create an input layout which can be used with a vertex buffer, with a given stride value in bytes.
+    /// Create an input layout which can be used with a vertex buffer.
     /// </summary>
-    /// <param name="descriptions">The descriptions for this layout.</param>
+    /// <param name="inputLayoutDescriptions">The descriptions for this layout.</param>
     /// <returns>The created input layout.</returns>
     public abstract InputLayout CreateInputLayout(params InputLayoutDescription[] inputLayoutDescriptions);
 
     /// <summary>
-    /// Create a new rasterizer state with the default parameters, typical for 3D.
+    /// Create a new rasterizer state from the given description.
     /// </summary>
-    /// <param name="face">The face that will be culled on next draw. Set to <see cref="CullFace.None"/> to disable face culling.</param>
-    /// <param name="direction">The face cull direction. This will determine which is the front face and which is the back face.</param>
-    /// <param name="fillMode">The fill mode that will be used on next draw.</param>
-    /// <param name="enableScissor">Whether or not the scissor test will be enabled.</param>
+    /// <param name="description">The rasterizer state description.</param>
+    /// <returns>The created rasterizer state.</returns>
     public abstract RasterizerState CreateRasterizerState(RasterizerStateDescription description);
 
     /// <summary>
@@ -175,6 +212,10 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="data">The data itself</param>
     /// <typeparam name="T">Any unmanaged type</typeparam>
     public abstract void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data) where T : unmanaged;
+
+    public abstract void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data);
+
+    public abstract unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data);
 
     /// <summary>
     /// Update a region of this texture with the given data.

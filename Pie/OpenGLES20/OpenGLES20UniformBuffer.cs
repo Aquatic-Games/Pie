@@ -2,7 +2,7 @@ using System;
 
 namespace Pie.OpenGLES20;
 
-public sealed class OpenGLES20UniformBuffer : GraphicsBuffer
+internal sealed class OpenGLES20UniformBuffer : GraphicsBuffer
 {
     public override bool IsDisposed { get; protected set; }
 

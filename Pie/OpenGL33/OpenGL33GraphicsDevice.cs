@@ -227,6 +227,16 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
             ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
     }
 
+    public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data)
+    {
+        ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data.ToPointer());
+    }
+
+    public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data)
+    {
+        ((OpenGL33GraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data);
+    }
+
     public override unsafe void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
     {
         fixed (void* ptr = data)
