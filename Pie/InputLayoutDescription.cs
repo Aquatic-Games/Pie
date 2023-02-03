@@ -2,6 +2,9 @@ using System;
 
 namespace Pie;
 
+/// <summary>
+/// Describes how an <see cref="InputLayout"/> should behave.
+/// </summary>
 public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
 {
     /// <summary>
@@ -10,10 +13,13 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
     public readonly string Name;
     
     /// <summary>
-    /// The format of this attribute. This is also used to determine its size.
+    /// The format of this attribute.
     /// </summary>
     public readonly Format Format;
 
+    /// <summary>
+    /// The offset, in bytes, of this attribute.
+    /// </summary>
     public readonly uint Offset;
 
     /// <summary>
@@ -22,7 +28,7 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
     public uint Slot;
 
     /// <summary>
-    /// The input format of data.
+    /// The input type of this attribute.
     /// </summary>
     public InputType InputType;
 
@@ -30,7 +36,10 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
     /// Create a new input layout description for use with an <see cref="InputLayout"/>.
     /// </summary>
     /// <param name="name">The name of this attribute.</param>
-    /// <param name="format">The format of this attribute. This is also used to determine its size.</param>
+    /// <param name="format">The format of this attribute.</param>
+    /// <param name="offset">The offset, in bytes, of this attribute.</param>
+    /// <param name="slot">The vertex buffer slot of this attribute.</param>
+    /// <param name="inputType">The input type of this attribute.</param>
     public InputLayoutDescription(string name, Format format, uint offset, uint slot, InputType inputType)
     {
         Name = name;

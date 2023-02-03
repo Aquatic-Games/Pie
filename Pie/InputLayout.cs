@@ -2,6 +2,9 @@ using System;
 
 namespace Pie;
 
+/// <summary>
+/// Describes how the graphics device should process vertices.
+/// </summary>
 public abstract class InputLayout : IDisposable, IEquatable<InputLayout>
 {
     /// <summary>
@@ -9,8 +12,14 @@ public abstract class InputLayout : IDisposable, IEquatable<InputLayout>
     /// </summary>
     public abstract bool IsDisposed { get; protected set; }
     
+    /// <summary>
+    /// The <see cref="InputLayoutDescription"/>s of this <see cref="InputLayout"/>.
+    /// </summary>
     public abstract InputLayoutDescription[] Descriptions { get; }
 
+    /// <summary>
+    /// Dispose of this <see cref="InputLayout"/>
+    /// </summary>
     public abstract void Dispose();
 
     public bool Equals(InputLayout other)

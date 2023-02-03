@@ -1,5 +1,8 @@
 ﻿namespace Pie;
 
+/// <summary>
+/// The type of a <see cref="GraphicsBuffer"/>.
+/// </summary>
 public enum BufferType
 {
     /// <summary>

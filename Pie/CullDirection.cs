@@ -1,5 +1,8 @@
 namespace Pie;
 
+/// <summary>
+/// The direction to use during culling. This is typically equal to the winding order of the vertices.
+/// </summary>
 public enum CullDirection
 {
     /// <summary>

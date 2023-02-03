@@ -2,9 +2,15 @@
 
 namespace Pie;
 
+/// <summary>
+/// The flags to use when clearing the target framebuffer.
+/// </summary>
 [Flags]
 public enum ClearFlags
 {
+    /// <summary>
+    /// Do not clear anything.
+    /// </summary>
     None,
     
     /// <summary>

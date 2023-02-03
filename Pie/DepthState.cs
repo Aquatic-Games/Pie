@@ -2,15 +2,24 @@ using System;
 
 namespace Pie;
 
+/// <summary>
+/// Used to tell the graphics device how to handle depth information.
+/// </summary>
 public abstract class DepthState : IDisposable, IEquatable<DepthState>
 {
     /// <summary>
-    /// Will return <see langword="true" /> when this depth state has been disposed.
+    /// Will return <see langword="true" /> when this <see cref="DepthState"/> has been disposed.
     /// </summary>
     public abstract bool IsDisposed { get; protected set; }
     
+    /// <summary>
+    /// Get the <see cref="DepthStateDescription"/> for this <see cref="DepthState"/>.
+    /// </summary>
     public abstract DepthStateDescription Description { get; }
 
+    /// <summary>
+    /// Dispose of this <see cref="DepthState"/>.
+    /// </summary>
     public abstract void Dispose();
 
     public bool Equals(DepthState other)

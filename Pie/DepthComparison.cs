@@ -1,5 +1,8 @@
 namespace Pie;
 
+/// <summary>
+/// Describes when the depth test should pass.
+/// </summary>
 public enum DepthComparison
 {
     /// <summary>

@@ -1,5 +1,8 @@
 namespace Pie;
 
+/// <summary>
+/// The face to cull.
+/// </summary>
 public enum CullFace
 {
     /// <summary>

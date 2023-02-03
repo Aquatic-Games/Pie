@@ -2,6 +2,9 @@
 
 namespace Pie;
 
+/// <summary>
+/// The backend graphics API used for a <see cref="GraphicsDevice"/>.
+/// </summary>
 public enum GraphicsApi
 {
     /// <summary>
