@@ -10,6 +10,9 @@ using Silk.NET.Vulkan;
 
 namespace Pie;
 
+/// <summary>
+/// A Pie Graphics Device provides all the rendering functions for a given physical graphics device.
+/// </summary>
 public abstract class GraphicsDevice : IDisposable
 {
     /// <summary>
@@ -200,8 +203,8 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="buffer">The buffer to update.</param>
     /// <param name="offsetInBytes">The offset in bytes, if any, where the data will be updated.</param>
-    /// <param name="data">The data itself</param>
-    /// <typeparam name="T">Any unmanaged type</typeparam>
+    /// <param name="data">The data itself.</param>
+    /// <typeparam name="T">Any unmanaged type.</typeparam>
     public abstract void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data) where T : unmanaged;
 
     /// <summary>
@@ -209,12 +212,26 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="buffer">The buffer to update.</param>
     /// <param name="offsetInBytes">The offset in bytes, if any, where the data will be updated.</param>
-    /// <param name="data">The data itself</param>
-    /// <typeparam name="T">Any unmanaged type</typeparam>
+    /// <param name="data">The data itself.</param>
+    /// <typeparam name="T">Any unmanaged type.</typeparam>
     public abstract void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data) where T : unmanaged;
 
+    /// <summary>
+    /// Update the given buffer with the given data at the given offset in bytes.
+    /// </summary>
+    /// <param name="buffer">The buffer to update.</param>
+    /// <param name="offsetInBytes">The offset in bytes, if any, where the data will be updated.</param>
+    /// <param name="sizeInBytes">The size in bytes of the data.</param>
+    /// <param name="data">The data pointer.</param>
     public abstract void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data);
 
+    /// <summary>
+    /// Update the given buffer with the given data at the given offset in bytes.
+    /// </summary>
+    /// <param name="buffer">The buffer to update.</param>
+    /// <param name="offsetInBytes">The offset in bytes, if any, where the data will be updated.</param>
+    /// <param name="sizeInBytes">The size in bytes of the data.</param>
+    /// <param name="data">The data pointer.</param>
     public abstract unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data);
 
     /// <summary>
@@ -226,14 +243,43 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="width">The width in pixels of the data.</param>
     /// <param name="height">The height in pixels of the data.</param>
     /// <param name="data">The data itself.</param>
+    /// <typeparam name="T">The data type, typically byte or float. This type should match the <see cref="Format"/> in the texture's <see cref="TextureDescription"/>.</typeparam>
     public abstract void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data) where T : unmanaged;
 
+    /// <summary>
+    /// Update a region of this texture with the given data.
+    /// </summary>
+    /// <param name="texture">The texture to update.</param>
+    /// <param name="x">The x-offset in pixels of the data.</param>
+    /// <param name="y">The y-offset in pixels of the data.</param>
+    /// <param name="width">The width in pixels of the data.</param>
+    /// <param name="height">The height in pixels of the data.</param>
+    /// <param name="data">The data pointer.</param>
     public abstract void UpdateTexture(Texture texture, int x, int y, uint width, uint height, IntPtr data);
 
+    /// <summary>
+    /// Update a region of this texture with the given data.
+    /// </summary>
+    /// <param name="texture">The texture to update.</param>
+    /// <param name="x">The x-offset in pixels of the data.</param>
+    /// <param name="y">The y-offset in pixels of the data.</param>
+    /// <param name="width">The width in pixels of the data.</param>
+    /// <param name="height">The height in pixels of the data.</param>
+    /// <param name="data">The data pointer.</param>
     public abstract unsafe void UpdateTexture(Texture texture, int x, int y, uint width, uint height, void* data);
 
+    /// <summary>
+    /// Map the given buffer to CPU accessible memory.
+    /// </summary>
+    /// <param name="buffer">The buffer to map.</param>
+    /// <param name="mode">The CPU access mode of this buffer.</param>
+    /// <returns>The mapped buffer's data.</returns>
     public abstract IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode);
 
+    /// <summary>
+    /// Unmapped the given mapped buffer.
+    /// </summary>
+    /// <param name="buffer">The buffer that will be mapped.</param>
     public abstract void UnmapBuffer(GraphicsBuffer buffer);
 
     /// <summary>
@@ -247,6 +293,7 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="bindingSlot">The binding slot that this texture will be used in.</param>
     /// <param name="texture">The texture to use.</param>
+    /// <param name="samplerState">The sampler state to use for this texture.</param>
     public abstract void SetTexture(uint bindingSlot, Texture texture, SamplerState samplerState);
 
     /// <summary>
@@ -331,12 +378,18 @@ public abstract class GraphicsDevice : IDisposable
     /// <summary>
     /// Draw to the screen with the given indices count, at the given start index, at the given base vertex.
     /// </summary>
-    /// <param name="indexCount">The number of indices (indices).</param>
+    /// <param name="indexCount">The number of indices.</param>
     /// <param name="startIndex">The starting index of the indices to draw.</param>
     /// <param name="baseVertex">The base vertex of the indices to draw.</param>
     public abstract void DrawIndexed(uint indexCount, int startIndex, int baseVertex);
 
+    /// <summary>
+    /// Draw with instancing, with the given indices count and number of instances.
+    /// </summary>
+    /// <param name="indexCount">The number of indices.</param>
+    /// <param name="instanceCount">The number of instances.</param>
     public abstract void DrawIndexedInstanced(uint indexCount, uint instanceCount);
+    // TODO: implement all draw instanced functions
 
     /// <summary>
     /// Present to the screen.
@@ -355,6 +408,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="texture"></param>
     public abstract void GenerateMipmaps(Texture texture);
 
+    /// <summary>
+    /// Dispose of this graphics device.
+    /// </summary>
     public abstract void Dispose();
 
     /// <summary>
@@ -362,30 +418,37 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="context">The GL context.</param>
     /// <param name="winSize">The size of the window on startup.</param>
-    /// <param name="flags">The creation flags for this graphics device, if any.</param>
+    /// <param name="options">The options for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
     public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
     {
         return new OpenGL33GraphicsDevice(context, winSize, options);
     }
 
-    public static GraphicsDevice CreateOpenGLES20(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
+    /*public static GraphicsDevice CreateOpenGLES20(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
     {
         return new OpenGLES20GraphicsDevice(context, winSize, options);
-    }
+    }*/
 
     /// <summary>
     /// Create a Direct3D 11 graphics device.
     /// </summary>
     /// <param name="hwnd">The HWND pointer.</param>
     /// <param name="winSize">The size of the window on startup.</param>
-    /// <param name="flags">The creation flags for this graphics device, if any.</param>
+    /// <param name="options">The options for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
     public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options = default)
     {
         return new D3D11GraphicsDevice(hwnd, winSize, options);
     }
 
+    /// <summary>
+    /// <b>!!! WARNING - EXPERIMENTAL !!!</b> Create a Vulkan graphics device.
+    /// </summary>
+    /// <param name="surface">The KHR surface.</param>
+    /// <param name="winSize">The size of the window on startup.</param>
+    /// <param name="options">The options for this graphics device, if any.</param>
+    /// <returns>The created graphics device.</returns>
     public static unsafe GraphicsDevice CreateVulkan(in SurfaceKHR surface, Size winSize, GraphicsDeviceOptions options = default)
     {
         return new VulkanGraphicsDevice(surface, winSize, options);
