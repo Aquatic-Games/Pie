@@ -50,8 +50,50 @@ internal sealed class D3D11Texture : Texture
         
         switch (description.TextureType)
         {
+            case TextureType.Texture1D:
+                Texture1DDescription desc1d = new Texture1DDescription()
+                {
+                    Width = description.Width,
+                    Format = fmt,
+                    MipLevels = description.MipLevels,
+                    ArraySize = description.ArraySize,
+                    //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
+                    Usage = ResourceUsage.Default,
+                    BindFlags = flags,
+                    CPUAccessFlags = CpuAccessFlags.None,
+                    MiscFlags = description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
+                };
+
+                texture = Device.CreateTexture1D(desc1d);
+                if (data != null)
+                {
+                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), description.Width * sizeMultiplier,
+                        description.ArraySize > 1 ? description.ArraySize * sizeMultiplier : 0);
+                }
+
+                if (description.ArraySize == 1)
+                {
+                    svDesc.ViewDimension = ShaderResourceViewDimension.Texture1D;
+                    svDesc.Texture1D = new Texture1DShaderResourceView()
+                    {
+                        MipLevels = -1,
+                        MostDetailedMip = 0
+                    };
+                }
+                else
+                {
+                    svDesc.ViewDimension = ShaderResourceViewDimension.Texture2DArray;
+                    svDesc.Texture1DArray = new Texture1DArrayShaderResourceView()
+                    {
+                        MipLevels = -1,
+                        MostDetailedMip = 0,
+                        ArraySize = description.ArraySize,
+                        FirstArraySlice = 0
+                    };
+                }
+                break;
             case TextureType.Texture2D:
-                Texture2DDescription desc = new Texture2DDescription()
+                Texture2DDescription desc2d = new Texture2DDescription()
                 {
                     Width = description.Width,
                     Height = description.Height,
@@ -66,12 +108,11 @@ internal sealed class D3D11Texture : Texture
                     MiscFlags = description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
                 };
 
-                texture = Device.CreateTexture2D(desc);
-                //Context.UpdateSubresource(new ReadOnlySpan<byte>(data[0].DataPtr, (int) data[0].DataLength), texture, 0, description.Width * sizeMultiplier);
+                texture = Device.CreateTexture2D(desc2d);
                 if (data != null)
                 {
                     Context.UpdateSubresource(texture, 0, null, new IntPtr(data), description.Width * sizeMultiplier,
-                        0);
+                        description.ArraySize > 1 ? description.ArraySize * sizeMultiplier : 0);
                 }
 
                 if (description.ArraySize == 1)
@@ -85,14 +126,48 @@ internal sealed class D3D11Texture : Texture
                 }
                 else
                 {
-                    /*svDesc.ViewDimension = ShaderResourceViewDimension.Texture2DArray;
+                    svDesc.ViewDimension = ShaderResourceViewDimension.Texture2DArray;
                     svDesc.Texture2DArray = new Texture2DArrayShaderResourceView()
                     {
-                        
-                    }*/
-                    throw new NotImplementedException("Currently texture arrays have not been implemented.");
+                        MipLevels = -1,
+                        MostDetailedMip = 0,
+                        ArraySize = description.ArraySize,
+                        FirstArraySlice = 0
+                    };
                 }
                 
+                break;
+            case TextureType.Texture3D:
+                Texture3DDescription desc3d = new Texture3DDescription()
+                {
+                    Width = description.Width,
+                    Height = description.Height,
+                    Depth = description.Depth,
+                    Format = fmt,
+                    MipLevels = description.MipLevels,
+                    //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
+                    Usage = ResourceUsage.Default,
+                    BindFlags = flags,
+                    CPUAccessFlags = CpuAccessFlags.None,
+                    MiscFlags = description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
+                };
+
+                texture = Device.CreateTexture3D(desc3d);
+                if (data != null)
+                {
+                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), description.Width * sizeMultiplier,
+                        description.Depth * sizeMultiplier);
+                }
+
+                if (description.ArraySize > 1)
+                    throw new NotSupportedException("Texture3D arrays are not supported.");
+                
+                svDesc.ViewDimension = ShaderResourceViewDimension.Texture3D;
+                svDesc.Texture3D = new Texture3DShaderResourceView()
+                {
+                    MipLevels = -1,
+                    MostDetailedMip = 0
+                };
                 break;
             case TextureType.Cubemap:
                 Texture2DDescription cDesc = new Texture2DDescription()

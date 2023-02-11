@@ -220,7 +220,9 @@ internal sealed class OpenGL33Texture : Texture
             
             target = description.TextureType switch
             {
-                TextureType.Texture2D => TextureTarget.Texture2D,
+                TextureType.Texture1D => description.ArraySize > 1 ? TextureTarget.Texture1DArray : TextureTarget.Texture1D,
+                TextureType.Texture2D => description.ArraySize > 1 ? TextureTarget.Texture2DArray : TextureTarget.Texture2D,
+                TextureType.Texture3D => TextureTarget.Texture3D,
                 TextureType.Cubemap => TextureTarget.TextureCubeMap,
                 _ => throw new ArgumentOutOfRangeException()
             };
@@ -228,15 +230,35 @@ internal sealed class OpenGL33Texture : Texture
             Gl.BindTexture(target, handle);
             switch (description.TextureType)
             {
+                case TextureType.Texture1D:
+                    if (description.ArraySize == 1)
+                    {
+                        Gl.TexImage1D(target, 0, iFmt, (uint) description.Width, 0, fmt, PixelType.UnsignedByte, data);
+                    }
+                    else
+                    {
+                        Gl.TexImage2D(target, 0, iFmt, (uint) description.Width, (uint) description.ArraySize, 0, fmt,
+                            PixelType.UnsignedByte, data);
+                    }
+                    break;
                 case TextureType.Texture2D:
                     if (description.ArraySize == 1)
                     {
-                        void* dataPtr = data == null ? null : data;
                         Gl.TexImage2D(target, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
-                            PixelType.UnsignedByte, dataPtr);
+                            PixelType.UnsignedByte, data);
                     }
                     else
-                        throw new NotImplementedException("Currently texture arrays have not been implemented.");
+                    {
+                        Gl.TexImage3D(target, 0, iFmt, (uint) description.Width, (uint) description.Height,
+                            (uint) description.ArraySize, 0, fmt, PixelType.UnsignedByte, data);
+                    }
+                    break;
+                case TextureType.Texture3D:
+                    if (description.ArraySize > 1)
+                        throw new NotSupportedException("3D texture arrays are not supported.");
+
+                    Gl.TexImage3D(target, 0, iFmt, (uint) description.Width, (uint) description.Height,
+                        (uint) description.Depth, 0, fmt, PixelType.UnsignedByte, data);
                     break;
                 case TextureType.Cubemap:
                     int size = description.Width * description.Height * PieUtils.GetSizeMultiplier(description.Format);

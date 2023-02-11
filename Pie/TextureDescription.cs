@@ -18,6 +18,11 @@ public struct TextureDescription
     public int Height;
 
     /// <summary>
+    /// The depth of this texture.
+    /// </summary>
+    public int Depth;
+
+    /// <summary>
     /// The pixel format of this texture.
     /// </summary>
     public Format Format;
@@ -42,11 +47,39 @@ public struct TextureDescription
     /// </summary>
     public TextureUsage Usage;
 
-    public TextureDescription(TextureType textureType, int width, int height, Format format, int mipLevels, int arraySize, TextureUsage usage)
+    public TextureDescription(TextureType textureType, int width, Format format, int mipLevels,
+        int arraySize, TextureUsage usage)
+    {
+        TextureType = textureType;
+        Width = width;
+        Height = 0;
+        Depth = 0;
+        Format = format;
+        MipLevels = mipLevels;
+        ArraySize = arraySize;
+        Usage = usage;
+    }
+    
+    public TextureDescription(TextureType textureType, int width, int height, Format format, int mipLevels,
+        int arraySize, TextureUsage usage)
     {
         TextureType = textureType;
         Width = width;
         Height = height;
+        Depth = 0;
+        Format = format;
+        MipLevels = mipLevels;
+        ArraySize = arraySize;
+        Usage = usage;
+    }
+    
+    public TextureDescription(TextureType textureType, int width, int height, int depth, Format format, int mipLevels,
+        int arraySize, TextureUsage usage)
+    {
+        TextureType = textureType;
+        Width = width;
+        Height = height;
+        Depth = depth;
         Format = format;
         MipLevels = mipLevels;
         ArraySize = arraySize;
