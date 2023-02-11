@@ -450,6 +450,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         Context.GenerateMips(((D3D11Texture) texture).View);
     }
 
+    public override void Flush()
+    {
+        Context.Flush();
+    }
+
     public override void Dispose()
     {
         _colorTargetView.Dispose();

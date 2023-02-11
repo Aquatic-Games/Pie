@@ -293,6 +293,11 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
+    public override void Flush()
+    {
+        throw new NotImplementedException();
+    }
+
     public override void Dispose()
     {
         VkHelper.Dispose();

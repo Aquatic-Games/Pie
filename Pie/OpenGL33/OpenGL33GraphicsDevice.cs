@@ -439,6 +439,11 @@ internal sealed class OpenGL33GraphicsDevice : GraphicsDevice
         Gl.GenerateMipmap(tex.Target);
     }
 
+    public override void Flush()
+    {
+        Gl.Flush();
+    }
+
     public override void Dispose()
     {
         Gl.BindVertexArray(0);

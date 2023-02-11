@@ -409,6 +409,11 @@ public abstract class GraphicsDevice : IDisposable
     public abstract void GenerateMipmaps(Texture texture);
 
     /// <summary>
+    /// Force the device to execute all queued commands in the command buffer.
+    /// </summary>
+    public abstract void Flush();
+
+    /// <summary>
     /// Dispose of this graphics device.
     /// </summary>
     public abstract void Dispose();

@@ -418,6 +418,11 @@ internal sealed class OpenGLES20GraphicsDevice : GraphicsDevice
         Gl.GenerateMipmap(tex.Target);
     }
 
+    public override void Flush()
+    {
+        throw new NotImplementedException();
+    }
+
     public override void Dispose()
     {
     }
