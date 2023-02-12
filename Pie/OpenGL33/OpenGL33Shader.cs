@@ -26,6 +26,7 @@ internal sealed class OpenGL33Shader : Shader
             {
                 ShaderStage.Vertex => ShaderType.VertexShader,
                 ShaderStage.Fragment => ShaderType.FragmentShader,
+                ShaderStage.Geometry => ShaderType.GeometryShader,
                 _ => throw new ArgumentOutOfRangeException()
             };
 

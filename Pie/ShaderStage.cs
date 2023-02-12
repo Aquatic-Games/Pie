@@ -15,5 +15,10 @@ public enum ShaderStage
     /// <summary>
     /// This shader is a pixel shader. (Equivalent to <see cref="Fragment"/>.)
     /// </summary>
-    Pixel = Fragment
+    Pixel = Fragment,
+    
+    /// <summary>
+    /// This shader is a geometry shader.
+    /// </summary>
+    Geometry
 }
