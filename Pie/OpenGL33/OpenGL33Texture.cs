@@ -32,172 +32,234 @@ internal sealed class OpenGL33Texture : Texture
 
         Silk.NET.OpenGL.PixelFormat fmt;
         InternalFormat iFmt;
+        PixelType type;
 
         switch (description.Format)
         {
             case Format.R8G8B8A8_UNorm:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba8;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.B8G8R8A8_UNorm:
-                fmt = Silk.NET.OpenGL.PixelFormat.Bgra;
+                fmt = PixelFormat.Bgra;
                 iFmt = InternalFormat.Rgba8;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.D24_UNorm_S8_UInt:
-                fmt = Silk.NET.OpenGL.PixelFormat.DepthStencil;
+                fmt = PixelFormat.DepthStencil;
                 iFmt = InternalFormat.Depth24Stencil8;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.R8_UNorm:
-                fmt = Silk.NET.OpenGL.PixelFormat.Red;
+                fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R8;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.R8G8_UNorm:
-                fmt = Silk.NET.OpenGL.PixelFormat.RG;
+                fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG8;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.R16G16B16A16_Float:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba16f;
+                type = PixelType.Float;
                 break;
             case Format.R32G32B32A32_Float:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba32f;
+                type = PixelType.Float;
                 break;
             case Format.R16G16B16A16_UNorm:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba16;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.R16G16B16A16_SNorm:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba16SNorm;
+                type = PixelType.Byte;
                 break;
             case Format.R16G16B16A16_SInt:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba16i;
+                type = PixelType.Short;
                 break;
             case Format.R16G16B16A16_UInt:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba16ui;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.R32G32_SInt:
-                fmt = Silk.NET.OpenGL.PixelFormat.RG;
+                fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG32i;
+                type = PixelType.Int;
                 break;
             case Format.R32G32_UInt:
-                fmt = Silk.NET.OpenGL.PixelFormat.RG;
+                fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG32ui;
+                type = PixelType.UnsignedInt;
                 break;
             case Format.R32G32_Float:
-                fmt = Silk.NET.OpenGL.PixelFormat.RG;
+                fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG32f;
+                type = PixelType.Float;
                 break;
             case Format.R32G32B32_SInt:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgb;
+                fmt = PixelFormat.Rgb;
                 iFmt = InternalFormat.Rgb32i;
+                type = PixelType.Int;
                 break;
             case Format.R32G32B32_UInt:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgb;
+                fmt = PixelFormat.Rgb;
                 iFmt = InternalFormat.Rgb32ui;
+                type = PixelType.UnsignedInt;
                 break;
             case Format.R32G32B32_Float:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgb;
+                fmt = PixelFormat.Rgb;
                 iFmt = InternalFormat.Rgb32f;
+                type = PixelType.Float;
                 break;
             case Format.R32G32B32A32_SInt:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba32i;
+                type = PixelType.Int;
                 break;
             case Format.R32G32B32A32_UInt:
-                fmt = Silk.NET.OpenGL.PixelFormat.Rgba;
+                fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba32ui;
+                type = PixelType.UnsignedInt;
                 break;
             case Format.R8_SNorm:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R8SNorm;
+                type = PixelType.Byte;
                 break;
             case Format.R8_SInt:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R8i;
+                type = PixelType.Byte;
                 break;
             case Format.R8_UInt:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R8ui;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.R8G8_SNorm:
                 fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG8SNorm;
+                type = PixelType.Byte;
                 break;
             case Format.R8G8_SInt:
                 fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG8i;
+                type = PixelType.Byte;
                 break;
             case Format.R8G8_UInt:
                 fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG8ui;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.R8G8B8A8_SNorm:
                 fmt = PixelFormat.Rgb;
                 iFmt = InternalFormat.Rgba8SNorm;
+                type = PixelType.Byte;
                 break;
             case Format.R8G8B8A8_SInt:
                 fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba8i;
+                type = PixelType.Byte;
                 break;
             case Format.R8G8B8A8_UInt:
                 fmt = PixelFormat.Rgba;
                 iFmt = InternalFormat.Rgba8ui;
+                type = PixelType.UnsignedByte;
                 break;
             case Format.R16_UNorm:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R16;
+                type = PixelType.UnsignedShort;
                 break;
             case Format.R16_SNorm:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R16SNorm;
+                type = PixelType.Short;
                 break;
             case Format.R16_SInt:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R16i;
+                type = PixelType.Short;
                 break;
             case Format.R16_UInt:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R16ui;
+                type = PixelType.UnsignedShort;
                 break;
             case Format.R16_Float:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R16f;
+                type = PixelType.Float;
                 break;
             case Format.R16G16_UNorm:
                 fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG16;
+                type = PixelType.UnsignedShort;
                 break;
             case Format.R16G16_SNorm:
                 fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG16SNorm;
+                type = PixelType.Short;
                 break;
             case Format.R16G16_SInt:
                 fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG16i;
+                type = PixelType.Short;
                 break;
             case Format.R16G16_UInt:
                 fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG16ui;
+                type = PixelType.UnsignedShort;
                 break;
             case Format.R16G16_Float:
                 fmt = PixelFormat.RG;
                 iFmt = InternalFormat.RG16f;
+                type = PixelType.Float;
                 break;
             case Format.R32_SInt:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R32i;
+                type = PixelType.Int;
                 break;
             case Format.R32_UInt:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R32ui;
+                type = PixelType.UnsignedInt;
                 break;
             case Format.R32_Float:
                 fmt = PixelFormat.Red;
                 iFmt = InternalFormat.R32f;
+                type = PixelType.Float; 
+                break;
+            case Format.R8G8B8A8_UNorm_SRgb:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.Srgb8;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.B8G8R8A8_UNorm_SRgb:
+                fmt = PixelFormat.Bgra;
+                iFmt = InternalFormat.Srgb8;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.D32_Float:
+                fmt = PixelFormat.DepthComponent;
+                iFmt = InternalFormat.DepthComponent32f;
+                type = PixelType.Float;
+                break;
+            case Format.D16_UNorm:
+                fmt = PixelFormat.DepthComponent;
+                iFmt = InternalFormat.DepthComponent16;
+                type = PixelType.UnsignedShort;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -233,24 +295,24 @@ internal sealed class OpenGL33Texture : Texture
                 case TextureType.Texture1D:
                     if (description.ArraySize == 1)
                     {
-                        Gl.TexImage1D(target, 0, iFmt, (uint) description.Width, 0, fmt, PixelType.UnsignedByte, data);
+                        Gl.TexImage1D(target, 0, iFmt, (uint) description.Width, 0, fmt, type, data);
                     }
                     else
                     {
                         Gl.TexImage2D(target, 0, iFmt, (uint) description.Width, (uint) description.ArraySize, 0, fmt,
-                            PixelType.UnsignedByte, data);
+                            type, data);
                     }
                     break;
                 case TextureType.Texture2D:
                     if (description.ArraySize == 1)
                     {
                         Gl.TexImage2D(target, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
-                            PixelType.UnsignedByte, data);
+                            type, data);
                     }
                     else
                     {
                         Gl.TexImage3D(target, 0, iFmt, (uint) description.Width, (uint) description.Height,
-                            (uint) description.ArraySize, 0, fmt, PixelType.UnsignedByte, data);
+                            (uint) description.ArraySize, 0, fmt, type, data);
                     }
                     break;
                 case TextureType.Texture3D:
@@ -258,7 +320,7 @@ internal sealed class OpenGL33Texture : Texture
                         throw new NotSupportedException("3D texture arrays are not supported.");
 
                     Gl.TexImage3D(target, 0, iFmt, (uint) description.Width, (uint) description.Height,
-                        (uint) description.Depth, 0, fmt, PixelType.UnsignedByte, data);
+                        (uint) description.Depth, 0, fmt, type, data);
                     break;
                 case TextureType.Cubemap:
                     int size = description.Width * description.Height * PieUtils.GetSizeMultiplier(description.Format);
@@ -266,7 +328,8 @@ internal sealed class OpenGL33Texture : Texture
                     for (int i = 0; i < 6; i++)
                     {
                         void* dataPtr = data == null ? null : (byte*) data + i * size;
-                        Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt, PixelType.UnsignedByte, dataPtr);
+                        Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width,
+                            (uint) description.Height, 0, fmt, type, dataPtr);
                     }
 
                     break;
@@ -287,6 +350,7 @@ internal sealed class OpenGL33Texture : Texture
 
     public unsafe void Update(int x, int y, uint width, uint height, void* data)
     {
+        // TODO: PixelType.UnsignedByte here should use texture format.
         Gl.BindTexture(TextureTarget.Texture2D, Handle);
         Gl.TexSubImage2D(TextureTarget.Texture2D, 0, x, y, width, height, _format, PixelType.UnsignedByte, data);
     }

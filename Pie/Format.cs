@@ -3,8 +3,6 @@ namespace Pie;
 
 // TODO implement as many formats as possible
 // TODO: BCX compressed formats
-// TODO: SRGB formats
-// TODO: Depth formats
 /// <summary>
 /// Used to describe the type of input data passed to an object. Used in <see cref="Texture"/>s and <see cref="InputLayout"/>s.
 /// </summary>
@@ -56,6 +54,11 @@ public enum Format
     R8G8B8A8_UNorm,
     
     /// <summary>
+    /// 4-component unsigned byte, in sRGB color space, that is normalized to 0-1 when passed to the object.
+    /// </summary>
+    R8G8B8A8_UNorm_SRgb,
+    
+    /// <summary>
     /// 4-component signed byte, that is normalized to 0-1 when passed to the object.
     /// </summary>
     R8G8B8A8_SNorm,
@@ -74,6 +77,11 @@ public enum Format
     /// 4-component unsigned byte, that is normalized to 0-1 when passed to the object. The data will be in BGRA format.
     /// </summary>
     B8G8R8A8_UNorm,
+    
+    /// <summary>
+    /// 4-component unsigned byte, in sRGB color space, that is normalized to 0-1 when passed to the object. The data will be in BGRA format.
+    /// </summary>
+    B8G8R8A8_UNorm_SRgb,
     
     /// <summary>
     /// 1-component unsigned short, that is normalized to 0-1 when passed to the object.
@@ -213,5 +221,15 @@ public enum Format
     /// <summary>
     /// 24 bits for the depth, 8 bits for the stencil.
     /// </summary>
-    D24_UNorm_S8_UInt
+    D24_UNorm_S8_UInt,
+    
+    /// <summary>
+    /// 32-bit depth.
+    /// </summary>
+    D32_Float,
+    
+    /// <summary>
+    /// 16-bit depth, that is normalized to 0-1 when passed to the object.
+    /// </summary>
+    D16_UNorm
 }

@@ -124,6 +124,10 @@ public static class PieUtils
             Format.R32_SInt => Vortice.DXGI.Format.R32_SInt,
             Format.R32_UInt => Vortice.DXGI.Format.R32_UInt,
             Format.R32_Float => Vortice.DXGI.Format.R32_Float,
+            Format.R8G8B8A8_UNorm_SRgb => Vortice.DXGI.Format.R8G8B8A8_UNorm_SRgb,
+            Format.B8G8R8A8_UNorm_SRgb => Vortice.DXGI.Format.B8G8R8A8_UNorm_SRgb,
+            Format.D32_Float => Vortice.DXGI.Format.D32_Float,
+            Format.D16_UNorm => Vortice.DXGI.Format.D16_UNorm,
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
     }
