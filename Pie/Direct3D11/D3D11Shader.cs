@@ -36,6 +36,10 @@ internal sealed class D3D11Shader : Shader
                     Blob gShader = CompileShader(attachment.Source, "main", "gs_5_0");
                     _shaders.Add(ShaderStage.Geometry, Device.CreateGeometryShader(gShader.AsBytes()));
                     break;
+                case ShaderStage.Compute:
+                    Blob cShader = CompileShader(attachment.Source, "main", "cs_5_0");
+                    _shaders.Add(ShaderStage.Compute, Device.CreateComputeShader(cShader.AsBytes()));
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

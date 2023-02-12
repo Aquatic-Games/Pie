@@ -20,5 +20,10 @@ public enum ShaderStage
     /// <summary>
     /// This shader is a geometry shader.
     /// </summary>
-    Geometry
+    Geometry,
+    
+    /// <summary>
+    /// This shader is a compute shader.
+    /// </summary>
+    Compute
 }

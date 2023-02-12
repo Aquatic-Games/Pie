@@ -18,6 +18,8 @@ public static class Compiler
         {
             ShaderStage.Vertex => shaderc_shader_kind.shaderc_vertex_shader,
             ShaderStage.Fragment => shaderc_shader_kind.shaderc_fragment_shader,
+            ShaderStage.Geometry => shaderc_shader_kind.shaderc_geometry_shader,
+            ShaderStage.Compute => shaderc_shader_kind.shaderc_compute_shader,
             _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
 
