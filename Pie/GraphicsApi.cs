@@ -35,7 +35,7 @@ public static class GraphicsApiExtensions
     {
         return api switch
         {
-            GraphicsApi.OpenGL => "OpenGL 3.3",
+            GraphicsApi.OpenGL => "OpenGL",
             GraphicsApi.D3D11 => "DirectX 11",
             _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)
         };
