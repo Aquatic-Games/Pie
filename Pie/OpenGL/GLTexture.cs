@@ -261,6 +261,76 @@ internal sealed class GLTexture : Texture
                 iFmt = InternalFormat.DepthComponent16;
                 type = PixelType.UnsignedShort;
                 break;
+            case Format.BC1_UNorm:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.CompressedRgbaS3TCDxt1Ext;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC1_UNorm_SRgb:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.CompressedSrgbS3TCDxt1Ext;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC2_UNorm:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.CompressedRgbaS3TCDxt3Ext;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC2_UNorm_SRgb:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.CompressedSrgbAlphaS3TCDxt3Ext;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC3_UNorm:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.CompressedRgbaS3TCDxt5Ext;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC3_UNorm_SRgb:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.CompressedSrgbAlphaS3TCDxt5Ext;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC4_UNorm:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.CompressedRedRgtc1;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC4_SNorm:
+                fmt = PixelFormat.Red;
+                iFmt = InternalFormat.CompressedSignedRedRgtc1;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC5_UNorm:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.CompressedRGRgtc2;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC5_SNorm:
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.CompressedSignedRGRgtc2;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC6H_UF16:
+                fmt = PixelFormat.Rgb;
+                iFmt = InternalFormat.CompressedRgbBptcUnsignedFloat;
+                type = PixelType.Float;
+                break;
+            case Format.BC6H_SF16:
+                fmt = PixelFormat.Rgb;
+                iFmt = InternalFormat.CompressedRgbBptcSignedFloat;
+                type = PixelType.Float;
+                break;
+            case Format.BC7_UNorm:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.CompressedRgbaBptcUnorm;
+                type = PixelType.UnsignedByte;
+                break;
+            case Format.BC7_UNorm_SRgb:
+                fmt = PixelFormat.Rgba;
+                iFmt = InternalFormat.CompressedSrgbAlphaBptcUnorm;
+                type = PixelType.UnsignedByte;
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }

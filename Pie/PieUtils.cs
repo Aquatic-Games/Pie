@@ -128,6 +128,20 @@ public static class PieUtils
             Format.B8G8R8A8_UNorm_SRgb => Vortice.DXGI.Format.B8G8R8A8_UNorm_SRgb,
             Format.D32_Float => Vortice.DXGI.Format.D32_Float,
             Format.D16_UNorm => Vortice.DXGI.Format.D16_UNorm,
+            Format.BC1_UNorm => Vortice.DXGI.Format.BC1_UNorm,
+            Format.BC1_UNorm_SRgb => Vortice.DXGI.Format.BC1_UNorm_SRgb,
+            Format.BC2_UNorm => Vortice.DXGI.Format.BC2_UNorm,
+            Format.BC2_UNorm_SRgb => Vortice.DXGI.Format.BC2_UNorm_SRgb,
+            Format.BC3_UNorm => Vortice.DXGI.Format.BC3_UNorm,
+            Format.BC3_UNorm_SRgb => Vortice.DXGI.Format.BC3_UNorm_SRgb,
+            Format.BC4_UNorm => Vortice.DXGI.Format.BC4_UNorm,
+            Format.BC4_SNorm => Vortice.DXGI.Format.BC4_SNorm,
+            Format.BC5_UNorm => Vortice.DXGI.Format.BC5_UNorm,
+            Format.BC5_SNorm => Vortice.DXGI.Format.BC5_SNorm,
+            Format.BC6H_UF16 => Vortice.DXGI.Format.BC6H_Uf16,
+            Format.BC6H_SF16 => Vortice.DXGI.Format.BC6H_Sf16,
+            Format.BC7_UNorm => Vortice.DXGI.Format.BC7_UNorm,
+            Format.BC7_UNorm_SRgb => Vortice.DXGI.Format.BC7_UNorm_SRgb,
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
     }

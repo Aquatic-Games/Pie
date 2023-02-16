@@ -1,8 +1,6 @@
 // ReSharper disable InconsistentNaming
 namespace Pie;
 
-// TODO implement as many formats as possible
-// TODO: BCX compressed formats
 /// <summary>
 /// Used to describe the type of input data passed to an object. Used in <see cref="Texture"/>s and <see cref="InputLayout"/>s.
 /// </summary>
@@ -231,5 +229,75 @@ public enum Format
     /// <summary>
     /// 16-bit depth, that is normalized to 0-1 when passed to the object.
     /// </summary>
-    D16_UNorm
+    D16_UNorm,
+    
+    /// <summary>
+    /// BC1 (DXT1) compression.
+    /// </summary>
+    BC1_UNorm,
+    
+    /// <summary>
+    /// BC1 (DXT1) compression, with sRGB.
+    /// </summary>
+    BC1_UNorm_SRgb,
+    
+    /// <summary>
+    /// BC2 (DXT3) compression.
+    /// </summary>
+    BC2_UNorm,
+    
+    /// <summary>
+    /// BC2 (DXT3) compression, with sRGB.
+    /// </summary>
+    BC2_UNorm_SRgb,
+    
+    /// <summary>
+    /// BC3 (DXT5) compression.
+    /// </summary>
+    BC3_UNorm,
+    
+    /// <summary>
+    /// BC3 (DXT5) compression, with sRGB.
+    /// </summary>
+    BC3_UNorm_SRgb,
+    
+    /// <summary>
+    /// BC4 compression.
+    /// </summary>
+    BC4_UNorm,
+    
+    /// <summary>
+    /// BC4 compression.
+    /// </summary>
+    BC4_SNorm,
+    
+    /// <summary>
+    /// BC5 compression.
+    /// </summary>
+    BC5_UNorm,
+    
+    /// <summary>
+    /// BC5 compression.
+    /// </summary>
+    BC5_SNorm,
+    
+    /// <summary>
+    /// BC6H compression.
+    /// </summary>
+    BC6H_UF16,
+    
+    /// <summary>
+    /// BC6H compression.
+    /// </summary>
+    BC6H_SF16,
+    
+    /// <summary>
+    /// BC7 compression.
+    /// </summary>
+    BC7_UNorm,
+    
+    /// <summary>
+    /// BC7 compression, with sRGB.
+    /// </summary>
+    BC7_UNorm_SRgb
 }
