@@ -8,15 +8,10 @@ namespace Pie;
 public enum GraphicsApi
 {
     /// <summary>
-    /// OpenGL 3.3, GLSL version 330.
+    /// OpenGL, GLSL version 430.
     /// </summary>
-    OpenGl33,
-    
-    /// <summary>
-    /// OpenGL ES 2.0, GLSL ES version 100.
-    /// </summary>
-    OpenGLES20,
-    
+    OpenGL,
+
     /// <summary>
     /// Direct3D 11, shader model 5.0
     /// </summary>
@@ -40,7 +35,7 @@ public static class GraphicsApiExtensions
     {
         return api switch
         {
-            GraphicsApi.OpenGl33 => "OpenGL 3.3",
+            GraphicsApi.OpenGL => "OpenGL 3.3",
             GraphicsApi.D3D11 => "DirectX 11",
             _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)
         };

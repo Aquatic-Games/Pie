@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL33.OpenGL33GraphicsDevice;
+using static Pie.OpenGL.GLGraphicsDevice;
 
-namespace Pie.OpenGL33;
+namespace Pie.OpenGL;
 
-internal sealed class OpenGL33Shader : Shader
+internal sealed class GLShader : Shader
 {
     public override bool IsDisposed { get; protected set; }
 
@@ -17,7 +17,7 @@ internal sealed class OpenGL33Shader : Shader
 
     private bool _hasShownPerfWarning;
 
-    public unsafe OpenGL33Shader(ShaderAttachment[] attachments)
+    public unsafe GLShader(ShaderAttachment[] attachments)
     {
         Handle = Gl.CreateProgram();
         for (int i = 0; i < attachments.Length; i++)

@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Drawing;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL33.OpenGL33GraphicsDevice;
+using static Pie.OpenGL.GLGraphicsDevice;
 
-namespace Pie.OpenGL33;
+namespace Pie.OpenGL;
 
-internal class OpenGL33Framebuffer : Framebuffer
+internal class GLFramebuffer : Framebuffer
 {
     public uint Handle;
 
     public readonly GLEnum[] DrawBuffers;
 
-    public OpenGL33Framebuffer(FramebufferAttachment[] attachments)
+    public GLFramebuffer(FramebufferAttachment[] attachments)
     {
         Handle = Gl.GenFramebuffer();
         Gl.BindFramebuffer(FramebufferTarget.Framebuffer, Handle);
@@ -35,7 +35,7 @@ internal class OpenGL33Framebuffer : Framebuffer
                     throw new ArgumentOutOfRangeException();
             }
             
-            OpenGL33Texture tex = (OpenGL33Texture) attachment.Texture;
+            GLTexture tex = (GLTexture) attachment.Texture;
             if (tex.IsRenderbuffer)
             {
                 Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, amnt, RenderbufferTarget.Renderbuffer,

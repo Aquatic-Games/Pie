@@ -1,14 +1,14 @@
 using System;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL33.OpenGL33GraphicsDevice;
+using static Pie.OpenGL.GLGraphicsDevice;
 
-namespace Pie.OpenGL33;
+namespace Pie.OpenGL;
 
-internal sealed class OpenGL33SamplerState : SamplerState
+internal sealed class GLSamplerState : SamplerState
 {
     public readonly uint Handle;
 
-    public unsafe OpenGL33SamplerState(SamplerStateDescription description)
+    public unsafe GLSamplerState(SamplerStateDescription description)
     {
         Description = description;
         

@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Numerics;
 using Pie.Direct3D11;
-using Pie.OpenGL33;
+using Pie.OpenGL;
 using Pie.Vulkan;
 using Silk.NET.Core.Contexts;
 using Silk.NET.Vulkan;
@@ -408,6 +408,14 @@ public abstract class GraphicsDevice : IDisposable
     public abstract void GenerateMipmaps(Texture texture);
 
     /// <summary>
+    /// Dispatch the current compute shader.
+    /// </summary>
+    /// <param name="groupCountX">The number of thread groups in X.</param>
+    /// <param name="groupCountY">The number of thread groups in Y.</param>
+    /// <param name="groupCountZ">The number of thread groups in Z.</param>
+    public abstract void Dispatch(uint groupCountX, uint groupCountY, uint groupCountZ);
+
+    /// <summary>
     /// Force the device to execute all queued commands in the command buffer.
     /// </summary>
     public abstract void Flush();
@@ -426,7 +434,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <returns>The created graphics device.</returns>
     public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
     {
-        return new OpenGL33GraphicsDevice(context, winSize, options);
+        return new GLGraphicsDevice(context, winSize, options);
     }
 
     /*public static GraphicsDevice CreateOpenGLES20(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
@@ -453,9 +461,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="winSize">The size of the window on startup.</param>
     /// <param name="options">The options for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
-    public static unsafe GraphicsDevice CreateVulkan(in SurfaceKHR surface, Size winSize, GraphicsDeviceOptions options = default)
+    public static unsafe GraphicsDevice CreateVulkan(in nint surface, Size winSize, GraphicsDeviceOptions options = default)
     {
-        return new VulkanGraphicsDevice(surface, winSize, options);
+        return new VulkanGraphicsDevice(new SurfaceKHR((ulong) surface), winSize, options);
     }
 
     /// <summary>
@@ -467,6 +475,6 @@ public abstract class GraphicsDevice : IDisposable
         if (OperatingSystem.IsWindows())
             return GraphicsApi.D3D11;
         else
-            return GraphicsApi.OpenGl33;
+            return GraphicsApi.OpenGL;
     }
 }

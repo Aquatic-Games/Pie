@@ -369,6 +369,8 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         D3D11GraphicsBuffer buf = (D3D11GraphicsBuffer) buffer;
         Context.VSSetConstantBuffer((int) bindingSlot, buf.Buffer);
         Context.PSSetConstantBuffer((int) bindingSlot, buf.Buffer);
+        Context.GSSetConstantBuffer((int) bindingSlot, buf.Buffer);
+        Context.CSSetConstantBuffer((int) bindingSlot, buf.Buffer);
     }
 
     public override void SetFramebuffer(Framebuffer framebuffer)
@@ -448,6 +450,11 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     public override void GenerateMipmaps(Texture texture)
     {
         Context.GenerateMips(((D3D11Texture) texture).View);
+    }
+
+    public override void Dispatch(uint groupCountX, uint groupCountY, uint groupCountZ)
+    {
+        Context.Dispatch((int) groupCountX, (int) groupCountY, (int) groupCountZ);
     }
 
     public override void Flush()

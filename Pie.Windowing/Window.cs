@@ -256,17 +256,12 @@ public unsafe partial class Window : IDisposable
         }
         switch (api)
         {
-            case GraphicsApi.OpenGl33:
+            case GraphicsApi.OpenGL:
                 glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.OpenGL);
                 glfw.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
-                glfw.WindowHint(WindowHintInt.ContextVersionMajor, 3);
+                glfw.WindowHint(WindowHintInt.ContextVersionMajor, 4);
                 glfw.WindowHint(WindowHintInt.ContextVersionMinor, 3);
                 glfw.WindowHint(WindowHintBool.OpenGLForwardCompat, true);
-                break;
-            case GraphicsApi.OpenGLES20:
-                glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.OpenGLES);
-                glfw.WindowHint(WindowHintInt.ContextVersionMajor, 2);
-                glfw.WindowHint(WindowHintInt.ContextVersionMinor, 0);
                 break;
             case GraphicsApi.D3D11:
                 glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.NoApi);
@@ -347,12 +342,9 @@ public unsafe partial class Window : IDisposable
         
         switch (api)
         {
-            case GraphicsApi.OpenGl33:
+            case GraphicsApi.OpenGL:
                 device = GraphicsDevice.CreateOpenGL33(new GlfwContext(window._glfw, window._handle), window.Size, options);
                 break;
-            //case GraphicsApi.OpenGLES20:
-            //    device = GraphicsDevice.CreateOpenGLES20(new GlfwContext(window._glfw, window._handle), window.Size, options);
-            //    break;
             case GraphicsApi.D3D11:
                 device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, window.Size, options);
                 break;
@@ -367,7 +359,7 @@ public unsafe partial class Window : IDisposable
                     throw new PieException("Failed to create window surface: " + result);
                 SurfaceKHR khrSurface = surface.ToSurface();
                 
-                device = GraphicsDevice.CreateVulkan(khrSurface, window.Size, options);
+                device = GraphicsDevice.CreateVulkan((nint) khrSurface.Handle, window.Size, options);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);
@@ -386,7 +378,7 @@ public unsafe partial class Window : IDisposable
         _glfw.MakeContextCurrent(_handle);
         return _api switch
         {
-            GraphicsApi.OpenGl33 => GraphicsDevice.CreateOpenGL33(new GlfwContext(_glfw, _handle), _settings.Size,
+            GraphicsApi.OpenGL => GraphicsDevice.CreateOpenGL33(new GlfwContext(_glfw, _handle), _settings.Size,
                 options),
             GraphicsApi.D3D11 => GraphicsDevice.CreateD3D11(new GlfwNativeWindow(_glfw, _handle).Win32!.Value.Hwnd,
                 _settings.Size, options),

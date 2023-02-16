@@ -12,7 +12,7 @@ public static class SilkPie
         options.ShouldSwapAutomatically = false;
         switch (api)
         {
-            case GraphicsApi.OpenGl33:
+            case GraphicsApi.OpenGL:
                 options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.ForwardCompatible,
                     new APIVersion(3, 3));
                 break;
@@ -43,7 +43,7 @@ public static class SilkPie
         Size winSize = new Size(window.Size.X, window.Size.Y);
         switch (api)
         {
-            case GraphicsApi.OpenGl33:
+            case GraphicsApi.OpenGL:
                 return GraphicsDevice.CreateOpenGL33(window.GLContext, winSize, options);
             case GraphicsApi.D3D11:
                 return GraphicsDevice.CreateD3D11(window.Native!.Win32!.Value.Hwnd, winSize, options);

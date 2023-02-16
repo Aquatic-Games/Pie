@@ -51,8 +51,7 @@ public static class Compiler
         {
             spvc_backend backend = api switch
             {
-                GraphicsApi.OpenGl33 => spvc_backend.SPVC_BACKEND_GLSL,
-                GraphicsApi.OpenGLES20 => spvc_backend.SPVC_BACKEND_GLSL,
+                GraphicsApi.OpenGL => spvc_backend.SPVC_BACKEND_GLSL,
                 GraphicsApi.D3D11 => spvc_backend.SPVC_BACKEND_HLSL,
                 GraphicsApi.Vulkan => spvc_backend.SPVC_BACKEND_NONE,
                 _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)
@@ -99,15 +98,11 @@ public static class Compiler
         spvc_compiler_create_compiler_options(compl, &options);
         switch (api)
         {
-            case GraphicsApi.OpenGl33:
-                spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 330);
+            case GraphicsApi.OpenGL:
+                spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 430);
                 spvc_compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, SPVC_FALSE);
                 break;
-            case GraphicsApi.OpenGLES20:
-                spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 100);
-                spvc_compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, SPVC_TRUE);
-                break;
-             case GraphicsApi.D3D11:
+            case GraphicsApi.D3D11:
                  spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_SHADER_MODEL,
                      50);
                  spvc_compiler_options_set_bool(options,

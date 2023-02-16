@@ -23,5 +23,15 @@ public enum BufferType
     /// <summary>
     /// This buffer should be a constant buffer. (Equivalent to <see cref="UniformBuffer"/>)
     /// </summary>
-    ConstantBuffer = UniformBuffer
+    ConstantBuffer = UniformBuffer,
+    
+    /// <summary>
+    /// This buffer should be a shader storage buffer. (Equivalent to <see cref="StructuredBuffer"/>)
+    /// </summary>
+    ShaderStorageBuffer,
+    
+    /// <summary>
+    /// This buffer should be a structured buffer. (Equivalent to <see cref="ShaderStorageBuffer"/>)
+    /// </summary>
+    StructuredBuffer = ShaderStorageBuffer
 }

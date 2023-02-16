@@ -293,6 +293,11 @@ internal sealed unsafe class VulkanGraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
+    public override void Dispatch(uint groupCountX, uint groupCountY, uint groupCountZ)
+    {
+        throw new NotImplementedException();
+    }
+
     public override void Flush()
     {
         throw new NotImplementedException();

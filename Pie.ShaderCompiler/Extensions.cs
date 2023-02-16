@@ -12,12 +12,12 @@ public static class Extensions
     /// <exception cref="PieException">Thrown if there was an error compiling the shader.</exception>
     public static Shader CreateCrossPlatformShader(this GraphicsDevice device, params ShaderAttachment[] attachments)
     {
-        if (device.Api == GraphicsApi.OpenGLES20)
+        /*if (device.Api == GraphicsApi.OpenGLES20)
         {
             Shader shader = CreateCrossPlatformShader(device, out ReflectionInfo[] info, attachments);
             shader.ReflectionInfo = info;
             return shader;
-        }
+        }*/
         
         for (int i = 0; i < attachments.Length; i++)
         {

@@ -1,14 +1,14 @@
 using System;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL33.OpenGL33GraphicsDevice;
+using static Pie.OpenGL.GLGraphicsDevice;
 
-namespace Pie.OpenGL33;
+namespace Pie.OpenGL;
 
-internal sealed class OpenGL33InputLayout : InputLayout
+internal sealed class GLInputLayout : InputLayout
 {
     private readonly InputLayoutDescription[] _descriptions;
 
-    public OpenGL33InputLayout(InputLayoutDescription[] descriptions)
+    public GLInputLayout(InputLayoutDescription[] descriptions)
     {
         _descriptions = descriptions;
     }

@@ -1,10 +1,10 @@
 using System;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL33.OpenGL33GraphicsDevice;
+using static Pie.OpenGL.GLGraphicsDevice;
 
-namespace Pie.OpenGL33;
+namespace Pie.OpenGL;
 
-internal sealed class OpenGL33RasterizerState : RasterizerState
+internal sealed class GLRasterizerState : RasterizerState
 {
     private bool _cullFaceEnabled;
     private CullFaceMode _cullFaceMode;
@@ -12,7 +12,7 @@ internal sealed class OpenGL33RasterizerState : RasterizerState
     private PolygonMode _mode;
     private bool _scissor;
     
-    public OpenGL33RasterizerState(RasterizerStateDescription description)
+    public GLRasterizerState(RasterizerStateDescription description)
     {
         Description = description;
 

@@ -40,6 +40,9 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
                 flags = BindFlags.ConstantBuffer;
                 PieMetrics.UniformBufferCount++;
                 break;
+            case BufferType.ShaderStorageBuffer:
+                flags = BindFlags.ShaderResource;
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -51,6 +54,12 @@ internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
             Usage = dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
             CPUAccessFlags = dynamic ? CpuAccessFlags.Write : CpuAccessFlags.None
         };
+
+        if (type == BufferType.ShaderStorageBuffer)
+        {
+            description.MiscFlags = ResourceOptionFlags.BufferStructured;
+            description.StructureByteStride = 1;
+        }
         
         ID3D11Buffer buffer;
         if (data == null)

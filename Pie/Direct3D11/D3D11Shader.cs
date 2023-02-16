@@ -109,6 +109,12 @@ internal sealed class D3D11Shader : Shader
                 case ShaderStage.Fragment:
                     Context.PSSetShader((ID3D11PixelShader) child);
                     break;
+                case ShaderStage.Geometry:
+                    Context.GSSetShader((ID3D11GeometryShader) child);
+                    break;
+                case ShaderStage.Compute:
+                    Context.CSSetShader((ID3D11ComputeShader) child);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

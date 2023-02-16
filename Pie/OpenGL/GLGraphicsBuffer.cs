@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL33.OpenGL33GraphicsDevice;
+using static Pie.OpenGL.GLGraphicsDevice;
 
-namespace Pie.OpenGL33;
+namespace Pie.OpenGL;
 
-internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
+internal sealed class GLGraphicsBuffer : GraphicsBuffer
 {
     public override bool IsDisposed { get; protected set; }
 
     public readonly uint Handle;
     public readonly BufferTargetARB Target;
 
-    public OpenGL33GraphicsBuffer(uint handle, BufferTargetARB target)
+    public GLGraphicsBuffer(uint handle, BufferTargetARB target)
     {
         Handle = handle;
         Target = target;
@@ -36,6 +35,10 @@ internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
                 target = BufferTargetARB.UniformBuffer;
                 PieMetrics.UniformBufferCount++;
                 break;
+            case BufferType.ShaderStorageBuffer:
+                target = BufferTargetARB.ShaderStorageBuffer;
+                // TODO: Shader storage buffer count?
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -46,7 +49,7 @@ internal sealed class OpenGL33GraphicsBuffer : GraphicsBuffer
         Gl.BindBuffer(target, handle);
         Gl.BufferData(target, sizeInBytes, data, usage);
 
-        return new OpenGL33GraphicsBuffer(handle, target);
+        return new GLGraphicsBuffer(handle, target);
     }
 
     public unsafe void Update(uint offsetInBytes, uint sizeInBytes, void* data)

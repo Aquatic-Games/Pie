@@ -1,15 +1,15 @@
 using System;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL33.OpenGL33GraphicsDevice;
+using static Pie.OpenGL.GLGraphicsDevice;
 
-namespace Pie.OpenGL33;
+namespace Pie.OpenGL;
 
-internal sealed class OpenGL33BlendState : BlendState
+internal sealed class GLBlendState : BlendState
 {
     private BlendingFactor _src;
     private BlendingFactor _dst;
     
-    public OpenGL33BlendState(BlendStateDescription description)
+    public GLBlendState(BlendStateDescription description)
     {
         _src = GetBlendingFactorFromBlendType(description.Source);
         _dst = GetBlendingFactorFromBlendType(description.Destination);
