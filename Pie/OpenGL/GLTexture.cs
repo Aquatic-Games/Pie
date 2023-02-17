@@ -393,7 +393,8 @@ internal sealed class GLTexture : Texture
                         (uint) description.Depth, 0, fmt, type, data);
                     break;
                 case TextureType.Cubemap:
-                    int size = description.Width * description.Height * PieUtils.GetSizeMultiplier(description.Format);
+                    PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
+                    int size = description.Width * description.Height * bpp / 8;
                     
                     for (int i = 0; i < 6; i++)
                     {

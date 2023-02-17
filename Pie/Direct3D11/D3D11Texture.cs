@@ -29,7 +29,7 @@ internal sealed class D3D11Texture : Texture
     public static unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
         PieUtils.CheckIfValid(description);
-        int sizeMultiplier = PieUtils.GetSizeMultiplier(description.Format);
+        int pitch = PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
 
         Vortice.DXGI.Format fmt = PieUtils.ToDxgiFormat(description.Format,
             (description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource);
@@ -67,8 +67,8 @@ internal sealed class D3D11Texture : Texture
                 texture = Device.CreateTexture1D(desc1d);
                 if (data != null)
                 {
-                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), description.Width * sizeMultiplier,
-                        description.ArraySize > 1 ? description.ArraySize * sizeMultiplier : 0);
+                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), pitch,
+                        description.ArraySize > 1 ? description.ArraySize * bpp / 8 : 0);
                 }
 
                 if (description.ArraySize == 1)
@@ -111,8 +111,8 @@ internal sealed class D3D11Texture : Texture
                 texture = Device.CreateTexture2D(desc2d);
                 if (data != null)
                 {
-                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), description.Width * sizeMultiplier,
-                        description.ArraySize > 1 ? description.ArraySize * sizeMultiplier : 0);
+                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), pitch,
+                        description.ArraySize > 1 ? description.ArraySize * bpp / 8 : 0);
                 }
 
                 if (description.ArraySize == 1)
@@ -155,8 +155,8 @@ internal sealed class D3D11Texture : Texture
                 texture = Device.CreateTexture3D(desc3d);
                 if (data != null)
                 {
-                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), description.Width * sizeMultiplier,
-                        description.Depth * sizeMultiplier);
+                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), pitch,
+                        description.Depth * bpp / 8);
                 }
 
                 if (description.ArraySize > 1)
@@ -186,11 +186,11 @@ internal sealed class D3D11Texture : Texture
                 };
 
                 SubresourceData[] subresourceDatas = new SubresourceData[cDesc.ArraySize];
-                int size = description.Width * description.Height * sizeMultiplier;
+                int size = description.Width * description.Height * bpp / 8;
                 for (int i = 0; i < cDesc.ArraySize; i++)
                 {
                     void* ptr = (byte*) data + i * size;
-                    subresourceDatas[i] = new SubresourceData(ptr, description.Width * sizeMultiplier);
+                    subresourceDatas[i] = new SubresourceData(ptr, pitch);
                 }
 
                 texture = Device.CreateTexture2D(cDesc, subresourceDatas);
@@ -221,7 +221,7 @@ internal sealed class D3D11Texture : Texture
     {
         // TODO: Implement texture mapping for fast transfers, i think
         Context.UpdateSubresource(Texture, 0, new Box(x, y, 0, (int) (x + width), (int) (y + height), 1),
-            new IntPtr(data), (int) (width * PieUtils.GetSizeMultiplier(Description.Format)), 0);
+            new IntPtr(data), PieUtils.CalculatePitch(Description.Format, (int) width, out _), 0);
     }
 
     public override void Dispose()

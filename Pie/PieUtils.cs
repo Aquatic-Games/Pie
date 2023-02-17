@@ -174,20 +174,118 @@ public static class PieUtils
             throw new PieException("Array size must be at least 1.");
     }
 
-    internal static int GetSizeMultiplier(Format format)
+    internal static int CalculatePitch(Format format, int width, out int bitsPerPixel)
     {
-        return format switch
+        int pitch = 0;
+        bitsPerPixel = 0;
+        
+        switch (format)
         {
-            Format.R8_UNorm => 1,
-            Format.R8G8_UNorm => 2,
-            Format.R8G8B8A8_UNorm => 4,
-            Format.B8G8R8A8_UNorm => 4,
-            Format.R16G16B16A16_Float => 8,
-            Format.R32G32B32A32_Float => 16,
-            Format.D24_UNorm_S8_UInt => 16,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+            case Format.R8_UNorm:
+            case Format.R8_SNorm:
+            case Format.R8_SInt:
+            case Format.R8_UInt:
+                bitsPerPixel = 8;
+                pitch = Pitch(width, bitsPerPixel);
+                break;
+            
+            case Format.R8G8_UNorm:
+            case Format.R8G8_SNorm:
+            case Format.R8G8_SInt:
+            case Format.R8G8_UInt:
+            case Format.R16_UNorm:
+            case Format.R16_SNorm:
+            case Format.R16_SInt:
+            case Format.R16_UInt:
+            case Format.R16_Float:
+            case Format.D16_UNorm:
+                bitsPerPixel = 16;
+                pitch = Pitch(width, bitsPerPixel);
+                break;
+            
+            case Format.R8G8B8A8_UNorm:
+            case Format.R8G8B8A8_UNorm_SRgb:
+            case Format.R8G8B8A8_SNorm:
+            case Format.R8G8B8A8_SInt:
+            case Format.R8G8B8A8_UInt:
+            case Format.B8G8R8A8_UNorm:
+            case Format.B8G8R8A8_UNorm_SRgb:
+            case Format.R16G16_UNorm:
+            case Format.R16G16_SNorm:
+            case Format.R16G16_SInt:
+            case Format.R16G16_UInt:
+            case Format.R16G16_Float:
+            case Format.R32_SInt:
+            case Format.R32_UInt:
+            case Format.R32_Float:
+            case Format.D24_UNorm_S8_UInt:
+            case Format.D32_Float:
+                bitsPerPixel = 32;
+                pitch = Pitch(width, bitsPerPixel);
+                break;
+            
+            case Format.R16G16B16A16_UNorm:
+            case Format.R16G16B16A16_SNorm:
+            case Format.R16G16B16A16_SInt:
+            case Format.R16G16B16A16_UInt:
+            case Format.R16G16B16A16_Float:
+            case Format.R32G32_SInt:
+            case Format.R32G32_UInt:
+            case Format.R32G32_Float:
+                bitsPerPixel = 64;
+                pitch = Pitch(width, bitsPerPixel);
+                break;
+            
+            case Format.R32G32B32_SInt:
+            case Format.R32G32B32_UInt:
+            case Format.R32G32B32_Float:
+                bitsPerPixel = 96;
+                pitch = Pitch(width, bitsPerPixel);
+                break;
+            
+            case Format.R32G32B32A32_SInt:
+            case Format.R32G32B32A32_UInt:
+            case Format.R32G32B32A32_Float:
+                bitsPerPixel = 128;
+                pitch = Pitch(width, bitsPerPixel);
+                break;
+            
+            case Format.BC1_UNorm:
+            case Format.BC1_UNorm_SRgb:
+            case Format.BC4_UNorm:
+            case Format.BC4_SNorm:
+                bitsPerPixel = 4;
+                pitch = PitchBlock(width, 8);
+                break;
+            
+            case Format.BC2_UNorm:
+            case Format.BC2_UNorm_SRgb:
+            case Format.BC3_UNorm:
+            case Format.BC3_UNorm_SRgb:
+            case Format.BC5_UNorm:
+            case Format.BC5_SNorm:
+            case Format.BC6H_UF16:
+            case Format.BC6H_SF16:
+            case Format.BC7_UNorm:
+            case Format.BC7_UNorm_SRgb:
+                bitsPerPixel = 8;
+                pitch = PitchBlock(width, 16);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(format), format, null);
+        }
+
+        return pitch;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static int PitchBlock(int width, int blockSize) => Max(1, (width + 3) >> 2) * blockSize;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static int Pitch(int width, int bitsPerPixel) => (width * bitsPerPixel + 7) >> 3;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static int Max(int l, int r) => l < r ? r : l;
 
     internal static void CheckIfValid(int expected, int received)
     {
