@@ -376,7 +376,7 @@ internal sealed class GLTexture : Texture
         
             Gl.BindTexture(target, handle);
             PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
-            uint size = (uint) (description.Width * description.Height * (bpp / 8));
+            uint size = (uint) (description.Width * description.Height * (bpp / 8f));
 
             switch (description.TextureType)
             {
