@@ -1,5 +1,9 @@
 namespace Pie;
 
+/// <summary>
+/// The stage of shader code. These are often combined, for example Vertex and Fragment shaders are often used in one
+/// <see cref="Shader"/> object.
+/// </summary>
 public enum ShaderStage
 {
     /// <summary>

@@ -13,11 +13,10 @@ internal sealed class GLTexture : Texture
 
     private Silk.NET.OpenGL.PixelFormat _format;
 
-    public unsafe GLTexture(uint handle, Silk.NET.OpenGL.PixelFormat format, Size size, TextureDescription description, bool isRenderbuffer, TextureTarget target)
+    public unsafe GLTexture(uint handle, Silk.NET.OpenGL.PixelFormat format, TextureDescription description, bool isRenderbuffer, TextureTarget target)
     {
         Handle = handle;
         _format = format;
-        Size = size;
         Description = description;
         IsRenderbuffer = isRenderbuffer;
         Target = target;
@@ -454,11 +453,10 @@ internal sealed class GLTexture : Texture
                 Gl.TexParameter(target, TextureParameterName.TextureMaxLevel, description.MipLevels - 1);
         }
 
-        return new GLTexture(handle, fmt, new Size(description.Width, description.Height), description, isRenderbuffer, target);
+        return new GLTexture(handle, fmt, description, isRenderbuffer, target);
     }
 
     public override bool IsDisposed { get; protected set; }
-    public override Size Size { get; set; }
     public override TextureDescription Description { get; set; }
 
     public unsafe void Update(int x, int y, uint width, uint height, void* data)

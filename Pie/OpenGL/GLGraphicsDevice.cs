@@ -320,6 +320,13 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
         {
             PrimitiveType.TriangleList => Silk.NET.OpenGL.PrimitiveType.Triangles,
             PrimitiveType.TriangleStrip => Silk.NET.OpenGL.PrimitiveType.TriangleStrip,
+            PrimitiveType.LineList => Silk.NET.OpenGL.PrimitiveType.Lines,
+            PrimitiveType.LineStrip => Silk.NET.OpenGL.PrimitiveType.LineStrip,
+            PrimitiveType.PointList => Silk.NET.OpenGL.PrimitiveType.Points,
+            PrimitiveType.TriangleListAdjacency => Silk.NET.OpenGL.PrimitiveType.TrianglesAdjacency,
+            PrimitiveType.TriangleStripAdjacency => Silk.NET.OpenGL.PrimitiveType.TriangleStripAdjacency,
+            PrimitiveType.LineListAdjacency => Silk.NET.OpenGL.PrimitiveType.LinesAdjacency,
+            PrimitiveType.LineStripAdjacency => Silk.NET.OpenGL.PrimitiveType.LineStripAdjacency,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }

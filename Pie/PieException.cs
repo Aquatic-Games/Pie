@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace Pie;
 
+/// <summary>
+/// General Pie-specific exceptions.
+/// </summary>
 public class PieException : Exception
 {
     public PieException() { }

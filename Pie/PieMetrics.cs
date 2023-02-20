@@ -3,8 +3,14 @@ using System.Reflection;
 
 namespace Pie;
 
+/// <summary>
+/// Various useful and interesting Pie metrics.
+/// </summary>
 public static class PieMetrics
 {
+    /// <summary>
+    /// Pie's assembly version.
+    /// </summary>
     public static readonly Version Version = Assembly.GetExecutingAssembly().GetName().Version;
     
     /// <summary>

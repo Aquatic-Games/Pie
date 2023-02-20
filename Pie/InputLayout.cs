@@ -8,7 +8,7 @@ namespace Pie;
 public abstract class InputLayout : IDisposable, IEquatable<InputLayout>
 {
     /// <summary>
-    /// Will return <see langword="true" /> when this input layout has been disposed.
+    /// Will return <see langword="true" /> when this <see cref="InputLayout"/> has been disposed.
     /// </summary>
     public abstract bool IsDisposed { get; protected set; }
     

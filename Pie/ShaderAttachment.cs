@@ -2,6 +2,9 @@ using System.Text;
 
 namespace Pie;
 
+/// <summary>
+/// Attach shader code at the given <see cref="ShaderStage"/> to a new <see cref="Shader"/>.
+/// </summary>
 public struct ShaderAttachment
 {
     /// <summary>

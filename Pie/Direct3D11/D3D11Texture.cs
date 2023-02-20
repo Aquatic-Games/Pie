@@ -15,14 +15,12 @@ internal sealed class D3D11Texture : Texture
 
     public override bool IsDisposed { get; protected set; }
     
-    public override Size Size { get; set; }
     public override TextureDescription Description { get; set; }
 
-    public D3D11Texture(ID3D11Resource texture, ID3D11ShaderResourceView view, Size size, TextureDescription description)
+    public D3D11Texture(ID3D11Resource texture, ID3D11ShaderResourceView view, TextureDescription description)
     {
         Texture = texture;
         View = view;
-        Size = size;
         Description = description;
     }
 
@@ -215,7 +213,7 @@ internal sealed class D3D11Texture : Texture
 
         // TODO: Clean up D3D texture bits
         
-        return new D3D11Texture(texture, view, new Size(description.Width, description.Height), description);
+        return new D3D11Texture(texture, view, description);
     }
 
     public unsafe void Update(int x, int y, uint width, uint height, void* data)

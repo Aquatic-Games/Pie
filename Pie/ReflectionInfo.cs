@@ -5,8 +5,9 @@ using System.Text.Json.Serialization;
 namespace Pie;
 
 /// <summary>
-/// Shader reflection info.
+/// To be documented.
 /// </summary>
+// TODO: Improve the reflection API, this is trash.
 public struct ReflectionInfo
 {
     public ShaderStage Stage;

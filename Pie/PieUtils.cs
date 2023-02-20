@@ -5,6 +5,9 @@ using System.Runtime.CompilerServices;
 
 namespace Pie;
 
+/// <summary>
+/// Various handy utilities you may use when developing with Pie.
+/// </summary>
 public static class PieUtils
 {
     #region Public API

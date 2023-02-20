@@ -2,6 +2,9 @@ using System;
 
 namespace Pie;
 
+/// <summary>
+/// Used to tell the graphics device how to raster triangles.
+/// </summary>
 public abstract class RasterizerState : IDisposable, IEquatable<RasterizerState>
 {
     /// <summary>
@@ -9,8 +12,14 @@ public abstract class RasterizerState : IDisposable, IEquatable<RasterizerState>
     /// </summary>
     public abstract bool IsDisposed { get; protected set; }
     
+    /// <summary>
+    /// The <see cref="RasterizerStateDescription"/> of this <see cref="RasterizerState"/>.
+    /// </summary>
     public abstract RasterizerStateDescription Description { get; }
 
+    /// <summary>
+    /// Dispose of this <see cref="RasterizerState"/>.
+    /// </summary>
     public abstract void Dispose();
 
     public bool Equals(RasterizerState other)

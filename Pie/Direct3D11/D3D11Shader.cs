@@ -45,48 +45,6 @@ internal sealed class D3D11Shader : Shader
             }
         }
     }
-    
-    public override void Set(string name, bool value)
-    {
-        throw new NotSupportedException(
-            "Setting uniforms is not supported on Direct3D 11. You must create a uniform/constant buffer instead.");
-    }
-
-    public override void Set(string name, int value)
-    {
-        throw new NotSupportedException(
-            "Setting uniforms is not supported on Direct3D 11. You must create a uniform/constant buffer instead.");
-    }
-
-    public override void Set(string name, float value)
-    {
-        throw new NotSupportedException(
-            "Setting uniforms is not supported on Direct3D 11. You must create a uniform/constant buffer instead.");
-    }
-
-    public override void Set(string name, Vector2 value)
-    {
-        throw new NotSupportedException(
-            "Setting uniforms is not supported on Direct3D 11. You must create a uniform/constant buffer instead.");
-    }
-
-    public override void Set(string name, Vector3 value)
-    {
-        throw new NotSupportedException(
-            "Setting uniforms is not supported on Direct3D 11. You must create a uniform/constant buffer instead.");
-    }
-
-    public override void Set(string name, Vector4 value)
-    {
-        throw new NotSupportedException(
-            "Setting uniforms is not supported on Direct3D 11. You must create a uniform/constant buffer instead.");
-    }
-
-    public override void Set(string name, Matrix4x4 value, bool transpose = true)
-    {
-        throw new NotSupportedException(
-            "Setting uniforms is not supported on Direct3D 11. You must create a uniform/constant buffer instead.");
-    }
 
     public override void Dispose()
     {

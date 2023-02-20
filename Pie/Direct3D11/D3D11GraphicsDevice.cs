@@ -335,6 +335,13 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         {
             PrimitiveType.TriangleList => PrimitiveTopology.TriangleList,
             PrimitiveType.TriangleStrip => PrimitiveTopology.TriangleStrip,
+            PrimitiveType.LineList => PrimitiveTopology.LineList,
+            PrimitiveType.LineStrip => PrimitiveTopology.LineStrip,
+            PrimitiveType.PointList => PrimitiveTopology.PointList,
+            PrimitiveType.TriangleListAdjacency => PrimitiveTopology.TriangleListAdjacency,
+            PrimitiveType.TriangleStripAdjacency => PrimitiveTopology.TriangleListAdjacency,
+            PrimitiveType.LineListAdjacency => PrimitiveTopology.LineListAdjacency,
+            PrimitiveType.LineStripAdjacency => PrimitiveTopology.LineStripAdjacency,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
         Context.IASetPrimitiveTopology(topology);
