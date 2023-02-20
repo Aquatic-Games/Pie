@@ -31,8 +31,9 @@ internal sealed class D3D11Texture : Texture
         PieUtils.CheckIfValid(description);
         int pitch = PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
 
-        Vortice.DXGI.Format fmt = PieUtils.ToDxgiFormat(description.Format,
-            (description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource);
+        Vortice.DXGI.Format fmt =
+            description.Format.ToDxgiFormat((description.Usage & TextureUsage.ShaderResource) ==
+                                            TextureUsage.ShaderResource);
 
         BindFlags flags = BindFlags.None;
         if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)

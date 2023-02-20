@@ -19,7 +19,7 @@ internal sealed class D3D11InputLayout : InputLayout
             ref InputElementDescription d = ref iedesc[i];
             ref InputLayoutDescription desc = ref descriptions[i];
 
-            Vortice.DXGI.Format fmt = PieUtils.ToDxgiFormat(desc.Format, false);
+            Vortice.DXGI.Format fmt = desc.Format.ToDxgiFormat(false);
 
             d = new InputElementDescription("TEXCOORD", i, fmt, (int) desc.Offset, (int) desc.Slot, (InputClassification) desc.InputType, (int) desc.InputType);
         }
