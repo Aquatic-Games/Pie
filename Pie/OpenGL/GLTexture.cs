@@ -357,7 +357,7 @@ internal sealed class GLTexture : Texture
         {
             handle = Gl.GenRenderbuffer();
             if (Debug)
-                Logging.Log(LogType.Info, "Texture will be created as a Renderbuffer.");
+                PieLog.Log(LogType.Info, "Texture will be created as a Renderbuffer.");
             Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, handle);
             Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, iFmt, (uint) description.Width, (uint) description.Height);
         }

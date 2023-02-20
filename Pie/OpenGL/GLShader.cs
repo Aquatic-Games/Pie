@@ -131,7 +131,7 @@ internal sealed class GLShader : Shader
             {
                 string text =
                     $"Uniform \"{name}\" does not exist in shader. Fix ASAP, an exception will be thrown when debug is disabled.";
-                Logging.Log(LogType.Error, text);
+                PieLog.Log(LogType.Error, text);
                 return -1;
             }
             else
@@ -148,7 +148,7 @@ internal sealed class GLShader : Shader
             Gl.UseProgram(Handle);
             if (Debug && !_hasShownPerfWarning)
             {
-                Logging.Log(LogType.Warning, "For performance reasons, it's recommended before calling Set() that you call GraphicsDevice.SetShader()");
+                PieLog.Log(LogType.Warning, "For performance reasons, it's recommended before calling Set() that you call GraphicsDevice.SetShader()");
                 _hasShownPerfWarning = true;
             }
         }

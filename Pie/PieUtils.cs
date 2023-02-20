@@ -9,10 +9,21 @@ public static class PieUtils
 {
     #region Public API
     
+    /// <summary>
+    /// Normalize a <see cref="System.Drawing.Color"/> for use in a shader.
+    /// </summary>
+    /// <param name="color">The color to normalize.</param>
+    /// <returns>The normalized color.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector4 Normalize(this Color color) =>
         new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
     
+    /// <summary>
+    /// Assert even in release mode.
+    /// </summary>
+    /// <param name="condition">The condition to assert.</param>
+    /// <param name="message">The message if the assertion fails.</param>
+    /// <exception cref="PieException">Thrown if the assertion fails.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Assert(bool condition, string message)
     {
@@ -20,6 +31,14 @@ public static class PieUtils
             throw new PieException(message);
     }
     
+    /// <summary>
+    /// Combine multiple textures into one array. Pie texture functions only support a single byte array, however certain
+    /// texture types (array textures, cubemaps) require you to have <i>multiple</i> of these byte arrays. This function
+    /// performs a fast block copy of the arrays into a single array.
+    /// </summary>
+    /// <param name="data">The data arrays to combine.</param>
+    /// <typeparam name="T">The data type.</typeparam>
+    /// <returns>The combined data.</returns>
     public static unsafe T[] Combine<T>(params T[][] data) where T : unmanaged
     {
         int totalSize = 0;
@@ -73,7 +92,7 @@ public static class PieUtils
         CopyToUnmanaged(unmanagedPtr, offsetInBytes, (uint) (Unsafe.SizeOf<T>() * data.Length), data);
     }
 
-    public static int CalculateBitsPerPixel(Format format)
+    public static int BitsPerPixel(this Format format)
     {
         int bitsPerPixel = 0;
         
@@ -182,7 +201,7 @@ public static class PieUtils
     internal static int CalculatePitch(Format format, int width, out int bitsPerPixel)
     {
         int pitch;
-        bitsPerPixel = CalculateBitsPerPixel(format);
+        bitsPerPixel = BitsPerPixel(format);
 
         if (format is >= Format.BC1_UNorm and <= Format.BC7_UNorm_SRgb)
         {

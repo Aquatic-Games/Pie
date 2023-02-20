@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Pie;
 
-public static class Logging
+public static class PieLog
 {
     public static event OnLog DebugLog;
     

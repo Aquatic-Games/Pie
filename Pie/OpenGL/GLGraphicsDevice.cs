@@ -47,11 +47,11 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
 
         if (Debug)
         {
-            Logging.Log(LogType.Info, "Vendor info: " + Gl.GetStringS(StringName.Vendor));
-            Logging.Log(LogType.Info, "Version info: " + Gl.GetStringS(StringName.Version));
-            Logging.Log(LogType.Info, "GLSL Version: " + Gl.GetStringS(StringName.ShadingLanguageVersion));
-            Logging.Log(LogType.Info, "Renderer: " + Gl.GetStringS(StringName.Renderer));
-            Logging.Log(LogType.Debug, "Howdy! Thanks for using pie! Be sure to create an issue if you find any bugs.");
+            PieLog.Log(LogType.Info, "Vendor info: " + Gl.GetStringS(StringName.Vendor));
+            PieLog.Log(LogType.Info, "Version info: " + Gl.GetStringS(StringName.Version));
+            PieLog.Log(LogType.Info, "GLSL Version: " + Gl.GetStringS(StringName.ShadingLanguageVersion));
+            PieLog.Log(LogType.Info, "Renderer: " + Gl.GetStringS(StringName.Renderer));
+            PieLog.Log(LogType.Debug, "Howdy! Thanks for using pie! Be sure to create an issue if you find any bugs.");
             
             Gl.Enable(EnableCap.DebugOutput);
             Gl.Enable(EnableCap.DebugOutputSynchronous);
@@ -474,6 +474,6 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
             _ => throw new ArgumentOutOfRangeException()
         };
         
-        Logging.Log(logType, msg);
+        PieLog.Log(logType, msg);
     }
 }

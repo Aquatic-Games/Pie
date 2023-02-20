@@ -101,7 +101,7 @@ public static unsafe class VkHelper
                 createInfo.PpEnabledLayerNames = validations;
             }
             else
-                Logging.Log(LogType.Error, "Debug requested, but validation layers not supported.");
+                PieLog.Log(LogType.Error, "Debug requested, but validation layers not supported.");
         }
 
         createInfo.EnabledExtensionCount = (uint) instanceExtensions.Length;
