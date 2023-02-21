@@ -222,7 +222,9 @@ internal sealed class D3D11Texture : Texture
 
         // TODO: Figure out depth pitch correctly.
         // TODO: Make sure this works properly as well.
-        Context.UpdateSubresource(Texture, subresource, new Box(x, y, z, x + width, y + height, z + depth),
+        // TODO: This does not work properly - It probably needs something similar to the OpenGL texture function.
+        // TODO: front and back of the box have been reverted to 0 and 1 as this broke texture updating on D3D. FIX THIS!!!
+        Context.UpdateSubresource(Texture, subresource, new Box(x, y, 0, x + width, y + height, 1),
             new IntPtr(data), PieUtils.CalculatePitch(Description.Format, width, out _), 0);
     }
 
