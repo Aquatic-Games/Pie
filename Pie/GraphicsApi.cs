@@ -15,12 +15,7 @@ public enum GraphicsApi
     /// <summary>
     /// Direct3D 11, shader model 5.0
     /// </summary>
-    D3D11,
-    
-    /// <summary>
-    /// !! EXPERIMENTAL - WILL BE SLOW AND BUGGY !! Vulkan
-    /// </summary>
-    Vulkan
+    D3D11
 }
 
 public static class GraphicsApiExtensions
@@ -37,7 +32,6 @@ public static class GraphicsApiExtensions
         {
             GraphicsApi.OpenGL => "OpenGL",
             GraphicsApi.D3D11 => "DirectX 11",
-            GraphicsApi.Vulkan => "Vulkan",
             _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)
         };
     }

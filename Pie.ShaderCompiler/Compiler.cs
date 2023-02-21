@@ -41,19 +41,18 @@ public static class Compiler
 
         byte[] compiled;
 
-        if (api == GraphicsApi.Vulkan)
+        /*if (api == GraphicsApi.Vulkan)
         {
             sbyte* bResult = shaderc_result_get_bytes(result);
             nuint length = shaderc_result_get_length(result);
             compiled = new ReadOnlySpan<byte>(bResult, (int) length).ToArray();
         }
-        else
+        else*/
         {
             spvc_backend backend = api switch
             {
                 GraphicsApi.OpenGL => spvc_backend.SPVC_BACKEND_GLSL,
                 GraphicsApi.D3D11 => spvc_backend.SPVC_BACKEND_HLSL,
-                GraphicsApi.Vulkan => spvc_backend.SPVC_BACKEND_NONE,
                 _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)
             };
 
@@ -107,8 +106,6 @@ public static class Compiler
                      50);
                  spvc_compiler_options_set_bool(options,
                      spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_FLATTEN_MATRIX_VERTEX_INPUT_SEMANTICS, SPVC_TRUE);
-                 break;
-             case GraphicsApi.Vulkan:
                  break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(api), api, null);

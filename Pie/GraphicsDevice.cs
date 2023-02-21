@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Numerics;
 using Pie.Direct3D11;
 using Pie.OpenGL;
-using Pie.Vulkan;
 using Silk.NET.Core.Contexts;
 using Silk.NET.Vulkan;
 
@@ -437,11 +436,6 @@ public abstract class GraphicsDevice : IDisposable
         return new GLGraphicsDevice(context, winSize, options);
     }
 
-    /*public static GraphicsDevice CreateOpenGLES20(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
-    {
-        return new OpenGLES20GraphicsDevice(context, winSize, options);
-    }*/
-
     /// <summary>
     /// Create a Direct3D 11 graphics device.
     /// </summary>
@@ -452,18 +446,6 @@ public abstract class GraphicsDevice : IDisposable
     public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options = default)
     {
         return new D3D11GraphicsDevice(hwnd, winSize, options);
-    }
-
-    /// <summary>
-    /// <b>!!! WARNING - EXPERIMENTAL !!!</b> Create a Vulkan graphics device.
-    /// </summary>
-    /// <param name="surface">The KHR surface.</param>
-    /// <param name="winSize">The size of the window on startup.</param>
-    /// <param name="options">The options for this graphics device, if any.</param>
-    /// <returns>The created graphics device.</returns>
-    public static unsafe GraphicsDevice CreateVulkan(in nint surface, Size winSize, GraphicsDeviceOptions options = default)
-    {
-        return new VulkanGraphicsDevice(new SurfaceKHR((ulong) surface), winSize, options);
     }
 
     /// <summary>
