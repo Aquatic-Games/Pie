@@ -237,20 +237,23 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
         ((GLGraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data);
     }
 
-    public override unsafe void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data)
+    public override unsafe void UpdateTexture<T>(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
+        int width, int height, int depth, T[] data)
     {
-        fixed (void* ptr = data)
-            ((GLTexture) texture).Update(x, y, width, height, ptr);
+        fixed (void* dat = data)
+            ((GLTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, dat);
     }
 
-    public override void UpdateTexture(Texture texture, int x, int y, uint width, uint height, IntPtr data)
+    public override unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width,
+        int height, int depth, IntPtr data)
     {
-        throw new NotImplementedException();
+        ((GLTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data.ToPointer());
     }
 
-    public override unsafe void UpdateTexture(Texture texture, int x, int y, uint width, uint height, void* data)
+    public override unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
+        int width, int height, int depth, void* data)
     {
-        throw new NotImplementedException();
+        ((GLTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data);
     }
 
     public override unsafe IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)

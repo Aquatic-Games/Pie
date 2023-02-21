@@ -236,35 +236,50 @@ public abstract class GraphicsDevice : IDisposable
     /// Update a region of this texture with the given data.
     /// </summary>
     /// <param name="texture">The texture to update.</param>
+    /// <param name="mipLevel">The mip level to update.</param>
+    /// <param name="arrayIndex">The array index to update.</param>
     /// <param name="x">The x-offset in pixels of the data.</param>
     /// <param name="y">The y-offset in pixels of the data.</param>
+    /// <param name="z">The z-offset in pixels of the data.</param>
     /// <param name="width">The width in pixels of the data.</param>
     /// <param name="height">The height in pixels of the data.</param>
+    /// <param name="depth">The depth in pixels of the texture.</param>
     /// <param name="data">The data itself.</param>
     /// <typeparam name="T">The data type, typically byte or float. This type should match the <see cref="Format"/> in the texture's <see cref="TextureDescription"/>.</typeparam>
-    public abstract void UpdateTexture<T>(Texture texture, int x, int y, uint width, uint height, T[] data) where T : unmanaged;
+    public abstract void UpdateTexture<T>(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width,
+        int height, int depth, T[] data) where T : unmanaged;
 
     /// <summary>
     /// Update a region of this texture with the given data.
     /// </summary>
     /// <param name="texture">The texture to update.</param>
+    /// <param name="mipLevel">The mip level to update.</param>
+    /// <param name="arrayIndex">The array index to update.</param>
     /// <param name="x">The x-offset in pixels of the data.</param>
     /// <param name="y">The y-offset in pixels of the data.</param>
+    /// <param name="z">The z-offset in pixels of the data.</param>
     /// <param name="width">The width in pixels of the data.</param>
     /// <param name="height">The height in pixels of the data.</param>
+    /// <param name="depth">The depth in pixels of the texture.</param>
     /// <param name="data">The data pointer.</param>
-    public abstract void UpdateTexture(Texture texture, int x, int y, uint width, uint height, IntPtr data);
+    public abstract void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width,
+        int height, int depth, IntPtr data);
 
     /// <summary>
     /// Update a region of this texture with the given data.
     /// </summary>
     /// <param name="texture">The texture to update.</param>
+    /// <param name="mipLevel">The mip level to update.</param>
+    /// <param name="arrayIndex">The array index to update.</param>
     /// <param name="x">The x-offset in pixels of the data.</param>
     /// <param name="y">The y-offset in pixels of the data.</param>
+    /// <param name="z">The z-offset in pixels of the data.</param>
     /// <param name="width">The width in pixels of the data.</param>
     /// <param name="height">The height in pixels of the data.</param>
+    /// <param name="depth">The depth in pixels of the texture.</param>
     /// <param name="data">The data pointer.</param>
-    public abstract unsafe void UpdateTexture(Texture texture, int x, int y, uint width, uint height, void* data);
+    public abstract unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
+        int width, int height, int depth, void* data);
 
     /// <summary>
     /// Map the given buffer to CPU accessible memory.

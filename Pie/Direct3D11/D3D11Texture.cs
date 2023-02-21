@@ -216,11 +216,14 @@ internal sealed class D3D11Texture : Texture
         return new D3D11Texture(texture, view, description);
     }
 
-    public unsafe void Update(int x, int y, uint width, uint height, void* data)
+    public unsafe void Update(int x, int y, int z, int width, int height, int depth, int mipLevel, int arrayIndex, void* data)
     {
-        // TODO: Implement texture mapping for fast transfers, i think
-        Context.UpdateSubresource(Texture, 0, new Box(x, y, 0, (int) (x + width), (int) (y + height), 1),
-            new IntPtr(data), PieUtils.CalculatePitch(Description.Format, (int) width, out _), 0);
+        int subresource = mipLevel + (arrayIndex * Description.MipLevels);
+
+        // TODO: Figure out depth pitch correctly.
+        // TODO: Make sure this works properly as well.
+        Context.UpdateSubresource(Texture, subresource, new Box(x, y, z, x + width, y + height, z + depth),
+            new IntPtr(data), PieUtils.CalculatePitch(Description.Format, width, out _), 0);
     }
 
     public override void Dispose()
