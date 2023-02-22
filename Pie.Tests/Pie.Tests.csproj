@@ -2,12 +2,15 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Pie.Audio\Pie.Audio.csproj" />
+      <ProjectReference Include="..\Pie.Freetype\Pie.Freetype.csproj" />
       <ProjectReference Include="..\Pie.ShaderCompiler\Pie.ShaderCompiler.csproj" />
       <ProjectReference Include="..\Pie.Utils\Pie.Utils.csproj" />
       <ProjectReference Include="..\Pie.Windowing\Pie.Windowing.csproj" />

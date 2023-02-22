@@ -1,4 +1,9 @@
-﻿using Pie.Tests;
+﻿using Pie;
+using Pie.Tests;
+using Pie.Tests.Tests;
+using Pie.Windowing;
 
-using Main main = new Main();
-main.Run();
+WindowSettings settings = new WindowSettings();
+
+using TestBase tb = new BasicTest();
+tb.Run(settings, GraphicsApi.OpenGL);
