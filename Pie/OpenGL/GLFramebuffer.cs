@@ -12,6 +12,7 @@ internal class GLFramebuffer : Framebuffer
 
     public readonly GLEnum[] DrawBuffers;
 
+    // TODO: More options in FramebufferAttachment for both GL and D3D11.
     public GLFramebuffer(FramebufferAttachment[] attachments)
     {
         Handle = Gl.GenFramebuffer();
@@ -21,29 +22,32 @@ internal class GLFramebuffer : Framebuffer
         List<GLEnum> colAttachments = new List<GLEnum>();
         foreach (FramebufferAttachment attachment in attachments)
         {
-            Silk.NET.OpenGL.FramebufferAttachment amnt;
-            switch (attachment.AttachmentType)
+            Silk.NET.OpenGL.FramebufferAttachment glAttachment;
+            switch (attachment.Texture.Description.Format)
             {
-                case AttachmentType.Color:
-                    amnt = Silk.NET.OpenGL.FramebufferAttachment.ColorAttachment0 + colorNum;
-                    colAttachments.Add(GLEnum.ColorAttachment0 + colorNum++);
+                case Format.D32_Float:
+                case Format.D16_UNorm:
+                    glAttachment = Silk.NET.OpenGL.FramebufferAttachment.DepthAttachment;
                     break;
-                case AttachmentType.DepthStencil:
-                    amnt = Silk.NET.OpenGL.FramebufferAttachment.DepthStencilAttachment;
+                case Format.D24_UNorm_S8_UInt:
+                    glAttachment = Silk.NET.OpenGL.FramebufferAttachment.DepthStencilAttachment;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    glAttachment = Silk.NET.OpenGL.FramebufferAttachment.ColorAttachment0 + colorNum;
+                    colAttachments.Add((GLEnum) glAttachment);
+                    colorNum++;
+                    break;
             }
             
             GLTexture tex = (GLTexture) attachment.Texture;
             if (tex.IsRenderbuffer)
             {
-                Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, amnt, RenderbufferTarget.Renderbuffer,
+                Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, glAttachment, RenderbufferTarget.Renderbuffer,
                     tex.Handle);
             }
             else
             {
-                Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, amnt, TextureTarget.Texture2D, tex.Handle, 0);
+                Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, glAttachment, TextureTarget.Texture2D, tex.Handle, 0);
             }
         }
 
