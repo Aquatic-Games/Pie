@@ -195,12 +195,6 @@ public static class PieUtils
     
     #region Internal API
 
-    internal static void CheckIfValid(TextureDescription description)
-    {
-        if (description.ArraySize < 1)
-            throw new PieException("Array size must be at least 1.");
-    }
-
     internal static int CalculatePitch(Format format, int width, out int bitsPerPixel)
     {
         int pitch;

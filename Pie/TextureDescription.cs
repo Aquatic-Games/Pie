@@ -135,4 +135,30 @@ public struct TextureDescription
         ArraySize = arraySize;
         Usage = usage;
     }
+
+    /// <summary>
+    /// Check if this <see cref="TextureDescription"/> is valid.
+    /// </summary>
+    public Validity Validity
+    {
+        get
+        {
+            if (Width < 0 || Height < 0 || Depth < 0)
+                return new Validity(false, "Texture width, height, and depth must be at least 0.");
+
+            if (MipLevels < 0)
+                return new Validity(false, "Mipmap levels must be at least 0.");
+            
+            if (ArraySize < 1)
+                return new Validity(false, "Array size must be at least 1.");
+
+            if (ArraySize > 1 && TextureType == TextureType.Texture3D)
+                return new Validity(false, "3D textures do not support an array size of >1.");
+
+            if (TextureType == TextureType.Cubemap && Width != Height)
+                return new Validity(false, "Cubemap width must equal height.");
+
+            return new Validity(true, null);
+        }
+    }
 }
