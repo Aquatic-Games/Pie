@@ -20,14 +20,12 @@ internal sealed class D3D11Framebuffer : Framebuffer
         foreach (FramebufferAttachment attachment in attachments)
         {
             Vortice.DXGI.Format fmt = attachment.Texture.Description.Format.ToDxgiFormat(false);
-            
-            switch (attachment.AttachmentType)
+
+            switch (attachment.Texture.Description.Format)
             {
-                case AttachmentType.Color:
-                    targets.Add(Device.CreateRenderTargetView(((D3D11Texture) attachment.Texture).Texture,
-                        new RenderTargetViewDescription(RenderTargetViewDimension.Texture2D, fmt, 0, 0, 1)));
-                    break;
-                case AttachmentType.DepthStencil:
+                case Format.D32_Float:
+                case Format.D16_UNorm:
+                case Format.D24_UNorm_S8_UInt:
                     depthCount++;
                     if (depthCount > 1)
                         throw new PieException("Framebuffer cannot have more than one depth stencil attachment.");
@@ -35,7 +33,9 @@ internal sealed class D3D11Framebuffer : Framebuffer
                         new DepthStencilViewDescription(DepthStencilViewDimension.Texture2D, fmt, 0, 0, 1));
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    targets.Add(Device.CreateRenderTargetView(((D3D11Texture) attachment.Texture).Texture,
+                        new RenderTargetViewDescription(RenderTargetViewDimension.Texture2D, fmt, 0, 0, 1)));
+                    break;
             }
         }
 
