@@ -339,7 +339,7 @@ public unsafe partial class Window : IDisposable
         switch (api)
         {
             case GraphicsApi.OpenGL:
-                device = GraphicsDevice.CreateOpenGL33(new GlfwContext(window._glfw, window._handle), window.Size, options);
+                device = GraphicsDevice.CreateOpenGL(new GlfwContext(window._glfw, window._handle), window.Size, options);
                 break;
             case GraphicsApi.D3D11:
                 device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, window.Size, options);
@@ -361,7 +361,7 @@ public unsafe partial class Window : IDisposable
         _glfw.MakeContextCurrent(_handle);
         return _api switch
         {
-            GraphicsApi.OpenGL => GraphicsDevice.CreateOpenGL33(new GlfwContext(_glfw, _handle), _settings.Size,
+            GraphicsApi.OpenGL => GraphicsDevice.CreateOpenGL(new GlfwContext(_glfw, _handle), _settings.Size,
                 options),
             GraphicsApi.D3D11 => GraphicsDevice.CreateD3D11(new GlfwNativeWindow(_glfw, _handle).Win32!.Value.Hwnd,
                 _settings.Size, options),

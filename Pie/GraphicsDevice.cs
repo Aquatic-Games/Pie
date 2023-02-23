@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using Pie.Direct3D11;
 using Pie.OpenGL;
+using Pie.Vulkan;
 using Silk.NET.Core.Contexts;
 using Silk.NET.Vulkan;
 
@@ -450,7 +451,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="winSize">The size of the window on startup.</param>
     /// <param name="options">The options for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
-    public static GraphicsDevice CreateOpenGL33(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
+    public static GraphicsDevice CreateOpenGL(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
     {
         return new GLGraphicsDevice(context, winSize, options);
     }
@@ -465,6 +466,11 @@ public abstract class GraphicsDevice : IDisposable
     public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options = default)
     {
         return new D3D11GraphicsDevice(hwnd, winSize, options);
+    }
+
+    public static GraphicsDevice CreateVulkan()
+    {
+        return new VkGraphicsDevice();
     }
 
     /// <summary>

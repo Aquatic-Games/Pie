@@ -44,7 +44,7 @@ public static class SilkPie
         switch (api)
         {
             case GraphicsApi.OpenGL:
-                return GraphicsDevice.CreateOpenGL33(window.GLContext, winSize, options);
+                return GraphicsDevice.CreateOpenGL(window.GLContext, winSize, options);
             case GraphicsApi.D3D11:
                 return GraphicsDevice.CreateD3D11(window.Native!.Win32!.Value.Hwnd, winSize, options);
             default:
