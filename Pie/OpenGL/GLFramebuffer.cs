@@ -10,10 +10,8 @@ internal class GLFramebuffer : Framebuffer
 {
     public uint Handle;
 
-    public readonly GLEnum[] DrawBuffers;
-
     // TODO: More options in FramebufferAttachment for both GL and D3D11.
-    public GLFramebuffer(FramebufferAttachment[] attachments)
+    public unsafe GLFramebuffer(FramebufferAttachment[] attachments)
     {
         Handle = Gl.GenFramebuffer();
         Gl.BindFramebuffer(FramebufferTarget.Framebuffer, Handle);
@@ -51,7 +49,9 @@ internal class GLFramebuffer : Framebuffer
             }
         }
 
-        DrawBuffers = colAttachments.ToArray();
+        GLEnum[] drawBuffers = colAttachments.ToArray();
+        fixed (GLEnum* e = drawBuffers)
+            Gl.DrawBuffers((uint) drawBuffers.Length, e);
 
         if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != GLEnum.FramebufferComplete)
             throw new PieException($"OpenGL: Framebuffer is not complete: {Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer)}");

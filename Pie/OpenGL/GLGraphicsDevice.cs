@@ -68,7 +68,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
         get => _viewport;
         set
         {
-            Gl.Viewport(value.X, Swapchain.Size.Height - value.Height - value.Y, (uint) value.Width, (uint) value.Height);
+            Gl.Viewport(value.X, value.Height - value.Y, (uint) value.Width, (uint) value.Height);
             _viewport = value;
         }
     }
@@ -386,8 +386,6 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
 
         GLFramebuffer fb = (GLFramebuffer) framebuffer;
         Gl.BindFramebuffer(FramebufferTarget.Framebuffer, fb.Handle);
-        fixed (GLEnum* e = fb.DrawBuffers)
-            Gl.DrawBuffers((uint) fb.DrawBuffers.Length, e);
     }
 
     public override void Draw(uint vertexCount)
