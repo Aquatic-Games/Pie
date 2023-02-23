@@ -45,13 +45,23 @@ internal sealed class D3D11Texture : Texture
             flags |= BindFlags.DepthStencil;
         else if ((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer || description.MipLevels != 1)
             flags |= BindFlags.RenderTarget;
+
+        Vortice.DXGI.Format svFmt = description.Format.ToDxgiFormat(false);
+
+        svFmt = svFmt switch
+        {
+            Vortice.DXGI.Format.D32_Float => Vortice.DXGI.Format.R32_Float,
+            Vortice.DXGI.Format.D16_UNorm => Vortice.DXGI.Format.R16_UNorm,
+            Vortice.DXGI.Format.D24_UNorm_S8_UInt => Vortice.DXGI.Format.R24_UNorm_X8_Typeless,
+            _ => svFmt
+        };
         
         ID3D11Resource texture;
         ShaderResourceViewDescription svDesc = new ShaderResourceViewDescription()
         {
-            Format = fmt,
+            Format = svFmt,
         };
-        
+
         switch (description.TextureType)
         {
             case TextureType.Texture1D:
