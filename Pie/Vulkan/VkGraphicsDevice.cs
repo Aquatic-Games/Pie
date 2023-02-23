@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -23,6 +24,7 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
     {
         _vk = Vk.GetApi();
         CreateInstance(true);
+        SetupDevice();
     }
     
     public override GraphicsApi Api { get; }
@@ -391,6 +393,56 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
         mCreateInfo.PfnUserCallback = new PfnDebugUtilsMessengerCallbackEXT(DebugCallback);
         
         CheckVkResult(_debugUtils.CreateDebugUtilsMessenger(_instance, &mCreateInfo, null, out _debugMessenger));
+    }
+
+    private void SetupDevice()
+    {
+        uint pDeviceCount;
+        _vk.EnumeratePhysicalDevices(_instance, &pDeviceCount, null);
+
+        if (pDeviceCount == 0)
+            throw new PieException("No installed GPUs support Vulkan.");
+        
+        PhysicalDevice[] devices = new PhysicalDevice[pDeviceCount];
+        fixed (PhysicalDevice* dptr = devices)
+            _vk.EnumeratePhysicalDevices(_instance, &pDeviceCount, dptr);
+
+        PhysicalDevice pDevice;
+
+        if (pDeviceCount > 1)
+        {
+            PieLog.Log(LogType.Debug, "Ranking installed devices (highest gets chosen)...");
+
+            List<(PhysicalDevice device, int rank)> rankedDevices = new List<(PhysicalDevice, int)>();
+
+            foreach (PhysicalDevice device in devices)
+            {
+                int rank = 0;
+
+                PhysicalDeviceProperties pProperties;
+                PhysicalDeviceFeatures pFeatures;
+                _vk.GetPhysicalDeviceProperties(device, &pProperties);
+                _vk.GetPhysicalDeviceFeatures(device, &pFeatures);
+
+                if (pProperties.DeviceType == PhysicalDeviceType.DiscreteGpu)
+                    rank++;
+
+                PieLog.Log(LogType.Debug,
+                    "    Device \"" + Marshal.PtrToStringAnsi((IntPtr) pProperties.DeviceName) + "\" gets a rank of " +
+                    rank + ".");
+
+                rankedDevices.Add((device, rank));
+            }
+
+            rankedDevices.Sort((device1, device2) => device1.rank.CompareTo(device2.rank));
+
+            pDevice = rankedDevices[0].device;
+        }
+        else
+        {
+            PieLog.Log(LogType.Debug, "Picking device 0 (there is only one device in the system).");
+            pDevice = devices[0];
+        }
     }
 
     private uint DebugCallback(DebugUtilsMessageSeverityFlagsEXT messageseverity, DebugUtilsMessageTypeFlagsEXT messagetypes, DebugUtilsMessengerCallbackDataEXT* pcallbackdata, void* puserdata)
