@@ -6,4 +6,4 @@ using Pie.Windowing;
 WindowSettings settings = new WindowSettings();
 
 using TestBase tb = new BasicTest();
-tb.Run(settings, GraphicsApi.OpenGL);
+tb.Run(settings, GraphicsDevice.GetBestApiForPlatform());

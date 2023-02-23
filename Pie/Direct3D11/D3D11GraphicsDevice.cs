@@ -93,6 +93,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
     public override Swapchain Swapchain { get; }
+    public override GraphicsAdapter Adapter { get; }
 
     private Rectangle _viewport;
     public override Rectangle Viewport

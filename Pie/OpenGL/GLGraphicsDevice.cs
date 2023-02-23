@@ -61,7 +61,8 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
     
     public override GraphicsApi Api => GraphicsApi.OpenGL;
     public override Swapchain Swapchain { get; }
-    
+    public override GraphicsAdapter Adapter { get; }
+
     private Rectangle _viewport;
     public override Rectangle Viewport
     {

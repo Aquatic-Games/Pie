@@ -23,6 +23,10 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     public abstract Swapchain Swapchain { get; }
     
+    /// <summary>
+    /// The <see cref="GraphicsAdapter"/> this device is running on.
+    /// </summary>
+    public abstract GraphicsAdapter Adapter { get; }
 
     /// <summary>
     /// Get or set the viewport of this device.
