@@ -36,14 +36,16 @@ internal sealed class D3D11Texture : Texture
             description.Format.ToDxgiFormat((description.Usage & TextureUsage.ShaderResource) ==
                                             TextureUsage.ShaderResource);
 
+        
         BindFlags flags = BindFlags.None;
         if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
             flags |= BindFlags.ShaderResource;
-        if (((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer && description.Format != Format.D24_UNorm_S8_UInt) || description.MipLevels != 1)
-            flags |= BindFlags.RenderTarget;
 
-        if (description.Format == Format.D24_UNorm_S8_UInt)
+        if (description.Format is Format.D24_UNorm_S8_UInt or Format.D32_Float or Format.D16_UNorm)
             flags |= BindFlags.DepthStencil;
+        else if ((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer || description.MipLevels != 1)
+            flags |= BindFlags.RenderTarget;
+        
         ID3D11Resource texture;
         ShaderResourceViewDescription svDesc = new ShaderResourceViewDescription()
         {
