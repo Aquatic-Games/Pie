@@ -15,6 +15,9 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
 {
     private Vk _vk;
     private Instance _instance;
+
+    private ExtDebugUtils _debugUtils;
+    private DebugUtilsMessengerEXT _debugMessenger;
     
     public VkGraphicsDevice()
     {
@@ -282,6 +285,12 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
 
     public override void Dispose()
     {
+        if (_debugUtils != null)
+        {
+            _debugUtils.DestroyDebugUtilsMessenger(_instance, _debugMessenger, null);
+            _debugUtils.Dispose();
+        }
+        
         _vk.DestroyInstance(_instance, null);
     }
 
@@ -295,6 +304,34 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
         {
             extensions = new[] { KhrSurface.ExtensionName, ExtDebugUtils.ExtensionName };
             layers = new[] { "VK_LAYER_KHRONOS_validation" };
+            
+            PieLog.Log(LogType.Debug, "Checking for validation layers support...");
+            
+            uint layerCount;
+            _vk.EnumerateInstanceLayerProperties(&layerCount, null);
+
+            LayerProperties[] layerProps = new LayerProperties[layerCount];
+            fixed (LayerProperties* props = layerProps)
+                _vk.EnumerateInstanceLayerProperties(&layerCount, props);
+
+            bool isFound = false;
+            foreach (string layer in layers)
+            {
+                foreach (LayerProperties property in layerProps)
+                {
+                    if (layer == Marshal.PtrToStringAnsi((IntPtr) property.LayerName))
+                    {
+                        isFound = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!isFound)
+            {
+                throw new PieException(
+                    "A debug context has been requested, however validation layers are not supported. The most likely reason for this is that you are missing the Vulkan SDK.");
+            }
         }
         else
         {
@@ -333,5 +370,42 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
         SilkMarshal.Free((nint) enabledLayers);
         
         PieLog.Log(LogType.Debug, "Created vk instance.");
+        
+        PieLog.Log(LogType.Debug, "Setting up debug callback...");
+
+        if (!_vk.TryGetInstanceExtension(_instance, out _debugUtils))
+            throw new PieException("Failed to get debug utils extension.");
+
+        DebugUtilsMessengerCreateInfoEXT mCreateInfo = new DebugUtilsMessengerCreateInfoEXT();
+        mCreateInfo.SType = StructureType.DebugUtilsMessengerCreateInfoExt;
+        
+        mCreateInfo.MessageSeverity = DebugUtilsMessageSeverityFlagsEXT.VerboseBitExt |
+                                      DebugUtilsMessageSeverityFlagsEXT.InfoBitExt |
+                                      DebugUtilsMessageSeverityFlagsEXT.WarningBitExt |
+                                      DebugUtilsMessageSeverityFlagsEXT.ErrorBitExt;
+        
+        mCreateInfo.MessageType = DebugUtilsMessageTypeFlagsEXT.GeneralBitExt |
+                                  DebugUtilsMessageTypeFlagsEXT.PerformanceBitExt |
+                                  DebugUtilsMessageTypeFlagsEXT.ValidationBitExt;
+
+        mCreateInfo.PfnUserCallback = new PfnDebugUtilsMessengerCallbackEXT(DebugCallback);
+        
+        CheckVkResult(_debugUtils.CreateDebugUtilsMessenger(_instance, &mCreateInfo, null, out _debugMessenger));
+    }
+
+    private uint DebugCallback(DebugUtilsMessageSeverityFlagsEXT messageseverity, DebugUtilsMessageTypeFlagsEXT messagetypes, DebugUtilsMessengerCallbackDataEXT* pcallbackdata, void* puserdata)
+    {
+        if ((messageseverity & DebugUtilsMessageSeverityFlagsEXT.ErrorBitExt) == DebugUtilsMessageSeverityFlagsEXT.ErrorBitExt)
+            throw new PieException(Marshal.PtrToStringAnsi((IntPtr) pcallbackdata->PMessage));
+
+        LogType logType = LogType.Debug;
+        if (messageseverity >= DebugUtilsMessageSeverityFlagsEXT.InfoBitExt)
+            logType = LogType.Info;
+        if (messageseverity >= DebugUtilsMessageSeverityFlagsEXT.WarningBitExt)
+            logType = LogType.Warning;
+        
+        PieLog.Log(logType, Marshal.PtrToStringAnsi((IntPtr) pcallbackdata->PMessage));
+
+        return Vk.False;
     }
 }
