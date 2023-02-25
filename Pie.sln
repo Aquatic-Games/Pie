@@ -12,8 +12,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Windowing", "Pie.Window
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Extensions.SilkWindowing", "Pie.Extensions.SilkWindowing\Pie.Extensions.SilkWindowing.csproj", "{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Framework", "Pie.Framework\Pie.Framework.csproj", "{8E0A9D62-C0C3-4FA8-90C8-A4976FB4A373}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Freetype", "Pie.Freetype\Pie.Freetype.csproj", "{6E6A1480-FF25-45A6-BDDB-904E07DCA291}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Tests", "Pie.Tests\Pie.Tests.csproj", "{DC827A20-033A-4AE7-AC67-C52F81393234}"
@@ -48,10 +46,6 @@ Global
 		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8E0A9D62-C0C3-4FA8-90C8-A4976FB4A373}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8E0A9D62-C0C3-4FA8-90C8-A4976FB4A373}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8E0A9D62-C0C3-4FA8-90C8-A4976FB4A373}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8E0A9D62-C0C3-4FA8-90C8-A4976FB4A373}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E6A1480-FF25-45A6-BDDB-904E07DCA291}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6E6A1480-FF25-45A6-BDDB-904E07DCA291}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E6A1480-FF25-45A6-BDDB-904E07DCA291}.Release|Any CPU.ActiveCfg = Release|Any CPU
