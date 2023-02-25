@@ -69,7 +69,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
         get => _viewport;
         set
         {
-            Gl.Viewport(value.X, value.Height - value.Y, (uint) value.Width, (uint) value.Height);
+            Gl.Viewport(value.X, Swapchain.Size.Height - (value.Y + value.Height), (uint) value.Width, (uint) value.Height);
             _viewport = value;
         }
     }
