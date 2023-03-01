@@ -17,21 +17,21 @@ public class FreeType : IDisposable
             throw new Exception("Could not initialize freetype.");
     }
 
-    public unsafe Face CreateFace(string path, int initialSize)
+    public unsafe Face CreateFace(string path, int initialSize, FaceFlags flags = FaceFlags.Antialiased | FaceFlags.RgbaConvert)
     {
         //return CreateFace(File.ReadAllBytes(path), initialSize);
         FT_Face* face;
         fixed (byte* bytes = Encoding.ASCII.GetBytes(path))
             FT_New_Face(_library, (sbyte*) bytes, new FT_Long(0), out face);
-        return new Face(face, initialSize);
+        return new Face(face, initialSize, flags);
     }
 
-    public unsafe Face CreateFace(byte[] data, int initialSize)
+    public unsafe Face CreateFace(byte[] data, int initialSize, FaceFlags flags = FaceFlags.Antialiased | FaceFlags.RgbaConvert)
     {
         FT_Face* face;
         fixed (byte* d = data)
             FT_New_Memory_Face(_library, d, new FT_Long(data.Length), new FT_Long(0), out face);
-        return new Face(face, initialSize);
+        return new Face(face, initialSize, flags);
     }
 
     public void Dispose()

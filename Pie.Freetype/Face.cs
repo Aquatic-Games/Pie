@@ -23,14 +23,16 @@ public unsafe class Face : IDisposable
     public readonly string Style;
 
     public readonly CharacterCollection Characters;
+    public readonly FaceFlags Flags;
 
-    internal Face(FT_Face* face, int initialSize)
+    internal Face(FT_Face* face, int initialSize, FaceFlags flags)
     {
         _face = face;
-        Characters = new CharacterCollection(_face);
+        Characters = new CharacterCollection(_face, flags);
         Size = initialSize;
         Family = Marshal.PtrToStringAnsi((IntPtr) face->FamilyName);
         Style = Marshal.PtrToStringAnsi((IntPtr) face->StyleName);
+        Flags = flags;
     }
     
     public void Dispose()
