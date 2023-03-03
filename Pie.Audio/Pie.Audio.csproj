@@ -23,9 +23,4 @@
         <None Include="../README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Silk.NET.OpenAL" Version="2.16.0" />
-      <PackageReference Include="Silk.NET.OpenAL.Soft.Native" Version="1.21.1.1" />
-    </ItemGroup>
-
 </Project>
