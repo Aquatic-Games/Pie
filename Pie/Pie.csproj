@@ -34,4 +34,8 @@
       <PackageReference Include="Vortice.Direct3D11" Version="2.1.19" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Pie.ShaderCompiler\Pie.ShaderCompiler.csproj" />
+    </ItemGroup>
+
 </Project>

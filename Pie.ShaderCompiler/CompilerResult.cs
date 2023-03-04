@@ -6,20 +6,17 @@ public struct CompilerResult
 {
     public readonly byte[] Result;
 
-    public readonly bool Success;
+    public readonly bool IsSuccess;
 
     public readonly string Error;
 
-    public ReflectionInfo? ReflectionInfo;
+    public readonly ReflectionInfo? ReflectionInfo;
 
-    public ShaderStage Stage;
-
-    public CompilerResult(byte[] result, bool success, string error, ReflectionInfo? reflectionInfo, ShaderStage stage)
+    public CompilerResult(byte[] result, bool isSuccess, string error, ReflectionInfo? reflectionInfo)
     {
         Result = result;
-        Success = success;
+        IsSuccess = isSuccess;
         Error = error;
         ReflectionInfo = reflectionInfo;
-        Stage = stage;
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using Pie.ShaderCompiler;
 
 namespace Pie;
 
@@ -15,7 +16,7 @@ public abstract class Shader : IDisposable
     public abstract bool IsDisposed { get; protected set; }
     
     /// <summary>
-    /// The <see cref="Pie.ReflectionInfo"/> of this <see cref="Shader"/>, if any.
+    /// The <see cref="ShaderCompiler.ReflectionInfo"/> of this <see cref="Shader"/>, if any.
     /// </summary>
     public ReflectionInfo[] ReflectionInfo { get; set; }
 

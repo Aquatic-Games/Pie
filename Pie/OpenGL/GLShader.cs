@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
+using Pie.ShaderCompiler;
 using Silk.NET.OpenGL;
 using static Pie.OpenGL.GLGraphicsDevice;
 
@@ -32,8 +34,15 @@ internal sealed class GLShader : Shader
 
             uint handle = Gl.CreateShader(type);
             attachments[i].TempHandle = handle;
-            fixed (byte* src = attachments[i].Source)
-                Gl.ShaderSource(handle, 1, src, attachments[i].Source.Length);
+            
+            CompilerResult result = Compiler.FromSpirv(Language.GLSL, attachments[i].Spirv);
+            if (!result.IsSuccess)
+                throw new PieException(result.Error);
+            
+            byte[] source = result.Result;
+            fixed (byte* src = source)
+                Gl.ShaderSource(handle, 1, src, source.Length);
+            
             Gl.CompileShader(handle);
             Gl.GetShader(handle, ShaderParameterName.CompileStatus, out int compStatus);
             if (compStatus != (int) GLEnum.True)

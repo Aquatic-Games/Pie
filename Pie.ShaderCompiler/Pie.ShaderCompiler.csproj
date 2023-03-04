@@ -35,8 +35,4 @@
       <PackageReference Include="Spirzza.Interop.SpirvCross" Version="0.0.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Pie\Pie.csproj" />
-    </ItemGroup>
-
 </Project>

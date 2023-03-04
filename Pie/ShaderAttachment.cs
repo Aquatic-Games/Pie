@@ -1,4 +1,5 @@
 using System.Text;
+using Pie.ShaderCompiler;
 
 namespace Pie;
 
@@ -15,7 +16,7 @@ public struct ShaderAttachment
     /// <summary>
     /// The source code of this shader attachment.
     /// </summary>
-    public byte[] Source;
+    public byte[] Spirv;
 
     internal uint TempHandle;
 
@@ -23,11 +24,11 @@ public struct ShaderAttachment
     /// Create a new shader attachment.
     /// </summary>
     /// <param name="stage">The stage of this shader attachment.</param>
-    /// <param name="source">The source code of this shader attachment.</param>
-    public ShaderAttachment(ShaderStage stage, byte[] source)
+    /// <param name="spirv">The Spir-V of this shader attachment.</param>
+    public ShaderAttachment(ShaderStage stage, byte[] spirv)
     {
         Stage = stage;
-        Source = source;
+        Spirv = spirv;
         TempHandle = 0;
     }
     
@@ -39,7 +40,12 @@ public struct ShaderAttachment
     public ShaderAttachment(ShaderStage stage, string source)
     {
         Stage = stage;
-        Source = Encoding.UTF8.GetBytes(source);
+        
+        CompilerResult result = Compiler.ToSpirv((Stage) stage, Language.GLSL, Encoding.UTF8.GetBytes(source), "main");
+        if (!result.IsSuccess)
+            throw new PieException(result.Error);
+        
+        Spirv = result.Result;
         TempHandle = 0;
     }
 }

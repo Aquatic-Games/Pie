@@ -1,8 +1,7 @@
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Pie;
+namespace Pie.ShaderCompiler;
 
 /// <summary>
 /// To be documented.
@@ -10,7 +9,7 @@ namespace Pie;
 // TODO: Improve the reflection API, this is trash.
 public struct ReflectionInfo
 {
-    public ShaderStage Stage;
+    public Stage Stage;
     
     [JsonPropertyName("entryPoints")] public EntryPoint[] EntryPoints;
     
@@ -29,10 +28,10 @@ public struct ReflectionInfo
         Inputs = inputs;
         Outputs = outputs;
         Ubos = ubos;
-        Stage = ShaderStage.Vertex;
+        Stage = Stage.Vertex;
     }
 
-    public static ReflectionInfo FromJson(string json, ShaderStage stage)
+    public static ReflectionInfo FromJson(string json, Stage stage)
     {
         ReflectionInfo info = JsonSerializer.Deserialize<ReflectionInfo>(json, new JsonSerializerOptions() { IncludeFields = true, IgnoreReadOnlyFields = false });
         info.Stage = stage;
