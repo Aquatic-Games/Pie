@@ -22,23 +22,29 @@ internal sealed class D3D11Shader : Shader
         for (int i = 0; i < attachments.Length; i++)
         {
             ref ShaderAttachment attachment = ref attachments[i];
+            
+            CompilerResult result = ShaderCompiler.Compiler.FromSpirv(Language.HLSL, attachment.Spirv);
+            if (!result.IsSuccess)
+                throw new PieException(result.Error);
+        
+            byte[] hlsl = result.Result;
 
             switch (attachment.Stage)
             {
                 case ShaderStage.Vertex:
-                    Blob vShader = CompileShader(attachment.Spirv, "main", "vs_5_0");
+                    Blob vShader = CompileShader(hlsl, "main", "vs_5_0");
                     _shaders.Add(ShaderStage.Vertex, Device.CreateVertexShader(vShader.AsBytes()));
                     break;
                 case ShaderStage.Fragment:
-                    Blob fShader = CompileShader(attachment.Spirv, "main", "ps_5_0");
+                    Blob fShader = CompileShader(hlsl, "main", "ps_5_0");
                     _shaders.Add(ShaderStage.Fragment, Device.CreatePixelShader(fShader.AsBytes()));
                     break;
                 case ShaderStage.Geometry:
-                    Blob gShader = CompileShader(attachment.Spirv, "main", "gs_5_0");
+                    Blob gShader = CompileShader(hlsl, "main", "gs_5_0");
                     _shaders.Add(ShaderStage.Geometry, Device.CreateGeometryShader(gShader.AsBytes()));
                     break;
                 case ShaderStage.Compute:
-                    Blob cShader = CompileShader(attachment.Spirv, "main", "cs_5_0");
+                    Blob cShader = CompileShader(hlsl, "main", "cs_5_0");
                     _shaders.Add(ShaderStage.Compute, Device.CreateComputeShader(cShader.AsBytes()));
                     break;
                 default:
@@ -82,13 +88,7 @@ internal sealed class D3D11Shader : Shader
 
     internal static Blob CompileShader(byte[] code, string entryPoint, string profile)
     {
-        CompilerResult result = ShaderCompiler.Compiler.FromSpirv(Language.HLSL, code);
-        if (!result.IsSuccess)
-            throw new PieException(result.Error);
-        
-        byte[] hlsl = result.Result;
-        
-        Result res = Compiler.Compile(hlsl, entryPoint, "main", profile, out Blob mainBlob, out Blob errorBlob);
+        Result res = Compiler.Compile(code, entryPoint, "main", profile, out Blob mainBlob, out Blob errorBlob);
         if (res.Failure)
             throw new PieException("Shader failed to compile: " + errorBlob.AsString());
 

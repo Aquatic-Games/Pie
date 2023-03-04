@@ -87,12 +87,17 @@ public static class Compiler
         spvc_context_create(&context);
 
         spvc_parsed_ir* ir;
-        spvc_context_parse_spirv(context, (SpvId*) result,
-            (nuint) ((int) length / sizeof(SpvId)), &ir);
+        spvc_result spirvResult = spvc_context_parse_spirv(context, (SpvId*) result, length / (nuint) sizeof(SpvId), &ir);
+        if (spirvResult != spvc_result.SPVC_SUCCESS)
+        {
+            string error = ConvertToString(spvc_context_get_last_error_string(context));
+            spvc_context_destroy(context);
+
+            return new CompilerResult(null, false, error, null);
+        }
         
         spvc_compiler* compl;
-        spvc_context_create_compiler(context, backend, ir,
-            spvc_capture_mode.SPVC_CAPTURE_MODE_TAKE_OWNERSHIP, &compl);
+        spvc_context_create_compiler(context, backend, ir, spvc_capture_mode.SPVC_CAPTURE_MODE_COPY, &compl);
 
         spvc_compiler_options* options;
         spvc_compiler_create_compiler_options(compl, &options);
@@ -116,7 +121,7 @@ public static class Compiler
         spvc_compiler_install_compiler_options(compl, options);
 
         sbyte* compiledResult;
-        spvc_result spirvResult = spvc_compiler_compile(compl, &compiledResult);
+        spirvResult = spvc_compiler_compile(compl, &compiledResult);
 
         if (spirvResult != spvc_result.SPVC_SUCCESS)
         {
@@ -130,8 +135,7 @@ public static class Compiler
         
         // TODO: Free compiled result??
         spvc_context_destroy(context);
-
-        // TODO: Check spirv result.
+        
         return new CompilerResult(compiled, true, string.Empty, null);
     }
 
