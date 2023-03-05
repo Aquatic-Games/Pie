@@ -8,8 +8,22 @@ using static Spirzza.Interop.SpirvCross.SpirvCross;
 
 namespace Pie.ShaderCompiler;
 
+/// <summary>
+/// Provides cross-platform API-independent shader compilation functions.
+/// </summary>
 public static class Compiler
 {
+    /// <summary>
+    /// Compile GLSL/HLSL code to Spir-V.
+    /// </summary>
+    /// <param name="stage">The shader <see cref="Stage"/> to compile.</param>
+    /// <param name="language">The source's shading language.</param>
+    /// <param name="source">The source code, in ASCII representation.</param>
+    /// <param name="entryPoint">The entry point of the shader. Usually "main" for GLSL.</param>
+    /// <param name="reflect">Whether or not to return <see cref="ReflectionInfo"/>. This causes a slight performance
+    /// hit, so use wisely.</param>
+    /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
     public static unsafe CompilerResult ToSpirv(Stage stage, Language language, byte[] source, string entryPoint, bool reflect = false)
     {
         shaderc_compiler* compiler = shaderc_compiler_initialize();
@@ -139,6 +153,13 @@ public static class Compiler
         return new CompilerResult(compiled, true, string.Empty, null);
     }
 
+    /// <summary>
+    /// Transpile Spir-V to shader source code.
+    /// </summary>
+    /// <param name="language">The language to transpile to.</param>
+    /// <param name="spirv">The Spir-V bytecode to transpile.</param>
+    /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
     public static unsafe CompilerResult FromSpirv(Language language, byte[] spirv)
     {
         CompilerResult result;

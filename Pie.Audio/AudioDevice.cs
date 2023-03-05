@@ -4,11 +4,20 @@ using Silk.NET.SDL;
 
 namespace Pie.Audio;
 
+/// <summary>
+/// Adds built-in audio playback to an <see cref="AudioSystem"/> using SDL.
+/// </summary>
 public class AudioDevice : AudioSystem
 {
     private Sdl _sdl;
     private uint _device;
     
+    /// <summary>
+    /// Create a new <see cref="AudioDevice"/> with the given sample rate and channels.
+    /// </summary>
+    /// <param name="sampleRate">The sample rate. Typical values include 44100 (CD quality) and 48000 (DAT quality).</param>
+    /// <param name="channels">The number of channels. (Sounds that can be played at once).</param>
+    /// <exception cref="Exception">Thrown if SDL fails to initialize.</exception>
     public unsafe AudioDevice(int sampleRate, ushort channels) : base(sampleRate, channels)
     {
         _sdl = Sdl.GetApi();

@@ -3,10 +3,13 @@ using System.Runtime.InteropServices;
 
 namespace Pie.Audio;
 
+/// <summary>
+/// The native library functions for mixr.
+/// </summary>
 public static unsafe class MixrNative
 {
     public const string MixrName = "mixr";
-
+    
     [DllImport(MixrName)]
     public static extern IntPtr mxCreateSystem(int sampleRate, ushort channels);
 
