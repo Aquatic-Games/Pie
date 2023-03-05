@@ -85,7 +85,7 @@ public unsafe class AudioSystem : IDisposable
         mxAdvanceBuffer(_system, buffer, bufferLength);
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         mxDeleteSystem(_system);
     }
