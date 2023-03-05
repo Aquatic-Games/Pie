@@ -439,6 +439,10 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
     {
         // OpenGL has no swapchain so nothing to resize.
         Swapchain.Size = newSize;
+        // Lol, this seems stupid, but it's to ensure the same behaviour between all backends when resizing the swapchain
+        // (forcing the viewport to remain in the top left, when OpenGL wants it to remain in the bottom left)
+        // This is the easiest option since setting "Viewport" forces it to calculate for a top-left origin point.
+        Viewport = _viewport;
     }
 
     public override void GenerateMipmaps(Texture texture)

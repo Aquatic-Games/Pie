@@ -44,6 +44,7 @@ public abstract class TestBase : IDisposable
     protected virtual void WindowOnResize(Size size)
     {
         GraphicsDevice.ResizeSwapchain(size);
+        GraphicsDevice.Viewport = new Rectangle(Point.Empty, size);
         Console.WriteLine($"resize: {size}");
     }
 

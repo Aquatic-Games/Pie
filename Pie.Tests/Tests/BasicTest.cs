@@ -55,7 +55,7 @@ public class BasicTest : TestBase
             new InputLayoutDescription("aColor", Format.R32G32B32A32_Float, 12, 0, InputType.PerVertex)
         );
 
-        _rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone with { ScissorTest = false });
+        _rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone with { ScissorTest = true });
         
         // TODO: Not setting a depth state results in the depth pass always failing in Direct3D.
         _depthState = GraphicsDevice.CreateDepthState(DepthStateDescription.LessEqual);
@@ -67,18 +67,20 @@ public class BasicTest : TestBase
     {
         base.Draw(dt);
 
+        GraphicsDevice.Scissor = new Rectangle(Point.Empty, GraphicsDevice.Swapchain.Size);
+        
+        GraphicsDevice.Clear(Color.CornflowerBlue, ClearFlags.Depth | ClearFlags.Stencil);
+
         _totalTime += dt;
 
         int width = 256;
         int height = 512;
         
-        int x = (int) Lerp(0, Window.Size.Width - width, (Math.Sin(_totalTime * 1) + 1) * 0.5);
-        int y = (int) Lerp(0, Window.Size.Height - height, (Math.Sin(_totalTime * 4) + 1) * 0.5);
+        int x = (int) Lerp(0, GraphicsDevice.Swapchain.Size.Width - width, (Math.Sin(_totalTime * 1) + 1) * 0.5);
+        int y = (int) Lerp(0, GraphicsDevice.Swapchain.Size.Height - height, (Math.Sin(_totalTime * 4) + 1) * 0.5);
 
-        //GraphicsDevice.Scissor = new Rectangle(x, y, width, height);
+        GraphicsDevice.Scissor = new Rectangle(x, y, width, height);
 
-        GraphicsDevice.Clear(Color.CornflowerBlue, ClearFlags.Depth | ClearFlags.Stencil);
-        
         // TODO: Not setting primitive type in Direct3D (iirc) results in it using points instead.
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
         
