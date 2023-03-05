@@ -88,7 +88,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             Size = winSize
         };
 
-        SetFramebuffer(null);
+        Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
     }
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
@@ -133,13 +133,22 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     {
         //Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
         DepthStencilClearFlags cf = DepthStencilClearFlags.None;
-        if (flags.HasFlag(ClearFlags.Depth))
+        int depth = 0;
+        byte stencil = 0;
+        if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
+        {
             cf |= DepthStencilClearFlags.Depth;
-        if (flags.HasFlag(ClearFlags.Stencil))
+            depth = 1;
+        }
+
+        if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
+        {
             cf |= DepthStencilClearFlags.Stencil;
-        Context.ClearDepthStencilView(_currentFramebuffer?.DepthStencil ?? _depthStencilTargetView, cf, 1, 0);
-        PieMetrics.DrawCalls = 0;
-        PieMetrics.TriCount = 0;
+            // TODO: Stencil stuff.
+            stencil = 0;
+        }
+
+        Context.ClearDepthStencilView(_currentFramebuffer?.DepthStencil ?? _depthStencilTargetView, cf, depth, stencil);
         //Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
     }
 
@@ -440,6 +449,13 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     public override void Present(int swapInterval)
     {
         _swapChain.Present(swapInterval, PresentFlags.None);
+        // ?????? This only seems to happen on AMD but after presentation the render targets go off to floaty land
+        // I'm sure usually this is resolved by setting render targets at the start of a frame (like what Easel does)
+        // but Pie has no way of knowing when the start of a frame is, so just do it at the end of presentation.
+        Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
+        
+        PieMetrics.DrawCalls = 0;
+        PieMetrics.TriCount = 0;
     }
 
     public override void ResizeSwapchain(Size newSize)

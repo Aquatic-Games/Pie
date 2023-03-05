@@ -77,7 +77,7 @@ public class BasicTest : TestBase
 
         //GraphicsDevice.Scissor = new Rectangle(x, y, width, height);
 
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.CornflowerBlue, ClearFlags.Depth | ClearFlags.Stencil);
         
         // TODO: Not setting primitive type in Direct3D (iirc) results in it using points instead.
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
