@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using Pie.Audio;
 using Silk.NET.SDL;
 using static Pie.Audio.MixrNative;
-using Buffer = Pie.Audio.Buffer;
 using PCM = Pie.Audio.PCM;
 
 namespace Pie.Tests.Tests;
@@ -59,15 +58,15 @@ public unsafe class AudioTest : TestBase
         PCM pcm1 = PCM.LoadWav("/home/ollie/Music/dedune-start.wav");
         PCM pcm2 = PCM.LoadWav("/home/ollie/Music/dedune-loop.wav");
 
-        Buffer buffer1 = _system.CreateBuffer(new BufferDescription(DataType.Pcm, pcm1.Format), pcm1.Data);
-        Buffer buffer2 = _system.CreateBuffer(new BufferDescription(DataType.Pcm, pcm2.Format), pcm2.Data);
+        AudioBuffer buffer1 = _system.CreateBuffer(new BufferDescription(DataType.Pcm, pcm1.Format), pcm1.Data);
+        AudioBuffer buffer2 = _system.CreateBuffer(new BufferDescription(DataType.Pcm, pcm2.Format), pcm2.Data);
 
         _system.PlayBuffer(buffer1, 0, new ChannelProperties());
         _system.QueueBuffer(buffer2, 0);
 
         _system.BufferFinished += (system, channel, buffer) =>
         {
-            Console.WriteLine($"Buffer {buffer.Handle} finished on channel {channel}");
+            Console.WriteLine($"AudioBuffer {buffer.Handle} finished on channel {channel}");
             system.SetChannelProperties(channel, new ChannelProperties(looping: true));
         };
         */
@@ -77,15 +76,15 @@ public unsafe class AudioTest : TestBase
         PCM pcm1 = PCM.LoadWav("/home/ollie/Music/thanks_for_the_fish.wav");
         ///PCM pcm2 = PCM.LoadWav("/home/ollie/Music/dedune-loop.wav");
 
-        Buffer buffer1 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm1.Format), pcm1.Data);
-        //Buffer buffer2 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm2.Format), pcm2.Data);
+        AudioBuffer buffer1 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm1.Format), pcm1.Data);
+        //AudioBuffer buffer2 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm2.Format), pcm2.Data);
 
         _device.PlayBuffer(buffer1, 0, new ChannelProperties(speed: 1.15));
         //_device.QueueBuffer(buffer2, 0);
 
         /*_device.BufferFinished += (system, channel, buffer) =>
         {
-            Console.WriteLine($"Buffer {buffer.Handle} finished on channel {channel}");
+            Console.WriteLine($"AudioBuffer {buffer.Handle} finished on channel {channel}");
             system.SetChannelProperties(channel, new ChannelProperties(looping: true));
         };*/
     }

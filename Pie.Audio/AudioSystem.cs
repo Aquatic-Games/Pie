@@ -19,32 +19,32 @@ public unsafe class AudioSystem : IDisposable
         mxSetBufferFinishedCallback(_system, _callback);
     }
 
-    public Buffer CreateBuffer<T>(BufferDescription description, T[] data = null) where T : unmanaged
+    public AudioBuffer CreateBuffer<T>(BufferDescription description, T[] data = null) where T : unmanaged
     {
         int buffer;
         fixed (void* ptr = data)
             buffer = mxCreateBuffer(_system, description, ptr, (nuint) (data?.Length ?? 0));
 
-        return new Buffer(buffer);
+        return new AudioBuffer(buffer);
     }
 
-    public AudioResult DeleteBuffer(Buffer buffer)
+    public AudioResult DeleteBuffer(AudioBuffer buffer)
     {
         return mxDeleteBuffer(_system, buffer.Handle);
     }
 
-    public AudioResult UpdateBuffer<T>(Buffer buffer, T[] data) where T : unmanaged
+    public AudioResult UpdateBuffer<T>(AudioBuffer buffer, T[] data) where T : unmanaged
     {
         fixed (void* ptr = data)
             return mxUpdateBuffer(_system, buffer.Handle, ptr, (nuint) data.Length);
     }
 
-    public AudioResult PlayBuffer(Buffer buffer, ushort channel, ChannelProperties properties)
+    public AudioResult PlayBuffer(AudioBuffer buffer, ushort channel, ChannelProperties properties)
     {
         return mxPlayBuffer(_system, buffer.Handle, channel, properties);
     }
 
-    public AudioResult QueueBuffer(Buffer buffer, ushort channel)
+    public AudioResult QueueBuffer(AudioBuffer buffer, ushort channel)
     {
         return mxQueueBuffer(_system, buffer.Handle, channel);
     }
@@ -92,8 +92,8 @@ public unsafe class AudioSystem : IDisposable
 
     private void BufferFinishedCB(ushort channel, int buffer)
     {
-        BufferFinished?.Invoke(this, channel, new Buffer(buffer));
+        BufferFinished?.Invoke(this, channel, new AudioBuffer(buffer));
     }
 
-    public delegate void OnBufferFinished(AudioSystem system, ushort channel, Buffer buffer);
+    public delegate void OnBufferFinished(AudioSystem system, ushort channel, AudioBuffer buffer);
 }

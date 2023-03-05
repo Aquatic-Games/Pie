@@ -1,10 +1,10 @@
 namespace Pie.Audio;
 
-public struct Buffer
+public struct AudioBuffer
 {
     public readonly int Handle;
 
-    public Buffer(int handle)
+    public AudioBuffer(int handle)
     {
         Handle = handle;
     }
