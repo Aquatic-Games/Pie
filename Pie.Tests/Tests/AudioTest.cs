@@ -4,12 +4,15 @@ using System.Runtime.InteropServices;
 using Pie.Audio;
 using Silk.NET.SDL;
 using static Pie.Audio.MixrNative;
+using Buffer = Pie.Audio.Buffer;
+using PCM = Pie.Audio.PCM;
 
 namespace Pie.Tests.Tests;
 
 public unsafe class AudioTest : TestBase
 {
-    private IntPtr _system;
+    //private IntPtr _system;
+    private AudioSystem _system;
 
     private Sdl _sdl;
     private uint _device;
@@ -19,8 +22,6 @@ public unsafe class AudioTest : TestBase
         base.Initialize();
 
         const int sampleRate = 48000;
-
-        _system = mxCreateSystem(sampleRate, 256);
 
         _sdl = Sdl.GetApi();
         if (_sdl.Init(Sdl.InitAudio) < 0)
@@ -36,9 +37,11 @@ public unsafe class AudioTest : TestBase
 
         _device = _sdl.OpenAudioDevice((byte*) null, 0, &spec, null, 0);
         _sdl.PauseAudioDevice(_device, 0);
+        
+        /*_system = mxCreateSystem(sampleRate, 256);
 
-        byte[] wavData = File.ReadAllBytes("/home/ollie/Music/lowlevel.wav");
-        PCM* pcm;
+        byte[] wavData = File.ReadAllBytes("/home/ollie/Music/r-59.wav");
+        MixrNative.PCM* pcm;
         fixed (byte* ptr = wavData)
             pcm = mxPCMLoadWav(ptr, (nuint) wavData.Length);
 
@@ -47,11 +50,29 @@ public unsafe class AudioTest : TestBase
         
         mxPCMFree(pcm);
 
-        mxPlayBuffer(_system, buffer, 0, new ChannelProperties());
+        mxPlayBuffer(_system, buffer, 0, new ChannelProperties(speed: 0.85, looping: true));*/
+
+        _system = new AudioSystem(48000, 256);
+        
+        PCM pcm1 = PCM.LoadWav("/home/ollie/Music/dedune-start.wav");
+        PCM pcm2 = PCM.LoadWav("/home/ollie/Music/dedune-loop.wav");
+
+        Buffer buffer1 = _system.CreateBuffer(new BufferDescription(DataType.Pcm, pcm1.Format), pcm1.Data);
+        Buffer buffer2 = _system.CreateBuffer(new BufferDescription(DataType.Pcm, pcm2.Format), pcm2.Data);
+
+        _system.PlayBuffer(buffer1, 0, new ChannelProperties());
+        _system.QueueBuffer(buffer2, 0);
+
+        _system.BufferFinished += (system, channel, buffer) =>
+        {
+            Console.WriteLine($"Buffer {buffer.Handle} finished on channel {channel}");
+            system.SetChannelProperties(channel, new ChannelProperties(looping: true));
+        };
     }
 
     private void AudioCallback(void* arg0, byte* arg1, int arg2)
     {
-        mxAdvanceBuffer(_system, (float*) arg1, (nuint) arg2 / 4);
+        //mxAdvanceBuffer(_system, (float*) arg1, (nuint) arg2 / 4);
+        _system.AdvanceBuffer((float*) arg1, (nuint) arg2 / 4);
     }
 }

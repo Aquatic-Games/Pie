@@ -11,10 +11,10 @@ public static unsafe class MixrNative
     public static extern IntPtr mxCreateSystem(int sampleRate, ushort channels);
 
     [DllImport(MixrName)]
-    public static extern void* mxDeleteSystem(IntPtr system);
+    public static extern void mxDeleteSystem(IntPtr system);
 
     [DllImport(MixrName)]
-    public static extern void mxSetBufferFinishedCallback(IntPtr system, delegate*<ushort, int, void> callback);
+    public static extern void mxSetBufferFinishedCallback(IntPtr system, BufferFinishedCallback callback);
 
     [DllImport(MixrName)]
     public static extern int mxCreateBuffer(IntPtr system, BufferDescription description, void* data, nuint dataLength);
@@ -62,15 +62,6 @@ public static unsafe class MixrNative
     [DllImport(MixrName)]
     public static extern void mxPCMFree(PCM* pcm);
 
-    public enum AudioResult
-    {
-        Ok,
-        
-        InvalidBuffer,
-        InvalidChannel,
-        OutOfRange
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     public struct PCM
     {
@@ -78,4 +69,6 @@ public static unsafe class MixrNative
         public readonly nuint DataLength;
         public readonly AudioFormat Format;
     }
+
+    public delegate void BufferFinishedCallback(ushort channel, int buffer);
 }
