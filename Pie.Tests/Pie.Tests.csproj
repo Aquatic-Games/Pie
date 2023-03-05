@@ -11,7 +11,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Pie.Audio\Pie.Audio.csproj" />
-      <ProjectReference Include="..\Pie.Freetype\Pie.Freetype.csproj" />
+      <ProjectReference Include="..\Pie.Text\Pie.Text.csproj" />
       <ProjectReference Include="..\Pie.ShaderCompiler\Pie.ShaderCompiler.csproj" />
       <ProjectReference Include="..\Pie.Utils\Pie.Utils.csproj" />
       <ProjectReference Include="..\Pie.Windowing\Pie.Windowing.csproj" />

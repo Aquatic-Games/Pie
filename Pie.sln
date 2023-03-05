@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Windowing", "Pie.Window
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Extensions.SilkWindowing", "Pie.Extensions.SilkWindowing\Pie.Extensions.SilkWindowing.csproj", "{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Freetype", "Pie.Freetype\Pie.Freetype.csproj", "{6E6A1480-FF25-45A6-BDDB-904E07DCA291}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Text", "Pie.Text\Pie.Text.csproj", "{6E6A1480-FF25-45A6-BDDB-904E07DCA291}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Tests", "Pie.Tests\Pie.Tests.csproj", "{DC827A20-033A-4AE7-AC67-C52F81393234}"
 EndProject

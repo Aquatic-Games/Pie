@@ -79,7 +79,7 @@ public unsafe class AudioTest : TestBase
         AudioBuffer buffer1 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm1.Format), pcm1.Data);
         //AudioBuffer buffer2 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm2.Format), pcm2.Data);
 
-        _device.PlayBuffer(buffer1, 0, new ChannelProperties(speed: 1.15));
+        _device.PlayBuffer(buffer1, 0, new ChannelProperties(speed: 1.2, looping: true));
         //_device.QueueBuffer(buffer2, 0);
 
         /*_device.BufferFinished += (system, channel, buffer) =>
