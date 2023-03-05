@@ -5,8 +5,9 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
-    
+
     <PropertyGroup>
         <Description>Make cross-platform graphics programming as easy as pie.</Description>
         <RepositoryUrl>https://github.com/piegfx/Pie</RepositoryUrl>
@@ -16,7 +17,6 @@
         <PackageTags>graphics;opengl;directx;</PackageTags>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <Version>0.6.0-pre</Version>
     </PropertyGroup>
     
     <ItemGroup>

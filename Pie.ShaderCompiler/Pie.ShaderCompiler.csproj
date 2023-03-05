@@ -5,12 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Description>Make cross-platform graphics programming as easy as pie.</Description>
-        <RepositoryUrl>https://github.com/IsometricSoftware/Pie</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageVersion>0.0.1</PackageVersion>
-        <Authors>Ollie Robinson</Authors>
-        <PackageId>Pie.ShaderCompiler</PackageId>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup>
