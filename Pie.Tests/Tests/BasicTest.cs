@@ -43,5 +43,7 @@ void main()
         Console.WriteLine(Encoding.UTF8.GetString(toHlslResult.Result));
 
         //Shader shader = GraphicsDevice.CreateShader(new ShaderAttachment(ShaderStage.Vertex, testShader));
+        
+        
     }
 }

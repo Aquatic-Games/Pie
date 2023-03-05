@@ -23,4 +23,13 @@
         <None Include="../README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Update="libmixr.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="libmixr.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+    
 </Project>

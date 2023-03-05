@@ -5,5 +5,5 @@ using Pie.Windowing;
 
 WindowSettings settings = new WindowSettings();
 
-using TestBase tb = new BasicTest();
+using TestBase tb = new AudioTest();
 tb.Run(settings, GraphicsDevice.GetBestApiForPlatform());
