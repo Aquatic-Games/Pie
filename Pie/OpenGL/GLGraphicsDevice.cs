@@ -81,7 +81,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
         get => _scissor;
         set
         {
-            Gl.Scissor(value.X, _viewport.Height - value.Y - value.Height, (uint) value.Width, (uint) value.Height);
+            Gl.Scissor(value.X, Swapchain.Size.Height - (value.Y + value.Height), (uint) value.Width, (uint) value.Height);
             _scissor = value;
         }
     }

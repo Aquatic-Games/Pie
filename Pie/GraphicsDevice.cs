@@ -155,7 +155,6 @@ public abstract class GraphicsDevice : IDisposable
     /// Create a shader with the given shader attachments.
     /// </summary>
     /// <param name="attachments">The attachments for this shader.</param>
-    /// <remarks>This shader is not cross platform. Use Pie.ShaderCompiler's extension method to create a cross platform shader.</remarks>
     /// <returns>The created shader.</returns>
     public abstract Shader CreateShader(params ShaderAttachment[] attachments);
 

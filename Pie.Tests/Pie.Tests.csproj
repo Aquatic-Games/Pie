@@ -21,5 +21,11 @@
     <ItemGroup>
       <PackageReference Include="Silk.NET.SDL" Version="2.16.0" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <Content Include="Content/**/*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 
 </Project>

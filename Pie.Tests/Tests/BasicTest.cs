@@ -1,49 +1,96 @@
 using System;
+using System.Drawing;
 using System.IO;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Pie.ShaderCompiler;
+using Pie.Utils;
 
 namespace Pie.Tests.Tests;
 
 public class BasicTest : TestBase
 {
+    private GraphicsBuffer _vertexBuffer;
+    private GraphicsBuffer _indexBuffer;
+
+    private Shader _shader;
+    private InputLayout _layout;
+
+    private RasterizerState _rasterizerState;
+    private DepthState _depthState;
+
     protected override void Initialize()
     {
         base.Initialize();
 
-        PieLog.DebugLog += (type, message) => Console.WriteLine($"[{type}] {message}");
+        VertexPositionColor[] vertices = new VertexPositionColor[]
+        {
+            new VertexPositionColor(new Vector3(-1f, -1f, 0.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f)),
+            new VertexPositionColor(new Vector3(1f, -1f, 0.0f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f)),
+            new VertexPositionColor(new Vector3(1f, 1f, 0.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
+            new VertexPositionColor(new Vector3(-1f, 1f, 0.0f), new Vector4(0.0f, 0.0f, 0.0f, 1.0f)),
+        };
+
+        ushort[] indices = new ushort[]
+        {
+            0, 1, 3,
+            1, 2, 3
+        };
+
+        //string vertexShader = File.ReadAllText("Content/Shaders/Basic.vert");
+        //string fragmentShader = File.ReadAllText("Content/Shaders/Basic.frag");
+
+        byte[] vertexShader = File.ReadAllBytes("Content/Shaders/Basic_vert.spv");
+        byte[] fragmentShader = File.ReadAllBytes("Content/Shaders/Basic_frag.spv");
         
-        //GraphicsDevice test = GraphicsDevice.CreateVulkan();
+        _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, vertices);
+        _indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, indices);
 
-        string testShader = @"
-#version 450
+        _shader = GraphicsDevice.CreateShader(new ShaderAttachment(ShaderStage.Vertex, vertexShader),
+            new ShaderAttachment(ShaderStage.Fragment, fragmentShader));
 
-layout (location = 0) in vec3 aPosition;
-layout (location = 1) in vec2 aTexCoords;
+        _layout = GraphicsDevice.CreateInputLayout(
+            new InputLayoutDescription("aPosition", Format.R32G32B32_Float, 0, 0, InputType.PerVertex),
+            new InputLayoutDescription("aColor", Format.R32G32B32A32_Float, 12, 0, InputType.PerVertex)
+        );
 
-layout (location = 0) out vec2 frag_texCoords;
-
-void main()
-{
-    gl_Position = vec4(aPosition, 1.0);
-    frag_texCoords = aTexCoords;
-}";
-
-        CompilerResult toSpirvResult =
-            Compiler.ToSpirv(Stage.Vertex, Language.GLSL, Encoding.UTF8.GetBytes(testShader), "main");
-
-        if (!toSpirvResult.IsSuccess)
-            throw new Exception(toSpirvResult.Error);
-
-        CompilerResult toHlslResult = Compiler.FromSpirv(Language.HLSL, toSpirvResult.Result);
+        _rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone with { ScissorTest = false });
         
-        if (!toHlslResult.IsSuccess)
-            throw new Exception(toHlslResult.Error);
-        
-        Console.WriteLine(Encoding.UTF8.GetString(toHlslResult.Result));
-
-        //Shader shader = GraphicsDevice.CreateShader(new ShaderAttachment(ShaderStage.Vertex, testShader));
-        
-        
+        // TODO: Not setting a depth state results in the depth pass always failing in Direct3D.
+        _depthState = GraphicsDevice.CreateDepthState(DepthStateDescription.LessEqual);
     }
+
+    private double _totalTime;
+    
+    protected override void Draw(double dt)
+    {
+        base.Draw(dt);
+
+        _totalTime += dt;
+
+        int width = 256;
+        int height = 512;
+        
+        int x = (int) Lerp(0, Window.Size.Width - width, (Math.Sin(_totalTime * 1) + 1) * 0.5);
+        int y = (int) Lerp(0, Window.Size.Height - height, (Math.Sin(_totalTime * 4) + 1) * 0.5);
+
+        //GraphicsDevice.Scissor = new Rectangle(x, y, width, height);
+
+        GraphicsDevice.Clear(Color.CornflowerBlue);
+        
+        // TODO: Not setting primitive type in Direct3D (iirc) results in it using points instead.
+        GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
+        
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionColor.SizeInBytes, _layout);
+        GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UShort);
+        GraphicsDevice.SetShader(_shader);
+        GraphicsDevice.SetRasterizerState(_rasterizerState);
+        GraphicsDevice.SetDepthState(_depthState);
+        
+        GraphicsDevice.DrawIndexed(6);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private double Lerp(double min, double max, double multiplier) => multiplier * (max - min) + min;
 }

@@ -1,17 +1,19 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Pie.Utils;
 
+[StructLayout(LayoutKind.Sequential)]
 public struct VertexPositionTextureNormal
 {
     public Vector3 Position;
-    public Vector2 TexCoords;
+    public Vector2 TexCoord;
     public Vector3 Normal;
 
-    public VertexPositionTextureNormal(Vector3 position, Vector2 texCoords, Vector3 normal)
+    public VertexPositionTextureNormal(Vector3 position, Vector2 texCoord, Vector3 normal)
     {
         Position = position;
-        TexCoords = texCoords;
+        TexCoord = texCoord;
         Normal = normal;
     }
 

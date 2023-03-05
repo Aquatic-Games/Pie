@@ -95,10 +95,16 @@ public static class PieUtils
         CopyToUnmanaged(unmanagedPtr, offsetInBytes, (uint) (Unsafe.SizeOf<T>() * data.Length), data);
     }
 
+    /// <summary>
+    /// Gets the bits per pixel of the given format. (For example, R8G8B8A8_UNorm would be 32-bits).
+    /// </summary>
+    /// <param name="format"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static int BitsPerPixel(this Format format)
     {
         int bitsPerPixel = 0;
-        
+
         switch (format)
         {
             case Format.R8_UNorm:
@@ -107,7 +113,7 @@ public static class PieUtils
             case Format.R8_UInt:
                 bitsPerPixel = 8;
                 break;
-            
+
             case Format.R8G8_UNorm:
             case Format.R8G8_SNorm:
             case Format.R8G8_SInt:
@@ -120,7 +126,7 @@ public static class PieUtils
             case Format.D16_UNorm:
                 bitsPerPixel = 16;
                 break;
-            
+
             case Format.R8G8B8A8_UNorm:
             case Format.R8G8B8A8_UNorm_SRgb:
             case Format.R8G8B8A8_SNorm:
@@ -140,7 +146,7 @@ public static class PieUtils
             case Format.D32_Float:
                 bitsPerPixel = 32;
                 break;
-            
+
             case Format.R16G16B16A16_UNorm:
             case Format.R16G16B16A16_SNorm:
             case Format.R16G16B16A16_SInt:
@@ -151,26 +157,26 @@ public static class PieUtils
             case Format.R32G32_Float:
                 bitsPerPixel = 64;
                 break;
-            
+
             case Format.R32G32B32_SInt:
             case Format.R32G32B32_UInt:
             case Format.R32G32B32_Float:
                 bitsPerPixel = 96;
                 break;
-            
+
             case Format.R32G32B32A32_SInt:
             case Format.R32G32B32A32_UInt:
             case Format.R32G32B32A32_Float:
                 bitsPerPixel = 128;
                 break;
-            
+
             case Format.BC1_UNorm:
             case Format.BC1_UNorm_SRgb:
             case Format.BC4_UNorm:
             case Format.BC4_SNorm:
                 bitsPerPixel = 4;
                 break;
-            
+
             case Format.BC2_UNorm:
             case Format.BC2_UNorm_SRgb:
             case Format.BC3_UNorm:
@@ -183,14 +189,14 @@ public static class PieUtils
             case Format.BC7_UNorm_SRgb:
                 bitsPerPixel = 8;
                 break;
-            
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(format), format, null);
         }
 
         return bitsPerPixel;
     }
-    
+
     #endregion
     
     #region Internal API

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using Pie.Windowing;
 
 namespace Pie.Tests;
@@ -17,7 +18,10 @@ public abstract class TestBase : IDisposable
 
     public void Run(WindowSettings settings, GraphicsApi api)
     {
+        PieLog.DebugLog += (type, message) => Console.WriteLine($"[{type}] {message}");
+        
         Window = Window.CreateWithGraphicsDevice(settings, api, out GraphicsDevice);
+        Window.Resize += WindowOnResize;
 
         Initialize();
         
@@ -35,6 +39,12 @@ public abstract class TestBase : IDisposable
             
             GraphicsDevice.Present(1);
         }
+    }
+
+    protected virtual void WindowOnResize(Size size)
+    {
+        GraphicsDevice.ResizeSwapchain(size);
+        Console.WriteLine($"resize: {size}");
     }
 
     public void Dispose()

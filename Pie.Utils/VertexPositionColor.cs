@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Pie.Utils;
 
+[StructLayout(LayoutKind.Sequential)]
 public struct VertexPositionColor
 {
     public Vector3 Position;

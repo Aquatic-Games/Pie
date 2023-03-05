@@ -444,6 +444,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     public override void ResizeSwapchain(Size newSize)
     {
+        Context.Flush();
         Context.UnsetRenderTargets();
         _colorTargetView.Dispose();
         _depthStencilTargetView.Dispose();
