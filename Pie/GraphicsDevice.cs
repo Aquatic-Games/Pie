@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Numerics;
 using Pie.Direct3D11;
+using Pie.Null;
 using Pie.OpenGL;
 using Pie.Vulkan;
 using Silk.NET.Core.Contexts;
@@ -470,6 +471,15 @@ public abstract class GraphicsDevice : IDisposable
     public static GraphicsDevice CreateVulkan()
     {
         return new VkGraphicsDevice();
+    }
+
+    /// <summary>
+    /// Create a null graphics device.
+    /// </summary>
+    /// <returns>The created graphics device.</returns>
+    public static GraphicsDevice CreateNull()
+    {
+        return new NullGraphicsDevice();
     }
 
     /// <summary>
