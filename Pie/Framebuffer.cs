@@ -1,8 +1,9 @@
+using System;
 using System.Drawing;
 
 namespace Pie;
 
-public abstract class Framebuffer
+public abstract class Framebuffer : IDisposable
 {
     /// <summary>
     /// Will return <see langword="true" /> when this <see cref="Framebuffer"/> has been disposed.
