@@ -325,36 +325,6 @@ public unsafe partial class Window : IDisposable
 
         return new Window(glfw, handle, settings, api);
     }
-
-    public static Window CreateWindow(WindowSettings settings)
-    {
-        return CreateWindow(settings, GraphicsDevice.GetBestApiForPlatform());
-    }
-
-    public static Window CreateWithGraphicsDevice(WindowSettings settings, GraphicsApi api, out GraphicsDevice device,
-        GraphicsDeviceOptions options = default)
-    {
-        Window window = CreateWindow(settings, api);
-        
-        switch (api)
-        {
-            case GraphicsApi.OpenGL:
-                device = GraphicsDevice.CreateOpenGL(new GlfwContext(window._glfw, window._handle), window.Size, options);
-                break;
-            case GraphicsApi.D3D11:
-                device = GraphicsDevice.CreateD3D11(new GlfwNativeWindow(window._glfw, window._handle).Win32!.Value.Hwnd, window.Size, options);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(api), api, null);
-        }
-
-        return window;
-    }
-
-    public static Window CreateWithGraphicsDevice(WindowSettings settings, out GraphicsDevice device)
-    {
-        return CreateWithGraphicsDevice(settings, GraphicsDevice.GetBestApiForPlatform(), out device);
-    }
     
     public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions options = default)
     {
@@ -367,6 +337,26 @@ public unsafe partial class Window : IDisposable
                 _settings.Size, options),
             _ => throw new ArgumentOutOfRangeException(nameof(_api), _api, null)
         };
+    }
+
+    public static Window CreateWindow(WindowSettings settings)
+    {
+        return CreateWindow(settings, GraphicsDevice.GetBestApiForPlatform());
+    }
+
+    public static Window CreateWithGraphicsDevice(WindowSettings settings, GraphicsApi api, out GraphicsDevice device,
+        GraphicsDeviceOptions options = default)
+    {
+        Window window = CreateWindow(settings, api);
+
+        device = window.CreateGraphicsDevice(options);
+
+        return window;
+    }
+
+    public static Window CreateWithGraphicsDevice(WindowSettings settings, out GraphicsDevice device)
+    {
+        return CreateWithGraphicsDevice(settings, GraphicsDevice.GetBestApiForPlatform(), out device);
     }
 
     public void Dispose()
