@@ -12,6 +12,11 @@ public unsafe class AudioSystem : IDisposable
     private IntPtr _system;
 
     /// <summary>
+    /// Get the number of channels in this <see cref="AudioSystem"/>.
+    /// </summary>
+    public ushort NumChannels => mxGetNumChannels(_system);
+
+    /// <summary>
     /// Called whenever a buffer is finished (stops playing).
     /// </summary>
     public event OnBufferFinished BufferFinished;
@@ -139,6 +144,16 @@ public unsafe class AudioSystem : IDisposable
     public AudioResult Stop(ushort channel)
     {
         return mxStop(_system, channel);
+    }
+
+    /// <summary>
+    /// Check if the given channel is playing audio.
+    /// </summary>
+    /// <param name="channel">The channel to check.</param>
+    /// <returns><see langword="true"/>, if the given channel is currently playing audio.</returns>
+    public bool IsPlaying(ushort channel)
+    {
+        return mxIsPlaying(_system, channel);
     }
 
     /// <summary>
