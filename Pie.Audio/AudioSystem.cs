@@ -42,7 +42,7 @@ public unsafe class AudioSystem : IDisposable
     {
         int buffer;
         fixed (void* ptr = data)
-            buffer = mxCreateBuffer(_system, description, ptr, (nuint) (data?.Length ?? 0));
+            buffer = mxCreateBuffer(_system, description, ptr, (nuint) ((data?.Length ?? 0) * sizeof(T)));
 
         return new AudioBuffer(buffer);
     }
@@ -70,7 +70,7 @@ public unsafe class AudioSystem : IDisposable
     public AudioResult UpdateBuffer<T>(AudioBuffer buffer, T[] data) where T : unmanaged
     {
         fixed (void* ptr = data)
-            return mxUpdateBuffer(_system, buffer.Handle, ptr, (nuint) data.Length);
+            return mxUpdateBuffer(_system, buffer.Handle, ptr, (nuint) (data.Length * sizeof(T)));
     }
 
     /// <summary>
