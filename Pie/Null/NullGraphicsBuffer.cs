@@ -9,12 +9,9 @@ internal sealed class NullGraphicsBuffer : GraphicsBuffer
 
     public readonly IntPtr Data;
 
-    private readonly bool owned;
-
-    public NullGraphicsBuffer(IntPtr data, bool owned)
+    public NullGraphicsBuffer(IntPtr data)
     {
         Data = data;
-        this.owned = owned;
     }
 
     public override void Dispose()
@@ -26,11 +23,7 @@ internal sealed class NullGraphicsBuffer : GraphicsBuffer
 
         IsDisposed = true;
 
-        if (owned)
-        {
-            Marshal.FreeHGlobal(Data);
-        }
-
+        Marshal.FreeHGlobal(Data);
         GC.SuppressFinalize(this);
     }
 }

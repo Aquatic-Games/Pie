@@ -42,31 +42,34 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
 
     public unsafe override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
-        var buffer = Marshal.AllocHGlobal(Unsafe.SizeOf<T>() * data.Length);
-        Unsafe.Copy((void*)buffer, ref data[0]);
-        return new NullGraphicsBuffer(buffer, true);
+        fixed (void* ptr = &data[0])
+            return CreateBuffer(bufferType, (uint)(Unsafe.SizeOf<T>() * data.Length), ptr, dynamic);
     }
 
     public unsafe override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
     {
-        var buffer = Marshal.AllocHGlobal(Unsafe.SizeOf<T>());
-        Unsafe.Copy((void*)buffer, ref data);
-        return new NullGraphicsBuffer(buffer, true);
+        return CreateBuffer(bufferType, (uint)Unsafe.SizeOf<T>(), Unsafe.AsPointer(ref data), dynamic);
     }
 
     public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
     {
-        return new NullGraphicsBuffer(Marshal.AllocHGlobal((int)sizeInBytes), true);
+        return new NullGraphicsBuffer(Marshal.AllocHGlobal((int)sizeInBytes));
     }
 
     public unsafe override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
-        return new NullGraphicsBuffer(data, false);
+        return CreateBuffer(bufferType, sizeInBytes, (void*)data, dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
-        return new NullGraphicsBuffer((IntPtr)data, false);
+        var buffer = Marshal.AllocHGlobal((int)sizeInBytes);
+        var src = new Span<byte>(data, (int)sizeInBytes);
+        var dst = new Span<byte>((void*)buffer, (int)sizeInBytes);
+
+        src.CopyTo(dst);
+
+        return new NullGraphicsBuffer(buffer);
     }
 
     public override DepthState CreateDepthState(DepthStateDescription description)
