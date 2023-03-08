@@ -2,7 +2,7 @@ using System;
 
 namespace Pie.Null;
 
-internal class NullSamplerState : SamplerState
+internal sealed class NullSamplerState : SamplerState
 {
     public override bool IsDisposed { get; protected set; }
     public override SamplerStateDescription Description { get; }

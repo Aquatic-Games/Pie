@@ -2,7 +2,7 @@ using System;
 
 namespace Pie.Null;
 
-internal class NullInputLayout : InputLayout
+internal sealed class NullInputLayout : InputLayout
 {
     public override bool IsDisposed { get; protected set; }
     public override InputLayoutDescription[] Descriptions { get; } = Array.Empty<InputLayoutDescription>();

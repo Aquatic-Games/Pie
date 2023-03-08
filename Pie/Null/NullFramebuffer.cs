@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace Pie.Null;
 
-internal class NullFramebuffer : Framebuffer
+internal sealed class NullFramebuffer : Framebuffer
 {
     public override bool IsDisposed { get; protected set; }
     public override Size Size { get; set; }

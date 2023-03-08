@@ -2,7 +2,7 @@ using System;
 
 namespace Pie.Null;
 
-internal class NullBlendState : BlendState
+internal sealed class NullBlendState : BlendState
 {
     public override bool IsDisposed { get; protected set; }
     public override BlendStateDescription Description { get; }

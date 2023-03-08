@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Pie.Null;
 
-internal class NullGraphicsDevice : GraphicsDevice
+internal sealed class NullGraphicsDevice : GraphicsDevice
 {
     public override GraphicsApi Api => GraphicsApi.Null;
 

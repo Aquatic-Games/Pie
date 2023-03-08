@@ -2,7 +2,7 @@ using System;
 
 namespace Pie.Null;
 
-internal class NullDepthState : DepthState
+internal sealed class NullDepthState : DepthState
 {
     public override bool IsDisposed { get; protected set; }
     public override DepthStateDescription Description { get; }

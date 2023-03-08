@@ -2,7 +2,7 @@ using System;
 
 namespace Pie.Null;
 
-internal class NullShader : Shader
+internal sealed class NullShader : Shader
 {
     public override bool IsDisposed { get; protected set; }
 

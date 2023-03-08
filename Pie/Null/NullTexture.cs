@@ -2,7 +2,7 @@ using System;
 
 namespace Pie.Null;
 
-internal class NullTexture : Texture
+internal sealed class NullTexture : Texture
 {
     public override bool IsDisposed { get; protected set; }
     public override TextureDescription Description { get; set; }
