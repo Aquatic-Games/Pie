@@ -20,7 +20,12 @@ public enum GraphicsApi
     /// <summary>
     /// !EXPERIMENTAL! Vulkan
     /// </summary>
-    Vulkan
+    Vulkan,
+
+    /// <summary>
+    /// Null
+    /// </summary>
+    Null
 }
 
 public static class GraphicsApiExtensions
