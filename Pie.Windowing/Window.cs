@@ -263,6 +263,7 @@ public unsafe partial class Window : IDisposable
                 glfw.WindowHint(WindowHintBool.OpenGLForwardCompat, true);
                 break;
             case GraphicsApi.D3D11:
+            case GraphicsApi.Null:
                 glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.NoApi);
                 break;
             default:
@@ -335,6 +336,7 @@ public unsafe partial class Window : IDisposable
                 options),
             GraphicsApi.D3D11 => GraphicsDevice.CreateD3D11(new GlfwNativeWindow(_glfw, _handle).Win32!.Value.Hwnd,
                 _settings.Size, options),
+            GraphicsApi.Null => GraphicsDevice.CreateNull(),
             _ => throw new ArgumentOutOfRangeException(nameof(_api), _api, null)
         };
     }
