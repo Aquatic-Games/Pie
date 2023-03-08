@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Pie.Null;
 
@@ -38,29 +40,33 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
         return new NullBlendState();
     }
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
+    public unsafe override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
-        return new NullGraphicsBuffer();
+        var buffer = Marshal.AllocHGlobal(Unsafe.SizeOf<T>() * data.Length);
+        Unsafe.Copy((void*)buffer, ref data[0]);
+        return new NullGraphicsBuffer(buffer, true);
     }
 
-    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
+    public unsafe override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
     {
-        return new NullGraphicsBuffer();
+        var buffer = Marshal.AllocHGlobal(Unsafe.SizeOf<T>());
+        Unsafe.Copy((void*)buffer, ref data);
+        return new NullGraphicsBuffer(buffer, true);
     }
 
     public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
     {
-        return new NullGraphicsBuffer();
+        return new NullGraphicsBuffer(Marshal.AllocHGlobal((int)sizeInBytes), true);
     }
 
-    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
+    public unsafe override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
-        return new NullGraphicsBuffer();
+        return new NullGraphicsBuffer(data, false);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
-        return new NullGraphicsBuffer();
+        return new NullGraphicsBuffer((IntPtr)data, false);
     }
 
     public override DepthState CreateDepthState(DepthStateDescription description)
@@ -160,7 +166,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
 
     public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
     {
-        return IntPtr.Zero;
+        return ((NullGraphicsBuffer)buffer).Data;
     }
 
     public override void Present(int swapInterval)
