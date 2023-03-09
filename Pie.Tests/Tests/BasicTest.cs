@@ -67,19 +67,19 @@ public class BasicTest : TestBase
     {
         base.Draw(dt);
 
-        GraphicsDevice.Scissor = new Rectangle(Point.Empty, GraphicsDevice.Swapchain.Size);
+        //GraphicsDevice.Scissor = new Rectangle(Point.Empty, GraphicsDevice.Swapchain.Size);
         
         GraphicsDevice.Clear(Color.CornflowerBlue, ClearFlags.Depth | ClearFlags.Stencil);
 
         _totalTime += dt;
 
-        int width = 256;
+        /*int width = 256;
         int height = 512;
         
         int x = (int) Lerp(0, GraphicsDevice.Swapchain.Size.Width - width, (Math.Sin(_totalTime * 1) + 1) * 0.5);
         int y = (int) Lerp(0, GraphicsDevice.Swapchain.Size.Height - height, (Math.Sin(_totalTime * 4) + 1) * 0.5);
 
-        GraphicsDevice.Scissor = new Rectangle(x, y, width, height);
+        GraphicsDevice.Scissor = new Rectangle(x, y, width, height);*/
 
         // TODO: Not setting primitive type in Direct3D (iirc) results in it using points instead.
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);

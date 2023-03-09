@@ -8,5 +8,5 @@ WindowSettings settings = new WindowSettings()
     Border = WindowBorder.Resizable
 };
 
-using TestBase tb = new AudioTest();
+using TestBase tb = new BasicTest();
 tb.Run(settings, GraphicsDevice.GetBestApiForPlatform());

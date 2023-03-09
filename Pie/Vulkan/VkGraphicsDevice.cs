@@ -12,7 +12,7 @@ using static Pie.Vulkan.VkUtils;
 
 namespace Pie.Vulkan;
 
-internal unsafe class VkGraphicsDevice : GraphicsDevice
+internal sealed unsafe class VkGraphicsDevice : GraphicsDevice
 {
     private Vk _vk;
     private Instance _instance;
