@@ -35,7 +35,7 @@ internal sealed class D3D11SamplerState : SamplerState
             AddressW = GetAddressModeFromTextureAddress(description.AddressW),
             MipLODBias = 0,
             MaxAnisotropy = description.MaxAnisotropy,
-            ComparisonFunction = ComparisonFunction.LessEqual,
+            ComparisonFunc = ComparisonFunction.LessEqual,
             BorderColor = new Color4(description.BorderColor.R / 255f, description.BorderColor.G / 255f, description.BorderColor.B / 255f, description.BorderColor.A / 255f),
             MinLOD = description.MinLOD,
             MaxLOD = description.MaxLOD
