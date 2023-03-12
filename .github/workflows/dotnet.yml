@@ -1,24 +1,49 @@
-name: Build Pie
-
+name: Test
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
   pull_request:
-    branches: [ "master" ]
+     branches:
+       - '*'
+     tags-ignore:
+       - '*'
+
+env:
+  PROJECT_NAME: Pie
+  PROJECTS_TESTS_NAME: Pie.Tests
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    name: Test
+    runs-on: ${{matrix.os.runner}}
+    strategy:
+        fail-fast: false
+        matrix:
+           os:
+             - { name: Windows, runner: windows-latest, runtime: win-x64 }
+             - { name: macOS, runner: macos-latest, runtime: osx-x64 }
+             - { name: Linux, runner: ubuntu-latest, runtime: linux-x64 }
+     steps:
+          - name: Checkout
+            uses: actions/checkout@v3
 
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
+          - name: Setup .NET 6.0 LTS
+            uses: actions/setup-dotnet@v3
+            with:
+                dotnet-version: '6.0.x'
+
+          - name: Build Project
+            run: dotnet build -c Debug -v n ${{ env.PROJECT_NAME }} -r ${{ matrix.os.runtime }} --self-contained
+
+          - name: Test Project
+            run: dotnet test -c Debug ${{ env.PROJECTS_TESTS_NAME }} -r ${{ matrix.os.runtime }} --logger "trx;LogFileName=TestsResults-${{ matrix.os.name }}.trx"
+
+          - name: Upload test artifact
+            if: ${{ always() }}
+            uses: actions/upload-artifact@v2
+            with:
+              name: TestResults-${{ matrix.os.name }}
+              path: ${{ env.TEST_PROJECT_NAME }}/TestResults/*.trx
