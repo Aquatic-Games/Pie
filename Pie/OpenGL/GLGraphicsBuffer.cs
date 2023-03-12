@@ -1,17 +1,17 @@
 ﻿using System;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL.GLGraphicsDevice;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
-internal sealed class GLGraphicsBuffer : GraphicsBuffer
+internal sealed class GlGraphicsBuffer : GraphicsBuffer
 {
     public override bool IsDisposed { get; protected set; }
 
     public readonly uint Handle;
     public readonly BufferTargetARB Target;
 
-    public GLGraphicsBuffer(uint handle, BufferTargetARB target)
+    public GlGraphicsBuffer(uint handle, BufferTargetARB target)
     {
         Handle = handle;
         Target = target;
@@ -49,7 +49,7 @@ internal sealed class GLGraphicsBuffer : GraphicsBuffer
         Gl.BindBuffer(target, handle);
         Gl.BufferData(target, sizeInBytes, data, usage);
 
-        return new GLGraphicsBuffer(handle, target);
+        return new GlGraphicsBuffer(handle, target);
     }
 
     public unsafe void Update(uint offsetInBytes, uint sizeInBytes, void* data)

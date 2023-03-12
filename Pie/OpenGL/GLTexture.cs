@@ -1,11 +1,11 @@
 using System;
 using System.Drawing;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL.GLGraphicsDevice;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
-internal sealed class GLTexture : Texture
+internal sealed class GlTexture : Texture
 {
     public uint Handle;
     public bool IsRenderbuffer;
@@ -16,7 +16,7 @@ internal sealed class GLTexture : Texture
     private PixelType _pixelType;
     private bool _compressed;
 
-    public unsafe GLTexture(uint handle, PixelFormat fmt, InternalFormat iFmt, PixelType pixelType, bool compressed, TextureDescription description, bool isRenderbuffer, TextureTarget target)
+    public unsafe GlTexture(uint handle, PixelFormat fmt, InternalFormat iFmt, PixelType pixelType, bool compressed, TextureDescription description, bool isRenderbuffer, TextureTarget target)
     {
         Handle = handle;
         _fmt = fmt;
@@ -464,7 +464,7 @@ internal sealed class GLTexture : Texture
                 Gl.TexParameter(target, TextureParameterName.TextureMaxLevel, description.MipLevels - 1);
         }
 
-        return new GLTexture(handle, fmt, iFmt, type, compressed, description, isRenderbuffer, target);
+        return new GlTexture(handle, fmt, iFmt, type, compressed, description, isRenderbuffer, target);
     }
 
     public override bool IsDisposed { get; protected set; }

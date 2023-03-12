@@ -1,16 +1,16 @@
 using System;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL.GLGraphicsDevice;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
-internal sealed class GLDepthState : DepthState
+internal sealed class GlDepthState : DepthState
 {
     private bool _depthEnabled;
     private bool _depthMask;
     private DepthFunction _depthFunction;
     
-    public GLDepthState(DepthStateDescription description)
+    public GlDepthState(DepthStateDescription description)
     {
         Description = description;
 

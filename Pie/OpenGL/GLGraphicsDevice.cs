@@ -8,9 +8,9 @@ using Silk.NET.OpenGL;
 
 namespace Pie.OpenGL;
 
-internal sealed class GLGraphicsDevice : GraphicsDevice
+internal sealed class GlGraphicsDevice : GraphicsDevice
 {
-    private IGLContext _context;
+    private PieGlContext _context;
     internal static GL Gl;
     internal static bool Debug;
     
@@ -30,10 +30,10 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
     private int _boundTexture = -1;
     private int _bindingSlot = -1;
     
-    public unsafe GLGraphicsDevice(IGLContext context, Size winSize, GraphicsDeviceOptions options)
+    public unsafe GlGraphicsDevice(PieGlContext context, Size winSize, GraphicsDeviceOptions options)
     {
         _context = context;
-        Gl = GL.GetApi(context);
+        Gl = GL.GetApi(context.GetProcFunc);
         _vao = Gl.GenVertexArray();
         Gl.BindVertexArray(_vao);
         Debug = options.Debug;
@@ -129,165 +129,165 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
     public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
         fixed (void* dat = data)
-            return GLGraphicsBuffer.CreateBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), dat, dynamic);
+            return GlGraphicsBuffer.CreateBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), dat, dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
     {
         fixed (void* dat = new T[] { data })
-            return GLGraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
+            return GlGraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
     {
-        return GLGraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, null, dynamic);
+        return GlGraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, null, dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
-        return GLGraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);
+        return GlGraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
-        return GLGraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
+        return GlGraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
     public override unsafe Texture CreateTexture(TextureDescription description)
     {
-        return GLTexture.CreateTexture(description, null);
+        return GlTexture.CreateTexture(description, null);
     }
 
     public override unsafe Texture CreateTexture<T>(TextureDescription description, T[] data)
     {
         fixed (void* ptr = data)
-            return GLTexture.CreateTexture(description, ptr);
+            return GlTexture.CreateTexture(description, ptr);
     }
 
     public override unsafe Texture CreateTexture<T>(TextureDescription description, T[][] data)
     {
         fixed (void* ptr = PieUtils.Combine(data))
-            return GLTexture.CreateTexture(description, ptr);
+            return GlTexture.CreateTexture(description, ptr);
     }
 
     public override unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
     {
-        return GLTexture.CreateTexture(description, data.ToPointer());
+        return GlTexture.CreateTexture(description, data.ToPointer());
     }
 
     public override unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
-        return GLTexture.CreateTexture(description, data);
+        return GlTexture.CreateTexture(description, data);
     }
 
 
     public override Shader CreateShader(params ShaderAttachment[] attachments)
     {
-        return new GLShader(attachments);
+        return new GlShader(attachments);
     }
 
     public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
     {
-        return new GLInputLayout(descriptions);
+        return new GlInputLayout(descriptions);
     }
 
     public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)
     {
-        return new GLRasterizerState(description);
+        return new GlRasterizerState(description);
     }
 
     public override BlendState CreateBlendState(BlendStateDescription description)
     {
-        return new GLBlendState(description);
+        return new GlBlendState(description);
     }
 
     public override DepthState CreateDepthState(DepthStateDescription description)
     {
-        return new GLDepthState(description);
+        return new GlDepthState(description);
     }
 
     public override SamplerState CreateSamplerState(SamplerStateDescription description)
     {
-        return new GLSamplerState(description);
+        return new GlSamplerState(description);
     }
 
     public override Framebuffer CreateFramebuffer(params FramebufferAttachment[] attachments)
     {
-        return new GLFramebuffer(attachments);
+        return new GlFramebuffer(attachments);
     }
 
     public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
         fixed (void* dat = data)
-            ((GLGraphicsBuffer) buffer).Update(offsetInBytes, (uint) (data.Length * Unsafe.SizeOf<T>()), dat);
+            ((GlGraphicsBuffer) buffer).Update(offsetInBytes, (uint) (data.Length * Unsafe.SizeOf<T>()), dat);
     }
 
     public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
     {
         fixed (void* dat = new T[] { data })
-            ((GLGraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
+            ((GlGraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
     }
 
     public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data)
     {
-        ((GLGraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data.ToPointer());
+        ((GlGraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data.ToPointer());
     }
 
     public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data)
     {
-        ((GLGraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data);
+        ((GlGraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data);
     }
 
     public override unsafe void UpdateTexture<T>(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
         int width, int height, int depth, T[] data)
     {
         fixed (void* dat = data)
-            ((GLTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, dat);
+            ((GlTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, dat);
     }
 
     public override unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width,
         int height, int depth, IntPtr data)
     {
-        ((GLTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data.ToPointer());
+        ((GlTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data.ToPointer());
     }
 
     public override unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
         int width, int height, int depth, void* data)
     {
-        ((GLTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data);
+        ((GlTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data);
     }
 
     public override unsafe IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
     {
-        GLGraphicsBuffer glBuf = (GLGraphicsBuffer) buffer;
+        GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
         Gl.BindBuffer(glBuf.Target, glBuf.Handle);
         return (IntPtr) Gl.MapBuffer(glBuf.Target, mode.ToGlMapMode());
     }
 
     public override void UnmapBuffer(GraphicsBuffer buffer)
     {
-        Gl.UnmapBuffer(((GLGraphicsBuffer) buffer).Target);
+        Gl.UnmapBuffer(((GlGraphicsBuffer) buffer).Target);
     }
 
     public override void SetShader(Shader shader)
     {
-        GLShader glShader = (GLShader) shader;
-        if (glShader.Handle == GLShader.BoundHandle)
+        GlShader glShader = (GlShader) shader;
+        if (glShader.Handle == GlShader.BoundHandle)
             return;
         Gl.UseProgram(glShader.Handle);
-        GLShader.BoundHandle = glShader.Handle;
+        GlShader.BoundHandle = glShader.Handle;
     }
 
     public override void SetTexture(uint bindingSlot, Texture texture, SamplerState state)
     {
-        GLTexture glTex = (GLTexture) texture;
+        GlTexture glTex = (GlTexture) texture;
         //if (glTex.Handle == _boundTexture && bindingSlot == _bindingSlot)
         //    return;
         //_boundTexture = (int) glTex.Handle;
         //_bindingSlot = (int) bindingSlot;
         Gl.ActiveTexture(TextureUnit.Texture0 + (int) bindingSlot);
         Gl.BindTexture(glTex.Target, glTex.Handle);
-        Gl.BindSampler(bindingSlot, ((GLSamplerState) state).Handle);
+        Gl.BindSampler(bindingSlot, ((GlSamplerState) state).Handle);
     }
 
     public override void SetRasterizerState(RasterizerState state)
@@ -295,7 +295,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
         if (_currentRState != null && _currentRState.Equals(state))
             return;
         _currentRState = state;
-        ((GLRasterizerState) state).Set();
+        ((GlRasterizerState) state).Set();
     }
 
     public override void SetBlendState(BlendState state)
@@ -303,7 +303,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
         if (_currentBState != null && _currentBState.Equals(state))
             return;
         _currentBState = state;
-        ((GLBlendState) state).Set();
+        ((GlBlendState) state).Set();
     }
 
     public override void SetDepthState(DepthState state)
@@ -311,7 +311,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
         if (_currentDState != null && _currentDState.Equals(state))
             return;
         _currentDState = state;
-        ((GLDepthState) state).Set();
+        ((GlDepthState) state).Set();
     }
 
     public override void SetPrimitiveType(PrimitiveType type)
@@ -337,20 +337,20 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
 
     public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
     {
-        GLGraphicsBuffer glBuf = (GLGraphicsBuffer) buffer;
+        GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
         if (glBuf.Target != BufferTargetARB.ArrayBuffer)
             throw new PieException("Given buffer is not a vertex buffer.");
         Gl.BindBuffer(BufferTargetARB.ArrayBuffer, glBuf.Handle); 
         //if (_currentLayout == null || !_currentLayout.Equals(layout))
         //{
-            ((GLInputLayout) layout).Set(slot, stride);
+            ((GlInputLayout) layout).Set(slot, stride);
         //    _currentLayout = layout;
         //}
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
     {
-        GLGraphicsBuffer glBuf = (GLGraphicsBuffer) buffer;
+        GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
         if (glBuf.Target != BufferTargetARB.ElementArrayBuffer)
             throw new PieException("Given buffer is not an index buffer.");
         Gl.BindBuffer(GLEnum.ElementArrayBuffer, glBuf.Handle);
@@ -373,7 +373,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
     {
         //Gl.UniformBlockBinding(GLShader.BoundHandle, slot, slot);
-        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, bindingSlot, ((GLGraphicsBuffer) buffer).Handle);
+        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, bindingSlot, ((GlGraphicsBuffer) buffer).Handle);
     }
 
     public override unsafe void SetFramebuffer(Framebuffer framebuffer)
@@ -385,7 +385,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
             return;
         }
 
-        GLFramebuffer fb = (GLFramebuffer) framebuffer;
+        GlFramebuffer fb = (GlFramebuffer) framebuffer;
         Gl.BindFramebuffer(FramebufferTarget.Framebuffer, fb.Handle);
     }
 
@@ -431,8 +431,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
 
     public override void Present(int swapInterval)
     {
-        _context.SwapInterval(swapInterval);
-        _context.SwapBuffers();
+        _context.Present(swapInterval);
     }
 
     public override void ResizeSwapchain(Size newSize)
@@ -447,7 +446,7 @@ internal sealed class GLGraphicsDevice : GraphicsDevice
 
     public override void GenerateMipmaps(Texture texture)
     {
-        GLTexture tex = (GLTexture) texture;
+        GlTexture tex = (GlTexture) texture;
         Gl.BindTexture(tex.Target, tex.Handle);
         Gl.GenerateMipmap(tex.Target);
     }

@@ -451,9 +451,9 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="winSize">The size of the window on startup.</param>
     /// <param name="options">The options for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
-    public static GraphicsDevice CreateOpenGL(IGLContext context, Size winSize, GraphicsDeviceOptions options = default)
+    public static GraphicsDevice CreateOpenGL(PieGlContext context, Size winSize, GraphicsDeviceOptions options = default)
     {
-        return new GLGraphicsDevice(context, winSize, options);
+        return new GlGraphicsDevice(context, winSize, options);
     }
 
     /// <summary>

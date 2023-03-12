@@ -4,11 +4,11 @@ using System.Numerics;
 using System.Text;
 using Pie.ShaderCompiler;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL.GLGraphicsDevice;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
-internal sealed class GLShader : Shader
+internal sealed class GlShader : Shader
 {
     public override bool IsDisposed { get; protected set; }
 
@@ -17,7 +17,7 @@ internal sealed class GLShader : Shader
     // TODO: WTF??
     public static uint BoundHandle;
 
-    public unsafe GLShader(ShaderAttachment[] attachments)
+    public unsafe GlShader(ShaderAttachment[] attachments)
     {
         // TODO: Improve this so it doesn't use the temporary handle.
         Handle = Gl.CreateProgram();

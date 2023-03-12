@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using Pie.OpenGL;
+using Silk.NET.Core.Contexts;
 using Silk.NET.Windowing;
 
 namespace Pie.Extensions.SilkWindowing;
@@ -44,7 +46,13 @@ public static class SilkPie
         switch (api)
         {
             case GraphicsApi.OpenGL:
-                return GraphicsDevice.CreateOpenGL(window.GLContext, winSize, options);
+                IGLContext glContext = window.GLContext;
+                PieGlContext context = new PieGlContext(s => glContext.GetProcAddress(s), i =>
+                {
+                    glContext.SwapInterval(i);
+                    glContext.SwapBuffers();
+                });
+                return GraphicsDevice.CreateOpenGL(context, winSize, options);
             case GraphicsApi.D3D11:
                 return GraphicsDevice.CreateD3D11(window.Native!.Win32!.Value.Hwnd, winSize, options);
             default:

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using Pie.OpenGL;
 using Silk.NET.Core.Native;
 using Silk.NET.GLFW;
 using Silk.NET.Vulkan;
@@ -330,15 +331,26 @@ public unsafe partial class Window : IDisposable
     public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions options = default)
     {
         _glfw.MakeContextCurrent(_handle);
-        return _api switch
+        switch (_api)
         {
-            GraphicsApi.OpenGL => GraphicsDevice.CreateOpenGL(new GlfwContext(_glfw, _handle), _settings.Size,
-                options),
-            GraphicsApi.D3D11 => GraphicsDevice.CreateD3D11(new GlfwNativeWindow(_glfw, _handle).Win32!.Value.Hwnd,
-                _settings.Size, options),
-            GraphicsApi.Null => GraphicsDevice.CreateNull(),
-            _ => throw new ArgumentOutOfRangeException(nameof(_api), _api, null)
-        };
+            case GraphicsApi.OpenGL:
+                PieGlContext context = new PieGlContext(s => _glfw.GetProcAddress(s), i =>
+                {
+                    _glfw.SwapInterval(i);
+                    _glfw.SwapBuffers(_handle);
+                });
+
+                return GraphicsDevice.CreateOpenGL(context, _settings.Size, options);
+            case GraphicsApi.D3D11:
+                return GraphicsDevice.CreateD3D11(new GlfwNativeWindow(_glfw, _handle).Win32!.Value.Hwnd,
+                    _settings.Size, options);
+            case GraphicsApi.Vulkan:
+                throw new NotImplementedException("VK is not at a ready state.");
+            case GraphicsApi.Null:
+                return GraphicsDevice.CreateNull();
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     public static Window CreateWindow(WindowSettings settings)

@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Drawing;
 using Silk.NET.OpenGL;
-using static Pie.OpenGL.GLGraphicsDevice;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
-internal class GLFramebuffer : Framebuffer
+internal class GlFramebuffer : Framebuffer
 {
     public uint Handle;
 
     // TODO: More options in FramebufferAttachment for both GL and D3D11.
-    public unsafe GLFramebuffer(FramebufferAttachment[] attachments)
+    public unsafe GlFramebuffer(FramebufferAttachment[] attachments)
     {
         Handle = Gl.GenFramebuffer();
         Gl.BindFramebuffer(FramebufferTarget.Framebuffer, Handle);
@@ -37,7 +37,7 @@ internal class GLFramebuffer : Framebuffer
                     break;
             }
             
-            GLTexture tex = (GLTexture) attachment.Texture;
+            GlTexture tex = (GlTexture) attachment.Texture;
             if (tex.IsRenderbuffer)
             {
                 Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, glAttachment, RenderbufferTarget.Renderbuffer,
