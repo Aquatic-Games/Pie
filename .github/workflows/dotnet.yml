@@ -26,7 +26,7 @@ jobs:
              - { name: Windows, runner: windows-latest, runtime: win-x64 }
              - { name: macOS, runner: macos-latest, runtime: osx-x64 }
              - { name: Linux, runner: ubuntu-latest, runtime: linux-x64 }
-     steps:
+    steps:
           - name: Checkout
             uses: actions/checkout@v3
 
@@ -46,4 +46,4 @@ jobs:
             uses: actions/upload-artifact@v2
             with:
               name: TestResults-${{ matrix.os.name }}
-              path: ${{ env.TEST_PROJECT_NAME }}/TestResults/*.trx
+              path: ${{ env.PROJECTS_TESTS_NAME }}/TestResults/*.trx
