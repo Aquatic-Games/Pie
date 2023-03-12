@@ -27,5 +27,10 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
+    
+    <ItemGroup>
+      <ClCompile Include="Content\Shaders\Basic_pixl.hlsl" />
+      <ClCompile Include="Content\Shaders\Basic_vert.hlsl" />
+    </ItemGroup>
 
 </Project>

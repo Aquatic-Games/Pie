@@ -38,17 +38,17 @@ public class BasicTest : TestBase
             1, 2, 3
         };
 
-        //string vertexShader = File.ReadAllText("Content/Shaders/Basic.vert");
-        //string fragmentShader = File.ReadAllText("Content/Shaders/Basic.frag");
+        string vertexShader = File.ReadAllText("Content/Shaders/Basic_vert.hlsl");
+        string fragmentShader = File.ReadAllText("Content/Shaders/Basic_pixl.hlsl");
 
-        byte[] vertexShader = File.ReadAllBytes("Content/Shaders/Basic_vert.spv");
-        byte[] fragmentShader = File.ReadAllBytes("Content/Shaders/Basic_frag.spv");
+        //byte[] vertexShader = File.ReadAllBytes("Content/Shaders/Basic_vert.spv");
+        //byte[] fragmentShader = File.ReadAllBytes("Content/Shaders/Basic_frag.spv");
         
         _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, vertices);
         _indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, indices);
 
-        _shader = GraphicsDevice.CreateShader(new ShaderAttachment(ShaderStage.Vertex, vertexShader),
-            new ShaderAttachment(ShaderStage.Fragment, fragmentShader));
+        _shader = GraphicsDevice.CreateShader(new ShaderAttachment(ShaderStage.Vertex, vertexShader, Language.HLSL),
+            new ShaderAttachment(ShaderStage.Fragment, fragmentShader, Language.HLSL));
 
         _layout = GraphicsDevice.CreateInputLayout(
             new InputLayoutDescription("aPosition", Format.R32G32B32_Float, 0, 0, InputType.PerVertex),

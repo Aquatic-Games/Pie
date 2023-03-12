@@ -37,11 +37,13 @@ public struct ShaderAttachment
     /// </summary>
     /// <param name="stage">The stage of this shader attachment.</param>
     /// <param name="source">The source code of this shader attachment.</param>
-    public ShaderAttachment(ShaderStage stage, string source)
+    /// <param name="language">The shading language to use.</param>
+    /// <param name="entryPoint">The entry point function name.</param>
+    public ShaderAttachment(ShaderStage stage, string source, Language language = Language.GLSL, string entryPoint = "main")
     {
         Stage = stage;
-        
-        CompilerResult result = Compiler.ToSpirv((Stage) stage, Language.GLSL, Encoding.UTF8.GetBytes(source), "main");
+
+        CompilerResult result = Compiler.ToSpirv((Stage) stage, language, Encoding.UTF8.GetBytes(source), entryPoint);
         if (!result.IsSuccess)
             throw new PieException(result.Error);
         
