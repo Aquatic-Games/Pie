@@ -21,7 +21,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     private InputLayout _currentLayout;
     private RasterizerState _currentRState;
     private BlendState _currentBState;
-    private DepthState _currentDState;
+    private DepthStencilState _currentDStencilState;
     private Silk.NET.OpenGL.PrimitiveType _glType;
     private PrimitiveType _currentPType;
     private DrawElementsType _currentEType;
@@ -201,9 +201,9 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         return new GlBlendState(description);
     }
 
-    public override DepthState CreateDepthState(DepthStateDescription description)
+    public override DepthStencilState CreateDepthState(DepthStencilStateDescription description)
     {
-        return new GlDepthState(description);
+        return new GlDepthStencilState(description);
     }
 
     public override SamplerState CreateSamplerState(SamplerStateDescription description)
@@ -306,12 +306,12 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         ((GlBlendState) state).Set();
     }
 
-    public override void SetDepthState(DepthState state)
+    public override void SetDepthStencilState(DepthStencilState state, int stencilRef)
     {
-        if (_currentDState != null && _currentDState.Equals(state))
+        if (_currentDStencilState != null && _currentDStencilState.Equals(state))
             return;
-        _currentDState = state;
-        ((GlDepthState) state).Set();
+        _currentDStencilState = state;
+        ((GlDepthStencilState) state).Set(stencilRef);
     }
 
     public override void SetPrimitiveType(PrimitiveType type)

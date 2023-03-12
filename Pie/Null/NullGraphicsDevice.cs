@@ -69,9 +69,9 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
         return new NullGraphicsBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
-    public override DepthState CreateDepthState(DepthStateDescription description)
+    public override DepthStencilState CreateDepthState(DepthStencilStateDescription description)
     {
-        return new NullDepthState();
+        return new NullDepthStencilState();
     }
 
     public override Framebuffer CreateFramebuffer(params FramebufferAttachment[] attachments)
@@ -184,7 +184,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override void SetDepthState(DepthState state)
+    public override void SetDepthStencilState(DepthStencilState state, int stencilRef)
     {
     }
 

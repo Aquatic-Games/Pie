@@ -117,7 +117,7 @@ internal sealed unsafe class VkGraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
-    public override DepthState CreateDepthState(DepthStateDescription description)
+    public override DepthStencilState CreateDepthState(DepthStencilStateDescription description)
     {
         throw new NotImplementedException();
     }
@@ -200,7 +200,7 @@ internal sealed unsafe class VkGraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
-    public override void SetDepthState(DepthState state)
+    public override void SetDepthStencilState(DepthStencilState state, int stencilRef)
     {
         throw new NotImplementedException();
     }

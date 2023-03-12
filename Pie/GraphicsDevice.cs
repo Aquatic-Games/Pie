@@ -185,7 +185,7 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="description">The depth state description to create from.</param>
     /// <returns>The created depth state.</returns>
-    public abstract DepthState CreateDepthState(DepthStateDescription description);
+    public abstract DepthStencilState CreateDepthState(DepthStencilStateDescription description);
 
     /// <summary>
     /// Create a new sampler state from the sampler state description.
@@ -327,10 +327,11 @@ public abstract class GraphicsDevice : IDisposable
     public abstract void SetBlendState(BlendState state);
 
     /// <summary>
-    /// Set the depth state that will be used on next draw.
+    /// Set the depth-stencil state that will be used on next draw.
     /// </summary>
-    /// <param name="state">The depth state to use.</param>
-    public abstract void SetDepthState(DepthState state);
+    /// <param name="state">The depth-stencil state to use.</param>
+    /// <param name="stencilRef">The reference value to perform against when performing a stencil test.</param>
+    public abstract void SetDepthStencilState(DepthStencilState state, int stencilRef = 0);
 
     /// <summary>
     /// Set the primitive type that will be used on next draw.

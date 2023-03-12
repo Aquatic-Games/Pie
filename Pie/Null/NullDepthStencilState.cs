@@ -2,10 +2,10 @@ using System;
 
 namespace Pie.Null;
 
-internal sealed class NullDepthState : DepthState
+internal sealed class NullDepthStencilState : DepthStencilState
 {
     public override bool IsDisposed { get; protected set; }
-    public override DepthStateDescription Description { get; }
+    public override DepthStencilStateDescription Description { get; }
 
     public override void Dispose()
     {

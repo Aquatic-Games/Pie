@@ -29,7 +29,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     private InputLayout _currentLayout;
     private RasterizerState _currentRState;
     private BlendState _currentBState;
-    private DepthState _currentDState;
+    private DepthStencilState _currentDStencilState;
     private PrimitiveType _currentPType;
     private bool _primitiveTypeInitialized;
 
@@ -157,7 +157,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         _currentLayout = null;
         _currentRState = null;
         _currentBState = null;
-        _currentDState = null;
+        _currentDStencilState = null;
     }
 
     public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
@@ -234,9 +234,9 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11BlendState(description);
     }
 
-    public override DepthState CreateDepthState(DepthStateDescription description)
+    public override DepthStencilState CreateDepthState(DepthStencilStateDescription description)
     {
-        return new D3D11DepthState(description);
+        return new D3D11DepthStencilState(description);
     }
 
     public override SamplerState CreateSamplerState(SamplerStateDescription description)
@@ -330,12 +330,12 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         Context.OMSetBlendState(((D3D11BlendState) state).State);
     }
 
-    public override void SetDepthState(DepthState state)
+    public override void SetDepthStencilState(DepthStencilState state, int stencilRef)
     {
-        //if (state == _currentDState)
+        //if (state == _currentDStencilState)
         //    return;
-        _currentDState = state;
-        Context.OMSetDepthStencilState(((D3D11DepthState) state).State);
+        _currentDStencilState = state;
+        Context.OMSetDepthStencilState(((D3D11DepthStencilState) state).State, stencilRef);
     }
 
     public override void SetPrimitiveType(PrimitiveType type)
