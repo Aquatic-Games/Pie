@@ -51,8 +51,8 @@ public class BasicTest : TestBase
             new ShaderAttachment(ShaderStage.Fragment, fragmentShader, Language.HLSL));
 
         _layout = GraphicsDevice.CreateInputLayout(
-            new InputLayoutDescription("aPosition", Format.R32G32B32_Float, 0, 0, InputType.PerVertex),
-            new InputLayoutDescription("aColor", Format.R32G32B32A32_Float, 12, 0, InputType.PerVertex)
+            new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex),
+            new InputLayoutDescription(Format.R32G32B32A32_Float, 12, 0, InputType.PerVertex)
         );
 
         _rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone with { ScissorTest = true });

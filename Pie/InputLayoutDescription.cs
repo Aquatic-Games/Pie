@@ -8,11 +8,6 @@ namespace Pie;
 public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
 {
     /// <summary>
-    /// The name of this attribute.
-    /// </summary>
-    public readonly string Name;
-    
-    /// <summary>
     /// The format of this attribute.
     /// </summary>
     public readonly Format Format;
@@ -35,14 +30,12 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
     /// <summary>
     /// Create a new input layout description for use with an <see cref="InputLayout"/>.
     /// </summary>
-    /// <param name="name">The name of this attribute.</param>
     /// <param name="format">The format of this attribute.</param>
     /// <param name="offset">The offset, in bytes, of this attribute.</param>
     /// <param name="slot">The vertex buffer slot of this attribute.</param>
     /// <param name="inputType">The input type of this attribute.</param>
-    public InputLayoutDescription(string name, Format format, uint offset, uint slot, InputType inputType)
+    public InputLayoutDescription(Format format, uint offset, uint slot, InputType inputType)
     {
-        Name = name;
         Format = format;
         Offset = offset;
         Slot = slot;
@@ -51,7 +44,7 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
 
     public bool Equals(InputLayoutDescription other)
     {
-        return Name == other.Name && Format == other.Format;
+        return Format == other.Format && Offset == other.Offset && Slot == other.Slot && InputType == other.InputType;
     }
 
     public override bool Equals(object obj)
@@ -61,6 +54,16 @@ public struct InputLayoutDescription : IEquatable<InputLayoutDescription>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Name, (int) Format);
+        return HashCode.Combine((int) Format, Offset, Slot, (int) InputType);
+    }
+
+    public static bool operator ==(InputLayoutDescription left, InputLayoutDescription right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(InputLayoutDescription left, InputLayoutDescription right)
+    {
+        return !left.Equals(right);
     }
 }
