@@ -37,7 +37,7 @@ public abstract class TestBase : IDisposable
             
             sw.Restart();
             
-            GraphicsDevice.Present(0);
+            GraphicsDevice.Present(1);
         }
     }
 

@@ -347,7 +347,7 @@ public unsafe partial class Window : IDisposable
             case GraphicsApi.Vulkan:
                 throw new NotImplementedException("VK is not at a ready state.");
             case GraphicsApi.Null:
-                return GraphicsDevice.CreateNull();
+                return GraphicsDevice.CreateNull(_settings.Size);
             default:
                 throw new ArgumentOutOfRangeException();
         }

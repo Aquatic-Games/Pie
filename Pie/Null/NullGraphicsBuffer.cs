@@ -1,29 +1,30 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Pie.Null;
 
-internal sealed class NullGraphicsBuffer : GraphicsBuffer
+internal sealed unsafe class NullGraphicsBuffer : GraphicsBuffer
 {
     public override bool IsDisposed { get; protected set; }
 
-    public readonly IntPtr Data;
+    public void* Data;
+    private BufferType _type;
 
-    public NullGraphicsBuffer(IntPtr data)
+    public NullGraphicsBuffer(BufferType type, uint sizeInBytes, void* data, bool dynamic)
     {
-        Data = data;
+        Data = NativeMemory.Alloc(sizeInBytes);
+        Unsafe.CopyBlock(Data, data, sizeInBytes);
+
+        _type = type;
     }
 
     public override void Dispose()
     {
         if (IsDisposed)
-        {
             return;
-        }
-
         IsDisposed = true;
 
-        Marshal.FreeHGlobal(Data);
-        GC.SuppressFinalize(this);
+        NativeMemory.Free(Data);
     }
 }

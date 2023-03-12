@@ -17,9 +17,12 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     public override Rectangle Viewport { get; set; }
     public override Rectangle Scissor { get; set; }
 
-    public NullGraphicsDevice()
+    public NullGraphicsDevice(Size winSize)
     {
-        Swapchain = new Swapchain();
+        Swapchain = new Swapchain()
+        {
+            Size = winSize
+        };
         Adapter = new GraphicsAdapter("Null");
     }
 
@@ -40,36 +43,30 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
         return new NullBlendState();
     }
 
-    public unsafe override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
-        fixed (void* ptr = &data[0])
-            return CreateBuffer(bufferType, (uint)(Unsafe.SizeOf<T>() * data.Length), ptr, dynamic);
+        fixed (void* ptr = data)
+            return new NullGraphicsBuffer(bufferType, (uint)(Unsafe.SizeOf<T>() * data.Length), ptr, dynamic);
     }
 
-    public unsafe override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
     {
-        return CreateBuffer(bufferType, (uint)Unsafe.SizeOf<T>(), Unsafe.AsPointer(ref data), dynamic);
+        return new NullGraphicsBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), Unsafe.AsPointer(ref data), dynamic);
     }
 
-    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
     {
-        return new NullGraphicsBuffer(Marshal.AllocHGlobal((int)sizeInBytes));
+        return new NullGraphicsBuffer(bufferType, sizeInBytes, null, dynamic);
     }
 
-    public unsafe override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
+    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
-        return CreateBuffer(bufferType, sizeInBytes, (void*)data, dynamic);
+        return new NullGraphicsBuffer(bufferType, sizeInBytes, (void*) data, dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
-        var buffer = Marshal.AllocHGlobal((int)sizeInBytes);
-        var src = new Span<byte>(data, (int)sizeInBytes);
-        var dst = new Span<byte>((void*)buffer, (int)sizeInBytes);
-
-        src.CopyTo(dst);
-
-        return new NullGraphicsBuffer(buffer);
+        return new NullGraphicsBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
     public override DepthState CreateDepthState(DepthStateDescription description)
@@ -102,29 +99,31 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
         return new NullShader();
     }
 
-    public override Texture CreateTexture(TextureDescription description)
+    public override unsafe Texture CreateTexture(TextureDescription description)
     {
-        return new NullTexture();
+        return new NullTexture(description, null);
     }
 
-    public override Texture CreateTexture<T>(TextureDescription description, T[] data)
+    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[] data)
     {
-        return new NullTexture();
+        fixed (void* ptr = data)
+            return new NullTexture(description, ptr);
     }
 
-    public override Texture CreateTexture<T>(TextureDescription description, T[][] data)
+    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[][] data)
     {
-        return new NullTexture();
+        fixed (void* ptr = PieUtils.Combine(data))
+            return new NullTexture(description, ptr);
     }
 
-    public override Texture CreateTexture(TextureDescription description, IntPtr data)
+    public override unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
     {
-        return new NullTexture();
+        return new NullTexture(description, (void*) data);
     }
 
     public override unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
-        return new NullTexture();
+        return new NullTexture(description, data);
     }
 
     public override void Dispatch(uint groupCountX, uint groupCountY, uint groupCountZ)
@@ -167,9 +166,9 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
+    public override unsafe IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
     {
-        return ((NullGraphicsBuffer)buffer).Data;
+        return (IntPtr) ((NullGraphicsBuffer) buffer).Data;
     }
 
     public override void Present(int swapInterval)
@@ -178,6 +177,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
 
     public override void ResizeSwapchain(Size newSize)
     {
+        Swapchain.Size = newSize;
     }
 
     public override void SetBlendState(BlendState state)

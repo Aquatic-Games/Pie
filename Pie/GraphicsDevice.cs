@@ -476,10 +476,11 @@ public abstract class GraphicsDevice : IDisposable
     /// <summary>
     /// Create a null graphics device.
     /// </summary>
+    /// <param name="winSize">The initial window size. (Use 0x0 if you're not using a window).</param>
     /// <returns>The created graphics device.</returns>
-    public static GraphicsDevice CreateNull()
+    public static GraphicsDevice CreateNull(Size winSize)
     {
-        return new NullGraphicsDevice();
+        return new NullGraphicsDevice(winSize);
     }
 
     /// <summary>
