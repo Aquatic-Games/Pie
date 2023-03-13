@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Pie.Text;
+namespace Pie.Text.Native;
 
 [StructLayout(LayoutKind.Sequential)]
 public unsafe struct FT_ListNode
