@@ -38,6 +38,8 @@ public static class Compiler
         };
 
         shaderc_compile_options_set_source_language(options, sourceLanguage);
+        
+        shaderc_compile_options_set_auto_combined_image_sampler(options, 1);
 
         shaderc_shader_kind kind = stage switch
         {
