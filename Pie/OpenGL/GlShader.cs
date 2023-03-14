@@ -17,7 +17,7 @@ internal sealed class GlShader : Shader
     // TODO: WTF??
     public static uint BoundHandle;
 
-    public unsafe GlShader(ShaderAttachment[] attachments)
+    public unsafe GlShader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
         // TODO: Improve this so it doesn't use the temporary handle.
         Handle = Gl.CreateProgram();
@@ -35,11 +35,12 @@ internal sealed class GlShader : Shader
             uint handle = Gl.CreateShader(type);
             attachments[i].TempHandle = handle;
             
-            CompilerResult result = Compiler.FromSpirv(Language.GLSL, attachments[i].Spirv);
+            CompilerResult result = Compiler.FromSpirv(Language.GLSL, attachments[i].Spirv, constants);
             if (!result.IsSuccess)
                 throw new PieException(result.Error);
             
             byte[] source = result.Result;
+            Console.WriteLine(Encoding.UTF8.GetString(source));
             fixed (byte* src = source)
                 Gl.ShaderSource(handle, 1, src, source.Length);
             

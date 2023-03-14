@@ -16,14 +16,14 @@ internal sealed class D3D11Shader : Shader
 
     private Dictionary<ShaderStage, ID3D11DeviceChild> _shaders;
 
-    public D3D11Shader(ShaderAttachment[] attachments)
+    public D3D11Shader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
         _shaders = new Dictionary<ShaderStage, ID3D11DeviceChild>();
         for (int i = 0; i < attachments.Length; i++)
         {
             ref ShaderAttachment attachment = ref attachments[i];
             
-            CompilerResult result = ShaderCompiler.Compiler.FromSpirv(Language.HLSL, attachment.Spirv);
+            CompilerResult result = ShaderCompiler.Compiler.FromSpirv(Language.HLSL, attachment.Spirv, constants);
             if (!result.IsSuccess)
                 throw new PieException(result.Error);
         

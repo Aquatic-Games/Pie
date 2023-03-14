@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using Pie.ShaderCompiler;
 using Silk.NET.Core.Native;
 using Silk.NET.Vulkan;
 using Silk.NET.Vulkan.Extensions.EXT;
@@ -97,7 +98,7 @@ internal sealed unsafe class VkGraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
-    public override Shader CreateShader(params ShaderAttachment[] attachments)
+    public override Shader CreateShader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
         throw new NotImplementedException();
     }

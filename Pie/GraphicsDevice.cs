@@ -4,6 +4,7 @@ using System.Numerics;
 using Pie.Direct3D11;
 using Pie.Null;
 using Pie.OpenGL;
+using Pie.ShaderCompiler;
 using Pie.Vulkan;
 using Silk.NET.Core.Contexts;
 using Silk.NET.Vulkan;
@@ -156,8 +157,9 @@ public abstract class GraphicsDevice : IDisposable
     /// Create a shader with the given shader attachments.
     /// </summary>
     /// <param name="attachments">The attachments for this shader.</param>
+    /// <param name="constants">Any specialization constants to use in this shader.</param>
     /// <returns>The created shader.</returns>
-    public abstract Shader CreateShader(params ShaderAttachment[] attachments);
+    public abstract Shader CreateShader(ShaderAttachment[] attachments, SpecializationConstant[] constants = null);
 
     /// <summary>
     /// Create an input layout which can be used with a vertex buffer.

@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Pie.ShaderCompiler;
 using SharpGen.Runtime;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
@@ -214,9 +215,9 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return D3D11Texture.CreateTexture(description, data);
     }
 
-    public override Shader CreateShader(params ShaderAttachment[] attachments)
+    public override Shader CreateShader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
-        return new D3D11Shader(attachments);
+        return new D3D11Shader(attachments, constants);
     }
 
     public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)

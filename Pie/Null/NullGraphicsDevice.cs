@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Pie.ShaderCompiler;
 
 namespace Pie.Null;
 
@@ -94,7 +95,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
         return new NullSamplerState();
     }
 
-    public override Shader CreateShader(params ShaderAttachment[] attachments)
+    public override Shader CreateShader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
         return new NullShader();
     }

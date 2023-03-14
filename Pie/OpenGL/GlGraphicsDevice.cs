@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Pie.ShaderCompiler;
 using Silk.NET.Core.Contexts;
 using Silk.NET.OpenGL;
 
@@ -181,9 +182,9 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     }
 
 
-    public override Shader CreateShader(params ShaderAttachment[] attachments)
+    public override Shader CreateShader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
-        return new GlShader(attachments);
+        return new GlShader(attachments, constants);
     }
 
     public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)

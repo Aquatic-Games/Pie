@@ -79,7 +79,7 @@ public static class Compiler
         
         ReflectionInfo? info = null;
         if (reflect)
-            info = ReflectionInfo.FromJson(Encoding.UTF8.GetString(SpirvToShaderCode(spvc_backend.SPVC_BACKEND_JSON, (byte*) bytes, length).Result), stage);
+            info = ReflectionInfo.FromJson(Encoding.UTF8.GetString(SpirvToShaderCode(spvc_backend.SPVC_BACKEND_JSON, (byte*) bytes, length, null).Result), stage);
         
         shaderc_result_release(result);
         shaderc_compiler_release(compiler);
@@ -97,7 +97,7 @@ public static class Compiler
         return Marshal.PtrToStringAnsi((IntPtr) text);
     }
 
-    private static unsafe CompilerResult SpirvToShaderCode(spvc_backend backend, byte* result, nuint length)
+    private static unsafe CompilerResult SpirvToShaderCode(spvc_backend backend, byte* result, nuint length, SpecializationConstant[] constants)
     {
         spvc_context* context;
         spvc_context_create(&context);
@@ -136,6 +136,55 @@ public static class Compiler
         }
         spvc_compiler_install_compiler_options(compl, options);
 
+        if (constants != null)
+        {
+            nuint numConstants;
+            spvc_specialization_constant* sConstants;
+            spvc_compiler_get_specialization_constants(compl, &sConstants, &numConstants);
+
+            for (int i = 0; i < constants.Length; i++)
+            {
+                ref SpecializationConstant constant = ref constants[i];
+
+                for (int c = 0; c < (int) numConstants; c++)
+                {
+                    if (sConstants[c].constant_id == constant.ID)
+                    {
+                        spvc_constant* sConst = spvc_compiler_get_constant_handle(compl, sConstants[c].id);
+                        const int offset = 4;
+
+                        ulong value = constant.Value;
+
+                        switch (constant.Type)
+                        {
+                            case ConstantType.U32:
+                                *((uint*) sConst + offset) = *(uint*) &value;
+                                break;
+                            case ConstantType.I32:
+                                *((int*) sConst + offset) = *(int*) &value;
+                                break;
+                            case ConstantType.F32:
+                                *((float*) sConst + offset) = *(float*) &value;
+                                break;
+                            case ConstantType.U64:
+                                *((ulong*) sConst + offset) = value;
+                                break;
+                            case ConstantType.I64:
+                                *((long*) sConst + offset) = *(long*) &value;
+                                break;
+                            case ConstantType.F64:
+                                *((double*) sConst + offset) = *(double*) &value;
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                        
+                        Console.WriteLine(*(float*) &value);
+                    }
+                }
+            }
+        }
+
         sbyte* compiledResult;
         spirvResult = spvc_compiler_compile(compl, &compiledResult);
 
@@ -162,7 +211,7 @@ public static class Compiler
     /// <param name="spirv">The Spir-V bytecode to transpile.</param>
     /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
-    public static unsafe CompilerResult FromSpirv(Language language, byte[] spirv)
+    public static unsafe CompilerResult FromSpirv(Language language, byte[] spirv, SpecializationConstant[] constants)
     {
         CompilerResult result;
 
@@ -174,7 +223,7 @@ public static class Compiler
         };
 
         fixed (byte* sPtr = spirv)
-            result = SpirvToShaderCode(backend, sPtr, (nuint) spirv.Length);
+            result = SpirvToShaderCode(backend, sPtr, (nuint) spirv.Length, constants);
 
         return result;
     }
