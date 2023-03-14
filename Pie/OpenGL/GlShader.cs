@@ -40,7 +40,6 @@ internal sealed class GlShader : Shader
                 throw new PieException(result.Error);
             
             byte[] source = result.Result;
-            Console.WriteLine(Encoding.UTF8.GetString(source));
             fixed (byte* src = source)
                 Gl.ShaderSource(handle, 1, src, source.Length);
             

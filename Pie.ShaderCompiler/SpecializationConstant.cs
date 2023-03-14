@@ -47,4 +47,9 @@ public struct SpecializationConstant
         Type = ConstantType.F64;
         Value = *(ulong*) &value;
     }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(ID, Type, Value);
+    }
 }
