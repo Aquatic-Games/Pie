@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using Pie.ShaderCompiler;
 using SharpGen.Runtime;
 using Vortice.Direct3D;

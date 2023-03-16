@@ -178,11 +178,30 @@ public static class Compiler
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
-                        
-                        Console.WriteLine(*(float*) &value);
                     }
                 }
             }
+        }
+
+        spvc_compiler_build_combined_image_samplers(compl);
+
+        nuint numSamplers;
+        spvc_combined_image_sampler* samplers;
+        spvc_compiler_get_combined_image_samplers(compl, &samplers, &numSamplers);
+
+        // build_combined_image_samplers removes the binding from the combined sampler. Fortunately, it does retain
+        // the binding in the image id and the sampler id. And fortunately fortunately, it allows us to set the
+        // binding value of the combined sampler, which is what we do here.
+        
+        for (int i = 0; i < (int) numSamplers; i++)
+        {
+            // HLSL requires that for combined samplers to work, the Texture2D and SamplerState must be at the same
+            // register index. Therefore, either index will work here. I just use the image id.
+            uint decoration =
+                spvc_compiler_get_decoration(compl, samplers[i].image_id.Value, SpvDecoration.SpvDecorationBinding);
+
+            spvc_compiler_set_decoration(compl, samplers[i].combined_id.Value, SpvDecoration.SpvDecorationBinding,
+                decoration);
         }
 
         sbyte* compiledResult;
@@ -198,9 +217,8 @@ public static class Compiler
         
         byte[] compiled = Encoding.UTF8.GetBytes(ConvertToString(compiledResult));
         
-        // TODO: Free compiled result??
         spvc_context_destroy(context);
-        
+
         return new CompilerResult(compiled, true, string.Empty, null);
     }
 
