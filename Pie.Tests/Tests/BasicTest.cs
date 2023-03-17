@@ -47,15 +47,19 @@ public class BasicTest : TestBase
         _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, vertices);
         _indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, indices);
 
-        _shader = GraphicsDevice.CreateShader(new ShaderAttachment(ShaderStage.Vertex, vertexShader, Language.HLSL),
-            new ShaderAttachment(ShaderStage.Fragment, fragmentShader, Language.HLSL));
+        _shader = GraphicsDevice.CreateShader(new[]
+        {
+            new ShaderAttachment(ShaderStage.Vertex, vertexShader, Language.HLSL),
+            new ShaderAttachment(ShaderStage.Fragment, fragmentShader, Language.HLSL)
+        }, new []{ new SpecializationConstant(0, 5f) });
 
         _layout = GraphicsDevice.CreateInputLayout(
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex),
             new InputLayoutDescription(Format.R32G32B32A32_Float, 12, 0, InputType.PerVertex)
         );
 
-        _rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone with { ScissorTest = true });
+        // TODO: Enabling scissor, but without setting a rectangle on Direct3D results in a scissor rectangle of 0x0.
+        _rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone with { ScissorTest = false });
         
         // TODO: Not setting a depth state results in the depth pass always failing in Direct3D.
         _depthStencilState = GraphicsDevice.CreateDepthState(DepthStencilStateDescription.LessEqual);

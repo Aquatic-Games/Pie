@@ -1,3 +1,6 @@
 [submodule "mixr"]
 	path = mixr
 	url = https://github.com/piegfx/mixr
+[submodule "Spirzza"]
+	path = Spirzza
+	url = https://github.com/piegfx/Spirzza

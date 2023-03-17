@@ -247,33 +247,4 @@ public static class Compiler
 
         return result;
     }
-
-    private const string name = "spv-cross-temp";
-    
-    [DllImport(name)]
-    private static extern unsafe void spvc_constant_set_scalar_fp16(spvc_constant* constant, uint row, uint column, Half value);
-    
-    [DllImport(name)]
-    private static extern unsafe void spvc_constant_set_scalar_fp32(spvc_constant* constant, uint row, uint column, float value);
-    
-    [DllImport(name)]
-    private static extern unsafe void spvc_constant_set_scalar_fp64(spvc_constant* constant, uint row, uint column, double value);
-    
-    [DllImport(name)]
-    private static extern unsafe void spvc_constant_set_scalar_u32(spvc_constant* constant, uint row, uint column, uint value);
-    
-    [DllImport(name)]
-    private static extern unsafe void spvc_constant_set_scalar_i32(spvc_constant* constant, uint row, uint column, int value);
-    
-    [DllImport(name)]
-    private static extern unsafe void spvc_constant_set_scalar_u16(spvc_constant* constant, uint row, uint column, ushort value);
-    
-    [DllImport(name)]
-    private static extern unsafe void spvc_constant_set_scalar_i16(spvc_constant* constant, uint row, uint column, short value);
-    
-    [DllImport(name)]
-    private static extern unsafe void spvc_constant_set_scalar_u8(spvc_constant* constant, uint row, uint column, byte value);
-    
-    [DllImport(name)]
-    private static extern unsafe void spvc_constant_set_scalar_i8(spvc_constant* constant, uint row, uint column, sbyte value);
 }
