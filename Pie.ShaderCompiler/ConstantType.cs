@@ -6,7 +6,7 @@ public enum ConstantType
     I32,
     F32,
     
-    U64,
-    I64,
+    //U64,
+    //I64,
     F64
 }

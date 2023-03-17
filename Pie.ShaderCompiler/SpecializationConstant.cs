@@ -27,7 +27,7 @@ public struct SpecializationConstant
         Value = *(uint*) &value;
     }
     
-    public SpecializationConstant(uint id, ulong value)
+    /*public SpecializationConstant(uint id, ulong value)
     {
         ID = id;
         Type = ConstantType.U64;
@@ -39,7 +39,7 @@ public struct SpecializationConstant
         ID = id;
         Type = ConstantType.I64;
         Value = (ulong) value;
-    }
+    }*/
 
     public unsafe SpecializationConstant(uint id, double value)
     {

@@ -151,29 +151,28 @@ public static class Compiler
                     if (sConstants[c].constant_id == constant.ID)
                     {
                         spvc_constant* sConst = spvc_compiler_get_constant_handle(compl, sConstants[c].id);
-                        const int offset = 4;
 
                         ulong value = constant.Value;
 
                         switch (constant.Type)
                         {
                             case ConstantType.U32:
-                                *((uint*) sConst + offset) = *(uint*) &value;
+                                spvc_constant_set_scalar_u32(sConst, 0, 0, *(uint*) &value);
                                 break;
                             case ConstantType.I32:
-                                *((int*) sConst + offset) = *(int*) &value;
+                                spvc_constant_set_scalar_i32(sConst, 0, 0, *(int*) &value);
                                 break;
                             case ConstantType.F32:
-                                *((float*) sConst + offset) = *(float*) &value;
+                                spvc_constant_set_scalar_fp32(sConst, 0, 0, *(float*) &value);
                                 break;
-                            case ConstantType.U64:
-                                *((ulong*) sConst + offset) = value;
-                                break;
-                            case ConstantType.I64:
-                                *((long*) sConst + offset) = *(long*) &value;
-                                break;
+                            //case ConstantType.U64:
+                            //    spvc_constant_set_scalar_u64(sConst, 0, 0, value);
+                            //    break;
+                            //case ConstantType.I64:
+                            //    spvc_constant_set_scalar_i64(sConst, 0, 0, *(long*) &value);
+                            //    break;
                             case ConstantType.F64:
-                                *((double*) sConst + offset) = *(double*) &value;
+                                spvc_constant_set_scalar_fp64(sConst, 0, 0, *(double*) &value);
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
@@ -182,6 +181,9 @@ public static class Compiler
                 }
             }
         }
+
+        spvc_variable_id id;
+        spvc_compiler_build_dummy_sampler_for_combined_images(compl, &id);
 
         spvc_compiler_build_combined_image_samplers(compl);
 
@@ -245,4 +247,33 @@ public static class Compiler
 
         return result;
     }
+
+    private const string name = "spv-cross-temp";
+    
+    [DllImport(name)]
+    private static extern unsafe void spvc_constant_set_scalar_fp16(spvc_constant* constant, uint row, uint column, Half value);
+    
+    [DllImport(name)]
+    private static extern unsafe void spvc_constant_set_scalar_fp32(spvc_constant* constant, uint row, uint column, float value);
+    
+    [DllImport(name)]
+    private static extern unsafe void spvc_constant_set_scalar_fp64(spvc_constant* constant, uint row, uint column, double value);
+    
+    [DllImport(name)]
+    private static extern unsafe void spvc_constant_set_scalar_u32(spvc_constant* constant, uint row, uint column, uint value);
+    
+    [DllImport(name)]
+    private static extern unsafe void spvc_constant_set_scalar_i32(spvc_constant* constant, uint row, uint column, int value);
+    
+    [DllImport(name)]
+    private static extern unsafe void spvc_constant_set_scalar_u16(spvc_constant* constant, uint row, uint column, ushort value);
+    
+    [DllImport(name)]
+    private static extern unsafe void spvc_constant_set_scalar_i16(spvc_constant* constant, uint row, uint column, short value);
+    
+    [DllImport(name)]
+    private static extern unsafe void spvc_constant_set_scalar_u8(spvc_constant* constant, uint row, uint column, byte value);
+    
+    [DllImport(name)]
+    private static extern unsafe void spvc_constant_set_scalar_i8(spvc_constant* constant, uint row, uint column, sbyte value);
 }

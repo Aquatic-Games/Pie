@@ -30,4 +30,17 @@
       <PackageReference Include="Spirzza.Interop.SpirvCross" Version="0.0.1" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="spv-cross-temp.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+            <PackagePath>runtimes/win-x64/native/</PackagePath>
+        </Content>
+        <Content Include="libspv-cross-temp.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+            <PackagePath>runtimes/linux-x64/native/</PackagePath>
+        </Content>
+    </ItemGroup>
+
 </Project>
