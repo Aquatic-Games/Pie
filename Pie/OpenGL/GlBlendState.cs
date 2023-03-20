@@ -14,6 +14,8 @@ internal sealed class GlBlendState : BlendState
     private BlendingFactor _dstAlpha;
     private BlendEquationModeEXT _rgbEq;
     private BlendEquationModeEXT _alphaEq;
+
+    private bool _red, _green, _blue, _alpha;
     
     public GlBlendState(BlendStateDescription description)
     {
@@ -27,6 +29,11 @@ internal sealed class GlBlendState : BlendState
 
         _rgbEq = GetEquationFromOp(description.BlendOperation);
         _alphaEq = GetEquationFromOp(description.AlphaBlendOperation);
+
+        _red = (description.ColorWriteMask & ColorWriteMask.Red) == ColorWriteMask.Red;
+        _green = (description.ColorWriteMask & ColorWriteMask.Green) == ColorWriteMask.Green;
+        _blue = (description.ColorWriteMask & ColorWriteMask.Blue) == ColorWriteMask.Blue;
+        _alpha = (description.ColorWriteMask & ColorWriteMask.Alpha) == ColorWriteMask.Alpha;
     }
     
     public override bool IsDisposed { get; protected set; }
@@ -35,6 +42,8 @@ internal sealed class GlBlendState : BlendState
 
     public void Set()
     {
+        Gl.ColorMask(_red, _green, _blue, _alpha);
+        
         if (!_description.Enabled)
         {
             Gl.Disable(EnableCap.Blend);

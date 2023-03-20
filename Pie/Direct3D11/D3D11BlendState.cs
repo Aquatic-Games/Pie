@@ -26,7 +26,7 @@ internal sealed class D3D11BlendState : BlendState
             SourceBlendAlpha = GetBlendFromBlendType(description.SourceAlpha),
             DestinationBlendAlpha = GetBlendFromBlendType(description.DestinationAlpha),
             BlendOperationAlpha = GetOpFromOp(description.AlphaBlendOperation),
-            RenderTargetWriteMask = ColorWriteEnable.All
+            RenderTargetWriteMask = (ColorWriteEnable) description.ColorWriteMask
         };
 
         State = Device.CreateBlendState(desc);

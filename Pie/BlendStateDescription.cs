@@ -9,7 +9,7 @@ public struct BlendStateDescription
     /// Disable blending.
     /// </summary>
     public static readonly BlendStateDescription Disabled = new BlendStateDescription(false, BlendType.One,
-        BlendType.Zero, BlendOperation.Add, BlendType.One, BlendType.Zero, BlendOperation.Add);
+        BlendType.Zero, BlendOperation.Add, BlendType.One, BlendType.Zero, BlendOperation.Add, ColorWriteMask.All);
     
     /// <summary>
     /// Use non-premultiplied alpha.
@@ -69,6 +69,11 @@ public struct BlendStateDescription
     public BlendOperation AlphaBlendOperation;
 
     /// <summary>
+    /// The write mask to use.
+    /// </summary>
+    public ColorWriteMask ColorWriteMask;
+
+    /// <summary>
     /// Create a new <see cref="BlendStateDescription"/>.
     /// </summary>
     /// <param name="enabled">Whether or not blending is enabled.</param>
@@ -79,7 +84,7 @@ public struct BlendStateDescription
     /// <param name="destinationAlpha">The alpha destination blending type.</param>
     /// <param name="alphaBlendOperation">The <see cref="Pie.BlendOperation"/> to perform between the <see cref="SourceAlpha"/> and the <see cref="DestinationAlpha"/>.</param>
     public BlendStateDescription(bool enabled, BlendType source, BlendType destination, BlendOperation blendOperation,
-        BlendType sourceAlpha, BlendType destinationAlpha, BlendOperation alphaBlendOperation)
+        BlendType sourceAlpha, BlendType destinationAlpha, BlendOperation alphaBlendOperation, ColorWriteMask colorWriteMask)
     {
         Enabled = enabled;
         Source = source;
@@ -88,6 +93,7 @@ public struct BlendStateDescription
         SourceAlpha = sourceAlpha;
         DestinationAlpha = destinationAlpha;
         AlphaBlendOperation = alphaBlendOperation;
+        ColorWriteMask = colorWriteMask;
     }
     
     /// <summary>
@@ -107,5 +113,5 @@ public struct BlendStateDescription
     /// <param name="destinationAlpha">The alpha destination blending type.</param>
     public BlendStateDescription(BlendType source, BlendType destination, BlendType sourceAlpha,
         BlendType destinationAlpha) : this(true, source, destination, BlendOperation.Add, sourceAlpha, destinationAlpha,
-        BlendOperation.Add) { }
+        BlendOperation.Add, ColorWriteMask.All) { }
 }
