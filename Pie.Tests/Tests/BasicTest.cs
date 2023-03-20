@@ -38,8 +38,8 @@ public class BasicTest : TestBase
             1, 2, 3
         };
 
-        string vertexShader = File.ReadAllText("Content/Shaders/Basic_vert.hlsl");
-        string fragmentShader = File.ReadAllText("Content/Shaders/Basic_pixl.hlsl");
+        string vertexShader = File.ReadAllText("Content/Shaders/Basic.vert");
+        string fragmentShader = File.ReadAllText("Content/Shaders/Basic.frag");
 
         //byte[] vertexShader = File.ReadAllBytes("Content/Shaders/Basic_vert.spv");
         //byte[] fragmentShader = File.ReadAllBytes("Content/Shaders/Basic_frag.spv");
@@ -49,8 +49,8 @@ public class BasicTest : TestBase
 
         _shader = GraphicsDevice.CreateShader(new[]
         {
-            new ShaderAttachment(ShaderStage.Vertex, vertexShader, Language.HLSL),
-            new ShaderAttachment(ShaderStage.Fragment, fragmentShader, Language.HLSL)
+            new ShaderAttachment(ShaderStage.Vertex, vertexShader, Language.GLSL),
+            new ShaderAttachment(ShaderStage.Fragment, fragmentShader, Language.GLSL)
         }, new []{ new SpecializationConstant(0, 5f) });
 
         _layout = GraphicsDevice.CreateInputLayout(
