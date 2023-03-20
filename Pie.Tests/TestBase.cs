@@ -20,7 +20,7 @@ public abstract class TestBase : IDisposable
     {
         PieLog.DebugLog += (type, message) => Console.WriteLine($"[{type}] {message}");
         
-        Window = Window.CreateWithGraphicsDevice(settings, api, out GraphicsDevice);
+        Window = Window.CreateWithGraphicsDevice(settings, api, out GraphicsDevice, new GraphicsDeviceOptions(true));
         Window.Resize += WindowOnResize;
 
         Initialize();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Numerics;
+using Pie.Debugging;
 using Pie.Direct3D11;
 using Pie.Null;
 using Pie.OpenGL;
@@ -456,7 +457,12 @@ public abstract class GraphicsDevice : IDisposable
     /// <returns>The created graphics device.</returns>
     public static GraphicsDevice CreateOpenGL(PieGlContext context, Size winSize, GraphicsDeviceOptions options = default)
     {
-        return new GlGraphicsDevice(context, winSize, options);
+        GraphicsDevice device = new GlGraphicsDevice(context, winSize, options);
+
+        if (options.Debug)
+            return new DebugGraphicsDevice(device);
+        
+        return device;
     }
 
     /// <summary>
@@ -468,7 +474,12 @@ public abstract class GraphicsDevice : IDisposable
     /// <returns>The created graphics device.</returns>
     public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options = default)
     {
-        return new D3D11GraphicsDevice(hwnd, winSize, options);
+        GraphicsDevice device = new D3D11GraphicsDevice(hwnd, winSize, options);
+        
+        if (options.Debug)
+            return new DebugGraphicsDevice(device);
+        
+        return device;
     }
 
     public static GraphicsDevice CreateVulkan()
@@ -480,10 +491,16 @@ public abstract class GraphicsDevice : IDisposable
     /// Create a null graphics device.
     /// </summary>
     /// <param name="winSize">The initial window size. (Use 0x0 if you're not using a window).</param>
+    /// <param name="options">The options for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
-    public static GraphicsDevice CreateNull(Size winSize)
+    public static GraphicsDevice CreateNull(Size winSize, GraphicsDeviceOptions options = default)
     {
-        return new NullGraphicsDevice(winSize);
+        GraphicsDevice device = new NullGraphicsDevice(winSize);
+        
+        if (options.Debug)
+            return new DebugGraphicsDevice(device);
+        
+        return device;
     }
 
     /// <summary>
