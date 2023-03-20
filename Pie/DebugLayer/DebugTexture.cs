@@ -50,5 +50,7 @@ internal sealed unsafe class DebugTexture : Texture
     {
         _texture.Dispose();
         IsDisposed = _texture.IsDisposed;
+        
+        PieLog.Log(LogType.Debug, "Texture disposed.");
     }
 }

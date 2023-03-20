@@ -16,6 +16,8 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         _device = device;
         
         PieLog.Log(LogType.Info, "Debug graphics device initialized.");
+        PieLog.Log(LogType.Info, $"Adapter: {Adapter.Name}");
+        PieLog.Log(LogType.Info, $"Backend: {Api}");
     }
 
     public override GraphicsApi Api => _device.Api;
@@ -106,7 +108,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override Shader CreateShader(ShaderAttachment[] attachments, SpecializationConstant[] constants = null)
     {
-        throw new NotImplementedException();
+        return new DebugShader(_device, attachments, constants);
     }
 
     public override InputLayout CreateInputLayout(params InputLayoutDescription[] inputLayoutDescriptions)

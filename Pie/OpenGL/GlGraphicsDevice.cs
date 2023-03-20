@@ -47,14 +47,10 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
 
         Viewport = new Rectangle(Point.Empty, winSize);
 
+        Adapter = new GraphicsAdapter(Gl.GetStringS(StringName.Renderer));
+        
         if (Debug)
         {
-            PieLog.Log(LogType.Info, "Vendor info: " + Gl.GetStringS(StringName.Vendor));
-            PieLog.Log(LogType.Info, "Version info: " + Gl.GetStringS(StringName.Version));
-            PieLog.Log(LogType.Info, "GLSL Version: " + Gl.GetStringS(StringName.ShadingLanguageVersion));
-            PieLog.Log(LogType.Info, "Renderer: " + Gl.GetStringS(StringName.Renderer));
-            PieLog.Log(LogType.Debug, "Howdy! Thanks for using pie! Be sure to create an issue if you find any bugs.");
-            
             Gl.Enable(EnableCap.DebugOutput);
             Gl.Enable(EnableCap.DebugOutputSynchronous);
             Gl.DebugMessageCallback(DebugCallback, null);

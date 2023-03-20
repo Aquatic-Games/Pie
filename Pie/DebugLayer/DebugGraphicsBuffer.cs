@@ -23,8 +23,9 @@ internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
     
     public override void Dispose()
     {
-        PieLog.Log(LogType.Debug, "Buffer disposed.");
         _buffer.Dispose();
         IsDisposed = _buffer.IsDisposed;
+        
+        PieLog.Log(LogType.Debug, "Buffer disposed.");
     }
 }

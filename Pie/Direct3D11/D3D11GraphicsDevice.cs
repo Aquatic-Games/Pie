@@ -71,6 +71,9 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             Windowed = true
         };
 
+        _dxgiFactory!.EnumAdapters(0, out IDXGIAdapter adapter);
+        Adapter = new GraphicsAdapter(adapter.Description.Description);
+
         if ((res = D3D11CreateDeviceAndSwapChain(null, DriverType.Hardware, flags, levels, swapChainDescription,
                 out _swapChain, out Device, out _, out Context)).Failure)
         {
