@@ -32,10 +32,6 @@ internal sealed class GlTexture : Texture
 
     public static unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
-        Validity validity = description.Validity;
-        if (!validity.IsValid)
-            throw new InvalidOperationException(validity.Message);
-
         bool isRenderbuffer = (description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer &&
                               (description.Usage & TextureUsage.ShaderResource) != TextureUsage.ShaderResource;
 

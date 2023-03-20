@@ -1,4 +1,4 @@
-﻿namespace Pie.Debugging;
+﻿namespace Pie.DebugLayer;
 
 internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
 {
@@ -12,8 +12,11 @@ internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
     {
         IsDynamic = dynamic;
 
-        PieLog.Log(LogType.Debug,
-            $"Buffer of type {type}{(dynamic ? " (dynamic)" : "")} will use {sizeInBytes} bytes of video memory.");
+        PieLog.Log(LogType.Debug, $@"Buffer info:
+    Type: {type},
+    Dynamic: {dynamic},
+    VideoMemory: {sizeInBytes}B
+    HasInitialData: {data != null}");
         
         _buffer = device.CreateBuffer(type, sizeInBytes, data, dynamic);
     }

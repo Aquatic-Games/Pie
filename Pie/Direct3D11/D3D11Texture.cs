@@ -26,10 +26,6 @@ internal sealed class D3D11Texture : Texture
 
     public static unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
-        Validity validity = description.Validity;
-        if (!validity.IsValid)
-            throw new InvalidOperationException(validity.Message);
-        
         int pitch = PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
 
         Vortice.DXGI.Format fmt =

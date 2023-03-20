@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Pie.DebugLayer;
 using Pie.ShaderCompiler;
 
 namespace Pie.Debugging;
@@ -78,27 +79,29 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override Texture CreateTexture(TextureDescription description)
     {
-        throw new NotImplementedException();
+        return new DebugTexture(_device, description, null);
     }
 
     public override Texture CreateTexture<T>(TextureDescription description, T[] data)
     {
-        throw new NotImplementedException();
+        fixed (void* ptr = data)
+            return new DebugTexture(_device, description, ptr);
     }
 
     public override Texture CreateTexture<T>(TextureDescription description, T[][] data)
     {
-        throw new NotImplementedException();
+        fixed (void* ptr = PieUtils.Combine(data))
+            return new DebugTexture(_device, description, ptr);
     }
 
     public override Texture CreateTexture(TextureDescription description, IntPtr data)
     {
-        throw new NotImplementedException();
+        return new DebugTexture(_device, description, (void*) data);
     }
 
     public override unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
-        throw new NotImplementedException();
+        return new DebugTexture(_device, description, data);
     }
 
     public override Shader CreateShader(ShaderAttachment[] attachments, SpecializationConstant[] constants = null)
