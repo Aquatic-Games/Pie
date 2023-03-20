@@ -6,6 +6,12 @@ namespace Pie;
 public struct BlendStateDescription
 {
     /// <summary>
+    /// Disable blending.
+    /// </summary>
+    public static readonly BlendStateDescription Disabled = new BlendStateDescription(false, BlendType.One,
+        BlendType.Zero, BlendOperation.Add, BlendType.One, BlendType.Zero, BlendOperation.Add);
+    
+    /// <summary>
     /// Use non-premultiplied alpha.
     /// </summary>
     public static readonly BlendStateDescription NonPremultiplied =
@@ -26,26 +32,80 @@ public struct BlendStateDescription
     /// Use opaque blending.
     /// </summary>
     public static readonly BlendStateDescription Opaque = new BlendStateDescription(BlendType.One, BlendType.Zero);
+
+    /// <summary>
+    /// Whether or not blending is enabled.
+    /// </summary>
+    public bool Enabled;
     
     /// <summary>
-    /// The source blending type.
+    /// The RGB source blending type.
     /// </summary>
     public BlendType Source;
     
     /// <summary>
-    /// The destination blending type.
+    /// The RGB destination blending type.
     /// </summary>
     public BlendType Destination;
-    
+
     /// <summary>
-    /// Create a new blend state description.
+    /// The <see cref="Pie.BlendOperation"/> to perform between the <see cref="Source"/> and the <see cref="Destination"/>.
     /// </summary>
-    /// <param name="source">The source blending type.</param>
-    /// <param name="destination">The destination blending type.</param>
-    public BlendStateDescription(BlendType source, BlendType destination)
+    public BlendOperation BlendOperation;
+
+    /// <summary>
+    /// The alpha source blending type.
+    /// </summary>
+    public BlendType SourceAlpha;
+
+    /// <summary>
+    /// The alpha destination blending type.
+    /// </summary>
+    public BlendType DestinationAlpha;
+
+    /// <summary>
+    /// The <see cref="Pie.BlendOperation"/> to perform between the <see cref="SourceAlpha"/> and the <see cref="DestinationAlpha"/>.
+    /// </summary>
+    public BlendOperation AlphaBlendOperation;
+
+    /// <summary>
+    /// Create a new <see cref="BlendStateDescription"/>.
+    /// </summary>
+    /// <param name="enabled">Whether or not blending is enabled.</param>
+    /// <param name="source">The RGB source blending type.</param>
+    /// <param name="destination">The RGB destination blending type.</param>
+    /// <param name="blendOperation">The <see cref="Pie.BlendOperation"/> to perform between the <see cref="Source"/> and the <see cref="Destination"/>.</param>
+    /// <param name="sourceAlpha">The alpha source blending type.</param>
+    /// <param name="destinationAlpha">The alpha destination blending type.</param>
+    /// <param name="alphaBlendOperation">The <see cref="Pie.BlendOperation"/> to perform between the <see cref="SourceAlpha"/> and the <see cref="DestinationAlpha"/>.</param>
+    public BlendStateDescription(bool enabled, BlendType source, BlendType destination, BlendOperation blendOperation,
+        BlendType sourceAlpha, BlendType destinationAlpha, BlendOperation alphaBlendOperation)
     {
-        // TODO: Blend function?
+        Enabled = enabled;
         Source = source;
         Destination = destination;
+        BlendOperation = blendOperation;
+        SourceAlpha = sourceAlpha;
+        DestinationAlpha = destinationAlpha;
+        AlphaBlendOperation = alphaBlendOperation;
     }
+    
+    /// <summary>
+    /// Create a new <see cref="BlendStateDescription"/>.
+    /// </summary>
+    /// <param name="source">The RGBA source blending type.</param>
+    /// <param name="destination">The RGBA destination blending type.</param>
+    public BlendStateDescription(BlendType source, BlendType destination) : this(source, destination, source,
+        destination) { }
+
+    /// <summary>
+    /// Create a new <see cref="BlendStateDescription"/>.
+    /// </summary>
+    /// <param name="source">The RGB source blending type.</param>
+    /// <param name="destination">The RGB destination blending type.</param>
+    /// <param name="sourceAlpha">The alpha source blending type.</param>
+    /// <param name="destinationAlpha">The alpha destination blending type.</param>
+    public BlendStateDescription(BlendType source, BlendType destination, BlendType sourceAlpha,
+        BlendType destinationAlpha) : this(true, source, destination, BlendOperation.Add, sourceAlpha, destinationAlpha,
+        BlendOperation.Add) { }
 }

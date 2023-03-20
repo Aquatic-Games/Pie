@@ -14,9 +14,20 @@ internal sealed class D3D11BlendState : BlendState
     {
         Description = description;
 
-        Vortice.Direct3D11.BlendDescription desc =
-            new Vortice.Direct3D11.BlendDescription(GetBlendFromBlendType(description.Source),
-                GetBlendFromBlendType(description.Destination));
+        BlendDescription desc = new BlendDescription();
+        desc.IndependentBlendEnable = false;
+        desc.AlphaToCoverageEnable = false;
+        desc.RenderTarget[0] = new RenderTargetBlendDescription()
+        {
+            BlendEnable = description.Enabled,
+            SourceBlend = GetBlendFromBlendType(description.Source),
+            DestinationBlend = GetBlendFromBlendType(description.Destination),
+            BlendOperation = GetOpFromOp(description.BlendOperation),
+            SourceBlendAlpha = GetBlendFromBlendType(description.SourceAlpha),
+            DestinationBlendAlpha = GetBlendFromBlendType(description.DestinationAlpha),
+            BlendOperationAlpha = GetOpFromOp(description.AlphaBlendOperation),
+            RenderTargetWriteMask = ColorWriteEnable.All
+        };
 
         State = Device.CreateBlendState(desc);
     }
@@ -46,6 +57,19 @@ internal sealed class D3D11BlendState : BlendState
             BlendType.DestAlpha => Blend.DestinationAlpha,
             BlendType.OneMinusDestAlpha => Blend.InverseDestinationAlpha,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
+    }
+
+    private static Vortice.Direct3D11.BlendOperation GetOpFromOp(BlendOperation operation)
+    {
+        return operation switch
+        {
+            BlendOperation.Add => Vortice.Direct3D11.BlendOperation.Add,
+            BlendOperation.Subtract => Vortice.Direct3D11.BlendOperation.Subtract,
+            BlendOperation.ReverseSubtract => Vortice.Direct3D11.BlendOperation.ReverseSubtract,
+            BlendOperation.Min => Vortice.Direct3D11.BlendOperation.Min,
+            BlendOperation.Max => Vortice.Direct3D11.BlendOperation.Max,
+            _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
         };
     }
 }
