@@ -30,6 +30,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     private bool _primitiveTypeInitialized;
     private int _boundTexture = -1;
     private int _bindingSlot = -1;
+    private bool _framebufferSet;
     
     public unsafe GlGraphicsDevice(PieGlContext context, Size winSize, GraphicsDeviceOptions options)
     {
@@ -70,7 +71,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         get => _viewport;
         set
         {
-            Gl.Viewport(value.X, Swapchain.Size.Height - (value.Y + value.Height), (uint) value.Width, (uint) value.Height);
+            Gl.Viewport(value.X, _framebufferSet ? value.Y : Swapchain.Size.Height - (value.Y + value.Height), (uint) value.Width, (uint) value.Height);
             _viewport = value;
         }
     }
@@ -382,12 +383,14 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         if (framebuffer == null)
         {
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            _framebufferSet = false;
             //Gl.DrawBuffer(DrawBufferMode.Front);
             return;
         }
 
         GlFramebuffer fb = (GlFramebuffer) framebuffer;
         Gl.BindFramebuffer(FramebufferTarget.Framebuffer, fb.Handle);
+        _framebufferSet = true;
     }
 
     public override void Draw(uint vertexCount)
