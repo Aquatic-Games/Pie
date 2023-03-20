@@ -83,6 +83,7 @@ public struct BlendStateDescription
     /// <param name="sourceAlpha">The alpha source blending type.</param>
     /// <param name="destinationAlpha">The alpha destination blending type.</param>
     /// <param name="alphaBlendOperation">The <see cref="Pie.BlendOperation"/> to perform between the <see cref="SourceAlpha"/> and the <see cref="DestinationAlpha"/>.</param>
+    /// <param name="colorWriteMask">The write mask to use.</param>
     public BlendStateDescription(bool enabled, BlendType source, BlendType destination, BlendOperation blendOperation,
         BlendType sourceAlpha, BlendType destinationAlpha, BlendOperation alphaBlendOperation, ColorWriteMask colorWriteMask)
     {
