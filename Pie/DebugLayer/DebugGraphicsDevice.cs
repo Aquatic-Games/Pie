@@ -248,7 +248,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         if (state.IsDisposed)
             PieLog.Log(LogType.Critical, "Attempted to set a disposed blend state!");
 
-        _device.SetBlendState(state);
+        _device.SetBlendState(((DebugBlendState) state).BlendState);
     }
 
     public override void SetDepthStencilState(DepthStencilState state, int stencilRef = 0)
@@ -308,10 +308,18 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
         if (dBuffer.BufferType != BufferType.UniformBuffer)
             PieLog.Log(LogType.Critical, $"Expected UniformBuffer, buffer is an {dBuffer.BufferType} instead.");
+        
+        _device.SetUniformBuffer(bindingSlot, dBuffer.Buffer);
     }
 
     public override void SetFramebuffer(Framebuffer framebuffer)
     {
+        if (framebuffer == null)
+        {
+            _device.SetFramebuffer(null);
+            return;
+        }
+
         DebugFramebuffer dFb = (DebugFramebuffer) framebuffer;
 
         if (dFb.IsDisposed)
@@ -410,7 +418,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         if (!_indexBufferSet)
             PieLog.Log(LogType.Critical, "Attempted to draw indexed instanced, however no index buffer has been set.");
         
-        _device.DrawIndexedInstanced(indexCount, indexCount);
+        _device.DrawIndexedInstanced(indexCount, instanceCount);
     }
 
     public override void Present(int swapInterval)

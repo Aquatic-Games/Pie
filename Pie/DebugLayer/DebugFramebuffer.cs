@@ -18,8 +18,11 @@ internal sealed class DebugFramebuffer : Framebuffer
     {
         StringBuilder builder = new StringBuilder();
 
+        FramebufferAttachment[] mainAttachments = new FramebufferAttachment[attachments.Length];
+
         int numberOfDepthAttachments = 0;
         int index = 0;
+        int i = 0;
         foreach (FramebufferAttachment attachment in attachments)
         {
             if (attachment.Texture.IsDisposed)
@@ -45,6 +48,9 @@ internal sealed class DebugFramebuffer : Framebuffer
                     index++;
                     break;
             }
+
+            mainAttachments[i] = new FramebufferAttachment(((DebugTexture) attachment.Texture).Texture);
+            i++;
         }
         
         if (numberOfDepthAttachments > 1)
@@ -54,7 +60,7 @@ internal sealed class DebugFramebuffer : Framebuffer
 
         Attachments = attachments;
         
-        Framebuffer = device.CreateFramebuffer(attachments);
+        Framebuffer = device.CreateFramebuffer(mainAttachments);
 
         Size = Framebuffer.Size;
     }

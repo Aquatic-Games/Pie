@@ -19,14 +19,17 @@ internal sealed class DebugShader : Shader
         Stage: {attachment.Stage}");
         }
 
-        foreach (SpecializationConstant constant in constants)
+        if (constants != null)
         {
-            builder.AppendLine($@"    Constant:
+            foreach (SpecializationConstant constant in constants)
+            {
+                builder.AppendLine($@"    Constant:
         ID: {constant.ID}
         Type: {constant.Type},
         PackedValue: {constant.Value}");
+            }
         }
-        
+
         PieLog.Log(LogType.Debug, $"Shader info:\n{builder}");
 
         Shader = device.CreateShader(attachments, constants);

@@ -39,12 +39,14 @@ internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
         if (!IsDynamic)
             PieLog.Log(LogType.Critical, "Cannot update a non-dynamic buffer.");
         
-        if (offsetInBytes >= _sizeInBytes)
+        if (offsetInBytes > _sizeInBytes)
             PieLog.Log(LogType.Critical, "Offset is greater than the size of the buffer.");
-        if (sizeInBytes >= _sizeInBytes)
+        if (sizeInBytes > _sizeInBytes)
             PieLog.Log(LogType.Critical, "Data size is greater than the size of the buffer.");
-        if (offsetInBytes + sizeInBytes >= _sizeInBytes)
+        if (offsetInBytes + sizeInBytes > _sizeInBytes)
             PieLog.Log(LogType.Critical, "The data size cannot fit into the buffer with the given offset, its end point is larger than the size of the buffer.");
+        
+        device.UpdateBuffer(Buffer, offsetInBytes, sizeInBytes, data);
     }
     
     public override void Dispose()
