@@ -92,8 +92,6 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
 
     public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
     {
-        InvalidateCaches();
-        
         Gl.ClearColor(color.X, color.Y, color.Z, color.W);
 
         uint mask = (uint) ClearBufferMask.ColorBufferBit;
@@ -106,7 +104,6 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
 
     public override void Clear(ClearFlags flags)
     {
-        InvalidateCaches();
         uint mask = 0;
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
             mask |= (uint) ClearBufferMask.DepthBufferBit;
@@ -396,7 +393,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     {
         Gl.DrawArrays(_glType, startVertex, vertexCount);
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += (ulong) (vertexCount - startVertex) / 3;
+        PieMetrics.TriCount += vertexCount / 3;
     }
 
     public override unsafe void DrawIndexed(uint indexCount)
@@ -410,24 +407,27 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     {
         Gl.DrawElements(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize));
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
+        PieMetrics.TriCount += indexCount / 3;
     }
 
     public override unsafe void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
         Gl.DrawElementsBaseVertex(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize), baseVertex);
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
+        PieMetrics.TriCount += indexCount / 3;
     }
 
     public override unsafe void DrawIndexedInstanced(uint indexCount, uint instanceCount)
     {
         Gl.DrawElementsInstanced(_glType, indexCount, _currentEType, null, instanceCount);
+        PieMetrics.DrawCalls++;
+        PieMetrics.TriCount += indexCount / 3 * instanceCount;
     }
 
     public override void Present(int swapInterval)
     {
         _context.Present(swapInterval);
+        InvalidateCaches();
     }
 
     public override void ResizeSwapchain(Size newSize)

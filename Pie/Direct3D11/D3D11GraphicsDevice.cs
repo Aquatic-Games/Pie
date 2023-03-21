@@ -421,7 +421,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     {
         Context.Draw((int) vertexCount, startVertex);
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += (ulong) (vertexCount - startVertex) / 3;
+        PieMetrics.TriCount += vertexCount/ 3;
     }
 
     public override void DrawIndexed(uint indexCount)
@@ -435,19 +435,20 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     {
         Context.DrawIndexed((int) indexCount, startIndex, 0);
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
+        PieMetrics.TriCount += indexCount/ 3;
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
         Context.DrawIndexed((int) indexCount, startIndex, baseVertex);
         PieMetrics.DrawCalls++;
-        PieMetrics.TriCount += (ulong) (indexCount - startIndex) / 3;
+        PieMetrics.TriCount += indexCount/ 3;
     }
 
     public override void DrawIndexedInstanced(uint indexCount, uint instanceCount)
     {
         Context.DrawIndexedInstanced((int) indexCount, (int) instanceCount, 0, 0, 0);
+        PieMetrics.TriCount += indexCount / 3 * instanceCount;
         PieMetrics.DrawCalls++;
     }
 

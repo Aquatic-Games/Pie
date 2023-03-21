@@ -332,7 +332,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         foreach (FramebufferAttachment attachment in dFb.Attachments)
         {
             if (attachment.Texture.IsDisposed)
-                PieLog.Log(LogType.Debug, "Attached framebuffer texture has been disposed since the framebuffer was created.");
+                PieLog.Log(LogType.Critical, "Attached framebuffer texture has been disposed since the framebuffer was created.");
         }
         
         _device.SetFramebuffer(dFb.Framebuffer);

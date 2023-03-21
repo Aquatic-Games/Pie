@@ -33,14 +33,14 @@ internal sealed class DebugFramebuffer : Framebuffer
                 case Format.D32_Float:
                 case Format.D16_UNorm:
                 case Format.D24_UNorm_S8_UInt:
-                    builder.Append($@"    Attachment:
+                    builder.AppendLine($@"    Attachment:
         Type: Depth
         Index: {numberOfDepthAttachments}
         Format: {attachment.Texture.Description.Format}");
                     numberOfDepthAttachments++;
                     break;
                 default:
-                    builder.Append($@"    Attachment:
+                    builder.AppendLine($@"    Attachment:
         Type: Color
         Index: {index}
         Format: {attachment.Texture.Description.Format}");
