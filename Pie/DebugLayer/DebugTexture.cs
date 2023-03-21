@@ -52,7 +52,8 @@ internal sealed unsafe class DebugTexture : Texture
         if (IsDisposed)
             PieLog.Log(LogType.Critical, "Attempted to update a disposed texture!");
         
-        if (mipLevel >= Description.MipLevels)
+        // TODO: Calculate mip levels when description mip levels is 0.
+        if (mipLevel >= Description.MipLevels && Description.MipLevels != 0)
             PieLog.Log(LogType.Critical, "Mip level was out of range.");
         
         if (arrayIndex >= Description.ArraySize)

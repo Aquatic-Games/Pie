@@ -198,6 +198,8 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         if (dBuffer.IsMapped)
             PieLog.Log(LogType.Critical, "Cannot map a buffer that has already been mapped.");
 
+        dBuffer.IsMapped = true;
+
         return _device.MapBuffer(dBuffer.Buffer, mode);
     }
 
@@ -209,13 +211,15 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
             PieLog.Log(LogType.Critical, "Attempted to unmap a disposed buffer!");
         
         if (!dBuffer.IsMapped)
-            PieLog.Log(LogType.Critical, "Cannot unmap a buffer that has already been mapped.");
+            PieLog.Log(LogType.Critical, "Cannot unmap a buffer that has not been mapped.");
         
         // This should never happen but it doesn't hurt to have the check!
         if (!dBuffer.IsDynamic)
             PieLog.Log(LogType.Critical, "Attempted to unmap a dynamic buffer. If you see this message, Pie's checks have gone wrong. Either that or something MAJORLY bad has happened. Panic.");
+
+        dBuffer.IsMapped = false;
         
-        _device.UnmapBuffer(buffer);
+        _device.UnmapBuffer(dBuffer.Buffer);
     }
 
     public override void SetShader(Shader shader)
@@ -353,8 +357,8 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         if (!_vertexBufferSet)
             PieLog.Log(LogType.Critical, "Attempted to draw, however no vertex buffer has been set.");
         
-        if (startVertex >= vertexCount)
-            PieLog.Log(LogType.Critical, $"The vertex count was {vertexCount}, but the start vertex was {startVertex}.");
+        //if (startVertex >= vertexCount)
+        //    PieLog.Log(LogType.Critical, $"The vertex count was {vertexCount}, but the start vertex was {startVertex}.");
         
         _device.Draw(vertexCount, startVertex);
     }
@@ -384,8 +388,8 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         if (!_indexBufferSet)
             PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no index buffer has been set.");
         
-        if (startIndex >= indexCount)
-            PieLog.Log(LogType.Critical, $"The index count was {indexCount}, but the start index was {startIndex}.");
+        //if (startIndex >= indexCount)
+        //    PieLog.Log(LogType.Critical, $"The index count was {indexCount}, but the start index was {startIndex}.");
         
         _device.DrawIndexed(indexCount, startIndex);
     }
@@ -401,8 +405,8 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         if (!_indexBufferSet)
             PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no index buffer has been set.");
         
-        if (startIndex >= indexCount)
-            PieLog.Log(LogType.Critical, $"The index count was {indexCount}, but the start index was {startIndex}.");
+        //if (startIndex >= indexCount)
+        //    PieLog.Log(LogType.Critical, $"The index count was {indexCount}, but the start index was {startIndex}.");
         
         _device.DrawIndexed(indexCount, startIndex, baseVertex);
     }
