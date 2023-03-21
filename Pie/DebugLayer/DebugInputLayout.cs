@@ -21,10 +21,20 @@ internal sealed class DebugInputLayout : InputLayout
 
         uint stride = 0;
         int position = 0;
+        uint previousSlot = 0;
         foreach (InputLayoutDescription description in descriptions)
         {
+            if (description.Slot != previousSlot)
+            {
+                previousSlot = description.Slot;
+                stride = 0;
+            }
+            
             if (description.Offset != stride)
-                PieLog.Log(LogType.Warning, $"Potential invalid usage at position {position}: An offset of {description.Offset} was found, however an offset of {stride} was expected.");
+            {
+                DebugMetrics.Errors++;
+                PieLog.Log(LogType.Critical, $"Invalid usage at position {position}: An offset of {description.Offset} was found, however an offset of {stride} was expected.");
+            }
 
             uint bitsPerPixel = (uint) description.Format.BitsPerPixel() / 8;
             

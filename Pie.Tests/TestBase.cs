@@ -18,7 +18,7 @@ public abstract class TestBase : IDisposable
 
     public void Run(WindowSettings settings, GraphicsApi api)
     {
-        PieLog.DebugLog += (type, message) => Console.WriteLine($"[{type}] {message}");
+        PieLog.DebugLog += DebugLog;
         
         Window = Window.CreateWithGraphicsDevice(settings, api, out GraphicsDevice, new GraphicsDeviceOptions(true));
         Window.Resize += WindowOnResize;
@@ -46,6 +46,14 @@ public abstract class TestBase : IDisposable
         GraphicsDevice.ResizeSwapchain(size);
         GraphicsDevice.Viewport = new Rectangle(Point.Empty, size);
         Console.WriteLine($"resize: {size}");
+    }
+    
+    private void DebugLog(LogType logtype, string message)
+    {
+        if (logtype == LogType.Critical)
+            throw new Exception(message);
+        
+        Console.WriteLine($"[{logtype}] " + message);
     }
 
     public void Dispose()

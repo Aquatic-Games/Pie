@@ -223,12 +223,16 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
     {
         DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
         if (dBuffer.BufferType != BufferType.VertexBuffer)
+        {
+            DebugMetrics.Errors++;
             PieLog.Log(LogType.Critical, $"Expected VertexBuffer, buffer is an {dBuffer.BufferType} instead.");
+        }
 
         DebugInputLayout dLayout = (DebugInputLayout) layout;
         if (!dLayout.HasProducedStrideWarning && stride != dLayout.CalculatedStride)
         {
             dLayout.HasProducedStrideWarning = true;
+            DebugMetrics.Warnings++;
             PieLog.Log(LogType.Warning, $"Potential invalid usage: Input layout stride was {stride}, but a stride of {dLayout.CalculatedStride} was expected.");
         }
 
@@ -239,8 +243,11 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
     {
         DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
         if (dBuffer.BufferType != BufferType.IndexBuffer)
+        {
+            DebugMetrics.Errors++;
             PieLog.Log(LogType.Critical, $"Expected IndexBuffer, buffer is an {dBuffer.BufferType} instead.");
-        
+        }
+
         _device.SetIndexBuffer(dBuffer.Buffer, type);
     }
 
@@ -248,7 +255,10 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
     {
         DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
         if (dBuffer.BufferType != BufferType.UniformBuffer)
+        {
+            DebugMetrics.Errors++;
             PieLog.Log(LogType.Critical, $"Expected UniformBuffer, buffer is an {dBuffer.BufferType} instead.");
+        }
     }
 
     public override void SetFramebuffer(Framebuffer framebuffer)
@@ -289,8 +299,11 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
     public override void Present(int swapInterval)
     {
         if (swapInterval > 4)
+        {
+            DebugMetrics.Errors++;
             PieLog.Log(LogType.Critical, $"Swap interval should be a maximum of 4, however an interval of {swapInterval} was provided.");
-        
+        }
+
         _device.Present(swapInterval);
     }
 
@@ -317,5 +330,6 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
     public override void Dispose()
     {
         _device.Dispose();
+        PieLog.Log(LogType.Info, DebugMetrics.GetString());
     }
 }

@@ -14,8 +14,11 @@ internal sealed unsafe class DebugTexture : Texture
     {
         Validity validity = description.Validity;
         if (!validity.IsValid)
+        {
+            DebugMetrics.Errors++;
             PieLog.Log(LogType.Critical, validity.Message);
-        
+        }
+
         int bpp = description.Format.BitsPerPixel();
 
         int totalSize = bpp * description.ArraySize;

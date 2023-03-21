@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Pie.DebugLayer;
 using Pie.ShaderCompiler;
 using SharpGen.Runtime;
 using Vortice.Direct3D;
@@ -42,6 +43,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         if (debug && !SdkLayersAvailable())
         {
             debug = false;
+            DebugMetrics.Warnings++;
             PieLog.Log(LogType.Warning, "Debug has been enabled however no SDK layers have been found. Direct3D debug has therefore been disabled.");
         }
         
