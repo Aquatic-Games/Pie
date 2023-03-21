@@ -45,6 +45,21 @@ internal sealed unsafe class DebugTexture : Texture
         
         Description = Texture.Description;
     }
+
+    public void Update(GraphicsDevice device, int mipLevel, int arrayIndex, int x, int y, int z, int width, int height,
+        int depth, void* data)
+    {
+        if (IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to update a disposed texture!");
+        
+        if (mipLevel >= Description.MipLevels)
+            PieLog.Log(LogType.Critical, "Mip level was out of range.");
+        
+        if (arrayIndex >= Description.ArraySize)
+            PieLog.Log(LogType.Critical, "Array index was out of range.");
+        
+        device.UpdateTexture(Texture, mipLevel, arrayIndex, x, y, z, width, height, depth, data);
+    }
     
     public override void Dispose()
     {

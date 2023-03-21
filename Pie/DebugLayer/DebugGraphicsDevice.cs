@@ -11,6 +11,10 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 {
     private GraphicsDevice _device;
 
+    private bool _vertexBufferSet;
+    private bool _indexBufferSet;
+    private bool _shaderSet;
+
     public DebugGraphicsDevice(GraphicsDevice device)
     {
         _device = device;
@@ -138,7 +142,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override Framebuffer CreateFramebuffer(params FramebufferAttachment[] attachments)
     {
-        throw new NotImplementedException();
+        return new DebugFramebuffer(_device, attachments);
     }
 
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
@@ -165,19 +169,20 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
     public override void UpdateTexture<T>(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width, int height,
         int depth, T[] data)
     {
-        throw new NotImplementedException();
+        fixed (void* ptr = data)
+            ((DebugTexture) texture).Update(_device, mipLevel, arrayIndex, x, y, z, width, height, depth, ptr);
     }
 
     public override void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width, int height, int depth,
         IntPtr data)
     {
-        throw new NotImplementedException();
+        ((DebugTexture) texture).Update(_device, mipLevel, arrayIndex, x, y, z, width, height, depth, (void*) data);
     }
 
     public override unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width, int height,
         int depth, void* data)
     {
-        throw new NotImplementedException();
+        ((DebugTexture) texture).Update(_device, mipLevel, arrayIndex, x, y, z, width, height, depth, data);
     }
 
     public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
@@ -217,7 +222,8 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
     {
         if (shader.IsDisposed)
             PieLog.Log(LogType.Critical, "Attempted to set a disposed shader!");
-        
+
+        _shaderSet = true;
         _device.SetShader(((DebugShader) shader).Shader);
     }
 
@@ -277,6 +283,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
             PieLog.Log(LogType.Warning, $"Potential invalid usage: Input layout stride was {stride}, but a stride of {dLayout.CalculatedStride} was expected.");
         }
 
+        _vertexBufferSet = true;
         _device.SetVertexBuffer(slot, dBuffer.Buffer, stride, dLayout.InputLayout);
     }
 
@@ -289,6 +296,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         if (dBuffer.BufferType != BufferType.IndexBuffer)
             PieLog.Log(LogType.Critical, $"Expected IndexBuffer, buffer is an {dBuffer.BufferType} instead.");
 
+        _indexBufferSet = true;
         _device.SetIndexBuffer(dBuffer.Buffer, type);
     }
 
@@ -304,36 +312,104 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void SetFramebuffer(Framebuffer framebuffer)
     {
-        throw new NotImplementedException();
+        DebugFramebuffer dFb = (DebugFramebuffer) framebuffer;
+
+        if (dFb.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed framebuffer!");
+        
+        foreach (FramebufferAttachment attachment in dFb.Attachments)
+        {
+            if (attachment.Texture.IsDisposed)
+                PieLog.Log(LogType.Debug, "Attached framebuffer texture has been disposed since the framebuffer was created.");
+        }
+        
+        _device.SetFramebuffer(dFb.Framebuffer);
     }
 
     public override void Draw(uint vertexCount)
     {
+        if (!_shaderSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw, however no shader has been set.");
+        
+        if (!_vertexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw, however no vertex buffer has been set.");
+        
         _device.Draw(vertexCount);
     }
 
     public override void Draw(uint vertexCount, int startVertex)
     {
+        if (!_shaderSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw, however no shader has been set.");
+        
+        if (!_vertexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw, however no vertex buffer has been set.");
+        
+        if (startVertex >= vertexCount)
+            PieLog.Log(LogType.Critical, $"The vertex count was {vertexCount}, but the start vertex was {startVertex}.");
+        
         _device.Draw(vertexCount, startVertex);
     }
 
     public override void DrawIndexed(uint indexCount)
     {
+        if (!_shaderSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no shader has been set.");
+        
+        if (!_vertexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no vertex buffer has been set.");
+        
+        if (!_indexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no index buffer has been set.");
+        
         _device.DrawIndexed(indexCount);
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex)
     {
+        if (!_shaderSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no shader has been set.");
+        
+        if (!_vertexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no vertex buffer has been set.");
+        
+        if (!_indexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no index buffer has been set.");
+        
+        if (startIndex >= indexCount)
+            PieLog.Log(LogType.Critical, $"The index count was {indexCount}, but the start index was {startIndex}.");
+        
         _device.DrawIndexed(indexCount, startIndex);
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
+        if (!_shaderSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no shader has been set.");
+        
+        if (!_vertexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no vertex buffer has been set.");
+        
+        if (!_indexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed, however no index buffer has been set.");
+        
+        if (startIndex >= indexCount)
+            PieLog.Log(LogType.Critical, $"The index count was {indexCount}, but the start index was {startIndex}.");
+        
         _device.DrawIndexed(indexCount, startIndex, baseVertex);
     }
 
     public override void DrawIndexedInstanced(uint indexCount, uint instanceCount)
     {
+        if (!_shaderSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed instanced, however no shader has been set.");
+        
+        if (!_vertexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed instanced, however no vertex buffer has been set.");
+        
+        if (!_indexBufferSet)
+            PieLog.Log(LogType.Critical, "Attempted to draw indexed instanced, however no index buffer has been set.");
+        
         _device.DrawIndexedInstanced(indexCount, indexCount);
     }
 
