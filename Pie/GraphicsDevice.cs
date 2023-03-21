@@ -188,7 +188,7 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="description">The depth state description to create from.</param>
     /// <returns>The created depth state.</returns>
-    public abstract DepthStencilState CreateDepthState(DepthStencilStateDescription description);
+    public abstract DepthStencilState CreateDepthStencilState(DepthStencilStateDescription description);
 
     /// <summary>
     /// Create a new sampler state from the sampler state description.

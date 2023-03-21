@@ -113,12 +113,12 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override InputLayout CreateInputLayout(params InputLayoutDescription[] inputLayoutDescriptions)
     {
-        throw new NotImplementedException();
+        return new DebugInputLayout(_device, inputLayoutDescriptions);
     }
 
     public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)
     {
-        throw new NotImplementedException();
+        return new DebugRasterizerState(_device, description);
     }
 
     public override BlendState CreateBlendState(BlendStateDescription description)
@@ -126,9 +126,9 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
-    public override DepthStencilState CreateDepthState(DepthStencilStateDescription description)
+    public override DepthStencilState CreateDepthStencilState(DepthStencilStateDescription description)
     {
-        throw new NotImplementedException();
+        return new DebugDepthStencilState(_device, description);
     }
 
     public override SamplerState CreateSamplerState(SamplerStateDescription description)
@@ -191,7 +191,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void SetShader(Shader shader)
     {
-        throw new NotImplementedException();
+        _device.SetShader(((DebugShader) shader).Shader);
     }
 
     public override void SetTexture(uint bindingSlot, Texture texture, SamplerState samplerState)
@@ -201,7 +201,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void SetRasterizerState(RasterizerState state)
     {
-        throw new NotImplementedException();
+        _device.SetRasterizerState(((DebugRasterizerState) state).RasterizerState);
     }
 
     public override void SetBlendState(BlendState state)
@@ -211,27 +211,44 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void SetDepthStencilState(DepthStencilState state, int stencilRef = 0)
     {
-        throw new NotImplementedException();
+        _device.SetDepthStencilState(((DebugDepthStencilState) state).DepthStencilState, stencilRef);
     }
 
     public override void SetPrimitiveType(PrimitiveType type)
     {
-        throw new NotImplementedException();
+        _device.SetPrimitiveType(type);
     }
 
     public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
     {
-        throw new NotImplementedException();
+        DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
+        if (dBuffer.BufferType != BufferType.VertexBuffer)
+            PieLog.Log(LogType.Critical, $"Expected VertexBuffer, buffer is an {dBuffer.BufferType} instead.");
+
+        DebugInputLayout dLayout = (DebugInputLayout) layout;
+        if (!dLayout.HasProducedStrideWarning && stride != dLayout.CalculatedStride)
+        {
+            dLayout.HasProducedStrideWarning = true;
+            PieLog.Log(LogType.Warning, $"Potential invalid usage: Input layout stride was {stride}, but a stride of {dLayout.CalculatedStride} was expected.");
+        }
+
+        _device.SetVertexBuffer(slot, dBuffer.Buffer, stride, dLayout.InputLayout);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
     {
-        throw new NotImplementedException();
+        DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
+        if (dBuffer.BufferType != BufferType.IndexBuffer)
+            PieLog.Log(LogType.Critical, $"Expected IndexBuffer, buffer is an {dBuffer.BufferType} instead.");
+        
+        _device.SetIndexBuffer(dBuffer.Buffer, type);
     }
 
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
     {
-        throw new NotImplementedException();
+        DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
+        if (dBuffer.BufferType != BufferType.UniformBuffer)
+            PieLog.Log(LogType.Critical, $"Expected UniformBuffer, buffer is an {dBuffer.BufferType} instead.");
     }
 
     public override void SetFramebuffer(Framebuffer framebuffer)
@@ -251,7 +268,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void DrawIndexed(uint indexCount)
     {
-        throw new NotImplementedException();
+        _device.DrawIndexed(indexCount);
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex)
@@ -271,12 +288,15 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void Present(int swapInterval)
     {
-        throw new NotImplementedException();
+        if (swapInterval > 4)
+            PieLog.Log(LogType.Critical, $"Swap interval should be a maximum of 4, however an interval of {swapInterval} was provided.");
+        
+        _device.Present(swapInterval);
     }
 
     public override void ResizeSwapchain(Size newSize)
     {
-        throw new NotImplementedException();
+        _device.ResizeSwapchain(newSize);
     }
 
     public override void GenerateMipmaps(Texture texture)

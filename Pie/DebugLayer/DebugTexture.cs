@@ -4,7 +4,7 @@ namespace Pie.DebugLayer;
 
 internal sealed unsafe class DebugTexture : Texture
 {
-    private Texture _texture;
+    public Texture Texture;
     
     public override bool IsDisposed { get; protected set; }
     
@@ -41,15 +41,15 @@ internal sealed unsafe class DebugTexture : Texture
     HasInitialData: {data != null}
 ");
 
-        _texture = device.CreateTexture(description, data);
+        Texture = device.CreateTexture(description, data);
         
-        Description = _texture.Description;
+        Description = Texture.Description;
     }
     
     public override void Dispose()
     {
-        _texture.Dispose();
-        IsDisposed = _texture.IsDisposed;
+        Texture.Dispose();
+        IsDisposed = Texture.IsDisposed;
         
         PieLog.Log(LogType.Debug, "Texture disposed.");
     }

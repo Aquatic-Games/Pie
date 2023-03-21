@@ -5,7 +5,7 @@ namespace Pie.DebugLayer;
 
 internal sealed class DebugShader : Shader
 {
-    private Shader _shader;
+    public Shader Shader;
     
     public override bool IsDisposed { get; protected set; }
 
@@ -27,16 +27,15 @@ internal sealed class DebugShader : Shader
         PackedValue: {constant.Value}");
         }
         
-        PieLog.Log(LogType.Debug, $@"Shader info:
-{builder}");
+        PieLog.Log(LogType.Debug, $"Shader info:\n{builder}");
 
-        _shader = device.CreateShader(attachments, constants);
+        Shader = device.CreateShader(attachments, constants);
     }
     
     public override void Dispose()
     {
-        _shader.Dispose();
-        IsDisposed = _shader.IsDisposed;
+        Shader.Dispose();
+        IsDisposed = Shader.IsDisposed;
         PieLog.Log(LogType.Debug, "Shader disposed.");
     }
 }

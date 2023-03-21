@@ -118,7 +118,7 @@ internal sealed unsafe class VkGraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
-    public override DepthStencilState CreateDepthState(DepthStencilStateDescription description)
+    public override DepthStencilState CreateDepthStencilState(DepthStencilStateDescription description)
     {
         throw new NotImplementedException();
     }

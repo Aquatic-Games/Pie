@@ -238,7 +238,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11BlendState(description);
     }
 
-    public override DepthStencilState CreateDepthState(DepthStencilStateDescription description)
+    public override DepthStencilState CreateDepthStencilState(DepthStencilStateDescription description)
     {
         return new D3D11DepthStencilState(description);
     }

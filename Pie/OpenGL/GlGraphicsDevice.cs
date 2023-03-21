@@ -199,7 +199,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         return new GlBlendState(description);
     }
 
-    public override DepthStencilState CreateDepthState(DepthStencilStateDescription description)
+    public override DepthStencilState CreateDepthStencilState(DepthStencilStateDescription description)
     {
         return new GlDepthStencilState(description);
     }
@@ -336,8 +336,6 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
     {
         GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
-        if (glBuf.Target != BufferTargetARB.ArrayBuffer)
-            throw new PieException("Given buffer is not a vertex buffer.");
         Gl.BindBuffer(BufferTargetARB.ArrayBuffer, glBuf.Handle); 
         //if (_currentLayout == null || !_currentLayout.Equals(layout))
         //{
@@ -349,8 +347,6 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
     {
         GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
-        if (glBuf.Target != BufferTargetARB.ElementArrayBuffer)
-            throw new PieException("Given buffer is not an index buffer.");
         Gl.BindBuffer(GLEnum.ElementArrayBuffer, glBuf.Handle);
 
         switch (type)

@@ -62,7 +62,7 @@ public class BasicTest : TestBase
         _rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone with { ScissorTest = false });
         
         // TODO: Not setting a depth state results in the depth pass always failing in Direct3D.
-        _depthStencilState = GraphicsDevice.CreateDepthState(DepthStencilStateDescription.LessEqual);
+        _depthStencilState = GraphicsDevice.CreateDepthStencilState(DepthStencilStateDescription.LessEqual);
     }
 
     private double _totalTime;

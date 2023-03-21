@@ -70,7 +70,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
         return new NullGraphicsBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
-    public override DepthStencilState CreateDepthState(DepthStencilStateDescription description)
+    public override DepthStencilState CreateDepthStencilState(DepthStencilStateDescription description)
     {
         return new NullDepthStencilState();
     }

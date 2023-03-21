@@ -2,11 +2,13 @@
 
 internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
 {
-    private GraphicsBuffer _buffer;
-    
+    public GraphicsBuffer Buffer;
+
     public override bool IsDisposed { get; protected set; }
 
     public bool IsDynamic;
+
+    public BufferType BufferType;
 
     public DebugGraphicsBuffer(GraphicsDevice device, BufferType type, uint sizeInBytes, void* data, bool dynamic)
     {
@@ -17,14 +19,15 @@ internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
     Dynamic: {dynamic},
     VideoMemory: {sizeInBytes}B
     HasInitialData: {data != null}");
-        
-        _buffer = device.CreateBuffer(type, sizeInBytes, data, dynamic);
+
+        BufferType = type;
+        Buffer = device.CreateBuffer(type, sizeInBytes, data, dynamic);
     }
     
     public override void Dispose()
     {
-        _buffer.Dispose();
-        IsDisposed = _buffer.IsDisposed;
+        Buffer.Dispose();
+        IsDisposed = Buffer.IsDisposed;
         
         PieLog.Log(LogType.Debug, "Buffer disposed.");
     }
