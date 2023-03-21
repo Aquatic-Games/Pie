@@ -31,10 +31,7 @@ internal sealed class DebugInputLayout : InputLayout
             }
             
             if (description.Offset != stride)
-            {
-                DebugMetrics.Errors++;
                 PieLog.Log(LogType.Critical, $"Invalid usage at position {position}: An offset of {description.Offset} was found, however an offset of {stride} was expected.");
-            }
 
             uint bitsPerPixel = (uint) description.Format.BitsPerPixel() / 8;
             

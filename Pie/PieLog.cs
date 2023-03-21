@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Pie.DebugLayer;
 
 namespace Pie;
 
@@ -15,6 +16,23 @@ public static class PieLog
     
     internal static void Log(LogType type, string message)
     {
+        switch (type)
+        {
+            case LogType.Warning:
+                DebugMetrics.Warnings++;
+                break;
+            case LogType.Error:
+                DebugMetrics.Errors++;
+                break;
+            case LogType.Critical:
+                DebugMetrics.Errors++;
+                break;
+            case LogType.Debug:
+            case LogType.Info:
+            default:
+                break;
+        }
+        
         DebugLog?.Invoke(type, message);
     }
 

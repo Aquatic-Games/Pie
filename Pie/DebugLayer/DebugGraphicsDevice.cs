@@ -123,7 +123,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override BlendState CreateBlendState(BlendStateDescription description)
     {
-        throw new NotImplementedException();
+        return new DebugBlendState(_device, description);
     }
 
     public override DepthStencilState CreateDepthStencilState(DepthStencilStateDescription description)
@@ -133,7 +133,7 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override SamplerState CreateSamplerState(SamplerStateDescription description)
     {
-        throw new NotImplementedException();
+        return new DebugSamplerState(_device, description);
     }
 
     public override Framebuffer CreateFramebuffer(params FramebufferAttachment[] attachments)
@@ -143,22 +143,23 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
-        throw new NotImplementedException();
+        fixed (void* ptr = data)
+            ((DebugGraphicsBuffer) buffer).Update(_device, offsetInBytes, (uint) (data.Length * sizeof(T)), ptr);
     }
 
     public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
     {
-        throw new NotImplementedException();
+        ((DebugGraphicsBuffer) buffer).Update(_device, offsetInBytes, (uint) sizeof(T), Unsafe.AsPointer(ref data));
     }
 
     public override void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data)
     {
-        throw new NotImplementedException();
+        ((DebugGraphicsBuffer) buffer).Update(_device, offsetInBytes, sizeInBytes, (void*) data);
     }
 
     public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data)
     {
-        throw new NotImplementedException();
+        ((DebugGraphicsBuffer) buffer).Update(_device, offsetInBytes, sizeInBytes, data);
     }
 
     public override void UpdateTexture<T>(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width, int height,
@@ -181,36 +182,74 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
     {
-        throw new NotImplementedException();
+        DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
+        
+        if (dBuffer.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to map a disposed buffer!");
+        
+        if (!dBuffer.IsDynamic)
+            PieLog.Log(LogType.Critical, "Cannot map a dynamic buffer.");
+
+        if (dBuffer.IsMapped)
+            PieLog.Log(LogType.Critical, "Cannot map a buffer that has already been mapped.");
+
+        return _device.MapBuffer(dBuffer.Buffer, mode);
     }
 
     public override void UnmapBuffer(GraphicsBuffer buffer)
     {
-        throw new NotImplementedException();
+        DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
+        
+        if (dBuffer.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to unmap a disposed buffer!");
+        
+        if (!dBuffer.IsMapped)
+            PieLog.Log(LogType.Critical, "Cannot unmap a buffer that has already been mapped.");
+        
+        // This should never happen but it doesn't hurt to have the check!
+        if (!dBuffer.IsDynamic)
+            PieLog.Log(LogType.Critical, "Attempted to unmap a dynamic buffer. If you see this message, Pie's checks have gone wrong. Either that or something MAJORLY bad has happened. Panic.");
+        
+        _device.UnmapBuffer(buffer);
     }
 
     public override void SetShader(Shader shader)
     {
+        if (shader.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed shader!");
+        
         _device.SetShader(((DebugShader) shader).Shader);
     }
 
     public override void SetTexture(uint bindingSlot, Texture texture, SamplerState samplerState)
     {
-        throw new NotImplementedException();
+        if (texture.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed texture!");
+
+        _device.SetTexture(bindingSlot, ((DebugTexture) texture).Texture, ((DebugSamplerState) samplerState).SamplerState);
     }
 
     public override void SetRasterizerState(RasterizerState state)
     {
+        if (state.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed rasterizer state!");
+
         _device.SetRasterizerState(((DebugRasterizerState) state).RasterizerState);
     }
 
     public override void SetBlendState(BlendState state)
     {
-        throw new NotImplementedException();
+        if (state.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed blend state!");
+
+        _device.SetBlendState(state);
     }
 
     public override void SetDepthStencilState(DepthStencilState state, int stencilRef = 0)
     {
+        if (state.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed depth stencil state!");
+
         _device.SetDepthStencilState(((DebugDepthStencilState) state).DepthStencilState, stencilRef);
     }
 
@@ -221,18 +260,20 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
     {
+        if (buffer.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed buffer!");
+
+        if (layout.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed input layout!");
+
         DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
         if (dBuffer.BufferType != BufferType.VertexBuffer)
-        {
-            DebugMetrics.Errors++;
             PieLog.Log(LogType.Critical, $"Expected VertexBuffer, buffer is an {dBuffer.BufferType} instead.");
-        }
 
         DebugInputLayout dLayout = (DebugInputLayout) layout;
         if (!dLayout.HasProducedStrideWarning && stride != dLayout.CalculatedStride)
         {
             dLayout.HasProducedStrideWarning = true;
-            DebugMetrics.Warnings++;
             PieLog.Log(LogType.Warning, $"Potential invalid usage: Input layout stride was {stride}, but a stride of {dLayout.CalculatedStride} was expected.");
         }
 
@@ -241,24 +282,24 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
     {
+        if (buffer.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed buffer!");
+
         DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
         if (dBuffer.BufferType != BufferType.IndexBuffer)
-        {
-            DebugMetrics.Errors++;
             PieLog.Log(LogType.Critical, $"Expected IndexBuffer, buffer is an {dBuffer.BufferType} instead.");
-        }
 
         _device.SetIndexBuffer(dBuffer.Buffer, type);
     }
 
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
     {
+        if (buffer.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed buffer!");
+
         DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
         if (dBuffer.BufferType != BufferType.UniformBuffer)
-        {
-            DebugMetrics.Errors++;
             PieLog.Log(LogType.Critical, $"Expected UniformBuffer, buffer is an {dBuffer.BufferType} instead.");
-        }
     }
 
     public override void SetFramebuffer(Framebuffer framebuffer)
@@ -268,12 +309,12 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void Draw(uint vertexCount)
     {
-        throw new NotImplementedException();
+        _device.Draw(vertexCount);
     }
 
     public override void Draw(uint vertexCount, int startVertex)
     {
-        throw new NotImplementedException();
+        _device.Draw(vertexCount, startVertex);
     }
 
     public override void DrawIndexed(uint indexCount)
@@ -283,26 +324,23 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void DrawIndexed(uint indexCount, int startIndex)
     {
-        throw new NotImplementedException();
+        _device.DrawIndexed(indexCount, startIndex);
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
-        throw new NotImplementedException();
+        _device.DrawIndexed(indexCount, startIndex, baseVertex);
     }
 
     public override void DrawIndexedInstanced(uint indexCount, uint instanceCount)
     {
-        throw new NotImplementedException();
+        _device.DrawIndexedInstanced(indexCount, indexCount);
     }
 
     public override void Present(int swapInterval)
     {
         if (swapInterval > 4)
-        {
-            DebugMetrics.Errors++;
             PieLog.Log(LogType.Critical, $"Swap interval should be a maximum of 4, however an interval of {swapInterval} was provided.");
-        }
 
         _device.Present(swapInterval);
     }
@@ -314,17 +352,21 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override void GenerateMipmaps(Texture texture)
     {
-        throw new NotImplementedException();
+        DebugTexture dTexture = (DebugTexture) texture;
+        if (dTexture.Description.MipLevels == 1)
+            PieLog.Log(LogType.Warning, "Attempting to generate mipmaps for a texture that does not support mipmaps.");
+
+        _device.GenerateMipmaps(dTexture.Texture);
     }
 
     public override void Dispatch(uint groupCountX, uint groupCountY, uint groupCountZ)
     {
-        throw new NotImplementedException();
+        _device.Dispatch(groupCountX, groupCountY, groupCountZ);
     }
 
     public override void Flush()
     {
-        throw new NotImplementedException();
+        _device.Flush();
     }
 
     public override void Dispose()
