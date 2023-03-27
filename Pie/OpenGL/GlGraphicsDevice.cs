@@ -31,6 +31,8 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     private int _boundTexture = -1;
     private int _bindingSlot = -1;
     private bool _framebufferSet;
+
+    private int _defaultFramebufferId;
     
     public unsafe GlGraphicsDevice(PieGlContext context, Size winSize, GraphicsDeviceOptions options)
     {
@@ -44,6 +46,8 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         {
             Size = winSize
         };
+
+        Gl.GetInteger(GetPName.DrawFramebufferBinding, out _defaultFramebufferId);
 
         Viewport = new Rectangle(Point.Empty, winSize);
 
@@ -371,7 +375,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     {
         if (framebuffer == null)
         {
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, (uint) _defaultFramebufferId);
             _framebufferSet = false;
             //Gl.DrawBuffer(DrawBufferMode.Front);
             return;
