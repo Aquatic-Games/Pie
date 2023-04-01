@@ -11,6 +11,9 @@ Pie currently supports the following APIs:
 * Direct3D 11
 * OpenGL 4.3
 
+#### First-class debugging
+Graphics debugging can be tough. Pie features an optional debug layer that can provide detailed debug logging, API usage validation, statistics, and memory leak checking.  
+
 ### Audio
 Pie features a cross-platform audio library, using [mixr](https://github.com/piegfx/mixr) as its backend. On top of mixr's built-in features, Pie.Audio also features an SDL-powered audio device, so you can immediately start playing audio.
 
