@@ -7,7 +7,7 @@ namespace Pie.OpenGL;
 internal sealed class GlRasterizerState : RasterizerState
 {
     private bool _cullFaceEnabled;
-    private CullFaceMode _cullFaceMode;
+    private TriangleFace _cullFaceMode;
     private FrontFaceDirection _frontFace;
     private PolygonMode _mode;
     private bool _scissor;
@@ -23,8 +23,8 @@ internal sealed class GlRasterizerState : RasterizerState
             _cullFaceEnabled = true;
             _cullFaceMode = description.CullFace switch
             {
-                CullFace.Front => CullFaceMode.Front,
-                CullFace.Back => CullFaceMode.Back,
+                CullFace.Front => TriangleFace.Front,
+                CullFace.Back => TriangleFace.Back,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -62,7 +62,7 @@ internal sealed class GlRasterizerState : RasterizerState
         
         Gl.FrontFace(_frontFace);
 
-        Gl.PolygonMode(MaterialFace.FrontAndBack, _mode);
+        Gl.PolygonMode(TriangleFace.FrontAndBack, _mode);
         
         if (_scissor)
             Gl.Enable(EnableCap.ScissorTest);

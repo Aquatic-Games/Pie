@@ -50,12 +50,11 @@ internal sealed class GlDepthStencilState : DepthStencilState
         if (_description.StencilEnabled)
         {
             Gl.Enable(EnableCap.StencilTest);
-            Gl.StencilOpSeparate(StencilFaceDirection.Front, _frontStencilFail, _frontDepthFail, _frontStencilPass);
-            Gl.StencilOpSeparate(StencilFaceDirection.Back, _backStencilFail, _backDepthFail, _backStencilPass);
+            Gl.StencilOpSeparate(TriangleFace.Front, _frontStencilFail, _frontDepthFail, _frontStencilPass);
+            Gl.StencilOpSeparate(TriangleFace.Back, _backStencilFail, _backDepthFail, _backStencilPass);
             Gl.StencilMask(_description.StencilWriteMask);
-            // TODO: Is this right? Is ref meant to be 1? Is this the read mask? aaaaa?
-            Gl.StencilFuncSeparate(StencilFaceDirection.Front, _frontFunc, stencilRef, _description.StencilReadMask);
-            Gl.StencilFuncSeparate(StencilFaceDirection.Back, _backFunc, stencilRef, _description.StencilReadMask);
+            Gl.StencilFuncSeparate(TriangleFace.Front, _frontFunc, stencilRef, _description.StencilReadMask);
+            Gl.StencilFuncSeparate(TriangleFace.Back, _backFunc, stencilRef, _description.StencilReadMask);
         }
         else
             Gl.Disable(EnableCap.StencilTest);
