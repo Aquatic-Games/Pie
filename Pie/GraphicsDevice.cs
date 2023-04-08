@@ -6,9 +6,6 @@ using Pie.Direct3D11;
 using Pie.Null;
 using Pie.OpenGL;
 using Pie.ShaderCompiler;
-using Pie.Vulkan;
-using Silk.NET.Core.Contexts;
-using Silk.NET.Vulkan;
 
 namespace Pie;
 
@@ -475,16 +472,11 @@ public abstract class GraphicsDevice : IDisposable
     public static GraphicsDevice CreateD3D11(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options = default)
     {
         GraphicsDevice device = new D3D11GraphicsDevice(hwnd, winSize, options);
-        
+
         if (options.Debug)
             return new DebugGraphicsDevice(device);
-        
-        return device;
-    }
 
-    public static GraphicsDevice CreateVulkan()
-    {
-        return new VkGraphicsDevice();
+        return device;
     }
 
     /// <summary>
