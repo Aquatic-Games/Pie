@@ -26,10 +26,11 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     private Silk.NET.OpenGL.PrimitiveType _glType;
     private PrimitiveType _currentPType;
     private DrawElementsType _currentEType;
+
+    private GraphicsBuffer _currentVBuffer;
+    
     private int _eTypeSize;
     private bool _primitiveTypeInitialized;
-    private int _boundTexture = -1;
-    private int _bindingSlot = -1;
     private bool _framebufferSet;
 
     private int _defaultFramebufferId;
@@ -338,11 +339,12 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     {
         GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
         Gl.BindBuffer(BufferTargetARB.ArrayBuffer, glBuf.Handle); 
-        //if (_currentLayout == null || !_currentLayout.Equals(layout))
-        //{
+        if (_currentLayout == null || !_currentLayout.Equals(layout) || _currentVBuffer != buffer)
+        {
             ((GlInputLayout) layout).Set(slot, stride);
-        //    _currentLayout = layout;
-        //}
+            _currentLayout = layout;
+            _currentVBuffer = buffer;
+        }
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
