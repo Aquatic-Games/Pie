@@ -2,9 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
@@ -20,18 +19,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../LICENSE" Pack="true" PackagePath="\" />
-        <None Include="../README.md" Pack="true" PackagePath="\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="Spirzza.Interop.Shaderc" Version="0.0.1" />
-      <!--<PackageReference Include="Spirzza.Interop.SpirvCross" Version="0.0.1" />-->
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Spirzza\sources\Spirzza\Interop\SpirvCross\Spirzza.Interop.SpirvCross.csproj" />
+        <None Include="../../LICENSE" Pack="true" PackagePath="\" />
+        <None Include="../../README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

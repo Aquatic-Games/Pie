@@ -1,21 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie", "Pie\Pie.csproj", "{B09ED936-BC60-4587-9AFD-0400A5EB2141}"
+#
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie", "src\Pie\Pie.csproj", "{B09ED936-BC60-4587-9AFD-0400A5EB2141}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Utils", "Pie.Utils\Pie.Utils.csproj", "{ECC33571-2DC2-4151-9253-163E162E915A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Utils", "src\Pie.Utils\Pie.Utils.csproj", "{ECC33571-2DC2-4151-9253-163E162E915A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.ShaderCompiler", "Pie.ShaderCompiler\Pie.ShaderCompiler.csproj", "{DDC165C5-B3D9-4083-9855-43047DA30956}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.ShaderCompiler", "src\Pie.ShaderCompiler\Pie.ShaderCompiler.csproj", "{DDC165C5-B3D9-4083-9855-43047DA30956}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Audio", "Pie.Audio\Pie.Audio.csproj", "{CF5E9358-1548-4102-9D8A-4070A1E1F53D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Audio", "src\Pie.Audio\Pie.Audio.csproj", "{CF5E9358-1548-4102-9D8A-4070A1E1F53D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Windowing", "Pie.Windowing\Pie.Windowing.csproj", "{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Windowing", "src\Pie.Windowing\Pie.Windowing.csproj", "{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Extensions.SilkWindowing", "Pie.Extensions.SilkWindowing\Pie.Extensions.SilkWindowing.csproj", "{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Extensions.SilkWindowing", "src\Pie.Extensions.SilkWindowing\Pie.Extensions.SilkWindowing.csproj", "{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Text", "Pie.Text\Pie.Text.csproj", "{6E6A1480-FF25-45A6-BDDB-904E07DCA291}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Text", "src\Pie.Text\Pie.Text.csproj", "{6E6A1480-FF25-45A6-BDDB-904E07DCA291}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Tests", "Pie.Tests\Pie.Tests.csproj", "{DC827A20-033A-4AE7-AC67-C52F81393234}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Tests", "src\Pie.Tests\Pie.Tests.csproj", "{DC827A20-033A-4AE7-AC67-C52F81393234}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Spirzza", "Spirzza", "{CDAFB1A5-86AD-4250-8F49-29B2BD21F73E}"
 EndProject

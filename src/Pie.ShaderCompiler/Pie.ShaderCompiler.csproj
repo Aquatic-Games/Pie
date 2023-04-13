@@ -2,8 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>disable</ImplicitUsings>
-        <Nullable>disable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
@@ -19,16 +20,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../LICENSE" Pack="true" PackagePath="\" />
-        <None Include="../README.md" Pack="true" PackagePath="\" />
+        <None Include="../../LICENSE" Pack="true" PackagePath="\" />
+        <None Include="../../README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Silk.NET.Windowing.Common" Version="2.17.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Spirzza.Interop.Shaderc" Version="0.0.1" />
+      <!--<PackageReference Include="Spirzza.Interop.SpirvCross" Version="0.0.1" />-->
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Pie\Pie.csproj" />
+      <ProjectReference Include="..\..\Spirzza\sources\Spirzza\Interop\SpirvCross\Spirzza.Interop.SpirvCross.csproj" />
     </ItemGroup>
 
 </Project>
