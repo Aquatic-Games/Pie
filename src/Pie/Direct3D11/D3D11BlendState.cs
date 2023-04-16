@@ -1,5 +1,5 @@
 using System;
-using Vortice.Direct3D11;
+using Silk.NET.Direct3D11;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
 
 namespace Pie.Direct3D11;

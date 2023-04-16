@@ -3,8 +3,17 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
     </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\src\Pie.Audio\Pie.Audio.csproj" />
+      <ProjectReference Include="..\..\..\src\Pie.ShaderCompiler\Pie.ShaderCompiler.csproj" />
+      <ProjectReference Include="..\..\..\src\Pie.Text\Pie.Text.csproj" />
+      <ProjectReference Include="..\..\..\src\Pie.Utils\Pie.Utils.csproj" />
+      <ProjectReference Include="..\..\..\src\Pie.Windowing\Pie.Windowing.csproj" />
+      <ProjectReference Include="..\..\..\src\Pie\Pie.csproj" />
+    </ItemGroup>
 
 </Project>

@@ -1,3 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using PieDemo;
 
-Console.WriteLine("Hello, World!");
+using Demo demo = new Demo();
+demo.Run();
