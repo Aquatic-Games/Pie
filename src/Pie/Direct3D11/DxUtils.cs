@@ -1,5 +1,4 @@
 using System;
-using Silk.NET.Core.Native;
 
 namespace Pie.Direct3D11;
 
@@ -81,11 +80,5 @@ internal static class DxUtils
             MapMode.ReadWrite => Vortice.Direct3D11.MapMode.ReadWrite,
             _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
         };
-    }
-
-    public static bool Failed(int result)
-    {
-        HResult hResult = new HResult(result);
-        return !hResult.IsSuccess;
     }
 }

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata;
 using Pie.ShaderCompiler;
 using SharpGen.Runtime;
-using Silk.NET.Direct3D11;
-using Silk.NET.Vulkan;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
@@ -35,19 +32,19 @@ internal sealed class D3D11Shader : Shader
             {
                 case ShaderStage.Vertex:
                     Blob vShader = CompileShader(hlsl, "main", "vs_5_0");
-                    _shaders.Add(ShaderStage.Vertex, D3D11GraphicsDevice.Device.CreateVertexShader(vShader.AsBytes()));
+                    _shaders.Add(ShaderStage.Vertex, Device.CreateVertexShader(vShader.AsBytes()));
                     break;
                 case ShaderStage.Fragment:
                     Blob fShader = CompileShader(hlsl, "main", "ps_5_0");
-                    _shaders.Add(ShaderStage.Fragment, D3D11GraphicsDevice.Device.CreatePixelShader(fShader.AsBytes()));
+                    _shaders.Add(ShaderStage.Fragment, Device.CreatePixelShader(fShader.AsBytes()));
                     break;
                 case ShaderStage.Geometry:
                     Blob gShader = CompileShader(hlsl, "main", "gs_5_0");
-                    _shaders.Add(ShaderStage.Geometry, D3D11GraphicsDevice.Device.CreateGeometryShader(gShader.AsBytes()));
+                    _shaders.Add(ShaderStage.Geometry, Device.CreateGeometryShader(gShader.AsBytes()));
                     break;
                 case ShaderStage.Compute:
                     Blob cShader = CompileShader(hlsl, "main", "cs_5_0");
-                    _shaders.Add(ShaderStage.Compute, D3D11GraphicsDevice.Device.CreateComputeShader(cShader.AsBytes()));
+                    _shaders.Add(ShaderStage.Compute, Device.CreateComputeShader(cShader.AsBytes()));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -2,24 +2,26 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Pie.DebugLayer;
 using Pie.ShaderCompiler;
-using Silk.NET.Core.Native;
-using Silk.NET.Direct3D11;
-using Silk.NET.DXGI;
+using SharpGen.Runtime;
+using Vortice.Direct3D;
+using Vortice.Direct3D11;
+using Vortice.Direct3D11.Debug;
+using Vortice.DXGI;
+using Vortice.Mathematics;
+using static Vortice.DXGI.DXGI;
+using static Vortice.Direct3D11.D3D11;
 using Color = System.Drawing.Color;
 using Size = System.Drawing.Size;
-using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
+internal sealed class D3D11GraphicsDevice : GraphicsDevice
 {
-    public static D3D11 D3D11;
-    public static DXGI DXGI;
+    private IDXGIFactory2 _dxgiFactory;
     public static ID3D11Device Device;
     public static ID3D11DeviceContext Context;
-    
-    private ComPtr<IDXGIFactory2> _dxgiFactory;
     private IDXGISwapChain _swapChain;
     private ID3D11Texture2D _colorTexture;
     private ID3D11Texture2D _depthStencilTexture;
@@ -37,46 +39,41 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options)
     {
-        DXGI = DXGI.GetApi();
-        D3D11 = D3D11.GetApi();
-        
         bool debug = options.Debug;
-        if (debug && !DXGI.SdkLayersAvailable())
+        if (debug && !SdkLayersAvailable())
         {
             debug = false;
             PieLog.Log(LogType.Warning, "Debug has been enabled however no SDK layers have been found. Direct3D debug has therefore been disabled.");
         }
         
-        
-        if (Failed(DXGI.CreateDXGIFactory2(debug ? (uint) DXGI.CreateFactoryDebug : 0, out _dxgiFactory)))
-            throw new PieException("Error creating DXGI factory.");
+        Result res;
+        if ((res = CreateDXGIFactory2(debug, out _dxgiFactory)).Failure)
+            throw new PieException("Error creating DXGI factory: " + res.Description);
 
-        D3DFeatureLevel level = D3DFeatureLevel.Level110;
-        
-        
-        
-        CreateDeviceFlag flags = CreateDeviceFlag.BgraSupport | CreateDeviceFlag.Singlethreaded;
-        if (debug)
-            flags |= CreateDeviceFlag.Debug;
-
-        SwapChainDesc swapChainDesc = new SwapChainDesc()
+        FeatureLevel[] levels = new[]
         {
-            Flags = (uint) SwapChainFlag.None,
+            FeatureLevel.Level_11_0,
+            FeatureLevel.Level_11_1
+        };
+
+        DeviceCreationFlags flags = DeviceCreationFlags.BgraSupport | DeviceCreationFlags.Singlethreaded;
+        if (debug)
+            flags |= DeviceCreationFlags.Debug;
+
+        SwapChainDescription swapChainDescription = new SwapChainDescription()
+        {
+            Flags = SwapChainFlags.None,
             BufferCount = 2,
-            BufferDesc = new ModeDesc((uint) winSize.Width, (uint) winSize.Height,
-                format: Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm),
-            BufferUsage = DXGI.UsageRenderTargetOutput,
+            BufferDescription = new ModeDescription(winSize.Width, winSize.Height),
+            BufferUsage = Usage.RenderTargetOutput,
             OutputWindow = hwnd,
-            SampleDesc = new SampleDesc(1, 0),
+            SampleDescription = new SampleDescription(1, 0),
             SwapEffect = SwapEffect.FlipDiscard,
             Windowed = true
         };
 
-        IDXGIAdapter* adapter = null;
-        _dxgiFactory!.EnumAdapters(0, &adapter);
-        AdapterDesc desc;
-        desc.
-        Adapter = new GraphicsAdapter(adapter);
+        _dxgiFactory!.EnumAdapters(0, out IDXGIAdapter adapter);
+        Adapter = new GraphicsAdapter(adapter.Description.Description);
 
         if ((res = D3D11CreateDeviceAndSwapChain(null, DriverType.Hardware, flags, levels, swapChainDescription,
                 out _swapChain, out Device, out _, out Context)).Failure)

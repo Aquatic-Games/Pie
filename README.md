@@ -29,7 +29,8 @@ Cross-platform FreeType bindings, complete with a simple abstraction layer, to m
 Used by Pie itself, the shader compiler provides a simple way to transpile shaders. Compile GLSL or HLSL to Spir-V, and transpile Spir-V to various supported shading languages, such as GLSL or HLSL. This library is used by Pie to provide cross-platform shader support.
 
 ### Credits
-* [Silk.NET](https://github.com/dotnet/Silk.NET) - Direct3D, OpenGL, Vulkan, GLFW and SDL bindings.
+* [Silk.NET](https://github.com/dotnet/Silk.NET) - OpenGL, Vulkan, GLFW and SDL bindings.
+* [Vortice.Windows](https://github.com/amerkoleci/Vortice.Windows) - Direct3D 11 bindings.
 * [Spirzza](https://github.com/TechPizzaDev/Spirzza) - shaderc & spirv-cross bindings.
 * [mixr](https://github.com/piegfx/mixr) - Native audio library for Pie.Audio
 * Twitter for it's pie emoji (I don't own it!)
