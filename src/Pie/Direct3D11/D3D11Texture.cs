@@ -77,8 +77,16 @@ internal sealed class D3D11Texture : Texture
                 texture = Device.CreateTexture1D(desc1d);
                 if (data != null)
                 {
-                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), pitch,
-                        description.ArraySize > 1 ? description.ArraySize * bpp / 8 : 0);
+                    int numMips = description.MipLevels == 0
+                        ? PieUtils.CalculateMipLevels(description.Width, description.Height)
+                        : description.MipLevels;
+                    int sizeInBytes = description.Width * description.Height * (bpp / 8);
+                    for (int a = 0; a < description.ArraySize; a++)
+                    {
+                        int location = D3D11.CalculateSubResourceIndex(0, a, numMips);
+                        Context.UpdateSubresource(texture, location, null, new IntPtr(data) + (sizeInBytes * a), pitch,
+                            0);
+                    }
                 }
 
                 if (description.ArraySize == 1)
@@ -237,13 +245,16 @@ internal sealed class D3D11Texture : Texture
 
     public unsafe void Update(int x, int y, int z, int width, int height, int depth, int mipLevel, int arrayIndex, void* data)
     {
-        int subresource = mipLevel + (arrayIndex * Description.MipLevels);
+        int subresource = D3D11.CalculateSubResourceIndex(mipLevel, arrayIndex,
+            Description.MipLevels == 0
+                ? PieUtils.CalculateMipLevels(Description.Width, Description.Height)
+                : Description.MipLevels);
 
         // TODO: Figure out depth pitch correctly.
         // TODO: Make sure this works properly as well.
         // TODO: This does not work properly - It probably needs something similar to the OpenGL texture function.
         // TODO: front and back of the box have been reverted to 0 and 1 as this broke texture updating on D3D. FIX THIS!!!
-        Context.UpdateSubresource(Texture, subresource, new Box(x, y, 0, x + width, y + height, 1),
+        Context.UpdateSubresource(Texture, subresource, new Box(x, y, z, x + width, y + height, z + depth + 1),
             new IntPtr(data), PieUtils.CalculatePitch(Description.Format, width, out _), 0);
     }
 
