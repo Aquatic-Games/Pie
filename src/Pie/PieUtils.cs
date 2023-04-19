@@ -70,6 +70,36 @@ public static class PieUtils
     /// </summary>
     /// <param name="unmanagedPtr">The pointer to unmanaged memory.</param>
     /// <param name="offsetInBytes">The offset in bytes.</param>
+    /// <param name="sizeInBytes">The size of the data in bytes.</param>
+    /// <param name="data">The data itself.</param>
+    /// <typeparam name="T">Any unmanaged type.</typeparam>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static unsafe void CopyToUnmanaged<T>(IntPtr unmanagedPtr, int offsetInBytes, uint sizeInBytes, T data) where T : unmanaged
+    {
+        void* dat = Unsafe.AsPointer(ref data);
+        Unsafe.CopyBlock((byte*) unmanagedPtr + offsetInBytes, dat, sizeInBytes);
+    }
+
+    /// <summary>
+    /// Copy the given data to a section in unmanaged memory (useful for copying data to a mapped buffer in a safe
+    /// context.)
+    /// </summary>
+    /// <param name="unmanagedPtr">The pointer to unmanaged memory.</param>
+    /// <param name="offsetInBytes">The offset in bytes.</param>
+    /// <param name="data">The data itself.</param>
+    /// <typeparam name="T">Any unmanaged type.</typeparam>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static unsafe void CopyToUnmanaged<T>(IntPtr unmanagedPtr, int offsetInBytes, T data) where T : unmanaged
+    {
+        CopyToUnmanaged(unmanagedPtr, offsetInBytes, (uint) sizeof(T), data);
+    }
+
+    /// <summary>
+    /// Copy the given data to a section in unmanaged memory (useful for copying data to a mapped buffer in a safe
+    /// context.)
+    /// </summary>
+    /// <param name="unmanagedPtr">The pointer to unmanaged memory.</param>
+    /// <param name="offsetInBytes">The offset in bytes.</param>
     /// <param name="dataLengthInBytes">The data length in bytes.</param>
     /// <param name="data">The data itself.</param>
     /// <typeparam name="T">Any unmanaged type.</typeparam>
