@@ -96,6 +96,19 @@ public static class PieUtils
     }
 
     /// <summary>
+    /// Calculate the total number of mipmap levels (including the most detailed mip) from the given width and height.
+    /// </summary>
+    /// <param name="width">The width of the texture.</param>
+    /// <param name="height">The height of the texture.</param>
+    /// <returns>The number of mip levels.</returns>
+    /// <remarks>For the result to be accurate, you should use the width and height of the most detailed mip level.</remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int CalculateMipLevels(int width, int height)
+    {
+        return (int) Math.Floor(Math.Log2(Math.Max(width, height))) + 1;
+    }
+
+    /// <summary>
     /// Gets the bits per pixel of the given format. (For example, R8G8B8A8_UNorm would be 32-bits).
     /// </summary>
     /// <param name="format"></param>

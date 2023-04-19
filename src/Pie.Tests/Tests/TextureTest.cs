@@ -71,15 +71,15 @@ VSOutput VertexShader(in VSInput input)
 PSOutput PixelShader(in VSOutput input)
 {
     PSOutput output;
-    output.color = tex.Sample(samp, float3(input.texCoords, 1));
+    output.color = tex.Sample(samp, float3(input.texCoords, 0));
     return output;
 }";
 
         _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, vertices);
         _indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, indices);
         
-        ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
-        ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes(@"C:\Users\ollie\Pictures\awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes(@"C:\Users\ollie\Pictures\cube.png"), ColorComponents.RedGreenBlueAlpha);
         
         _texture = GraphicsDevice.CreateTexture(new TextureDescription(result1.Width, result1.Height,
             Format.R8G8B8A8_UNorm, 0, 2, TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data));

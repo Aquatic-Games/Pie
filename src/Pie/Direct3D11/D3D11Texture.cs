@@ -121,8 +121,16 @@ internal sealed class D3D11Texture : Texture
                 texture = Device.CreateTexture2D(desc2d);
                 if (data != null)
                 {
-                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), pitch,
-                        description.ArraySize > 1 ? description.ArraySize * bpp / 8 : 0);
+                    int numMips = description.MipLevels == 0
+                        ? PieUtils.CalculateMipLevels(description.Width, description.Height)
+                        : description.MipLevels;
+                    int sizeInBytes = description.Width * description.Height * (bpp / 8);
+                    for (int a = 0; a < description.ArraySize; a++)
+                    {
+                        int location = D3D11.CalculateSubResourceIndex(0, a, numMips);
+                        Context.UpdateSubresource(texture, location, null, new IntPtr(data) + (sizeInBytes * a), pitch,
+                            0);
+                    }
                 }
 
                 if (description.ArraySize == 1)
