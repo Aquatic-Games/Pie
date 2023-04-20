@@ -9,6 +9,7 @@ using Pie.Utils;
 
 namespace Pie.Tests.Tests;
 
+// Basic test to make sure Pie works at all.
 public class BasicTest : TestBase
 {
     private GraphicsBuffer _vertexBuffer;

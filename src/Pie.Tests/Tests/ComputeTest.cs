@@ -7,8 +7,8 @@ using StbImageSharp;
 
 namespace Pie.Tests.Tests;
 
-// Basic texture test to make sure textures work as expected.
-public class TextureTest : TestBase
+// Basic compute shader test.
+public class ComputeTest : TestBase
 {
     private GraphicsBuffer _vertexBuffer;
     private GraphicsBuffer _indexBuffer;

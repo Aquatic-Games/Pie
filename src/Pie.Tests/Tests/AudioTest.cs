@@ -8,6 +8,7 @@ using PCM = Pie.Audio.PCM;
 
 namespace Pie.Tests.Tests;
 
+// Audio test to make sure Pie.Audio (+ mixr) work properly.
 public unsafe class AudioTest : TestBase
 {
     //private IntPtr _system;
