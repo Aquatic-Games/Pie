@@ -18,11 +18,40 @@ public sealed unsafe class Window : IDisposable
 
     private GraphicsApi _api;
 
+    /// <summary>
+    /// The size, in <b>screen coordinates</b>, of the window.
+    /// </summary>
+    public Size Size
+    {
+        get
+        {
+            int width, height;
+            _sdl.GetWindowSize(_window, &width, &height);
+            return new Size(width, height);
+        }
+
+        set => _sdl.SetWindowSize(_window, value.Width, value.Height);
+    }
+
+    /// <summary>
+    /// Get the size of the window <b>in pixels</b>. NOTE: This is <b>NOT</b> the same as <see cref="Size"/>, and you
+    /// should use this property when performing actions such as resizing the swapchain.
+    /// </summary>
+    public Size FramebufferSize
+    {
+        get
+        {
+            int width, height;
+            _sdl.GetWindowSizeInPixels(_window, &width, &height);
+            return new Size(width, height);
+        }
+    }
+
     internal Window(WindowBuilder builder)
     {
         _sdl = Sdl.GetApi();
 
-        if (_sdl.Init(Sdl.InitEverything) < 0)
+        if (_sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
             throw new PieException($"SDL failed to initialize: {_sdl.GetErrorS()}");
         
         // TODO: Disable/make optional.
@@ -44,7 +73,6 @@ public sealed unsafe class Window : IDisposable
 
         if (builder.WindowResizable)
             flags |= WindowFlags.Resizable;
-        
 
         if (builder.WindowApi == GraphicsApi.OpenGL)
         {
@@ -110,6 +138,15 @@ public sealed unsafe class Window : IDisposable
         {
             case EventType.Quit:
                 @event = new Events.QuitEvent();
+                break;
+            case EventType.Windowevent:
+                switch ((WindowEventID) sdlEvent.Window.Event)
+                {
+                    case WindowEventID.Resized:
+                        @event = new ResizeEvent(new Size(sdlEvent.Window.Data1, sdlEvent.Window.Data2));
+                        break;
+                }
+
                 break;
         }
 

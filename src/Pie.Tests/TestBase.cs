@@ -24,6 +24,9 @@ public abstract class TestBase : IDisposable
         PieLog.DebugLog += DebugLog;
 
         Window = new WindowBuilder()
+            .Size(800, 480)
+            .Title("A test with SDL!")
+            .Resizable()
             .WithApi(api)
             .Build(out GraphicsDevice);
 
@@ -38,8 +41,11 @@ public abstract class TestBase : IDisposable
             {
                 switch (evnt)
                 {
-                    case QuitEvent qEvent:
+                    case QuitEvent:
                         wantsClose = true;
+                        break;
+                    case ResizeEvent rEvent:
+                        ResizeWindow(rEvent.Size);
                         break;
                 }
             }
@@ -55,7 +61,7 @@ public abstract class TestBase : IDisposable
         }
     }
 
-    protected virtual void WindowOnResize(Size size)
+    protected virtual void ResizeWindow(Size size)
     {
         GraphicsDevice.ResizeSwapchain(size);
         GraphicsDevice.Viewport = new Rectangle(Point.Empty, size);
