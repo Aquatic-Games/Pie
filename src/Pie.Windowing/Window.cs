@@ -91,7 +91,6 @@ public sealed unsafe class Window : IDisposable
 
         if (builder.WindowIcon != null)
         {
-            Console.WriteLine("bruh");
             Icon icon = builder.WindowIcon.Value;
             Surface* surface;
             fixed (void* ptr = icon.Data)
