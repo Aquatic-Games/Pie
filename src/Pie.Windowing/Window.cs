@@ -89,6 +89,24 @@ public sealed unsafe class Window : IDisposable
             throw new PieException($"Window failed to create. {_sdl.GetErrorS()}");
         }
 
+        if (builder.WindowIcon != null)
+        {
+            Console.WriteLine("bruh");
+            Icon icon = builder.WindowIcon.Value;
+            Surface* surface;
+            fixed (void* ptr = icon.Data)
+            {
+                // ABGR ?????
+                // The hell endianness has SDL been compiled in?
+                surface = _sdl.CreateRGBSurfaceWithFormatFrom(ptr, (int) icon.Width, (int) icon.Height, 0,
+                    (int) icon.Width * 4, Sdl.PixelformatAbgr8888);
+            }
+
+            _sdl.SetWindowIcon(_window, surface);
+            
+            Console.WriteLine(_sdl.GetErrorS());
+        }
+
         _glContext = _sdl.GLCreateContext(_window);
 
         // Juuust make sure the context is current, even though it should already be.

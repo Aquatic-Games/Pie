@@ -14,6 +14,8 @@ public class WindowBuilder
 
     public bool WindowResizable;
 
+    public Icon? WindowIcon;
+
     public GraphicsDeviceOptions GraphicsDeviceOptions;
 
     public GraphicsApi WindowApi;
@@ -24,6 +26,7 @@ public class WindowBuilder
         WindowPosition = null;
         WindowTitle = Assembly.GetEntryAssembly()?.GetName().Name ?? "Pie Window";
         WindowResizable = false;
+        WindowIcon = null;
         GraphicsDeviceOptions = new GraphicsDeviceOptions(false);
         WindowApi = GraphicsDevice.GetBestApiForPlatform();
     }
@@ -52,6 +55,13 @@ public class WindowBuilder
     public WindowBuilder Resizable()
     {
         WindowResizable = true;
+
+        return this;
+    }
+
+    public WindowBuilder Icon(in Icon icon)
+    {
+        WindowIcon = icon;
 
         return this;
     }

@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using Pie.Windowing;
 using Pie.Windowing.Events;
+using StbImageSharp;
 using Point = System.Drawing.Point;
 using Window = Pie.Windowing.Window;
 
@@ -23,9 +25,13 @@ public abstract class TestBase : IDisposable
     {
         PieLog.DebugLog += DebugLog;
 
+        ImageResult result = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/pie_1f967.png"), ColorComponents.RedGreenBlueAlpha);
+        Icon icon = new Icon((uint) result.Width, (uint) result.Height, result.Data);
+        
         Window = new WindowBuilder()
             .Size(800, 480)
             .Title("A test with SDL!")
+            .Icon(icon)
             .Resizable()
             .WithApi(api)
             .Build(out GraphicsDevice);
