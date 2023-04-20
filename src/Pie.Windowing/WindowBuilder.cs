@@ -22,7 +22,7 @@ public class WindowBuilder
     {
         WindowSize = new Size(1280, 720);
         WindowPosition = null;
-        WindowTitle = Assembly.GetEntryAssembly()?.FullName ?? "Pie Window";
+        WindowTitle = Assembly.GetEntryAssembly()?.GetName().Name ?? "Pie Window";
         WindowResizable = false;
         GraphicsDeviceOptions = new GraphicsDeviceOptions(false);
         WindowApi = GraphicsDevice.GetBestApiForPlatform();
@@ -77,6 +77,13 @@ public class WindowBuilder
 
     public Window Build()
     {
-        throw new NotImplementedException();
+        return new Window(this);
+    }
+
+    public Window Build(out GraphicsDevice device, GraphicsDeviceOptions? options = null)
+    {
+        Window window = new Window(this);
+        device = window.CreateGraphicsDevice(options);
+        return window;
     }
 }

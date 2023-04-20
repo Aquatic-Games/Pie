@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using Pie.OpenGL;
 using Pie.Windowing.Events;
 using Silk.NET.SDL;
 using SdlWindow = Silk.NET.SDL.Window;
@@ -14,11 +16,13 @@ public sealed unsafe class Window : IDisposable
     
     private void* _glContext;
 
+    private GraphicsApi _api;
+
     internal Window(WindowBuilder builder)
     {
         _sdl = Sdl.GetApi();
 
-        if (_sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
+        if (_sdl.Init(Sdl.InitEverything) < 0)
             throw new PieException($"SDL failed to initialize: {_sdl.GetErrorS()}");
         
         // TODO: Disable/make optional.
@@ -40,6 +44,7 @@ public sealed unsafe class Window : IDisposable
 
         if (builder.WindowResizable)
             flags |= WindowFlags.Resizable;
+        
 
         if (builder.WindowApi == GraphicsApi.OpenGL)
         {
@@ -47,19 +52,51 @@ public sealed unsafe class Window : IDisposable
             _sdl.GLSetAttribute(GLattr.ContextMinorVersion, 3);
         }
 
-        SdlWindow* window = _sdl.CreateWindow(builder.WindowTitle, position.X, position.Y, builder.WindowSize.Width,
+        _window = _sdl.CreateWindow(builder.WindowTitle, position.X, position.Y, builder.WindowSize.Width,
             builder.WindowSize.Height, (uint) flags);
 
-        if (window == null)
+        if (_window == null)
         {
             _sdl.Quit();
             throw new PieException($"Window failed to create. {_sdl.GetErrorS()}");
         }
 
-        _glContext = _sdl.GLCreateContext(window);
+        _glContext = _sdl.GLCreateContext(_window);
 
         // Juuust make sure the context is current, even though it should already be.
         _sdl.GLMakeCurrent(_window, _glContext);
+
+        _api = builder.WindowApi;
+    }
+
+    public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions? options = null)
+    {
+        int width, height;
+        
+        _sdl.GetWindowSizeInPixels(_window, &width, &height);
+        Size size = new Size(width, height);
+        
+        switch (_api)
+        {
+            case GraphicsApi.OpenGL:
+                return GraphicsDevice.CreateOpenGL(new PieGlContext(s => (nint) _sdl.GLGetProcAddress(s), i =>
+                {
+                    _sdl.GLSetSwapInterval(i);
+                    _sdl.GLSwapWindow(_window);
+                }), size, options ?? new GraphicsDeviceOptions());
+            
+            case GraphicsApi.D3D11:
+                throw new NotImplementedException();
+                break;
+            case GraphicsApi.Vulkan:
+                throw new NotSupportedException("Vulkan does not actually exist and this API should be removed.");
+                break;
+            case GraphicsApi.Null:
+                return GraphicsDevice.CreateNull(size, options ?? new GraphicsDeviceOptions());
+            
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     public bool PollEvent(out IWindowEvent @event)

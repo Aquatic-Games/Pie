@@ -2,6 +2,9 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using Pie.Windowing;
+using Pie.Windowing.Events;
+using Point = System.Drawing.Point;
+using Window = Pie.Windowing.Window;
 
 namespace Pie.Tests;
 
@@ -16,19 +19,30 @@ public abstract class TestBase : IDisposable
 
     protected virtual void Draw(double dt) { }
 
-    public void Run(WindowSettings settings, GraphicsApi api)
+    public void Run(GraphicsApi api)
     {
         PieLog.DebugLog += DebugLog;
-        
-        Window = Window.CreateWithGraphicsDevice(settings, api, out GraphicsDevice, new GraphicsDeviceOptions(true));
-        Window.Resize += WindowOnResize;
+
+        Window = new WindowBuilder()
+            .WithApi(api)
+            .Build(out GraphicsDevice);
 
         Initialize();
+
+        bool wantsClose = false;
         
         Stopwatch sw = Stopwatch.StartNew();
-        while (!Window.ShouldClose)
+        while (!wantsClose)
         {
-            Window.ProcessEvents();
+            while (Window.PollEvent(out IWindowEvent evnt))
+            {
+                switch (evnt)
+                {
+                    case QuitEvent qEvent:
+                        wantsClose = true;
+                        break;
+                }
+            }
 
             double dt = sw.Elapsed.TotalSeconds;
             
