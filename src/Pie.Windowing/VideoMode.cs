@@ -1,5 +1,4 @@
 using System.Drawing;
-using Silk.NET.GLFW;
 
 namespace Pie.Windowing;
 
