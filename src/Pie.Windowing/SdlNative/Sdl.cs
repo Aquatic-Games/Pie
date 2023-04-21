@@ -41,6 +41,9 @@ public static unsafe class Sdl
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowSize")]
     public static extern void SetWindowSize(void* window, int w, int h);
 
+    [DllImport(SdlName, EntryPoint = "SDL_SetWindowIcon")]
+    public static extern void SetWindowIcon(void* window, void* surface);
+
     [DllImport(SdlName, EntryPoint = "SDL_GL_SetAttribute")]
     public static extern int GLSetAttribute(SdlGlAttr attr, int value);
 
@@ -64,6 +67,10 @@ public static unsafe class Sdl
     
     [DllImport(SdlName, EntryPoint = "SDL_PollEvent")]
     public static extern bool PollEvent(SdlEvent* @event);
+
+    [DllImport(SdlName, EntryPoint = "SDL_CreateRGBSurfaceWithFormatFrom")]
+    public static extern void* CreateRGBSurfaceWithFormatFrom(void* pixels, int width, int height, int depth, int pitch,
+        uint format); // returning void* cause I don't use anything stored inside SDL_Surface so why bother writing it
     
     #region Safe helpers
 

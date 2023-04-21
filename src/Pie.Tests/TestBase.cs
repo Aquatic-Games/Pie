@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using Pie.Audio;
 using Pie.Windowing;
 using Pie.Windowing.Events;
 using StbImageSharp;
@@ -27,7 +28,7 @@ public abstract class TestBase : IDisposable
 
         ImageResult result = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/pie_1f967.png"), ColorComponents.RedGreenBlueAlpha);
         Icon icon = new Icon((uint) result.Width, (uint) result.Height, result.Data);
-        
+
         Window = new WindowBuilder()
             .Size(800, 480)
             .Title("A test with SDL!")
