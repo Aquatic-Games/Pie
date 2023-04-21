@@ -1,18 +1,16 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text;
 using Pie.OpenGL;
 using Pie.Windowing.Events;
-using Silk.NET.SDL;
-using SdlWindow = Silk.NET.SDL.Window;
+using Pie.Windowing.SdlNative;
 
 namespace Pie.Windowing;
 
 public sealed unsafe class Window : IDisposable
 {
-    private Sdl _sdl;
-
-    private SdlWindow* _window;
+    private void* _window;
     
     private void* _glContext;
 
@@ -26,11 +24,11 @@ public sealed unsafe class Window : IDisposable
         get
         {
             int width, height;
-            _sdl.GetWindowSize(_window, &width, &height);
+            Sdl.GetWindowSize(_window, &width, &height);
             return new Size(width, height);
         }
 
-        set => _sdl.SetWindowSize(_window, value.Width, value.Height);
+        set => Sdl.SetWindowSize(_window, value.Width, value.Height);
     }
 
     /// <summary>
@@ -42,54 +40,54 @@ public sealed unsafe class Window : IDisposable
         get
         {
             int width, height;
-            _sdl.GetWindowSizeInPixels(_window, &width, &height);
+            Sdl.GetWindowSizeInPixels(_window, &width, &height);
             return new Size(width, height);
         }
     }
 
     internal Window(WindowBuilder builder)
     {
-        _sdl = Sdl.GetApi();
-
-        if (_sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
-            throw new PieException($"SDL failed to initialize: {_sdl.GetErrorS()}");
+        if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
+            throw new PieException($"SDL failed to initialize: {Sdl.GetErrorS()}");
         
         // TODO: Disable/make optional.
         // I simply disable this cause I find it annoying during development.
         // I *would* use wayland but it no worky on my 1060 for whatever reason and I am not bothered enough to fix.
-        _sdl.SetHint(Sdl.HintVideoX11NetWMBypassCompositor, "0");
+        Sdl.SetHint("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-        System.Drawing.Point position = builder.WindowPosition ??
-                                        new System.Drawing.Point(Sdl.WindowposCentered, Sdl.WindowposCentered);
+        Point position = builder.WindowPosition ?? new Point((int) Sdl.WindowposCentered, (int) Sdl.WindowposCentered);
 
-        WindowFlags flags = builder.WindowApi switch
+        SdlWindowFlags flags = builder.WindowApi switch
         {
-            GraphicsApi.OpenGL => WindowFlags.Opengl,
-            GraphicsApi.D3D11 => WindowFlags.None,
-            GraphicsApi.Vulkan => WindowFlags.Vulkan,
-            GraphicsApi.Null => WindowFlags.None,
+            GraphicsApi.OpenGL => SdlWindowFlags.OpenGL,
+            GraphicsApi.D3D11 => SdlWindowFlags.None,
+            GraphicsApi.Vulkan => SdlWindowFlags.Vulkan,
+            GraphicsApi.Null => SdlWindowFlags.None,
             _ => throw new ArgumentOutOfRangeException()
         };
 
         if (builder.WindowResizable)
-            flags |= WindowFlags.Resizable;
+            flags |= SdlWindowFlags.Resizable;
 
         if (builder.WindowApi == GraphicsApi.OpenGL)
         {
-            _sdl.GLSetAttribute(GLattr.ContextMajorVersion, 4);
-            _sdl.GLSetAttribute(GLattr.ContextMinorVersion, 3);
+            Sdl.GLSetAttribute(SdlGlAttr.ContextMajorVersion, 4);
+            Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 3);
         }
 
-        _window = _sdl.CreateWindow(builder.WindowTitle, position.X, position.Y, builder.WindowSize.Width,
-            builder.WindowSize.Height, (uint) flags);
+        fixed (byte* title = Encoding.UTF8.GetBytes(builder.WindowTitle))
+        {
+            _window = Sdl.CreateWindow((sbyte*) title, position.X, position.Y, builder.WindowSize.Width,
+                builder.WindowSize.Height, (uint) flags);
+        }
 
         if (_window == null)
         {
-            _sdl.Quit();
-            throw new PieException($"Window failed to create. {_sdl.GetErrorS()}");
+            Sdl.Quit();
+            throw new PieException($"Window failed to create. {Sdl.GetErrorS()}");
         }
 
-        if (builder.WindowIcon != null)
+        /*if (builder.WindowIcon != null)
         {
             Icon icon = builder.WindowIcon.Value;
             Surface* surface;
@@ -104,12 +102,12 @@ public sealed unsafe class Window : IDisposable
             _sdl.SetWindowIcon(_window, surface);
             
             Console.WriteLine(_sdl.GetErrorS());
-        }
+        }*/
 
-        _glContext = _sdl.GLCreateContext(_window);
+        _glContext = Sdl.GLCreateContext(_window);
 
         // Juuust make sure the context is current, even though it should already be.
-        _sdl.GLMakeCurrent(_window, _glContext);
+        Sdl.GLMakeCurrent(_window, _glContext);
 
         _api = builder.WindowApi;
     }
@@ -118,16 +116,16 @@ public sealed unsafe class Window : IDisposable
     {
         int width, height;
         
-        _sdl.GetWindowSizeInPixels(_window, &width, &height);
+        Sdl.GetWindowSizeInPixels(_window, &width, &height);
         Size size = new Size(width, height);
         
         switch (_api)
         {
             case GraphicsApi.OpenGL:
-                return GraphicsDevice.CreateOpenGL(new PieGlContext(s => (nint) _sdl.GLGetProcAddress(s), i =>
+                return GraphicsDevice.CreateOpenGL(new PieGlContext(Sdl.GLGetProcAddress, i =>
                 {
-                    _sdl.GLSetSwapInterval(i);
-                    _sdl.GLSwapWindow(_window);
+                    Sdl.GLSetSwapInterval(i);
+                    Sdl.GLSwapWindow(_window);
                 }), size, options ?? new GraphicsDeviceOptions());
             
             case GraphicsApi.D3D11:
@@ -146,20 +144,20 @@ public sealed unsafe class Window : IDisposable
 
     public bool PollEvent(out IWindowEvent @event)
     {
-        Event sdlEvent;
+        SdlEvent sdlEvent;
         @event = null;
-        if (_sdl.PollEvent(&sdlEvent) != 1)
+        if (!Sdl.PollEvent(&sdlEvent))
             return false;
 
-        switch ((EventType) sdlEvent.Type)
+        switch ((SdlEventType) sdlEvent.Type)
         {
-            case EventType.Quit:
-                @event = new Events.QuitEvent();
+            case SdlEventType.Quit:
+                @event = new QuitEvent();
                 break;
-            case EventType.Windowevent:
-                switch ((WindowEventID) sdlEvent.Window.Event)
+            case SdlEventType.WindowEvent:
+                switch ((SdlWindowEventId) sdlEvent.Window.Event)
                 {
-                    case WindowEventID.Resized:
+                    case SdlWindowEventId.Resized:
                         @event = new ResizeEvent(new Size(sdlEvent.Window.Data1, sdlEvent.Window.Data2));
                         break;
                 }
@@ -182,10 +180,9 @@ public sealed unsafe class Window : IDisposable
     public void Dispose()
     {
         if (_glContext != null)
-            _sdl.GLDeleteContext(_glContext);
+            Sdl.GLDeleteContext(_glContext);
         
-        _sdl.DestroyWindow(_window);
-        _sdl.Quit();
-        _sdl.Dispose();
+        Sdl.DestroyWindow(_window);
+        Sdl.Quit();
     }
 }
