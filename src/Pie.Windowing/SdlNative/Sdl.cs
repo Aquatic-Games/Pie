@@ -38,8 +38,14 @@ public static unsafe class Sdl
     [DllImport(SdlName, EntryPoint = "SDL_GetWindowSizeInPixels")]
     public static extern void GetWindowSizeInPixels(void* window, int* w, int* h);
 
+    [DllImport(SdlName, EntryPoint = "SDL_GetWindowPosition")]
+    public static extern void GetWindowPosition(void* window, int* x, int* y);
+
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowSize")]
     public static extern void SetWindowSize(void* window, int w, int h);
+
+    [DllImport(SdlName, EntryPoint = "SDL_SetWindowPosition")]
+    public static extern void SetWindowPosition(void* window, int x, int y);
 
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowIcon")]
     public static extern void SetWindowIcon(void* window, void* surface);

@@ -45,6 +45,20 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// Get or set the window position.
+    /// </summary>
+    public Point Position
+    {
+        get
+        {
+            int x, y;
+            Sdl.GetWindowPosition(_window, &x, &y);
+            return new Point(x, y);
+        }
+        set => Sdl.SetWindowPosition(_window, value.X, value.Y);
+    }
+
     internal Window(WindowBuilder builder)
     {
         if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
