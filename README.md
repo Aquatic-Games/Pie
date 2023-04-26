@@ -3,6 +3,8 @@
 
 The cross-platform graphics toolkit. Featuring a Direct3D-style cross-platform graphics API, windowing & audio, you'll find graphics programming as easy as pie.
 
+Want to find out more? [Join our discord server!](https://discord.gg/ygUpYkUstz)
+
 ### Graphics
 Pie's API is styled similarly to Direct3D 11. It is fully object-oriented, and does a fair amount of the hard work for you.
 
