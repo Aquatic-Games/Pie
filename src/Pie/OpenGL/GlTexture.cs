@@ -405,8 +405,16 @@ internal sealed class GlTexture : Texture
                     // manually defined.
                     if (description.MipLevels <= 1)
                     {
-                        Gl.TexSubImage2D(target, 0, 0, 0, (uint) description.Width, (uint) description.Height, fmt,
-                            type, data);
+                        if (compressed)
+                        {
+                            Gl.CompressedTexSubImage2D(target, 0, 0, 0, (uint) description.Width,
+                                (uint) description.Height, iFmt, size, data);
+                        }
+                        else
+                        {
+                            Gl.TexSubImage2D(target, 0, 0, 0, (uint) description.Width, (uint) description.Height, fmt,
+                                type, data);
+                        }
                     }
                     else
                     {
@@ -418,11 +426,24 @@ internal sealed class GlTexture : Texture
                         
                         for (int i = 0; i < mipLevels; i++)
                         {
-                            // Upload the data for the given mip level.
-                            Gl.TexSubImage2D(target, i, 0, 0, width, height, fmt, type,
-                                (byte*) data + currentOffset);
+                            uint currSize = (uint) (width * height * (bpp / 8f));
 
-                            currentOffset += (uint) (width * height * bpp / 8);
+                            // Upload the data for the given mip level.
+                            if (compressed)
+                            {
+                                // TODO: Check if all formats are subject to the 4x4 limitation.
+                                if (currSize < 16)
+                                    break;
+                                Gl.CompressedTexSubImage2D(target, i, 0, 0, width, height, iFmt, currSize,
+                                    (byte*) data + currentOffset);
+                            }
+                            else
+                            {
+                                Gl.TexSubImage2D(target, i, 0, 0, width, height, fmt, type,
+                                    (byte*) data + currentOffset);
+                            }
+
+                            currentOffset += currSize;
                             
                             // Divide the width and height by 2 for each mip level.
                             width /= 2;
