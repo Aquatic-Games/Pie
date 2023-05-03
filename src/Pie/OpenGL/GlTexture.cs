@@ -382,49 +382,44 @@ internal sealed class GlTexture : Texture
             Gl.BindTexture(target, handle);
             PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
             uint size = (uint) (description.Width * description.Height * (bpp / 8f));
+            
+            // Calculate the number of mip levels if the description's value is 0.
+            int mipLevels = description.MipLevels == 0
+                ? PieUtils.CalculateMipLevels(description.Width, description.Height)
+                : description.MipLevels;
 
-            switch (target)
+            switch (description.TextureType)
             {
-                case TextureTarget.Texture1D:
+                case TextureType.Texture1D:
                     break;
-                case TextureTarget.Texture2D:
-                    // Calculate the number of mip levels if the description's value is 0.
-                    int mipLevels = description.MipLevels == 0
-                        ? PieUtils.CalculateMipLevels(description.Width, description.Height)
-                        : description.MipLevels;
-                    
+                case TextureType.Texture2D:
                     // Allocate texture storage.
-                    Gl.TexStorage2D(target, (uint) mipLevels, (SizedInternalFormat) iFmt,
-                        (uint) description.Width, (uint) description.Height);
+                    // Create a 3D texture if the array size is more than 1.
+                    if (description.ArraySize > 1)
+                    {
+                        Gl.TexStorage3D(target, (uint) mipLevels, (SizedInternalFormat) iFmt, (uint) description.Width,
+                            (uint) description.Height, (uint) description.ArraySize);
+                    }
+                    else
+                    {
+                        Gl.TexStorage2D(target, (uint) mipLevels, (SizedInternalFormat) iFmt,
+                            (uint) description.Width, (uint) description.Height);
+                    }
 
                     // Don't continue further if there is no data.
                     if (data == null)
                         break;
+                    
+                    // The current offset in bytes to look at the data.
+                    uint currentOffset = 0;
 
-                    // We only need to upload the first level if the mip levels are 0 or 1, as no mipmaps will be
-                    // manually defined.
-                    if (description.MipLevels <= 1)
-                    {
-                        if (compressed)
-                        {
-                            Gl.CompressedTexSubImage2D(target, 0, 0, 0, (uint) description.Width,
-                                (uint) description.Height, iFmt, size, data);
-                        }
-                        else
-                        {
-                            Gl.TexSubImage2D(target, 0, 0, 0, (uint) description.Width, (uint) description.Height, fmt,
-                                type, data);
-                        }
-                    }
-                    else
+                    for (int a = 0; a < description.ArraySize; a++)
                     {
                         uint width = (uint) description.Width;
                         uint height = (uint) description.Height;
-
-                        // The current offset in bytes to look at the data.
-                        uint currentOffset = 0;
                         
-                        for (int i = 0; i < mipLevels; i++)
+                        // The loop must run at least once, even if the mip levels are 0.
+                        for (int i = 0; i < PieUtils.Max(1, description.MipLevels); i++)
                         {
                             uint currSize = (uint) (width * height * (bpp / 8f));
 
@@ -434,17 +429,33 @@ internal sealed class GlTexture : Texture
                                 // TODO: Check if all formats are subject to the 4x4 limitation.
                                 if (currSize < 16)
                                     break;
-                                Gl.CompressedTexSubImage2D(target, i, 0, 0, width, height, iFmt, currSize,
-                                    (byte*) data + currentOffset);
+                                if (description.ArraySize > 1)
+                                {
+                                    Gl.CompressedTexSubImage3D(target, i, 0, 0, a, width, height, 1, iFmt, currSize,
+                                        (byte*) data + currentOffset);
+                                }
+                                else
+                                {
+                                    Gl.CompressedTexSubImage2D(target, i, 0, 0, width, height, iFmt, currSize,
+                                        (byte*) data + currentOffset);
+                                }
                             }
                             else
                             {
-                                Gl.TexSubImage2D(target, i, 0, 0, width, height, fmt, type,
-                                    (byte*) data + currentOffset);
+                                if (description.ArraySize > 1)
+                                {
+                                    Gl.TexSubImage3D(target, i, 0, 0, a, width, height, 1, fmt, type,
+                                        (byte*) data + currentOffset);
+                                }
+                                else
+                                {
+                                    Gl.TexSubImage2D(target, i, 0, 0, width, height, fmt, type,
+                                        (byte*) data + currentOffset);
+                                }
                             }
 
                             currentOffset += currSize;
-                            
+
                             // Divide the width and height by 2 for each mip level.
                             width /= 2;
                             height /= 2;
@@ -457,13 +468,9 @@ internal sealed class GlTexture : Texture
                     }
 
                     break;
-                case TextureTarget.Texture3D:
+                case TextureType.Texture3D:
                     break;
-                case TextureTarget.TextureCubeMap:
-                    break;
-                case TextureTarget.Texture1DArray:
-                    break;
-                case TextureTarget.Texture2DArray:
+                case TextureType.Cubemap:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

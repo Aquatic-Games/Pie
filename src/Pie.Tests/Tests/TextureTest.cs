@@ -60,7 +60,7 @@ struct PSOutput
     float4 color: SV_Target0;
 };
 
-Texture2D tex : register(t0);
+Texture2DArray tex : register(t0);
 SamplerState samp : register(s0);
 
 VSOutput VertexShader(in VSInput input)
@@ -74,7 +74,7 @@ VSOutput VertexShader(in VSInput input)
 PSOutput PixelShader(in VSOutput input)
 {
     PSOutput output;
-    output.color = tex.Sample(samp, input.texCoords);
+    output.color = tex.Sample(samp, float3(input.texCoords, 0));
     return output;
 }";
 
@@ -88,14 +88,17 @@ PSOutput PixelShader(in VSOutput input)
             Format.R8G8B8A8_UNorm, 0, 2, TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data));
         GraphicsDevice.GenerateMipmaps(_texture);*/
         
-        /*ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("C:/Users/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
-        //ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/BAGELMIP.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/BAGELMIP.png"), ColorComponents.RedGreenBlueAlpha);
+        
+        ImageResult result3 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result4 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/EVILMIP.png"), ColorComponents.RedGreenBlueAlpha);
 
         _texture = GraphicsDevice.CreateTexture(
-            new TextureDescription(result1.Width, result1.Height, Format.R8G8B8A8_UNorm, 0, 1,
-                TextureUsage.ShaderResource), result1.Data);*/
+            new TextureDescription(result1.Width, result1.Height, Format.R8G8B8A8_UNorm, 2, 2,
+                TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data, result3.Data, result4.Data));
 
-        DDS dds = new DDS(File.ReadAllBytes("C:/Users/ollie/Pictures/DDS/awesomeface-BC7.dds"));
+        /*DDS dds = new DDS(File.ReadAllBytes("C:/Users/ollie/Pictures/DDS/awesomeface-BC7.dds"));
         
         Console.WriteLine(dds.MipLevels);
         Console.WriteLine(dds.MipLevels);
@@ -104,7 +107,7 @@ PSOutput PixelShader(in VSOutput input)
         _texture = GraphicsDevice.CreateTexture(
             new TextureDescription(dds.Size.Width, dds.Size.Height, Format.BC7_UNorm, dds.MipLevels, 1,
                 TextureUsage.ShaderResource), PieUtils.Combine(dds.Bitmaps[0]));
-        //GraphicsDevice.GenerateMipmaps(_texture);
+        //GraphicsDevice.GenerateMipmaps(_texture);*/
 
         _samplerState = GraphicsDevice.CreateSamplerState(SamplerStateDescription.LinearRepeat);
 
