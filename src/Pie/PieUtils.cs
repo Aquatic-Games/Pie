@@ -290,11 +290,5 @@ public static class PieUtils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static int Max(int l, int r) => l < r ? r : l;
 
-    internal static void CheckIfValid(int expected, int received)
-    {
-        if (received != expected)
-            throw new PieException($"{expected} bytes expected, {received} bytes received.");
-    }
-    
     #endregion
 }

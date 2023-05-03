@@ -90,13 +90,19 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 
     public override Texture CreateTexture<T>(TextureDescription description, T[] data)
     {
+        DebugUtils.CheckIfValid(description, data);
+        
         fixed (void* ptr = data)
             return new DebugTexture(_device, description, ptr);
     }
 
     public override Texture CreateTexture<T>(TextureDescription description, T[][] data)
     {
-        fixed (void* ptr = PieUtils.Combine(data))
+        T[] combined = PieUtils.Combine(data);
+        
+        DebugUtils.CheckIfValid(description, combined);
+        
+        fixed (void* ptr = combined)
             return new DebugTexture(_device, description, ptr);
     }
 
@@ -441,6 +447,10 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
     public override void GenerateMipmaps(Texture texture)
     {
         DebugTexture dTexture = (DebugTexture) texture;
+        
+        if (dTexture.Description.Format is >= Format.BC1_UNorm and <= Format.BC7_UNorm_SRgb)
+            PieLog.Log(LogType.Error, "Cannot generate mipmaps for block compressed textures.");
+        
         if (dTexture.Description.MipLevels == 1)
             PieLog.Log(LogType.Warning, "Attempting to generate mipmaps for a texture that does not support mipmaps.");
 
