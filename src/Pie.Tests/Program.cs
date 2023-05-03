@@ -10,3 +10,4 @@ WindowSettings settings = new WindowSettings()
 
 using TestBase tb = new TextureTest();
 tb.Run(settings, GraphicsDevice.GetBestApiForPlatform());
+//tb.Run(settings, GraphicsApi.OpenGL);

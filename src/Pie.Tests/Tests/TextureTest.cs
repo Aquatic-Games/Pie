@@ -88,10 +88,14 @@ PSOutput PixelShader(in VSOutput input)
             Format.R8G8B8A8_UNorm, 0, 2, TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data));
         GraphicsDevice.GenerateMipmaps(_texture);*/
         
-        //ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
+        /*ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("C:/Users/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
         //ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/BAGELMIP.png"), ColorComponents.RedGreenBlueAlpha);
 
-        DDS dds = new DDS(File.ReadAllBytes("/home/ollie/Pictures/DDS/24bitcolor-BC7.dds"));
+        _texture = GraphicsDevice.CreateTexture(
+            new TextureDescription(result1.Width, result1.Height, Format.R8G8B8A8_UNorm, 0, 1,
+                TextureUsage.ShaderResource), result1.Data);*/
+
+        DDS dds = new DDS(File.ReadAllBytes("C:/Users/ollie/Pictures/DDS/awesomeface-BC7.dds"));
         
         Console.WriteLine(dds.MipLevels);
         Console.WriteLine(dds.MipLevels);

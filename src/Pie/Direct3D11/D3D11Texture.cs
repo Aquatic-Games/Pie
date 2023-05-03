@@ -31,7 +31,6 @@ internal sealed class D3D11Texture : Texture
         Vortice.DXGI.Format fmt =
             description.Format.ToDxgiFormat((description.Usage & TextureUsage.ShaderResource) ==
                                             TextureUsage.ShaderResource);
-
         
         BindFlags flags = BindFlags.None;
         if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
@@ -39,7 +38,7 @@ internal sealed class D3D11Texture : Texture
 
         if (description.Format is Format.D24_UNorm_S8_UInt or Format.D32_Float or Format.D16_UNorm)
             flags |= BindFlags.DepthStencil;
-        else if ((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer || description.MipLevels != 1)
+        else if ((description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer || description.MipLevels == 0)
             flags |= BindFlags.RenderTarget;
 
         Vortice.DXGI.Format svFmt = description.Format.ToDxgiFormat(false);
@@ -61,86 +60,61 @@ internal sealed class D3D11Texture : Texture
         switch (description.TextureType)
         {
             case TextureType.Texture1D:
-                Texture1DDescription desc1d = new Texture1DDescription()
-                {
-                    Width = description.Width,
-                    Format = fmt,
-                    MipLevels = description.MipLevels,
-                    ArraySize = description.ArraySize,
-                    //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
-                    Usage = ResourceUsage.Default,
-                    BindFlags = flags,
-                    CPUAccessFlags = CpuAccessFlags.None,
-                    MiscFlags = description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
-                };
-
-                texture = Device.CreateTexture1D(desc1d);
-                if (data != null)
-                {
-                    int numMips = description.MipLevels == 0
-                        ? PieUtils.CalculateMipLevels(description.Width, description.Height)
-                        : description.MipLevels;
-                    int sizeInBytes = description.Width * description.Height * (bpp / 8);
-                    for (int a = 0; a < description.ArraySize; a++)
-                    {
-                        int location = D3D11.CalculateSubResourceIndex(0, a, numMips);
-                        Context.UpdateSubresource(texture, location, null, new IntPtr(data) + (sizeInBytes * a), pitch,
-                            0);
-                    }
-                }
-
-                if (description.ArraySize == 1)
-                {
-                    svDesc.ViewDimension = ShaderResourceViewDimension.Texture1D;
-                    svDesc.Texture1D = new Texture1DShaderResourceView()
-                    {
-                        MipLevels = -1,
-                        MostDetailedMip = 0
-                    };
-                }
-                else
-                {
-                    svDesc.ViewDimension = ShaderResourceViewDimension.Texture2DArray;
-                    svDesc.Texture1DArray = new Texture1DArrayShaderResourceView()
-                    {
-                        MipLevels = -1,
-                        MostDetailedMip = 0,
-                        ArraySize = description.ArraySize,
-                        FirstArraySlice = 0
-                    };
-                }
+                throw new NotImplementedException();
                 break;
             case TextureType.Texture2D:
+                int mipLevels = description.MipLevels == 0
+                    ? PieUtils.CalculateMipLevels(description.Width, description.Height)
+                    : description.MipLevels;
+
                 Texture2DDescription desc2d = new Texture2DDescription()
                 {
                     Width = description.Width,
                     Height = description.Height,
                     Format = fmt,
-                    MipLevels = description.MipLevels,
+                    MipLevels = mipLevels,
                     ArraySize = description.ArraySize,
                     SampleDescription = new SampleDescription(1, 0),
                     //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
                     Usage = ResourceUsage.Default,
                     BindFlags = flags,
                     CPUAccessFlags = CpuAccessFlags.None,
-                    MiscFlags = description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
+                    MiscFlags = description.MipLevels == 0 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
                 };
 
                 texture = Device.CreateTexture2D(desc2d);
+
                 if (data != null)
                 {
-                    int numMips = description.MipLevels == 0
-                        ? PieUtils.CalculateMipLevels(description.Width, description.Height)
-                        : description.MipLevels;
-                    int sizeInBytes = description.Width * description.Height * (bpp / 8);
-                    for (int a = 0; a < description.ArraySize; a++)
+                    if (description.MipLevels <= 1)
+                        Context.UpdateSubresource(texture, 0, null, (IntPtr) data, pitch, 0);
+                    else
                     {
-                        int location = D3D11.CalculateSubResourceIndex(0, a, numMips);
-                        Context.UpdateSubresource(texture, location, null, new IntPtr(data) + (sizeInBytes * a), pitch,
-                            0);
+                        int totalOffset = 0;
+
+                        int width = description.Width;
+                        int height = description.Height;
+                        
+                        for (int i = 0; i < mipLevels; i++)
+                        {
+                            int newPitch = PieUtils.CalculatePitch(description.Format, width, out _);
+                            
+                            Context.UpdateSubresource(texture, D3D11.CalculateSubResourceIndex(i, 0, mipLevels), null,
+                                (IntPtr) ((byte*) data + totalOffset), newPitch, 0);
+
+                            totalOffset += (int) (width * height * (bpp / 8f));
+                            
+                            width /= 2;
+                            height /= 2;
+
+                            if (width < 1)
+                                width = 1;
+                            if (height < 1)
+                                height = 1;
+                        }
                     }
                 }
-
+                
                 if (description.ArraySize == 1)
                 {
                     svDesc.ViewDimension = ShaderResourceViewDimension.Texture2D;
@@ -164,70 +138,10 @@ internal sealed class D3D11Texture : Texture
                 
                 break;
             case TextureType.Texture3D:
-                Texture3DDescription desc3d = new Texture3DDescription()
-                {
-                    Width = description.Width,
-                    Height = description.Height,
-                    Depth = description.Depth,
-                    Format = fmt,
-                    MipLevels = description.MipLevels,
-                    //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
-                    Usage = ResourceUsage.Default,
-                    BindFlags = flags,
-                    CPUAccessFlags = CpuAccessFlags.None,
-                    MiscFlags = description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
-                };
-
-                texture = Device.CreateTexture3D(desc3d);
-                if (data != null)
-                {
-                    Context.UpdateSubresource(texture, 0, null, new IntPtr(data), pitch,
-                        description.Depth * bpp / 8);
-                }
-
-                if (description.ArraySize > 1)
-                    throw new NotSupportedException("Texture3D arrays are not supported.");
-                
-                svDesc.ViewDimension = ShaderResourceViewDimension.Texture3D;
-                svDesc.Texture3D = new Texture3DShaderResourceView()
-                {
-                    MipLevels = -1,
-                    MostDetailedMip = 0
-                };
+                throw new NotImplementedException();
                 break;
             case TextureType.Cubemap:
-                Texture2DDescription cDesc = new Texture2DDescription()
-                {
-                    Width = description.Width,
-                    Height = description.Height,
-                    Format = fmt,
-                    MipLevels = description.MipLevels,
-                    ArraySize = description.ArraySize * 6,
-                    SampleDescription = new SampleDescription(1, 0),
-                    //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
-                    Usage = ResourceUsage.Default,
-                    BindFlags = flags,
-                    CPUAccessFlags = CpuAccessFlags.None,
-                    MiscFlags = ResourceOptionFlags.TextureCube | (description.MipLevels != 1 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None)
-                };
-
-                SubresourceData[] subresourceDatas = new SubresourceData[cDesc.ArraySize];
-                int size = description.Width * description.Height * bpp / 8;
-                for (int i = 0; i < cDesc.ArraySize; i++)
-                {
-                    void* ptr = (byte*) data + i * size;
-                    subresourceDatas[i] = new SubresourceData(ptr, pitch);
-                }
-
-                texture = Device.CreateTexture2D(cDesc, subresourceDatas);
-                
-                svDesc.ViewDimension = ShaderResourceViewDimension.TextureCube;
-                svDesc.Texture2D = new Texture2DShaderResourceView()
-                {
-                    MipLevels = -1,
-                    MostDetailedMip = 0
-                };
-                
+                throw new NotImplementedException();
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
