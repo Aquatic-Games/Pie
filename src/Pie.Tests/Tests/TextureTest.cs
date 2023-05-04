@@ -88,7 +88,7 @@ PSOutput PixelShader(in VSOutput input)
             Format.R8G8B8A8_UNorm, 0, 2, TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data));
         GraphicsDevice.GenerateMipmaps(_texture);*/
         
-        ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
+        /*ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
         ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/BAGELMIP.png"), ColorComponents.RedGreenBlueAlpha);
         
         ImageResult result3 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
@@ -98,9 +98,9 @@ PSOutput PixelShader(in VSOutput input)
             new TextureDescription(result1.Width, result1.Height, Format.R8G8B8A8_UNorm, 1, 1,
                 TextureUsage.ShaderResource), PieUtils.Combine(result1.Data));
         
-        GraphicsDevice.GenerateMipmaps(_texture);
+        GraphicsDevice.GenerateMipmaps(_texture);*/
 
-        /*DDS dds = new DDS(File.ReadAllBytes("C:/Users/ollie/Pictures/DDS/awesomeface-BC7.dds"));
+        DDS dds = new DDS(File.ReadAllBytes("/home/ollie/Pictures/DDS/24bitcolor-BC7.dds"));
         
         Console.WriteLine(dds.MipLevels);
         Console.WriteLine(dds.MipLevels);
@@ -109,7 +109,7 @@ PSOutput PixelShader(in VSOutput input)
         _texture = GraphicsDevice.CreateTexture(
             new TextureDescription(dds.Size.Width, dds.Size.Height, Format.BC7_UNorm, dds.MipLevels, 1,
                 TextureUsage.ShaderResource), PieUtils.Combine(dds.Bitmaps[0]));
-        //GraphicsDevice.GenerateMipmaps(_texture);*/
+        //GraphicsDevice.GenerateMipmaps(_texture);
 
         _samplerState = GraphicsDevice.CreateSamplerState(SamplerStateDescription.LinearRepeat);
 

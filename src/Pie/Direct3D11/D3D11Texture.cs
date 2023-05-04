@@ -64,7 +64,7 @@ internal sealed class D3D11Texture : Texture
                 break;
             case TextureType.Texture2D:
                 int mipLevels = description.MipLevels == 0
-                    ? PieUtils.CalculateMipLevels(description.Width, description.Height)
+                    ? PieUtils.CalculateMipLevels(description.Width, description.Height, 1)
                     : description.MipLevels;
 
                 Texture2DDescription desc2d = new Texture2DDescription()
@@ -159,7 +159,7 @@ internal sealed class D3D11Texture : Texture
     {
         int subresource = D3D11.CalculateSubResourceIndex(mipLevel, arrayIndex,
             Description.MipLevels == 0
-                ? PieUtils.CalculateMipLevels(Description.Width, Description.Height)
+                ? PieUtils.CalculateMipLevels(Description.Width, Description.Height, 1)
                 : Description.MipLevels);
 
         // TODO: Figure out depth pitch correctly.
