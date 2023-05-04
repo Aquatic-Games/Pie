@@ -95,18 +95,18 @@ PSOutput PixelShader(in VSOutput input)
         ImageResult result4 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/EVILMIP.png"), ColorComponents.RedGreenBlueAlpha);
 
         _texture = GraphicsDevice.CreateTexture(
-            new TextureDescription(result1.Width, result1.Height, Format.R8G8B8A8_UNorm, 1, 1,
-                TextureUsage.ShaderResource), PieUtils.Combine(result1.Data));
+            new TextureDescription(result1.Width, result1.Height, Format.R8G8B8A8_UNorm, 2, 2,
+                TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data, result3.Data, result4.Data));
         
         GraphicsDevice.GenerateMipmaps(_texture);*/
 
-        DDS dds = new DDS(File.ReadAllBytes("C:/Users/ollie/Pictures/DDS/24bitcolor-RGBA8.dds"));
+        DDS dds = new DDS(File.ReadAllBytes("/home/ollie/Pictures/DDS/24bitcolor-RGBA8.dds"));
         
         Console.WriteLine(dds.MipLevels);
         Console.WriteLine(dds.Size);
 
         //_texture = GraphicsDevice.CreateTexture(
-        //    new TextureDescription(dds.Size.Width, dds.Size.Height, Format.BC7_UNorm, dds.MipLevels, 1,
+        //    new TextureDescription(dds.Size.Width, dds.Size.Height, Format.R8G8B8A8_UNorm, dds.MipLevels, 1,
         //        TextureUsage.ShaderResource), PieUtils.Combine(dds.Bitmaps[0]));
 
         _texture = GraphicsDevice.CreateTexture(new TextureDescription(dds.Size.Width, dds.Size.Height,

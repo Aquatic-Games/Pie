@@ -141,38 +141,133 @@ internal sealed class D3D11Texture : Texture
                 
                 break;
             case TextureType.Texture3D:
-                throw new NotImplementedException();
+                Texture3DDescription desc3d = new Texture3DDescription()
+                {
+                    Width = description.Width,
+                    Height = description.Height,
+                    Depth = description.Depth,
+                    Format = fmt,
+                    MipLevels = mipLevels,
+                    Usage = ResourceUsage.Default,
+                    BindFlags = flags,
+                    CPUAccessFlags = CpuAccessFlags.None,
+                    MiscFlags = description.MipLevels == 0 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None,
+                };
+
+                texture = Device.CreateTexture3D(desc3d);
+                
+                if (description.ArraySize == 1)
+                {
+                    svDesc.ViewDimension = ShaderResourceViewDimension.Texture3D;
+                    svDesc.Texture3D = new Texture3DShaderResourceView()
+                    {
+                        MipLevels = -1,
+                        MostDetailedMip = 0
+                    };
+                }
+                else
+                    throw new NotSupportedException("3D texture arrays are not supported.");
                 break;
             case TextureType.Cubemap:
-                throw new NotImplementedException();
+                Texture2DDescription desc2dcube = new Texture2DDescription()
+                {
+                    Width = description.Width,
+                    Height = description.Height,
+                    Format = fmt,
+                    MipLevels = mipLevels,
+                    ArraySize = description.ArraySize * 6, // Multiply by 6 for cubemap
+                    SampleDescription = new SampleDescription(1, 0),
+                    //Usage = description.Dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
+                    Usage = ResourceUsage.Default,
+                    BindFlags = flags,
+                    CPUAccessFlags = CpuAccessFlags.None,
+                    MiscFlags = ResourceOptionFlags.TextureCube | (description.MipLevels == 0 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None)
+                };
+
+                texture = Device.CreateTexture2D(desc2dcube);
+
+                if (description.ArraySize == 1)
+                {
+                    svDesc.ViewDimension = ShaderResourceViewDimension.TextureCube;
+                    svDesc.TextureCube = new TextureCubeShaderResourceView()
+                    {
+                        MipLevels = -1,
+                        MostDetailedMip = 0
+                    };
+                }
+                else
+                    throw new NotImplementedException("Cubemap arrays are not currently supported.");
+
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
+        
+        // Now upload texture data assuming it is not null.
+        if (data != null)
+        {
+            // The current offset in bytes to look at the data.
+            uint currentOffset = 0;
+
+            for (int a = 0; a < description.ArraySize * (description.TextureType == TextureType.Cubemap ? 6 : 1); a++)
+            {
+                int width = description.Width;
+                // While width must always have a width >= 1, height and depth may not always. If the height or depth
+                // are 0, this will cause the size calculation to fail, so we must set it to 1 here.
+                int height = PieUtils.Max(description.Height, 1);
+                int depth = PieUtils.Max(description.Depth, 1);
+
+                // The loop must run at least once, even if the mip levels are 0.
+                for (int i = 0; i < PieUtils.Max(1, description.MipLevels); i++)
+                {
+                    uint currSize = (uint) (width * height * depth * (bpp / 8f));
+
+                    int rowPitch = PieUtils.CalculatePitch(description.Format, width, out _);
+                    int depthPitch = PieUtils.CalculatePitch(description.Format, depth, out _);
+
+                    Context.UpdateSubresource(texture, D3D11.CalculateSubResourceIndex(i, a, mipLevels), null,
+                        (IntPtr) ((byte*) data + currentOffset), rowPitch, depthPitch);
+
+                    currentOffset += currSize;
+
+                    // Divide the width and height by 2 for each mip level.
+                    width /= 2;
+                    height /= 2;
+                    depth /= 2;
+
+                    if (width < 1)
+                        width = 1;
+                    if (height < 1)
+                        height = 1;
+                    if (depth < 1)
+                        depth = 1;
+                }
+            }
+        }
 
         ID3D11ShaderResourceView view = null;
 
-        if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
-          view = Device.CreateShaderResourceView(texture, svDesc);
+        if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource) 
+            view = Device.CreateShaderResourceView(texture, svDesc);
 
-        // TODO: Clean up D3D texture bits
-        
         return new D3D11Texture(texture, view, description);
     }
 
     public unsafe void Update(int x, int y, int z, int width, int height, int depth, int mipLevel, int arrayIndex, void* data)
     {
+        TextureDescription description = Description;
+        
         int subresource = D3D11.CalculateSubResourceIndex(mipLevel, arrayIndex,
-            Description.MipLevels == 0
-                ? PieUtils.CalculateMipLevels(Description.Width, Description.Height, Description.Depth)
-                : Description.MipLevels);
+            description.MipLevels == 0
+                ? PieUtils.CalculateMipLevels(description.Width, description.Height, description.Depth)
+                : description.MipLevels);
 
-        // TODO: Figure out depth pitch correctly.
-        // TODO: Make sure this works properly as well.
-        // TODO: This does not work properly - It probably needs something similar to the OpenGL texture function.
-        // TODO: front and back of the box have been reverted to 0 and 1 as this broke texture updating on D3D. FIX THIS!!!
-        Context.UpdateSubresource(Texture, subresource, new Box(x, y, z, x + width, y + height, z + depth + 1),
-            new IntPtr(data), PieUtils.CalculatePitch(Description.Format, width, out _), 0);
+        int rowPitch = PieUtils.CalculatePitch(description.Format, width, out _);
+        int depthPitch = PieUtils.CalculatePitch(description.Format, depth, out _);
+
+        Box box = new Box(x, y, z, x + width, y + height, z + depth + 1);
+        
+        Context.UpdateSubresource(Texture, subresource, box, (IntPtr) data, rowPitch, depthPitch);
     }
 
     public override void Dispose()
