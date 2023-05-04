@@ -4,14 +4,10 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using Pie.DebugLayer;
 using Pie.ShaderCompiler;
-using SharpGen.Runtime;
-using Vortice.Direct3D;
-using Vortice.Direct3D11;
-using Vortice.Direct3D11.Debug;
-using Vortice.DXGI;
-using Vortice.Mathematics;
-using static Vortice.DXGI.DXGI;
-using static Vortice.Direct3D11.D3D11;
+using Silk.NET.Core.Contexts;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
+using Silk.NET.DXGI;
 using Color = System.Drawing.Color;
 using Size = System.Drawing.Size;
 
@@ -19,9 +15,13 @@ namespace Pie.Direct3D11;
 
 internal sealed class D3D11GraphicsDevice : GraphicsDevice
 {
-    private IDXGIFactory2 _dxgiFactory;
-    public static ID3D11Device Device;
-    public static ID3D11DeviceContext Context;
+    public static D3D11 D3D11;
+    public static DXGI DXGI;
+    
+    public static ComPtr<ID3D11Device> Device;
+    public static ComPtr<ID3D11DeviceContext> Context;
+    
+    private ComPtr<IDXGIFactory2> _dxgiFactory;
     private IDXGISwapChain _swapChain;
     private ID3D11Texture2D _colorTexture;
     private ID3D11Texture2D _depthStencilTexture;
@@ -37,17 +37,20 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
 
     private D3D11Framebuffer _currentFramebuffer;
 
-    public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options)
+    public unsafe D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options)
     {
+        DXGI = DXGI.GetApi(null);
+        D3D11 = D3D11.GetApi(null);
+
         bool debug = options.Debug;
-        if (debug && !SdkLayersAvailable())
+        /*if (debug && !SdkLayersAvailable())
         {
             debug = false;
             PieLog.Log(LogType.Warning, "Debug has been enabled however no SDK layers have been found. Direct3D debug has therefore been disabled.");
-        }
+        }*/
         
         Result res;
-        if ((res = CreateDXGIFactory2(debug, out _dxgiFactory)).Failure)
+        if ((res = DXGI.CreateDXGIFactory2(debug ? (uint) DXGI.CreateFactoryDebug : 0, out _dxgiFactory)).Failure)
             throw new PieException("Error creating DXGI factory: " + res.Description);
 
         FeatureLevel[] levels = new[]
