@@ -395,7 +395,7 @@ internal sealed class GlTexture : Texture
                 // The current offset in bytes to look at the data.
                 uint currentOffset = 0;
 
-                for (int a = 0; a < description.ArraySize; a++)
+                for (int a = 0; a < description.ArraySize * (description.TextureType == TextureType.Cubemap ? 6 : 1); a++)
                 {
                     uint width = (uint) description.Width;
                     // While width must always have a width >= 1, height and depth may not always. If the height or depth
