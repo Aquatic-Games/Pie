@@ -381,8 +381,7 @@ internal sealed class GlTexture : Texture
         
             Gl.BindTexture(target, handle);
             PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
-            uint size = (uint) (description.Width * description.Height * (bpp / 8f));
-            
+
             // Calculate the number of mip levels if the description's value is 0.
             int mipLevels = description.MipLevels == 0
                 ? PieUtils.CalculateMipLevels(description.Width, description.Height, 1)
@@ -390,39 +389,42 @@ internal sealed class GlTexture : Texture
 
             // Allocate the texture based on the target and number of mip levels.
             AllocateTexture(target, (uint) mipLevels, (SizedInternalFormat) iFmt, description);
-            
-            // The current offset in bytes to look at the data.
-            uint currentOffset = 0;
 
-            for (int a = 0; a < description.ArraySize; a++)
+            if (data != null)
             {
-                uint width = (uint) description.Width;
-                // While width must always have a width >= 1, height and depth may not always. If the height or depth
-                // are 0, this will cause the size calculation to fail, so we must set it to 1 here.
-                uint height = (uint) PieUtils.Max(description.Height, 1);
-                uint depth = (uint) PieUtils.Max(description.Depth, 1);
-                
-                // The loop must run at least once, even if the mip levels are 0.
-                for (int i = 0; i < PieUtils.Max(1, description.MipLevels); i++)
+                // The current offset in bytes to look at the data.
+                uint currentOffset = 0;
+
+                for (int a = 0; a < description.ArraySize; a++)
                 {
-                    uint currSize = (uint) (width * height * depth * (bpp / 8f));
+                    uint width = (uint) description.Width;
+                    // While width must always have a width >= 1, height and depth may not always. If the height or depth
+                    // are 0, this will cause the size calculation to fail, so we must set it to 1 here.
+                    uint height = (uint) PieUtils.Max(description.Height, 1);
+                    uint depth = (uint) PieUtils.Max(description.Depth, 1);
 
-                    UpdateSubTexture(target, i, a, 0, 0, 0, width, height, depth, compressed, iFmt, fmt, currSize, type,
-                        (byte*) data + currentOffset);
+                    // The loop must run at least once, even if the mip levels are 0.
+                    for (int i = 0; i < PieUtils.Max(1, description.MipLevels); i++)
+                    {
+                        uint currSize = (uint) (width * height * depth * (bpp / 8f));
 
-                    currentOffset += currSize;
+                        UpdateSubTexture(target, i, a, 0, 0, 0, width, height, depth, compressed, iFmt, fmt, currSize,
+                            type, (byte*) data + currentOffset);
 
-                    // Divide the width and height by 2 for each mip level.
-                    width /= 2;
-                    height /= 2;
-                    depth /= 2;
+                        currentOffset += currSize;
 
-                    if (width < 1)
-                        width = 1;
-                    if (height < 1)
-                        height = 1;
-                    if (depth < 1)
-                        depth = 1;
+                        // Divide the width and height by 2 for each mip level.
+                        width /= 2;
+                        height /= 2;
+                        depth /= 2;
+
+                        if (width < 1)
+                            width = 1;
+                        if (height < 1)
+                            height = 1;
+                        if (depth < 1)
+                            depth = 1;
+                    }
                 }
             }
 

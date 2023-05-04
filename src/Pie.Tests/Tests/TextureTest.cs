@@ -100,15 +100,34 @@ PSOutput PixelShader(in VSOutput input)
         
         GraphicsDevice.GenerateMipmaps(_texture);*/
 
-        DDS dds = new DDS(File.ReadAllBytes("/home/ollie/Pictures/DDS/24bitcolor-BC7.dds"));
+        DDS dds = new DDS(File.ReadAllBytes("/home/ollie/Pictures/DDS/24bitcolor-RGBA8.dds"));
         
-        Console.WriteLine(dds.MipLevels);
         Console.WriteLine(dds.MipLevels);
         Console.WriteLine(dds.Size);
 
-        _texture = GraphicsDevice.CreateTexture(
-            new TextureDescription(dds.Size.Width, dds.Size.Height, Format.BC7_UNorm, dds.MipLevels, 1,
-                TextureUsage.ShaderResource), PieUtils.Combine(dds.Bitmaps[0]));
+        //_texture = GraphicsDevice.CreateTexture(
+        //    new TextureDescription(dds.Size.Width, dds.Size.Height, Format.BC7_UNorm, dds.MipLevels, 1,
+        //        TextureUsage.ShaderResource), PieUtils.Combine(dds.Bitmaps[0]));
+
+        _texture = GraphicsDevice.CreateTexture(new TextureDescription(dds.Size.Width, dds.Size.Height,
+            Format.R8G8B8A8_UNorm, dds.MipLevels, 1, TextureUsage.ShaderResource));
+
+        int width = dds.Size.Width;
+        int height = dds.Size.Height;
+
+        for (int i = 0; i < dds.MipLevels; i++)
+        {
+            GraphicsDevice.UpdateTexture(_texture, i, 0, 0, 0, 0, width, height, 0, dds.Bitmaps[0][i]);
+
+            width /= 2;
+            height /= 2;
+
+            if (width < 1)
+                width = 1;
+            if (height < 1)
+                height = 1;
+        }
+
         //GraphicsDevice.GenerateMipmaps(_texture);
 
         _samplerState = GraphicsDevice.CreateSamplerState(SamplerStateDescription.LinearRepeat);
