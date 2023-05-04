@@ -86,24 +86,22 @@ internal sealed class D3D11Texture : Texture
 
                 if (data != null)
                 {
-                    if (description.MipLevels <= 1)
-                        Context.UpdateSubresource(texture, 0, null, (IntPtr) data, pitch, 0);
-                    else
-                    {
-                        int totalOffset = 0;
+                    int totalOffset = 0;
 
+                    for (int a = 0; a < description.ArraySize; a++)
+                    {
                         int width = description.Width;
                         int height = description.Height;
-                        
-                        for (int i = 0; i < mipLevels; i++)
+
+                        for (int i = 0; i < PieUtils.Max(1, description.MipLevels); i++)
                         {
                             int newPitch = PieUtils.CalculatePitch(description.Format, width, out _);
-                            
-                            Context.UpdateSubresource(texture, D3D11.CalculateSubResourceIndex(i, 0, mipLevels), null,
+
+                            Context.UpdateSubresource(texture, D3D11.CalculateSubResourceIndex(i, a, mipLevels), null,
                                 (IntPtr) ((byte*) data + totalOffset), newPitch, 0);
 
                             totalOffset += (int) (width * height * (bpp / 8f));
-                            
+
                             width /= 2;
                             height /= 2;
 

@@ -60,7 +60,7 @@ struct PSOutput
     float4 color: SV_Target0;
 };
 
-Texture2DArray tex : register(t0);
+Texture2D tex : register(t0);
 SamplerState samp : register(s0);
 
 VSOutput VertexShader(in VSInput input)
@@ -74,7 +74,7 @@ VSOutput VertexShader(in VSInput input)
 PSOutput PixelShader(in VSOutput input)
 {
     PSOutput output;
-    output.color = tex.Sample(samp, float3(input.texCoords, 0));
+    output.color = tex.Sample(samp, input.texCoords);
     return output;
 }";
 
@@ -95,8 +95,10 @@ PSOutput PixelShader(in VSOutput input)
         ImageResult result4 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/EVILMIP.png"), ColorComponents.RedGreenBlueAlpha);
 
         _texture = GraphicsDevice.CreateTexture(
-            new TextureDescription(result1.Width, result1.Height, Format.R8G8B8A8_UNorm, 2, 2,
-                TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data, result3.Data, result4.Data));
+            new TextureDescription(result1.Width, result1.Height, Format.R8G8B8A8_UNorm, 1, 1,
+                TextureUsage.ShaderResource), PieUtils.Combine(result1.Data));
+        
+        GraphicsDevice.GenerateMipmaps(_texture);
 
         /*DDS dds = new DDS(File.ReadAllBytes("C:/Users/ollie/Pictures/DDS/awesomeface-BC7.dds"));
         
