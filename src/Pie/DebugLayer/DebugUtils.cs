@@ -44,12 +44,13 @@ internal static class DebugUtils
             }
         }
 
-        expectedDataLength *= description.ArraySize;
+        int cubemapMultiplier = description.TextureType == TextureType.Cubemap ? 6 : 1;
+        expectedDataLength *= description.ArraySize * cubemapMultiplier;
 
         if (dataLengthInBytes != expectedDataLength)
         {
             PieLog.Log(LogType.Critical,
-                $"Invalid data length! Expected {expectedDataLength} bytes, received {dataLengthInBytes}.{(description.ArraySize > 1 || description.MipLevels > 1 ? $"\nYou must make sure you include ALL mip levels ({description.MipLevels}) for every array texture ({description.ArraySize}) in your initial data.\nThis means your initial data must contain data for a total of {description.MipLevels * description.ArraySize} textures.\nIf you cannot supply the required data at initialization time, set the initial data value to null, and use \"GraphicsDevice.UpdateTexture()\" to update each part of the texture separately." : "")}");
+                $"Invalid data length! Expected {expectedDataLength} bytes, received {dataLengthInBytes}.{(description.ArraySize * cubemapMultiplier > 1 || description.MipLevels > 1 ? $"\nYou must make sure you include ALL mip levels ({description.MipLevels}) for every array texture ({description.ArraySize}) in your initial data.\nThis means your initial data must contain data for a total of {description.MipLevels * description.ArraySize * cubemapMultiplier} textures{(description.TextureType == TextureType.Cubemap ? ", note the extra textures as the texture type is cubemap." : "")}.\nIf you cannot supply the required data at initialization time, set the initial data value to null, and use \"GraphicsDevice.UpdateTexture()\" to update each part of the texture separately." : "")}");
         }
     }
 

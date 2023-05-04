@@ -81,8 +81,8 @@ PSOutput PixelShader(in VSOutput input)
         _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, vertices);
         _indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, indices);
         
-        /*ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
-        ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
+        /*ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
         
         _texture = GraphicsDevice.CreateTexture(new TextureDescription(result1.Width, result1.Height,
             Format.R8G8B8A8_UNorm, 0, 2, TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data));
@@ -105,11 +105,13 @@ PSOutput PixelShader(in VSOutput input)
         Console.WriteLine(dds.MipLevels);
         Console.WriteLine(dds.Size);
 
-        //_texture = GraphicsDevice.CreateTexture(
-        //    new TextureDescription(dds.Size.Width, dds.Size.Height, Format.R8G8B8A8_UNorm, dds.MipLevels, 1,
-        //        TextureUsage.ShaderResource), PieUtils.Combine(dds.Bitmaps[0]));
+        _texture = GraphicsDevice.CreateTexture(
+            new TextureDescription(dds.Size.Width, dds.Size.Height, Format.R8G8B8A8_UNorm, dds.MipLevels, 1,
+                TextureUsage.ShaderResource), PieUtils.Combine(dds.Bitmaps[0]));
+        
+        GraphicsDevice.UpdateTexture(_texture, 0, 0, 0, 0, 0, result1.Width, result1.Height, 0, result1.Data);
 
-        _texture = GraphicsDevice.CreateTexture(new TextureDescription(dds.Size.Width, dds.Size.Height,
+        /*_texture = GraphicsDevice.CreateTexture(new TextureDescription(dds.Size.Width, dds.Size.Height,
             Format.R8G8B8A8_UNorm, dds.MipLevels, 1, TextureUsage.ShaderResource));
 
         int width = dds.Size.Width;
@@ -126,7 +128,7 @@ PSOutput PixelShader(in VSOutput input)
                 width = 1;
             if (height < 1)
                 height = 1;
-        }
+        }*/
 
         //GraphicsDevice.GenerateMipmaps(_texture);
 
