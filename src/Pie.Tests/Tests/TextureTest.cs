@@ -100,7 +100,7 @@ PSOutput PixelShader(in VSOutput input)
         
         GraphicsDevice.GenerateMipmaps(_texture);*/
 
-        DDS dds = new DDS(File.ReadAllBytes("/home/ollie/Pictures/DDS/24bitcolor-RGBA8.dds"));
+        DDS dds = new DDS(File.ReadAllBytes("C:/Users/ollie/Pictures/DDS/24bitcolor-RGBA8.dds"));
         
         Console.WriteLine(dds.MipLevels);
         Console.WriteLine(dds.Size);

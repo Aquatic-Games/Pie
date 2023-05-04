@@ -56,17 +56,51 @@ internal sealed class D3D11Texture : Texture
         {
             Format = svFmt,
         };
+        
+        int mipLevels = description.MipLevels == 0
+            ? PieUtils.CalculateMipLevels(description.Width, description.Height, description.Depth)
+            : description.MipLevels;
 
         switch (description.TextureType)
         {
             case TextureType.Texture1D:
-                throw new NotImplementedException();
+                Texture1DDescription desc1d = new Texture1DDescription()
+                {
+                    Width = description.Width,
+                    Format = fmt,
+                    MipLevels = mipLevels,
+                    ArraySize = description.ArraySize,
+                    Usage = ResourceUsage.Default,
+                    BindFlags = flags,
+                    CPUAccessFlags = CpuAccessFlags.None,
+                    MiscFlags = description.MipLevels == 0 ? ResourceOptionFlags.GenerateMips : ResourceOptionFlags.None
+                };
+
+                texture = Device.CreateTexture1D(desc1d);
+
+                if (description.ArraySize == 1)
+                {
+                    svDesc.ViewDimension = ShaderResourceViewDimension.Texture1D;
+                    svDesc.Texture1D = new Texture1DShaderResourceView()
+                    {
+                        MipLevels = -1,
+                        MostDetailedMip = 0
+                    };
+                }
+                else
+                {
+                    svDesc.ViewDimension = ShaderResourceViewDimension.Texture1DArray;
+                    svDesc.Texture1DArray = new Texture1DArrayShaderResourceView()
+                    {
+                        ArraySize = description.ArraySize,
+                        FirstArraySlice = 0,
+                        MipLevels = -1,
+                        MostDetailedMip = 0
+                    };
+                }
+
                 break;
             case TextureType.Texture2D:
-                int mipLevels = description.MipLevels == 0
-                    ? PieUtils.CalculateMipLevels(description.Width, description.Height, 1)
-                    : description.MipLevels;
-
                 Texture2DDescription desc2d = new Texture2DDescription()
                 {
                     Width = description.Width,
@@ -84,35 +118,6 @@ internal sealed class D3D11Texture : Texture
 
                 texture = Device.CreateTexture2D(desc2d);
 
-                if (data != null)
-                {
-                    int totalOffset = 0;
-
-                    for (int a = 0; a < description.ArraySize; a++)
-                    {
-                        int width = description.Width;
-                        int height = description.Height;
-
-                        for (int i = 0; i < PieUtils.Max(1, description.MipLevels); i++)
-                        {
-                            int newPitch = PieUtils.CalculatePitch(description.Format, width, out _);
-
-                            Context.UpdateSubresource(texture, D3D11.CalculateSubResourceIndex(i, a, mipLevels), null,
-                                (IntPtr) ((byte*) data + totalOffset), newPitch, 0);
-
-                            totalOffset += (int) (width * height * (bpp / 8f));
-
-                            width /= 2;
-                            height /= 2;
-
-                            if (width < 1)
-                                width = 1;
-                            if (height < 1)
-                                height = 1;
-                        }
-                    }
-                }
-                
                 if (description.ArraySize == 1)
                 {
                     svDesc.ViewDimension = ShaderResourceViewDimension.Texture2D;
@@ -159,7 +164,7 @@ internal sealed class D3D11Texture : Texture
     {
         int subresource = D3D11.CalculateSubResourceIndex(mipLevel, arrayIndex,
             Description.MipLevels == 0
-                ? PieUtils.CalculateMipLevels(Description.Width, Description.Height, 1)
+                ? PieUtils.CalculateMipLevels(Description.Width, Description.Height, Description.Depth)
                 : Description.MipLevels);
 
         // TODO: Figure out depth pitch correctly.

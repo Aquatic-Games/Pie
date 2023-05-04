@@ -384,7 +384,7 @@ internal sealed class GlTexture : Texture
 
             // Calculate the number of mip levels if the description's value is 0.
             int mipLevels = description.MipLevels == 0
-                ? PieUtils.CalculateMipLevels(description.Width, description.Height, 1)
+                ? PieUtils.CalculateMipLevels(description.Width, description.Height, description.Depth)
                 : description.MipLevels;
 
             // Allocate the texture based on the target and number of mip levels.
