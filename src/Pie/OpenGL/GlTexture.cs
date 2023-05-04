@@ -375,7 +375,7 @@ internal sealed class GlTexture : Texture
                 TextureType.Texture1D => description.ArraySize > 1 ? TextureTarget.Texture1DArray : TextureTarget.Texture1D,
                 TextureType.Texture2D => description.ArraySize > 1 ? TextureTarget.Texture2DArray : TextureTarget.Texture2D,
                 TextureType.Texture3D => TextureTarget.Texture3D,
-                TextureType.Cubemap => TextureTarget.TextureCubeMap,
+                TextureType.Cubemap => description.ArraySize > 1 ? throw new NotImplementedException("Cubemap arrays are not currently supported.") : TextureTarget.TextureCubeMap,
                 _ => throw new ArgumentOutOfRangeException()
             };
         
