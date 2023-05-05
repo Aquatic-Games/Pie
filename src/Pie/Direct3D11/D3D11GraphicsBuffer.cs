@@ -1,108 +1,84 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Vortice.Direct3D11;
-using Vortice.Mathematics;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
+using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
 
-internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
+internal sealed unsafe class D3D11GraphicsBuffer : GraphicsBuffer
 {
     public override bool IsDisposed { get; protected set; }
 
-    public ID3D11Buffer Buffer;
+    public ComPtr<ID3D11Buffer> Buffer;
     private BufferType _type;
 
     private bool _dynamic;
 
-    public D3D11GraphicsBuffer(ID3D11Buffer buffer, bool dynamic, BufferType type)
+    public D3D11GraphicsBuffer(BufferType type, uint sizeInBytes, void* data, bool dynamic)
     {
-        Buffer = buffer;
         _dynamic = dynamic;
         _type = type;
-    }
-
-    public static unsafe GraphicsBuffer CreateBuffer(BufferType type, uint sizeInBytes, void* data, bool dynamic)
-    {
-        BindFlags flags;
+        
+        BindFlag flags;
 
         switch (type)
         {
             case BufferType.VertexBuffer:
-                flags = BindFlags.VertexBuffer;
+                flags = BindFlag.VertexBuffer;
                 PieMetrics.VertexBufferCount++;
                 break;
             case BufferType.IndexBuffer:
-                flags = BindFlags.IndexBuffer;
+                flags = BindFlag.IndexBuffer;
                 PieMetrics.IndexBufferCount++;
                 break;
             case BufferType.UniformBuffer:
-                flags = BindFlags.ConstantBuffer;
+                flags = BindFlag.ConstantBuffer;
                 PieMetrics.UniformBufferCount++;
                 break;
             case BufferType.ShaderStorageBuffer:
-                flags = BindFlags.ShaderResource;
+                flags = BindFlag.ShaderResource;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
 
-        BufferDescription description = new BufferDescription()
+        BufferDesc description = new BufferDesc()
         {
-            BindFlags = flags,
-            ByteWidth = (int) sizeInBytes,
-            Usage = dynamic ? ResourceUsage.Dynamic : ResourceUsage.Default,
-            CPUAccessFlags = dynamic ? CpuAccessFlags.Write : CpuAccessFlags.None
+            BindFlags = (uint) flags,
+            ByteWidth = sizeInBytes,
+            Usage = dynamic ? Usage.Dynamic : Usage.Default,
+            CPUAccessFlags = (uint) (dynamic ? CpuAccessFlag.Write : CpuAccessFlag.None)
         };
 
         if (type == BufferType.ShaderStorageBuffer)
         {
-            description.MiscFlags = ResourceOptionFlags.BufferStructured;
+            description.MiscFlags = (uint) ResourceMiscFlag.BufferStructured;
             description.StructureByteStride = 1;
         }
-        
-        ID3D11Buffer buffer;
-        if (data == null)
-            buffer = Device.CreateBuffer(description);
-        else
-            buffer = Device.CreateBuffer(description, new SubresourceData(data));
-        return new D3D11GraphicsBuffer(buffer, dynamic, type);
+
+        SubresourceData subData = new SubresourceData(data);
+
+        if (!Succeeded(Device.CreateBuffer(&description, data == null ? null : &subData, ref Buffer)))
+            throw new PieException("Failed to create buffer.");
     }
-    
+
     public unsafe void Update(uint offsetInBytes, uint sizeInBytes, void* data)
     {
         if (_dynamic)
         {
-            // TODO check to make sure WriteDiscard works correctly
-            
-            // Thanks to veldrid source for helping me understand this mess
-            MappedSubresource subresource = Context.Map(Buffer, Vortice.Direct3D11.MapMode.WriteDiscard);
-            Unsafe.CopyBlock((byte*) subresource.DataPointer + (int) offsetInBytes, data, sizeInBytes);
-            Context.Unmap(Buffer);
+            MappedSubresource subresource = default;
+            Context.Map(Buffer, 0, Map.WriteDiscard, 0, ref subresource);
+            Unsafe.CopyBlock((byte*) subresource.PData + (int) offsetInBytes, data, sizeInBytes);
+            Context.Unmap(Buffer, 0);
         }
         else
         {
-            Context.UpdateSubresource(Buffer, 0,
-                new Box((int) offsetInBytes, 0, 0, (int) (sizeInBytes + offsetInBytes), 1, 1), (IntPtr) data, 0, 0);
+            Context.UpdateSubresource(Buffer, 0, new Box(offsetInBytes, 0, 0, sizeInBytes + offsetInBytes, 1, 1), data,
+                0, 0);
         }
     }
-
-    /*public unsafe void Update<T>(uint offsetInBytes, T data) where T : unmanaged
-    {
-        // While these two functions are duplicates it avoids creating an array every time update is called.
-        if (_dynamic)
-        {
-            MappedSubresource subresource = Context.Map(Buffer, Vortice.Direct3D11.MapMode.WriteDiscard);
-            Unsafe.CopyBlock((byte*) subresource.DataPointer + (int) offsetInBytes,&data, (uint) Unsafe.SizeOf<T>());
-            Context.Unmap(Buffer);
-        }
-        else
-        {
-            Context.UpdateSubresource(data, Buffer,
-                region: new Box((int) offsetInBytes, 0, 0, (int) (Unsafe.SizeOf<T>() + offsetInBytes),
-                    1, 1));
-        }
-    }*/
 
     public override void Dispose()
     {
