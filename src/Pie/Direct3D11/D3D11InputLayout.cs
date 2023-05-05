@@ -1,34 +1,48 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Text;
-using Vortice.Direct3D;
-using Vortice.Direct3D11;
-using Vortice.DXGI;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
 
 namespace Pie.Direct3D11;
 
-internal sealed class D3D11InputLayout : InputLayout
+internal sealed unsafe class D3D11InputLayout : InputLayout
 {
-    public readonly ID3D11InputLayout Layout;
+    public readonly ComPtr<ID3D11InputLayout> Layout;
 
     public D3D11InputLayout(InputLayoutDescription[] descriptions)
     {
-        InputElementDescription[] iedesc = new InputElementDescription[descriptions.Length];
+        GCHandle handle = GCHandle.Alloc("TEXCOORD", GCHandleType.Pinned);
+        IntPtr addr = handle.AddrOfPinnedObject();
+        
+        InputElementDesc[] iedesc = new InputElementDesc[descriptions.Length];
         for (int i = 0; i < iedesc.Length; i++)
         {
-            ref InputElementDescription d = ref iedesc[i];
+            ref InputElementDesc d = ref iedesc[i];
             ref InputLayoutDescription desc = ref descriptions[i];
 
-            Vortice.DXGI.Format fmt = desc.Format.ToDxgiFormat(false);
-
-            d = new InputElementDescription("TEXCOORD", i, fmt, (int) desc.Offset, (int) desc.Slot, (InputClassification) desc.InputType, (int) desc.InputType);
+            Silk.NET.DXGI.Format fmt = desc.Format.ToDxgiFormat(false);
+            
+            d = new InputElementDesc()
+            {
+                SemanticName = (byte*) addr,
+                SemanticIndex = (uint) i,
+                AlignedByteOffset = desc.Offset,
+                Format = fmt,
+                InputSlot = desc.Slot,
+                InputSlotClass = (InputClassification) desc.InputType,
+                InstanceDataStepRate = (uint) desc.InputType
+            };
         }
 
         Descriptions = descriptions;
 
         Blob dummyBlob = GenerateDummyShader(descriptions);
-        Layout = Device.CreateInputLayout(iedesc, dummyBlob);
+        Device.CreateInputLayout(&iedesc, descriptions.Length, dummyBlob, (nuint) dummyBlob.Length, ref Layout);
         dummyBlob.Dispose();
+        
+        handle.Free();
     }
 
     private Blob GenerateDummyShader(InputLayoutDescription[] descriptions)

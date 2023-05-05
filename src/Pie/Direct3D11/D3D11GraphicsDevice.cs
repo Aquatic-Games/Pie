@@ -7,6 +7,7 @@ using Pie.DebugLayer;
 using Pie.ShaderCompiler;
 using Silk.NET.Core.Contexts;
 using Silk.NET.Core.Native;
+using Silk.NET.Direct3D.Compilers;
 using Silk.NET.Direct3D11;
 using Silk.NET.DXGI;
 using Color = System.Drawing.Color;
@@ -19,6 +20,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 {
     public static D3D11 D3D11;
     public static DXGI DXGI;
+    public static D3DCompiler D3DCompiler;
     
     public static ComPtr<ID3D11Device> Device;
     public static ComPtr<ID3D11DeviceContext> Context;
@@ -43,6 +45,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     {
         DXGI = DXGI.GetApi(null);
         D3D11 = D3D11.GetApi(null);
+        D3DCompiler = D3DCompiler.GetApi();
 
         bool debug = options.Debug;
         /*if (debug && !SdkLayersAvailable())
@@ -78,8 +81,6 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         adapter.GetDesc(&desc);
         
         Adapter = new GraphicsAdapter(Marshal.PtrToStringAnsi((IntPtr) desc.Description));
-
-        D3DFeatureLevel returnedLevel = default;
 
         if (!Succeeded(D3D11.CreateDeviceAndSwapChain(adapter, D3DDriverType.Hardware, 0,
                 (uint) flags, &level, 1, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref Device, &level,
