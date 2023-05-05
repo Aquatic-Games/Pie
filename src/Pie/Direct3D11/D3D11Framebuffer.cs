@@ -17,7 +17,7 @@ internal sealed unsafe class D3D11Framebuffer : Framebuffer
     {
         int depthCount = 0;
 
-        List<ID3D11RenderTargetView> targets = new List<ID3D11RenderTargetView>();
+        List<ComPtr<ID3D11RenderTargetView>> targets = new List<ComPtr<ID3D11RenderTargetView>>();
         foreach (FramebufferAttachment attachment in attachments)
         {
             Silk.NET.DXGI.Format fmt = attachment.Texture.Description.Format.ToDxgiFormat(false);
@@ -46,8 +46,22 @@ internal sealed unsafe class D3D11Framebuffer : Framebuffer
                         throw new PieException("Failed to create depth stencil view.");
                     break;
                 default:
-                    targets.Add(Device.CreateRenderTargetView(((D3D11Texture) attachment.Texture).Texture,
-                        new RenderTargetViewDescription(RenderTargetViewDimension.Texture2D, fmt, 0, 0, 1)));
+
+                    RenderTargetViewDesc viewDesc = new RenderTargetViewDesc()
+                    {
+                        ViewDimension = RtvDimension.Texture2D,
+                        Format = fmt,
+                        Texture2D = new Tex2DRtv()
+                        {
+                            MipSlice = 0
+                        }
+                    };
+
+                    ComPtr<ID3D11RenderTargetView> targetView = null;
+                    Device.CreateRenderTargetView(((D3D11Texture) attachment.Texture).Texture, &viewDesc,
+                        ref targetView);
+
+                    targets.Add(targetView);
                     break;
             }
         }
@@ -66,9 +80,11 @@ internal sealed unsafe class D3D11Framebuffer : Framebuffer
 
         IsDisposed = true;
         
-        foreach (ID3D11RenderTargetView view in Targets)
+        foreach (ComPtr<ID3D11RenderTargetView> view in Targets)
             view.Dispose();
         
-        DepthStencil?.Dispose();
+        // TODO: ???? Does this work as a null check?
+        if (DepthStencil != default)
+            DepthStencil.Dispose();
     }
 }
