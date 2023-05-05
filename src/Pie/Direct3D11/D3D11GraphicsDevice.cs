@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Pie.DebugLayer;
 using Pie.ShaderCompiler;
 using Silk.NET.Core.Contexts;
@@ -10,10 +11,11 @@ using Silk.NET.Direct3D11;
 using Silk.NET.DXGI;
 using Color = System.Drawing.Color;
 using Size = System.Drawing.Size;
+using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
 
-internal sealed class D3D11GraphicsDevice : GraphicsDevice
+internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 {
     public static D3D11 D3D11;
     public static DXGI DXGI;
@@ -22,7 +24,7 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
     public static ComPtr<ID3D11DeviceContext> Context;
     
     private ComPtr<IDXGIFactory2> _dxgiFactory;
-    private IDXGISwapChain _swapChain;
+    private ComPtr<IDXGISwapChain> _swapChain;
     private ID3D11Texture2D _colorTexture;
     private ID3D11Texture2D _depthStencilTexture;
     private ID3D11RenderTargetView _colorTargetView;
@@ -49,42 +51,44 @@ internal sealed class D3D11GraphicsDevice : GraphicsDevice
             PieLog.Log(LogType.Warning, "Debug has been enabled however no SDK layers have been found. Direct3D debug has therefore been disabled.");
         }*/
         
-        Result res;
-        if ((res = DXGI.CreateDXGIFactory2(debug ? (uint) DXGI.CreateFactoryDebug : 0, out _dxgiFactory)).Failure)
-            throw new PieException("Error creating DXGI factory: " + res.Description);
+        if (!Succeeded(DXGI.CreateDXGIFactory2(debug ? (uint) DXGI.CreateFactoryDebug : 0, out _dxgiFactory)))
+            throw new PieException("Failed to create DXGI factory.");
 
-        FeatureLevel[] levels = new[]
-        {
-            FeatureLevel.Level_11_0,
-            FeatureLevel.Level_11_1
-        };
+        D3DFeatureLevel level = D3DFeatureLevel.Level110;
 
-        DeviceCreationFlags flags = DeviceCreationFlags.BgraSupport | DeviceCreationFlags.Singlethreaded;
+        CreateDeviceFlag flags = CreateDeviceFlag.BgraSupport | CreateDeviceFlag.Singlethreaded;
         if (debug)
-            flags |= DeviceCreationFlags.Debug;
+            flags |= CreateDeviceFlag.Debug;
 
-        SwapChainDescription swapChainDescription = new SwapChainDescription()
+        SwapChainDesc swapChainDescription = new SwapChainDesc()
         {
-            Flags = SwapChainFlags.None,
+            Flags = (uint) SwapChainFlag.None,
             BufferCount = 2,
-            BufferDescription = new ModeDescription(winSize.Width, winSize.Height),
-            BufferUsage = Usage.RenderTargetOutput,
+            BufferDesc = new ModeDesc((uint) winSize.Width, (uint) winSize.Height),
+            BufferUsage = DXGI.UsageRenderTargetOutput,
             OutputWindow = hwnd,
-            SampleDescription = new SampleDescription(1, 0),
+            SampleDesc = new SampleDesc(1, 0),
             SwapEffect = SwapEffect.FlipDiscard,
             Windowed = true
         };
 
-        _dxgiFactory!.EnumAdapters(0, out IDXGIAdapter adapter);
-        Adapter = new GraphicsAdapter(adapter.Description.Description);
+        IDXGIAdapter* adapter;
+        _dxgiFactory!.EnumAdapters(0, &adapter);
+        AdapterDesc desc;
+        adapter->GetDesc(&desc);
+        
+        Adapter = new GraphicsAdapter(Marshal.PtrToStringAnsi((IntPtr) desc.Description));
 
-        if ((res = D3D11CreateDeviceAndSwapChain(null, DriverType.Hardware, flags, levels, swapChainDescription,
-                out _swapChain, out Device, out _, out Context)).Failure)
+        D3DFeatureLevel returnedLevel = default;
+
+        if (!Succeeded(D3D11.CreateDeviceAndSwapChain(new ComPtr<IDXGIAdapter>(adapter), D3DDriverType.Hardware, 0,
+                (uint) flags, &level, 1, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref Device, &level,
+                ref Context)))
         {
-            throw new PieException("Failed to create device or swapchain: " + res.Description);
+            throw new PieException("Failed to create device or swapchain.");
         }
 
-        if ((res = _swapChain!.GetBuffer(0, out _colorTexture)).Failure)
+        if ((res = _swapChain.GetBuffer(0, out _colorTexture)).Failure)
             throw new PieException("Failed to get the back buffer: " + res.Description);
 
         _colorTargetView = Device!.CreateRenderTargetView(_colorTexture);

@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 
 namespace Pie.Direct3D11;
@@ -82,4 +84,14 @@ internal static class DxUtils
             _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
         };
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool Succeeded(int result, out HResult hresult)
+    {
+        hresult = (HResult) result;
+        return !hresult.IsSuccess;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool Succeeded(int result) => Succeeded(result, out _);
 }
