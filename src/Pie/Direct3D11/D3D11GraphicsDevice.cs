@@ -72,16 +72,16 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             Windowed = true
         };
 
-        IDXGIAdapter* adapter;
-        _dxgiFactory!.EnumAdapters(0, &adapter);
+        ComPtr<IDXGIAdapter> adapter = null;
+        _dxgiFactory!.EnumAdapters(0, ref adapter);
         AdapterDesc desc;
-        adapter->GetDesc(&desc);
+        adapter.GetDesc(&desc);
         
         Adapter = new GraphicsAdapter(Marshal.PtrToStringAnsi((IntPtr) desc.Description));
 
         D3DFeatureLevel returnedLevel = default;
 
-        if (!Succeeded(D3D11.CreateDeviceAndSwapChain(new ComPtr<IDXGIAdapter>(adapter), D3DDriverType.Hardware, 0,
+        if (!Succeeded(D3D11.CreateDeviceAndSwapChain(adapter, D3DDriverType.Hardware, 0,
                 (uint) flags, &level, 1, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref Device, &level,
                 ref Context)))
         {
