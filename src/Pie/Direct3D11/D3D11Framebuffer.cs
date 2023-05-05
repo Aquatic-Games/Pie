@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
@@ -9,8 +11,8 @@ namespace Pie.Direct3D11;
 
 internal sealed class D3D11Framebuffer : Framebuffer
 {
-    public ID3D11RenderTargetView[] Targets;
-    public ID3D11DepthStencilView DepthStencil;
+    public ComPtr<ID3D11RenderTargetView>[] Targets;
+    public ComPtr<ID3D11DepthStencilView> DepthStencil;
 
     public D3D11Framebuffer(FramebufferAttachment[] attachments)
     {
@@ -19,7 +21,7 @@ internal sealed class D3D11Framebuffer : Framebuffer
         List<ID3D11RenderTargetView> targets = new List<ID3D11RenderTargetView>();
         foreach (FramebufferAttachment attachment in attachments)
         {
-            Vortice.DXGI.Format fmt = attachment.Texture.Description.Format.ToDxgiFormat(false);
+            Silk.NET.DXGI.Format fmt = attachment.Texture.Description.Format.ToDxgiFormat(false);
 
             switch (attachment.Texture.Description.Format)
             {

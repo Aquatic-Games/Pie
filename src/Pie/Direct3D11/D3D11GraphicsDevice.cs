@@ -25,10 +25,10 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     
     private ComPtr<IDXGIFactory2> _dxgiFactory;
     private ComPtr<IDXGISwapChain> _swapChain;
-    private ID3D11Texture2D _colorTexture;
-    private ID3D11Texture2D _depthStencilTexture;
-    private ID3D11RenderTargetView _colorTargetView;
-    private ID3D11DepthStencilView _depthStencilTargetView;
+    private ComPtr<ID3D11Texture2D> _colorTexture;
+    private ComPtr<ID3D11Texture2D> _depthStencilTexture;
+    private ComPtr<ID3D11RenderTargetView> _colorTargetView;
+    private ComPtr<ID3D11DepthStencilView> _depthStencilTargetView;
     
     private InputLayout _currentLayout;
     private RasterizerState _currentRState;
@@ -88,10 +88,11 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             throw new PieException("Failed to create device or swapchain.");
         }
 
-        if ((res = _swapChain.GetBuffer(0, out _colorTexture)).Failure)
-            throw new PieException("Failed to get the back buffer: " + res.Description);
+        if (!Succeeded(_swapChain.GetBuffer(0, out _colorTexture)))
+            throw new PieException("Failed to get the back color buffer.");
 
-        _colorTargetView = Device!.CreateRenderTargetView(_colorTexture);
+        if (!Succeeded(Device.CreateRenderTargetView(_colorTexture, null, ref _colorTargetView)))
+            throw new PieException("Failed to create swapchain color target.");
         CreateDepthStencilView(winSize);
         
         Viewport = new Rectangle(Point.Empty, winSize);
@@ -100,7 +101,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             Size = winSize
         };
 
-        Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
+        Context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
     }
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
@@ -114,7 +115,8 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         set
         {
             _viewport = value;
-            Context.RSSetViewport(value.X, value.Y, value.Width, value.Height);
+            Silk.NET.Direct3D11.Viewport viewport = new Viewport(value.X, value.Y, value.Width, value.Height);
+            Context.RSSetViewports(1, viewport);
         }
     }
 
@@ -126,7 +128,10 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         set
         {
             _scissor = value;
-            Context.RSSetScissorRect(value.X, value.Y, value.Width, value.Height);
+
+            Silk.NET.Maths.Box2D<int> scissor =
+                new Silk.NET.Maths.Box2D<int>(value.X, value.Y, value.Width, value.Height);
+            Context.RSSetScissorRects(1, scissor);
         }
     }
 
@@ -137,25 +142,25 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
     {
-        Context.ClearRenderTargetView(_currentFramebuffer?.Targets[0] ?? _colorTargetView, new Color4(color));
+        Context.ClearRenderTargetView(_currentFramebuffer?.Targets[0] ?? _colorTargetView, &color.X);
         Clear(flags);
     }
 
     public override void Clear(ClearFlags flags)
     {
         //Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
-        DepthStencilClearFlags cf = DepthStencilClearFlags.None;
+        uint cf = 0;
         int depth = 0;
         byte stencil = 0;
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
         {
-            cf |= DepthStencilClearFlags.Depth;
+            cf |= (uint) ClearFlag.Depth;
             depth = 1;
         }
 
         if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
         {
-            cf |= DepthStencilClearFlags.Stencil;
+            cf |= (uint) ClearFlag.Stencil;
             // TODO: Stencil stuff.
             stencil = 0;
         }
@@ -304,8 +309,9 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
     {
-        MappedSubresource resource = Context.Map(((D3D11GraphicsBuffer) buffer).Buffer, mode.ToDx11MapMode());
-        return resource.DataPointer;
+        MappedSubresource resource;
+        Context.Map(((D3D11GraphicsBuffer) buffer).Buffer, 0, mode.ToDx11MapMode(), 0, ref resource);
+        return (IntPtr) resource.PData;
     }
 
     public override void UnmapBuffer(GraphicsBuffer buffer)
@@ -514,22 +520,30 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     private void CreateDepthStencilView(Size size)
     {
-        Texture2DDescription texDesc = new Texture2DDescription()
+        Texture2DDesc texDesc = new Texture2DDesc()
         {
-            Format = Vortice.DXGI.Format.D32_Float,
-            Width = size.Width,
-            Height = size.Height,
+            Format = Silk.NET.DXGI.Format.FormatD24UnormS8Uint,
+            Width = (uint) size.Width,
+            Height = (uint) size.Height,
             ArraySize = 1,
             MipLevels = 1,
-            BindFlags = BindFlags.DepthStencil,
-            CPUAccessFlags = CpuAccessFlags.None,
-            MiscFlags = ResourceOptionFlags.None,
-            SampleDescription = new SampleDescription(1, 0),
-            Usage = ResourceUsage.Default
+            BindFlags = (uint) BindFlag.DepthStencil,
+            CPUAccessFlags = (uint) CpuAccessFlag.None,
+            MiscFlags = (uint) ResourceMiscFlag.None,
+            SampleDesc = new SampleDesc(1, 0),
+            Usage = Usage.Default
         };
-        
-        _depthStencilTexture = Device.CreateTexture2D(Vortice.DXGI.Format.D24_UNorm_S8_UInt, size.Width, size.Height, 1, 1, null, BindFlags.DepthStencil);
-        _depthStencilTargetView = Device.CreateDepthStencilView(_depthStencilTexture,
-            new DepthStencilViewDescription(_depthStencilTexture, DepthStencilViewDimension.Texture2D));
+
+        DepthStencilViewDesc viewDesc = new DepthStencilViewDesc()
+        {
+            Format = Silk.NET.DXGI.Format.FormatUnknown,
+            ViewDimension = DsvDimension.Texture2D
+        };
+
+        if (!Succeeded(Device.CreateTexture2D(&texDesc, null, ref _depthStencilTexture)))
+            throw new PieException("Failed to create swapchain depth texture.");
+
+        if (!Succeeded(Device.CreateDepthStencilView(_depthStencilTexture, &viewDesc, ref _depthStencilTargetView)))
+            throw new PieException("Failed to create swapchain depth view.");
     }
 }
