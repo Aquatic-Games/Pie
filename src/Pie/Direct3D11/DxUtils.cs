@@ -86,6 +86,10 @@ internal static class DxUtils
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static uint CalcSubresource(uint mipSlice, uint arraySlice, uint mipLevels) =>
+        mipSlice + (arraySlice * mipLevels);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool Succeeded(int result, out HResult hresult)
     {
         hresult = (HResult) result;
