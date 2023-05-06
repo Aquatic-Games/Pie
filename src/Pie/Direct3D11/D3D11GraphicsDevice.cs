@@ -67,7 +67,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         {
             Flags = (uint) SwapChainFlag.None,
             BufferCount = 2,
-            BufferDesc = new ModeDesc((uint) winSize.Width, (uint) winSize.Height),
+            BufferDesc = new ModeDesc((uint) winSize.Width, (uint) winSize.Height, format: Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm),
             BufferUsage = DXGI.UsageRenderTargetOutput,
             OutputWindow = hwnd,
             SampleDesc = new SampleDesc(1, 0),
@@ -82,8 +82,8 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         
         Adapter = new GraphicsAdapter(Marshal.PtrToStringAnsi((IntPtr) desc.Description));
 
-        if (!Succeeded(D3D11.CreateDeviceAndSwapChain(adapter, D3DDriverType.Hardware, 0,
-                (uint) flags, &level, 1, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref Device, &level,
+        if (!Succeeded(D3D11.CreateDeviceAndSwapChain(new ComPtr<IDXGIAdapter>((IDXGIAdapter*) null), D3DDriverType.Hardware, 0,
+                (uint) flags, null, 0, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref Device, ref level,
                 ref Context)))
         {
             throw new PieException("Failed to create device or swapchain.");
@@ -390,7 +390,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             Context.IASetInputLayout(lt.Layout);
         //}
 
-        Context.IASetVertexBuffers(slot, 1, ref ((D3D11GraphicsBuffer) buffer).Buffer, stride, null);
+        Context.IASetVertexBuffers(slot, 1, ref ((D3D11GraphicsBuffer) buffer).Buffer, stride, 0);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)

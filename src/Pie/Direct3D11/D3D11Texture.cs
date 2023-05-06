@@ -18,9 +18,11 @@ internal sealed unsafe class D3D11Texture : Texture
 
     public D3D11Texture(in TextureDescription description, void* data)
     {
+        Description = description;
+        
         int pitch = PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
 
-       Silk.NET.DXGI.Format fmt =
+        Silk.NET.DXGI.Format fmt =
             description.Format.ToDxgiFormat((description.Usage & TextureUsage.ShaderResource) ==
                                             TextureUsage.ShaderResource);
         

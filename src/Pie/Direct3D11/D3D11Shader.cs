@@ -42,24 +42,24 @@ internal sealed unsafe class D3D11Shader : Shader
                     break;
                 case ShaderStage.Fragment:
                     ComPtr<ID3D10Blob> pShaderBlob = CompileShader(hlsl, "main", "ps_5_0");
-                    ComPtr<ID3D11VertexShader> pShader = null;
-                    Device.CreateVertexShader(pShaderBlob.GetBufferPointer(), pShaderBlob.GetBufferSize(),
+                    ComPtr<ID3D11PixelShader> pShader = null;
+                    Device.CreatePixelShader(pShaderBlob.GetBufferPointer(), pShaderBlob.GetBufferSize(),
                         ref Unsafe.NullRef<ID3D11ClassLinkage>(), ref pShader);
-                    _shaders.Add(ShaderStage.Fragment, ComPtr.Downcast<ID3D11VertexShader, ID3D11DeviceChild>(pShader));
+                    _shaders.Add(ShaderStage.Fragment, ComPtr.Downcast<ID3D11PixelShader, ID3D11DeviceChild>(pShader));
                     break;
                 case ShaderStage.Geometry:
                     ComPtr<ID3D10Blob> gShaderBlob = CompileShader(hlsl, "main", "gs_5_0");
-                    ComPtr<ID3D11VertexShader> gShader = null;
-                    Device.CreateVertexShader(gShaderBlob.GetBufferPointer(), gShaderBlob.GetBufferSize(),
+                    ComPtr<ID3D11GeometryShader> gShader = null;
+                    Device.CreateGeometryShader(gShaderBlob.GetBufferPointer(), gShaderBlob.GetBufferSize(),
                         ref Unsafe.NullRef<ID3D11ClassLinkage>(), ref gShader);
-                    _shaders.Add(ShaderStage.Geometry, ComPtr.Downcast<ID3D11VertexShader, ID3D11DeviceChild>(gShader));
+                    _shaders.Add(ShaderStage.Geometry, ComPtr.Downcast<ID3D11GeometryShader, ID3D11DeviceChild>(gShader));
                     break;
                 case ShaderStage.Compute:
                     ComPtr<ID3D10Blob> cShaderBlob = CompileShader(hlsl, "main", "vs_5_0");
-                    ComPtr<ID3D11VertexShader> cShader = null;
-                    Device.CreateVertexShader(cShaderBlob.GetBufferPointer(), cShaderBlob.GetBufferSize(),
+                    ComPtr<ID3D11ComputeShader> cShader = null;
+                    Device.CreateComputeShader(cShaderBlob.GetBufferPointer(), cShaderBlob.GetBufferSize(),
                         ref Unsafe.NullRef<ID3D11ClassLinkage>(), ref cShader);
-                    _shaders.Add(ShaderStage.Compute, ComPtr.Downcast<ID3D11VertexShader, ID3D11DeviceChild>(cShader));
+                    _shaders.Add(ShaderStage.Compute, ComPtr.Downcast<ID3D11ComputeShader, ID3D11DeviceChild>(cShader));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -80,8 +80,6 @@ internal sealed unsafe class D3D11Shader : Shader
     {
         foreach ((ShaderStage stage, ComPtr<ID3D11DeviceChild> child) in _shaders)
         {
-            
-            
             switch (stage)
             {
                 case ShaderStage.Vertex:

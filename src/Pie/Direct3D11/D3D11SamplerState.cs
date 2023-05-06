@@ -28,14 +28,6 @@ internal sealed unsafe class D3D11SamplerState : SamplerState
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        float* borderColor = stackalloc float[4]
-        {
-            description.BorderColor.R / 255f,
-            description.BorderColor.G / 255f,
-            description.BorderColor.B / 255f,
-            description.BorderColor.A / 255f,
-        };
-
         SamplerDesc desc = new SamplerDesc()
         {
             Filter = filter,
@@ -45,10 +37,14 @@ internal sealed unsafe class D3D11SamplerState : SamplerState
             MipLODBias = 0,
             MaxAnisotropy = (uint) description.MaxAnisotropy,
             ComparisonFunc = Silk.NET.Direct3D11.ComparisonFunc.LessEqual,
-            BorderColor = borderColor,
             MinLOD = description.MinLOD,
             MaxLOD = description.MaxLOD
         };
+
+        desc.BorderColor[0] = description.BorderColor.R / 255f;
+        desc.BorderColor[1] = description.BorderColor.G / 255f;
+        desc.BorderColor[2] = description.BorderColor.B / 255f;
+        desc.BorderColor[3] = description.BorderColor.A / 255f;
 
         if (!Succeeded(Device.CreateSamplerState(&desc, ref State)))
             throw new PieException("Failed to create sampler state.");

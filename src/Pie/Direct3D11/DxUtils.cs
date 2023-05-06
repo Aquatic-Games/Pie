@@ -93,7 +93,12 @@ internal static class DxUtils
     internal static bool Succeeded(int result, out HResult hresult)
     {
         hresult = (HResult) result;
-        return !hresult.IsSuccess;
+        if (!hresult.IsSuccess)
+        {
+            Console.WriteLine("HRESULT code: " + hresult.Code);
+            return false;
+        }
+        return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

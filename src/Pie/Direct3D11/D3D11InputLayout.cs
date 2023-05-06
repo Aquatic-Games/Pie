@@ -14,7 +14,7 @@ internal sealed unsafe class D3D11InputLayout : InputLayout
 
     public D3D11InputLayout(InputLayoutDescription[] descriptions)
     {
-        GCHandle handle = GCHandle.Alloc("TEXCOORD", GCHandleType.Pinned);
+        GCHandle handle = GCHandle.Alloc(Encoding.UTF8.GetBytes("TEXCOORD"), GCHandleType.Pinned);
         IntPtr addr = handle.AddrOfPinnedObject();
         
         InputElementDesc[] iedesc = new InputElementDesc[descriptions.Length];
@@ -102,7 +102,7 @@ internal sealed unsafe class D3D11InputLayout : InputLayout
                     dummyShader.Append("uint3 ");
                     break;
                 case Format.R32G32B32_Float:
-                    dummyShader.Append("float2 ");
+                    dummyShader.Append("float3 ");
                     break;
                 case Format.R32G32B32A32_SInt:
                     dummyShader.Append("int4 ");

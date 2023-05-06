@@ -83,8 +83,7 @@ internal sealed unsafe class D3D11Framebuffer : Framebuffer
         foreach (ComPtr<ID3D11RenderTargetView> view in Targets)
             view.Dispose();
         
-        // TODO: ???? Does this work as a null check?
-        if (DepthStencil != default)
+        if (DepthStencil.Handle != null)
             DepthStencil.Dispose();
     }
 }
