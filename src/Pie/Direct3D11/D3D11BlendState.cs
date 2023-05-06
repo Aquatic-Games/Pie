@@ -1,35 +1,38 @@
 using System;
-using Vortice.Direct3D11;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
+using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
 
-internal sealed class D3D11BlendState : BlendState
+internal sealed unsafe class D3D11BlendState : BlendState
 {
     public override bool IsDisposed { get; protected set; }
 
-    public ID3D11BlendState State;
+    public ComPtr<ID3D11BlendState> State;
     
     public D3D11BlendState(BlendStateDescription description)
     {
         Description = description;
 
-        BlendDescription desc = new BlendDescription();
+        BlendDesc desc = new BlendDesc();
         desc.IndependentBlendEnable = false;
         desc.AlphaToCoverageEnable = false;
-        desc.RenderTarget[0] = new RenderTargetBlendDescription()
+        desc.RenderTarget[0] = new RenderTargetBlendDesc()
         {
             BlendEnable = description.Enabled,
-            SourceBlend = GetBlendFromBlendType(description.Source),
-            DestinationBlend = GetBlendFromBlendType(description.Destination),
-            BlendOperation = GetOpFromOp(description.BlendOperation),
-            SourceBlendAlpha = GetBlendFromBlendType(description.SourceAlpha),
-            DestinationBlendAlpha = GetBlendFromBlendType(description.DestinationAlpha),
-            BlendOperationAlpha = GetOpFromOp(description.AlphaBlendOperation),
-            RenderTargetWriteMask = (ColorWriteEnable) description.ColorWriteMask
+            SrcBlend = GetBlendFromBlendType(description.Source),
+            DestBlend = GetBlendFromBlendType(description.Destination),
+            BlendOp = GetOpFromOp(description.BlendOperation),
+            SrcBlendAlpha = GetBlendFromBlendType(description.SourceAlpha),
+            DestBlendAlpha = GetBlendFromBlendType(description.DestinationAlpha),
+            BlendOpAlpha = GetOpFromOp(description.AlphaBlendOperation),
+            RenderTargetWriteMask = (byte) description.ColorWriteMask
         };
 
-        State = Device.CreateBlendState(desc);
+        if (!Succeeded(Device.CreateBlendState(&desc, ref State)))
+            throw new PieException("Failed to create blend state.");
     }
 
     public override BlendStateDescription Description { get; }
@@ -48,27 +51,27 @@ internal sealed class D3D11BlendState : BlendState
         {
             BlendType.Zero => Blend.Zero,
             BlendType.One => Blend.One,
-            BlendType.SrcColor => Blend.SourceColor,
-            BlendType.OneMinusSrcColor => Blend.InverseSourceColor,
-            BlendType.DestColor => Blend.DestinationColor,
-            BlendType.OneMinusDestColor => Blend.InverseDestinationColor,
-            BlendType.SrcAlpha => Blend.SourceAlpha,
-            BlendType.OneMinusSrcAlpha => Blend.InverseSourceAlpha,
-            BlendType.DestAlpha => Blend.DestinationAlpha,
-            BlendType.OneMinusDestAlpha => Blend.InverseDestinationAlpha,
+            BlendType.SrcColor => Blend.SrcColor,
+            BlendType.OneMinusSrcColor => Blend.InvSrcColor,
+            BlendType.DestColor => Blend.DestColor,
+            BlendType.OneMinusDestColor => Blend.InvDestColor,
+            BlendType.SrcAlpha => Blend.SrcAlpha,
+            BlendType.OneMinusSrcAlpha => Blend.InvSrcAlpha,
+            BlendType.DestAlpha => Blend.DestAlpha,
+            BlendType.OneMinusDestAlpha => Blend.InvDestAlpha,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }
 
-    private static Vortice.Direct3D11.BlendOperation GetOpFromOp(BlendOperation operation)
+    private static BlendOp GetOpFromOp(BlendOperation operation)
     {
         return operation switch
         {
-            BlendOperation.Add => Vortice.Direct3D11.BlendOperation.Add,
-            BlendOperation.Subtract => Vortice.Direct3D11.BlendOperation.Subtract,
-            BlendOperation.ReverseSubtract => Vortice.Direct3D11.BlendOperation.ReverseSubtract,
-            BlendOperation.Min => Vortice.Direct3D11.BlendOperation.Min,
-            BlendOperation.Max => Vortice.Direct3D11.BlendOperation.Max,
+            BlendOperation.Add => BlendOp.Add,
+            BlendOperation.Subtract => BlendOp.Subtract,
+            BlendOperation.ReverseSubtract => BlendOp.RevSubtract,
+            BlendOperation.Min => BlendOp.Min,
+            BlendOperation.Max => BlendOp.Max,
             _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
         };
     }
