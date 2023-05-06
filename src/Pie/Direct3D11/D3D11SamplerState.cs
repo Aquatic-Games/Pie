@@ -8,7 +8,7 @@ namespace Pie.Direct3D11;
 
 internal sealed unsafe class D3D11SamplerState : SamplerState
 {
-    public readonly ComPtr<ID3D11SamplerState> State;
+    public ComPtr<ID3D11SamplerState> State;
     
     public D3D11SamplerState(SamplerStateDescription description)
     {
