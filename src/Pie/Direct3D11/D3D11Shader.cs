@@ -72,7 +72,7 @@ internal sealed unsafe class D3D11Shader : Shader
         if (IsDisposed)
             return;
         IsDisposed = true;
-        foreach ((_, ID3D11DeviceChild child) in _shaders)
+        foreach ((_, ComPtr<ID3D11DeviceChild> child) in _shaders)
             child.Dispose();
     }
 
@@ -83,16 +83,16 @@ internal sealed unsafe class D3D11Shader : Shader
             switch (stage)
             {
                 case ShaderStage.Vertex:
-                    Context.VSSetShader();
+                    Context.VSSetShader(new ComPtr<ID3D11VertexShader>((ID3D11VertexShader*) child.Handle), null, 0);
                     break;
                 case ShaderStage.Fragment:
-                    Context.PSSetShader((ID3D11PixelShader) child);
+                    Context.PSSetShader(new ComPtr<ID3D11PixelShader>((ID3D11PixelShader*) child.Handle), null, 0);
                     break;
                 case ShaderStage.Geometry:
-                    Context.GSSetShader((ID3D11GeometryShader) child);
+                    Context.GSSetShader(new ComPtr<ID3D11GeometryShader>((ID3D11GeometryShader*) child.Handle), null, 0);
                     break;
                 case ShaderStage.Compute:
-                    Context.CSSetShader((ID3D11ComputeShader) child);
+                    Context.CSSetShader(new ComPtr<ID3D11ComputeShader>((ID3D11ComputeShader*) child.Handle), null, 0);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
