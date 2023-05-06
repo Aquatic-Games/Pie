@@ -38,14 +38,15 @@ internal sealed unsafe class D3D11InputLayout : InputLayout
 
         Descriptions = descriptions;
 
-        Blob dummyBlob = GenerateDummyShader(descriptions);
-        Device.CreateInputLayout(&iedesc, descriptions.Length, dummyBlob, (nuint) dummyBlob.Length, ref Layout);
+        ComPtr<ID3D10Blob> dummyBlob = GenerateDummyShader(descriptions);
+        Device.CreateInputLayout(in iedesc[0], (uint) iedesc.Length, dummyBlob.GetBufferPointer(),
+            dummyBlob.GetBufferSize(), ref Layout);
         dummyBlob.Dispose();
         
         handle.Free();
     }
 
-    private Blob GenerateDummyShader(InputLayoutDescription[] descriptions)
+    private ComPtr<ID3D10Blob> GenerateDummyShader(InputLayoutDescription[] descriptions)
     {
         StringBuilder dummyShader = new StringBuilder();
         dummyShader.AppendLine("struct DummyInput {");
