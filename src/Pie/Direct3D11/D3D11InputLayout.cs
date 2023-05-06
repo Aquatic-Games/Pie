@@ -4,6 +4,7 @@ using System.Text;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
+using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
 
@@ -39,8 +40,11 @@ internal sealed unsafe class D3D11InputLayout : InputLayout
         Descriptions = descriptions;
 
         ComPtr<ID3D10Blob> dummyBlob = GenerateDummyShader(descriptions);
-        Device.CreateInputLayout(in iedesc[0], (uint) iedesc.Length, dummyBlob.GetBufferPointer(),
-            dummyBlob.GetBufferSize(), ref Layout);
+        if (!Succeeded(Device.CreateInputLayout(in iedesc[0], (uint) iedesc.Length, dummyBlob.GetBufferPointer(),
+                dummyBlob.GetBufferSize(), ref Layout)))
+        {
+            throw new PieException("Failed to create input layout.");
+        }
         dummyBlob.Dispose();
         
         handle.Free();

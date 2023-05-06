@@ -1,12 +1,14 @@
 ﻿using System;
-using Vortice.Direct3D11;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
+using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
 
-internal sealed class D3D11RasterizerState : RasterizerState
+internal sealed unsafe class D3D11RasterizerState : RasterizerState
 {
-    public ID3D11RasterizerState State;
+    public ComPtr<ID3D11RasterizerState> State;
     
     public override bool IsDisposed { get; protected set; }
 
@@ -24,14 +26,14 @@ internal sealed class D3D11RasterizerState : RasterizerState
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        Vortice.Direct3D11.FillMode fm = description.FillMode switch
+        Silk.NET.Direct3D11.FillMode fm = description.FillMode switch
         {
-            FillMode.Solid => Vortice.Direct3D11.FillMode.Solid,
-            FillMode.Wireframe => Vortice.Direct3D11.FillMode.Wireframe,
+            FillMode.Solid => Silk.NET.Direct3D11.FillMode.Solid,
+            FillMode.Wireframe => Silk.NET.Direct3D11.FillMode.Wireframe,
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        RasterizerDescription desc = new RasterizerDescription()
+        RasterizerDesc desc = new RasterizerDesc()
         {
             CullMode = cullMode,
             FrontCounterClockwise = description.CullDirection == CullDirection.CounterClockwise,
@@ -39,7 +41,8 @@ internal sealed class D3D11RasterizerState : RasterizerState
             ScissorEnable = description.ScissorTest
         };
 
-        State = Device.CreateRasterizerState(desc);
+        if (!Succeeded(Device.CreateRasterizerState(&desc, ref State)))
+            throw new PieException("Failed to create rasterizer state.");
     }
 
     public override void Dispose()
