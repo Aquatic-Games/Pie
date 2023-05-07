@@ -3,6 +3,8 @@
 
 The cross-platform graphics toolkit. Featuring a Direct3D-style cross-platform graphics API, windowing & audio, you'll find graphics programming as easy as pie.
 
+Want to find out more? [Join our discord server!](https://discord.gg/ygUpYkUstz)
+
 ### Graphics
 Pie's API is styled similarly to Direct3D 11. It is fully object-oriented, and does a fair amount of the hard work for you.
 
@@ -29,8 +31,7 @@ Cross-platform FreeType bindings, complete with a simple abstraction layer, to m
 Used by Pie itself, the shader compiler provides a simple way to transpile shaders. Compile GLSL or HLSL to Spir-V, and transpile Spir-V to various supported shading languages, such as GLSL or HLSL. This library is used by Pie to provide cross-platform shader support.
 
 ### Credits
-* [Silk.NET](https://github.com/dotnet/Silk.NET) - OpenGL, Vulkan, GLFW and SDL bindings.
-* [Vortice.Windows](https://github.com/amerkoleci/Vortice.Windows) - Direct3D 11 bindings.
+* [Silk.NET](https://github.com/dotnet/Silk.NET) - Direct3D, OpenGL, Vulkan, GLFW and SDL bindings.
 * [Spirzza](https://github.com/TechPizzaDev/Spirzza) - shaderc & spirv-cross bindings.
 * [mixr](https://github.com/piegfx/mixr) - Native audio library for Pie.Audio
 * Twitter for it's pie emoji (I don't own it!)

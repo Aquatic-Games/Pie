@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Vortice.Direct3D11;
-using Vortice.DXGI;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
+using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
 
-internal sealed class D3D11Framebuffer : Framebuffer
+internal sealed unsafe class D3D11Framebuffer : Framebuffer
 {
-    public ID3D11RenderTargetView[] Targets;
-    public ID3D11DepthStencilView DepthStencil;
+    public ComPtr<ID3D11RenderTargetView>[] Targets;
+    public ComPtr<ID3D11DepthStencilView> DepthStencil;
 
     public D3D11Framebuffer(FramebufferAttachment[] attachments)
     {
         int depthCount = 0;
 
-        List<ID3D11RenderTargetView> targets = new List<ID3D11RenderTargetView>();
+        List<ComPtr<ID3D11RenderTargetView>> targets = new List<ComPtr<ID3D11RenderTargetView>>();
         foreach (FramebufferAttachment attachment in attachments)
         {
-            Vortice.DXGI.Format fmt = attachment.Texture.Description.Format.ToDxgiFormat(false);
+            Silk.NET.DXGI.Format fmt = attachment.Texture.Description.Format.ToDxgiFormat(false);
 
             switch (attachment.Texture.Description.Format)
             {
@@ -29,12 +30,38 @@ internal sealed class D3D11Framebuffer : Framebuffer
                     depthCount++;
                     if (depthCount > 1)
                         throw new PieException("Framebuffer cannot have more than one depth stencil attachment.");
-                    DepthStencil = Device.CreateDepthStencilView(((D3D11Texture) attachment.Texture).Texture,
-                        new DepthStencilViewDescription(DepthStencilViewDimension.Texture2D, fmt, 0, 0, 1));
+
+                    DepthStencilViewDesc depthDesc = new DepthStencilViewDesc()
+                    {
+                        ViewDimension = DsvDimension.Texture2D,
+                        Format = fmt,
+                        Texture2D = new Tex2DDsv()
+                        {
+                            MipSlice = 0
+                        }
+                    };
+
+                    if (!Succeeded(Device.CreateDepthStencilView(((D3D11Texture) attachment.Texture).Texture,
+                            &depthDesc, ref DepthStencil)))
+                        throw new PieException("Failed to create depth stencil view.");
                     break;
                 default:
-                    targets.Add(Device.CreateRenderTargetView(((D3D11Texture) attachment.Texture).Texture,
-                        new RenderTargetViewDescription(RenderTargetViewDimension.Texture2D, fmt, 0, 0, 1)));
+
+                    RenderTargetViewDesc viewDesc = new RenderTargetViewDesc()
+                    {
+                        ViewDimension = RtvDimension.Texture2D,
+                        Format = fmt,
+                        Texture2D = new Tex2DRtv()
+                        {
+                            MipSlice = 0
+                        }
+                    };
+
+                    ComPtr<ID3D11RenderTargetView> targetView = null;
+                    Device.CreateRenderTargetView(((D3D11Texture) attachment.Texture).Texture, &viewDesc,
+                        ref targetView);
+
+                    targets.Add(targetView);
                     break;
             }
         }
@@ -53,9 +80,10 @@ internal sealed class D3D11Framebuffer : Framebuffer
 
         IsDisposed = true;
         
-        foreach (ID3D11RenderTargetView view in Targets)
+        foreach (ComPtr<ID3D11RenderTargetView> view in Targets)
             view.Dispose();
         
-        DepthStencil?.Dispose();
+        if (DepthStencil.Handle != null)
+            DepthStencil.Dispose();
     }
 }

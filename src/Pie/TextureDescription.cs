@@ -158,6 +158,9 @@ public struct TextureDescription
             if (TextureType == TextureType.Cubemap && Width != Height)
                 return new Validity(false, "Cubemap width must equal height.");
 
+            if (Format is >= Format.BC1_UNorm and <= Format.BC7_UNorm_SRgb && MipLevels == 0)
+                return new Validity(false, "Compressed textures must have an explicit number of mipmaps defined.");
+
             return new Validity(true, null);
         }
     }

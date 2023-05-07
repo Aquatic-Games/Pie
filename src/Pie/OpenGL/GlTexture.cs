@@ -375,87 +375,59 @@ internal sealed class GlTexture : Texture
                 TextureType.Texture1D => description.ArraySize > 1 ? TextureTarget.Texture1DArray : TextureTarget.Texture1D,
                 TextureType.Texture2D => description.ArraySize > 1 ? TextureTarget.Texture2DArray : TextureTarget.Texture2D,
                 TextureType.Texture3D => TextureTarget.Texture3D,
-                TextureType.Cubemap => TextureTarget.TextureCubeMap,
+                TextureType.Cubemap => description.ArraySize > 1 ? throw new NotImplementedException("Cubemap arrays are not currently supported.") : TextureTarget.TextureCubeMap,
                 _ => throw new ArgumentOutOfRangeException()
             };
         
             Gl.BindTexture(target, handle);
             PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
-            uint size = (uint) (description.Width * description.Height * (bpp / 8f));
 
-            // TODO: Please check to make sure I haven't screwed these up.
-            switch (description.TextureType)
+            // Calculate the number of mip levels if the description's value is 0.
+            int mipLevels = description.MipLevels == 0
+                ? PieUtils.CalculateMipLevels(description.Width, description.Height, description.Depth)
+                : description.MipLevels;
+
+            // Allocate the texture based on the target and number of mip levels.
+            AllocateTexture(target, (uint) mipLevels, (SizedInternalFormat) iFmt, description);
+
+            if (data != null)
             {
-                case TextureType.Texture1D:
-                    if (description.ArraySize == 1)
-                    {
-                        if (compressed)
-                            Gl.CompressedTexImage1D(target, 0, iFmt, (uint) description.Width, 0, size, data);
-                        else
-                            Gl.TexImage1D(target, 0, iFmt, (uint) description.Width, 0, fmt, type, data);
-                    }
-                    else
-                    {
-                        if (compressed)
-                        {
-                            Gl.CompressedTexImage2D(target, 0, iFmt, (uint) description.Width,
-                                (uint) description.ArraySize, 0, size, data);
-                        }
-                        else
-                        {
-                            Gl.TexImage2D(target, 0, iFmt, (uint) description.Width, (uint) description.ArraySize, 0,
-                                fmt, type, data);
-                        }
-                    }
-                    break;
-                case TextureType.Texture2D:
-                    if (description.ArraySize == 1)
-                    {
-                        if (compressed)
-                        {
-                            Gl.CompressedTexImage2D(target, 0, iFmt, (uint) description.Width,
-                                (uint) description.Height, 0, size, data);
-                        }
-                        else
-                        {
-                            Gl.TexImage2D(target, 0, iFmt, (uint) description.Width, (uint) description.Height, 0, fmt,
-                                type, data);
-                        }
-                    }
-                    else
-                    {
-                        if (compressed)
-                        {
-                            Gl.CompressedTexImage3D(target, 0, iFmt, (uint) description.Width,
-                                (uint) description.Height, (uint) description.ArraySize, 0, size, data);
-                        }
-                        else
-                        {
-                            Gl.TexImage3D(target, 0, iFmt, (uint) description.Width, (uint) description.Height,
-                                (uint) description.ArraySize, 0, fmt, type, data);
-                        }
-                    }
-                    break;
-                case TextureType.Texture3D:
-                    if (description.ArraySize > 1)
-                        throw new NotSupportedException("3D texture arrays are not supported.");
+                // The current offset in bytes to look at the data.
+                uint currentOffset = 0;
 
-                    Gl.TexImage3D(target, 0, iFmt, (uint) description.Width, (uint) description.Height,
-                        (uint) description.Depth, 0, fmt, type, data);
-                    break;
-                case TextureType.Cubemap:
-                    for (int i = 0; i < 6; i++)
-                    {
-                        void* dataPtr = data == null ? null : (byte*) data + i * size;
-                        Gl.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, iFmt, (uint) description.Width,
-                            (uint) description.Height, 0, fmt, type, dataPtr);
-                    }
+                for (int a = 0; a < description.ArraySize * (description.TextureType == TextureType.Cubemap ? 6 : 1); a++)
+                {
+                    uint width = (uint) description.Width;
+                    // While width must always have a width >= 1, height and depth may not always. If the height or depth
+                    // are 0, this will cause the size calculation to fail, so we must set it to 1 here.
+                    uint height = (uint) PieUtils.Max(description.Height, 1);
+                    uint depth = (uint) PieUtils.Max(description.Depth, 1);
 
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                    // The loop must run at least once, even if the mip levels are 0.
+                    for (int i = 0; i < PieUtils.Max(1, description.MipLevels); i++)
+                    {
+                        uint currSize = (uint) (width * height * depth * (bpp / 8f));
+
+                        UpdateSubTexture(target, i, a, 0, 0, 0, width, height, depth, compressed, iFmt, fmt, currSize,
+                            type, (byte*) data + currentOffset);
+
+                        currentOffset += currSize;
+
+                        // Divide the width and height by 2 for each mip level.
+                        width /= 2;
+                        height /= 2;
+                        depth /= 2;
+
+                        if (width < 1)
+                            width = 1;
+                        if (height < 1)
+                            height = 1;
+                        if (depth < 1)
+                            depth = 1;
+                    }
+                }
             }
-            
+
             if (description.MipLevels != 0)
                 Gl.TexParameter(target, TextureParameterName.TextureMaxLevel, description.MipLevels - 1);
         }
@@ -468,80 +440,15 @@ internal sealed class GlTexture : Texture
 
     public unsafe void Update(int x, int y, int z, int width, int height, int depth, int mipLevel, int arrayIndex, void* data)
     {
-        // TODO: PixelType.UnsignedByte here should use texture format.
         Gl.BindTexture(Target, Handle);
 
         TextureDescription description = Description;
         PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
-        uint size = (uint) (description.Width * description.Height * (bpp / 8f));
+        uint size = (uint) (PieUtils.Max(description.Width, 1) * PieUtils.Max(description.Height, 1) *
+                            PieUtils.Max(description.Depth, 1) * (bpp / 8f));
 
-        // TODO: Check to make sure I haven't screwed these up as well.
-        switch (description.TextureType)
-        {
-            case TextureType.Texture1D:
-                    if (description.ArraySize == 1)
-                    {
-                        if (_compressed)
-                            Gl.CompressedTexSubImage1D(Target, mipLevel, x, (uint) width, _iFmt, size, data);
-                        else
-                            Gl.TexSubImage1D(Target, mipLevel, x, (uint) width, _fmt, _pixelType, data);
-                    }
-                    else
-                    {
-                        if (_compressed)
-                        {
-                            Gl.CompressedTexSubImage2D(Target, mipLevel, x, 0, (uint) width,
-                                (uint) arrayIndex, _iFmt, size, data);
-                        }
-                        else
-                        {
-                            Gl.TexSubImage2D(Target, mipLevel, x, 0, (uint) width,
-                                (uint) arrayIndex, _fmt, _pixelType, data);
-                        }
-                    }
-                    break;
-                case TextureType.Texture2D:
-                    if (description.ArraySize == 1)
-                    {
-                        if (_compressed)
-                        {
-                            Gl.CompressedTexSubImage2D(Target, mipLevel, x, y, (uint) width,
-                                (uint) height, _iFmt, size, data);
-                        }
-                        else
-                        {
-                            Gl.TexSubImage2D(Target, mipLevel, x, y, (uint) width,
-                                (uint) height, _fmt, _pixelType, data);
-                        }
-                    }
-                    else
-                    {
-                        if (_compressed)
-                        {
-                            Gl.CompressedTexSubImage3D(Target, mipLevel, x, y, 0, (uint) width,
-                                (uint) height, (uint) arrayIndex, _iFmt, size, data);
-                        }
-                        else
-                        {
-                            Gl.TexSubImage3D(Target, mipLevel, x, y, 0, (uint) width,
-                                (uint) height, (uint) arrayIndex, _fmt, _pixelType, data);
-                        }
-                    }
-                    break;
-                case TextureType.Texture3D:
-                    if (description.ArraySize > 1)
-                        throw new NotSupportedException("3D texture arrays are not supported.");
-
-                    Gl.TexSubImage3D(Target, mipLevel, x, y, z, (uint) width,
-                        (uint) height, (uint) depth, _fmt, _pixelType, data);
-                    break;
-                case TextureType.Cubemap:
-                    Gl.TexSubImage2D(TextureTarget.TextureCubeMapPositiveX + arrayIndex, mipLevel, x, y, (uint) width,
-                        (uint) height, _fmt, _pixelType, data);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-        }
+        UpdateSubTexture(Target, mipLevel, arrayIndex, x, y, z, (uint) width, (uint) height, (uint) depth,
+            _compressed, _iFmt, _fmt, size, _pixelType, data);
     }
 
     public override void Dispose()
@@ -553,5 +460,88 @@ internal sealed class GlTexture : Texture
             Gl.DeleteRenderbuffer(Handle);
         else
             Gl.DeleteTexture(Handle);
+    }
+
+    private static void AllocateTexture(TextureTarget target, uint mipLevels, SizedInternalFormat format, in TextureDescription description)
+    {
+        switch (target)
+        {
+            case TextureTarget.Texture1D:
+                Gl.TexStorage1D(target, mipLevels, format, (uint) description.Width);
+                break;
+            case TextureTarget.Texture2D:
+                Gl.TexStorage2D(target, mipLevels, format, (uint) description.Width, (uint) description.Height);
+                break;
+            case TextureTarget.Texture3D:
+                Gl.TexStorage3D(target, mipLevels, format, (uint) description.Width, (uint) description.Height,
+                    (uint) description.Depth);
+                break;
+            case TextureTarget.Texture1DArray:
+                Gl.TexStorage2D(target, mipLevels, format, (uint) description.Width, (uint) description.ArraySize);
+                break;
+            case TextureTarget.Texture2DArray:
+                Gl.TexStorage3D(target, mipLevels, format, (uint) description.Width, (uint) description.Height,
+                    (uint) description.ArraySize);
+                break;
+            case TextureTarget.TextureCubeMap:
+                Gl.TexStorage2D(target, mipLevels, format, (uint) description.Width, (uint) description.Height);
+                break;
+            
+            default:
+                throw new ArgumentOutOfRangeException(nameof(target));
+        }
+    }
+
+    private static unsafe void UpdateSubTexture(TextureTarget target, int level, int arrayIndex, int x, int y, int z,
+        uint width, uint height, uint depth, bool isCompressed, InternalFormat glIFormat, PixelFormat glFormat,
+        uint size, PixelType type, void* data)
+    {
+        if (isCompressed && size < 16)
+            return;
+        
+        switch (target)
+        {
+            case TextureTarget.Texture1D:
+                if (isCompressed)
+                    Gl.CompressedTexSubImage1D(target, level, x, width, glIFormat, size, data);
+                else
+                    Gl.TexSubImage1D(target, level, x, width, glFormat, type, data);
+                break;
+            case TextureTarget.Texture2D:
+                if (isCompressed)
+                    Gl.CompressedTexSubImage2D(target, level, x, y, width, height, glIFormat, size, data);
+                else
+                    Gl.TexSubImage2D(target, level, x, y, width, height, glFormat, type, data);
+                break;
+            case TextureTarget.Texture3D:
+                if (isCompressed)
+                    Gl.CompressedTexSubImage3D(target, level, x, y, z, width, height, depth, glIFormat, size, data);
+                else
+                    Gl.TexSubImage3D(target, level, x, y, z, width, height, depth, glFormat, type, data);
+                break;
+            case TextureTarget.Texture1DArray:
+                if (isCompressed)
+                    Gl.CompressedTexSubImage2D(target, level, x, arrayIndex, width, 1, glIFormat, size, data);
+                else
+                    Gl.TexSubImage2D(target, level, x, arrayIndex, width, 1, glFormat, type, data);
+                break;
+            case TextureTarget.Texture2DArray:
+                if (isCompressed)
+                {
+                    Gl.CompressedTexSubImage3D(target, level, x, y, arrayIndex, width, height, 1, glIFormat, size,
+                        data);
+                }
+                else
+                    Gl.TexSubImage3D(target, level, x, y, arrayIndex, width, height, 1, glFormat, type, data);
+                break;
+            case TextureTarget.TextureCubeMap:
+                TextureTarget cubemapTarget = TextureTarget.TextureCubeMapPositiveX + arrayIndex;
+
+                if (isCompressed)
+                    Gl.CompressedTexSubImage2D(cubemapTarget, level, x, y, width, height, glIFormat, size, data);
+                else
+                    Gl.TexSubImage2D(cubemapTarget, level, x, y, width, height, glFormat, type, data);
+                break;
+        }
     }
 }

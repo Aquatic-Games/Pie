@@ -1,37 +1,56 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Text;
-using Vortice.Direct3D;
-using Vortice.Direct3D11;
-using Vortice.DXGI;
+using Silk.NET.Core.Native;
+using Silk.NET.Direct3D11;
 using static Pie.Direct3D11.D3D11GraphicsDevice;
+using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
 
-internal sealed class D3D11InputLayout : InputLayout
+internal sealed unsafe class D3D11InputLayout : InputLayout
 {
-    public readonly ID3D11InputLayout Layout;
+    public readonly ComPtr<ID3D11InputLayout> Layout;
 
     public D3D11InputLayout(InputLayoutDescription[] descriptions)
     {
-        InputElementDescription[] iedesc = new InputElementDescription[descriptions.Length];
+        GCHandle handle = GCHandle.Alloc(Encoding.UTF8.GetBytes("TEXCOORD"), GCHandleType.Pinned);
+        IntPtr addr = handle.AddrOfPinnedObject();
+        
+        InputElementDesc[] iedesc = new InputElementDesc[descriptions.Length];
         for (int i = 0; i < iedesc.Length; i++)
         {
-            ref InputElementDescription d = ref iedesc[i];
+            ref InputElementDesc d = ref iedesc[i];
             ref InputLayoutDescription desc = ref descriptions[i];
 
-            Vortice.DXGI.Format fmt = desc.Format.ToDxgiFormat(false);
-
-            d = new InputElementDescription("TEXCOORD", i, fmt, (int) desc.Offset, (int) desc.Slot, (InputClassification) desc.InputType, (int) desc.InputType);
+            Silk.NET.DXGI.Format fmt = desc.Format.ToDxgiFormat(false);
+            
+            d = new InputElementDesc()
+            {
+                SemanticName = (byte*) addr,
+                SemanticIndex = (uint) i,
+                AlignedByteOffset = desc.Offset,
+                Format = fmt,
+                InputSlot = desc.Slot,
+                InputSlotClass = (InputClassification) desc.InputType,
+                InstanceDataStepRate = (uint) desc.InputType
+            };
         }
 
         Descriptions = descriptions;
 
-        Blob dummyBlob = GenerateDummyShader(descriptions);
-        Layout = Device.CreateInputLayout(iedesc, dummyBlob);
+        ComPtr<ID3D10Blob> dummyBlob = GenerateDummyShader(descriptions);
+        if (!Succeeded(Device.CreateInputLayout(in iedesc[0], (uint) iedesc.Length, dummyBlob.GetBufferPointer(),
+                dummyBlob.GetBufferSize(), ref Layout)))
+        {
+            throw new PieException("Failed to create input layout.");
+        }
         dummyBlob.Dispose();
+        
+        handle.Free();
     }
 
-    private Blob GenerateDummyShader(InputLayoutDescription[] descriptions)
+    private ComPtr<ID3D10Blob> GenerateDummyShader(InputLayoutDescription[] descriptions)
     {
         StringBuilder dummyShader = new StringBuilder();
         dummyShader.AppendLine("struct DummyInput {");
@@ -83,7 +102,7 @@ internal sealed class D3D11InputLayout : InputLayout
                     dummyShader.Append("uint3 ");
                     break;
                 case Format.R32G32B32_Float:
-                    dummyShader.Append("float2 ");
+                    dummyShader.Append("float3 ");
                     break;
                 case Format.R32G32B32A32_SInt:
                     dummyShader.Append("int4 ");

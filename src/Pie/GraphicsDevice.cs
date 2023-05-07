@@ -40,25 +40,27 @@ public abstract class GraphicsDevice : IDisposable
     public abstract Rectangle Scissor { get; set; }
 
     /// <summary>
-    /// Clears the set Framebuffer with the given color and flags. If no framebuffer is set, this clears the back buffer.
+    /// Clears the set Framebuffer's color texture with the given color and flags. If no framebuffer is set, this clears
+    /// the back buffer.
     /// </summary>
     /// <param name="color">The color to clear with.</param>
-    /// <param name="flags">The flags for clearing other bits.</param>
-    public abstract void Clear(Color color, ClearFlags flags = ClearFlags.None);
+    public abstract void ClearColorBuffer(Color color);
 
     /// <summary>
-    /// Clears the set Framebuffer with the given normalized color and flags. If no framebuffer is set, this clears the
-    /// back buffer.
+    /// Clears the set Framebuffer's color texture with the given normalized color and flags. If no framebuffer is set,
+    /// this clears the back buffer.
     /// </summary>
     /// <param name="color">The color to clear with.</param>
-    /// <param name="flags">The flags for clearing other bits.</param>
-    public abstract void Clear(Vector4 color, ClearFlags flags = ClearFlags.None);
+    public abstract void ClearColorBuffer(Vector4 color);
 
     /// <summary>
-    /// Clears the set Framebuffer with the given flags. If no framebuffer is set, this clears the back buffer.
+    /// Clears the set Framebuffer's depth stencil texture with the given flags. If no framebuffer is set, this clears
+    /// the back buffer.
     /// </summary>
-    /// <param name="flags">The flags for clearing bits.</param>
-    public abstract void Clear(ClearFlags flags);
+    /// <param name="flags">Which part(s) of the depth-stencil buffer to clear.</param>
+    /// <param name="depth">The depth value to clear with.</param>
+    /// <param name="stencil">The stencil value to clear with.</param>
+    public abstract void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil);
 
     /// <summary>
     /// Create a graphics buffer with the given type and data.

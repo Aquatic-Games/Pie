@@ -126,16 +126,17 @@ public static class PieUtils
     }
 
     /// <summary>
-    /// Calculate the total number of mipmap levels (including the most detailed mip) from the given width and height.
+    /// Calculate the total number of mipmap levels (including the most detailed mip) from the given width, height, and depth.
     /// </summary>
     /// <param name="width">The width of the texture.</param>
     /// <param name="height">The height of the texture.</param>
+    /// <param name="depth">The depth of the texture.</param>
     /// <returns>The number of mip levels.</returns>
     /// <remarks>For the result to be accurate, you should use the width and height of the most detailed mip level.</remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int CalculateMipLevels(int width, int height)
+    public static int CalculateMipLevels(int width, int height, int depth)
     {
-        return (int) Math.Floor(Math.Log2(Math.Max(width, height))) + 1;
+        return (int) Math.Floor(Math.Log2(Math.Max(width, Math.Max(height, depth)))) + 1;
     }
 
     /// <summary>
@@ -290,11 +291,5 @@ public static class PieUtils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static int Max(int l, int r) => l < r ? r : l;
 
-    internal static void CheckIfValid(int expected, int received)
-    {
-        if (received != expected)
-            throw new PieException($"{expected} bytes expected, {received} bytes received.");
-    }
-    
     #endregion
 }
