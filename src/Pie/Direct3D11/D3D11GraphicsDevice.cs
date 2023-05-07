@@ -116,7 +116,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         set
         {
             _viewport = value;
-            Silk.NET.Direct3D11.Viewport viewport = new Viewport(value.X, value.Y, value.Width, value.Height);
+            Silk.NET.Direct3D11.Viewport viewport = new Viewport(value.X, value.Y, value.Width, value.Height, 0f, 1f);
             Context.RSSetViewports(1, viewport);
         }
     }
@@ -530,7 +530,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
         DepthStencilViewDesc viewDesc = new DepthStencilViewDesc()
         {
-            Format = Silk.NET.DXGI.Format.FormatUnknown,
+            Format = texDesc.Format,
             ViewDimension = DsvDimension.Texture2D
         };
 
