@@ -141,8 +141,12 @@ public sealed unsafe class Window : IDisposable
                 }), size, options ?? new GraphicsDeviceOptions());
             
             case GraphicsApi.D3D11:
-                throw new NotImplementedException();
-                break;
+                SdlSysWmInfo info = new SdlSysWmInfo();
+                Sdl.GetWindowWMInfo(_window, &info);
+                Console.WriteLine(info.Info.Win.Window);
+                return GraphicsDevice.CreateD3D11(info.Info.Win.Window, size,
+                    options ?? new GraphicsDeviceOptions());
+
             case GraphicsApi.Vulkan:
                 throw new NotSupportedException("Vulkan does not actually exist and this API should be removed.");
                 break;
