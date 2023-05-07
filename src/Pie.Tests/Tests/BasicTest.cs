@@ -74,7 +74,8 @@ public class BasicTest : TestBase
 
         //GraphicsDevice.Scissor = new Rectangle(Point.Empty, GraphicsDevice.Swapchain.Size);
         
-        GraphicsDevice.Clear(Color.CornflowerBlue, ClearFlags.Depth | ClearFlags.Stencil);
+        GraphicsDevice.ClearColorBuffer(Color.CornflowerBlue);
+        GraphicsDevice.ClearDepthStencilBuffer(ClearFlags.Depth | ClearFlags.Stencil, 1, 0);
 
         _totalTime += dt;
 

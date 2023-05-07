@@ -27,15 +27,15 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
         Adapter = new GraphicsAdapter("Null");
     }
 
-    public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
+    public override void ClearColorBuffer(Color color)
     {
     }
 
-    public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
+    public override void ClearColorBuffer(Vector4 color)
     {
     }
 
-    public override void Clear(ClearFlags flags)
+    public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
     {
     }
 

@@ -136,38 +136,27 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         }
     }
 
-    public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
+    public override void ClearColorBuffer(Color color)
     {
-        Clear(new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f), flags);
+        ClearColorBuffer(new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f));
     }
 
-    public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
+    public override void ClearColorBuffer(Vector4 color)
     {
         Context.ClearRenderTargetView(_currentFramebuffer?.Targets[0] ?? _colorTargetView, &color.X);
-        Clear(flags);
     }
 
-    public override void Clear(ClearFlags flags)
+    public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
     {
         //Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
         uint cf = 0;
-        int depth = 0;
-        byte stencil = 0;
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
-        {
             cf |= (uint) ClearFlag.Depth;
-            depth = 1;
-        }
 
         if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
-        {
             cf |= (uint) ClearFlag.Stencil;
-            // TODO: Stencil stuff.
-            stencil = 0;
-        }
 
         Context.ClearDepthStencilView(_currentFramebuffer?.DepthStencil ?? _depthStencilTargetView, cf, depth, stencil);
-        //Context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
     }
 
     private void InvalidateCache()

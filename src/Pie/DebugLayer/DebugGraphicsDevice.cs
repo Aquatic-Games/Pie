@@ -42,19 +42,19 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         set => _device.Scissor = value;
     }
     
-    public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
+    public override void ClearColorBuffer(Color color)
     {
-        _device.Clear(color, flags);
+        _device.ClearColorBuffer(color);
     }
 
-    public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
+    public override void ClearColorBuffer(Vector4 color)
     {
-       _device.Clear(color, flags);
+       _device.ClearColorBuffer(color);
     }
 
-    public override void Clear(ClearFlags flags)
+    public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
     {
-        _device.Clear(flags);
+        _device.ClearDepthStencilBuffer(flags, depth, stencil);
     }
 
     public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)

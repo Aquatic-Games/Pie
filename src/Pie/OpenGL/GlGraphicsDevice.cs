@@ -89,31 +89,27 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         }
     }
 
-    public override void Clear(Color color, ClearFlags flags = ClearFlags.None)
+    public override void ClearColorBuffer(Color color)
     {
-        Vector4 nC = color.Normalize();
-        Clear(nC, flags);
+        ClearColorBuffer(new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f));
     }
 
-    public override void Clear(Vector4 color, ClearFlags flags = ClearFlags.None)
+    public override void ClearColorBuffer(Vector4 color)
     {
         Gl.ClearColor(color.X, color.Y, color.Z, color.W);
-
-        uint mask = (uint) ClearBufferMask.ColorBufferBit;
-        if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
-            mask |= (uint) ClearBufferMask.DepthBufferBit;
-        if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
-            mask |= (uint) ClearBufferMask.StencilBufferBit;
-        Gl.Clear(mask);
+        Gl.Clear(ClearBufferMask.ColorBufferBit);
     }
 
-    public override void Clear(ClearFlags flags)
+    public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
     {
         uint mask = 0;
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
             mask |= (uint) ClearBufferMask.DepthBufferBit;
         if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
             mask |= (uint) ClearBufferMask.StencilBufferBit;
+        
+        Gl.ClearDepth(depth);
+        Gl.ClearStencil(stencil);
         Gl.Clear(mask);
     }
 

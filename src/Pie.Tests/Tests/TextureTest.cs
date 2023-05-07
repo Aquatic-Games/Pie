@@ -152,7 +152,7 @@ PSOutput PixelShader(in VSOutput input)
     {
         base.Draw(dt);
         
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.ClearColorBuffer(Color.CornflowerBlue);
         
         GraphicsDevice.SetShader(_shader);
         GraphicsDevice.SetTexture(0, _texture, _samplerState);
