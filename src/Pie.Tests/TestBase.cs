@@ -30,11 +30,12 @@ public abstract class TestBase : IDisposable
         Icon icon = new Icon((uint) result.Width, (uint) result.Height, result.Data);
 
         Window = new WindowBuilder()
-            .Size(800, 480)
+            .Size(1280, 720)
             .Title("A test with SDL!")
             .Icon(icon)
             .Resizable()
-            .WithApi(api)
+            .Api(api)
+            .GraphicsDeviceOptions(new GraphicsDeviceOptions(true))
             .Build(out GraphicsDevice);
 
         Initialize();

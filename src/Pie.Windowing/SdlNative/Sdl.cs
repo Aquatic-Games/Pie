@@ -38,6 +38,9 @@ public static unsafe class Sdl
     [DllImport(SdlName, EntryPoint = "SDL_GetWindowSizeInPixels")]
     public static extern void GetWindowSizeInPixels(void* window, int* w, int* h);
 
+    [DllImport(SdlName, EntryPoint = "SDL_GetWindowTitle")]
+    public static extern sbyte* GetWindowTitle(void* window);
+
     [DllImport(SdlName, EntryPoint = "SDL_GetWindowPosition")]
     public static extern void GetWindowPosition(void* window, int* x, int* y);
 
@@ -49,6 +52,9 @@ public static unsafe class Sdl
 
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowIcon")]
     public static extern void SetWindowIcon(void* window, void* surface);
+
+    [DllImport(SdlName, EntryPoint = "SDL_SetWindowTitle")]
+    public static extern void SetWindowTitle(void* window, sbyte* title);
 
     [DllImport(SdlName, EntryPoint = "SDL_GL_SetAttribute")]
     public static extern int GLSetAttribute(SdlGlAttr attr, int value);
@@ -97,6 +103,6 @@ public static unsafe class Sdl
         fixed (byte* procPtr = Encoding.UTF8.GetBytes(proc))
             return (nint) GLGetProcAddress((sbyte*) procPtr);
     }
-    
+
     #endregion
 }

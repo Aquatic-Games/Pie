@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Text;
 using Pie.OpenGL;
 using Pie.Windowing.Events;
@@ -57,6 +58,23 @@ public sealed unsafe class Window : IDisposable
             return new Point(x, y);
         }
         set => Sdl.SetWindowPosition(_window, value.X, value.Y);
+    }
+
+    /// <summary>
+    /// Get or set the title of the window.
+    /// </summary>
+    public string Title
+    {
+        get
+        {
+            sbyte* title = Sdl.GetWindowTitle(_window);
+            return Marshal.PtrToStringAnsi((IntPtr) title);
+        }
+        set
+        {
+            fixed (byte* title = Encoding.UTF8.GetBytes(value))
+                Sdl.SetWindowTitle(_window, (sbyte*) title);
+        }
     }
 
     internal Window(WindowBuilder builder)

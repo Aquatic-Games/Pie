@@ -16,7 +16,7 @@ public class WindowBuilder
 
     public Icon? WindowIcon;
 
-    public GraphicsDeviceOptions GraphicsDeviceOptions;
+    public GraphicsDeviceOptions DeviceOptions;
 
     public GraphicsApi WindowApi;
 
@@ -27,7 +27,7 @@ public class WindowBuilder
         WindowTitle = Assembly.GetEntryAssembly()?.GetName().Name ?? "Pie Window";
         WindowResizable = false;
         WindowIcon = null;
-        GraphicsDeviceOptions = new GraphicsDeviceOptions(false);
+        DeviceOptions = new GraphicsDeviceOptions(false);
         WindowApi = GraphicsDevice.GetBestApiForPlatform();
     }
 
@@ -66,9 +66,9 @@ public class WindowBuilder
         return this;
     }
 
-    public WindowBuilder WithGraphicsDeviceOptions(in GraphicsDeviceOptions options)
+    public WindowBuilder GraphicsDeviceOptions(in GraphicsDeviceOptions options)
     {
-        GraphicsDeviceOptions = options;
+        DeviceOptions = options;
 
         return this;
     }
@@ -78,7 +78,7 @@ public class WindowBuilder
     /// </summary>
     /// <param name="api">The <see cref="GraphicsApi"/> to use.</param>
     /// <returns>The window builder.</returns>
-    public WindowBuilder WithApi(GraphicsApi api)
+    public WindowBuilder Api(GraphicsApi api)
     {
         WindowApi = api;
 
@@ -90,10 +90,10 @@ public class WindowBuilder
         return new Window(this);
     }
 
-    public Window Build(out GraphicsDevice device, GraphicsDeviceOptions? options = null)
+    public Window Build(out GraphicsDevice device)
     {
         Window window = new Window(this);
-        device = window.CreateGraphicsDevice(options);
+        device = window.CreateGraphicsDevice(DeviceOptions);
         return window;
     }
 }
