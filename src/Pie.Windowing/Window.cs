@@ -197,6 +197,10 @@ public sealed unsafe class Window : IDisposable
                 }
 
                 break;
+            
+            case SdlEventType.KeyDown:
+                Console.WriteLine(SdlHelper.KeycodeToKey(sdlEvent.Keyboard.KeyCode));
+                break;
         }
 
         return true;

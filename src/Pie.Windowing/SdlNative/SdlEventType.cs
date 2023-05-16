@@ -6,5 +6,11 @@ public enum SdlEventType
 
     Quit = 0x100,
     
-    WindowEvent = 0x200
+    WindowEvent = 0x200,
+    
+    KeyDown = 0x300,
+    KeyUp,
+    TextEditing,
+    TextInput,
+    KeymapChanged
 }

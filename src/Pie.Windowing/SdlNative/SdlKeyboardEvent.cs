@@ -12,5 +12,6 @@ public struct SdlKeyboardEvent
     public byte Repeat;
     public byte Padding2;
     public byte Padding3;
-    
+    public uint ScanCode;
+    public uint KeyCode;
 }

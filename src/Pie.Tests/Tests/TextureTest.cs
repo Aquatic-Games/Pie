@@ -81,18 +81,18 @@ PSOutput PixelShader(in VSOutput input)
         _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, vertices);
         _indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, indices);
         
-        ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
-        /*ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
+        /*ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
         
         _texture = GraphicsDevice.CreateTexture(new TextureDescription(result1.Width, result1.Height,
             Format.R8G8B8A8_UNorm, 0, 2, TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data));
         GraphicsDevice.GenerateMipmaps(_texture);*/
         
-        /*ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
-        ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/BAGELMIP.png"), ColorComponents.RedGreenBlueAlpha);
+        /*ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/BAGELMIP.png"), ColorComponents.RedGreenBlueAlpha);
         
-        ImageResult result3 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
-        ImageResult result4 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/EVILMIP.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result3 = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result4 = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/EVILMIP.png"), ColorComponents.RedGreenBlueAlpha);
 
         _texture = GraphicsDevice.CreateTexture(
             new TextureDescription(result1.Width, result1.Height, Format.R8G8B8A8_UNorm, 2, 2,
@@ -100,7 +100,7 @@ PSOutput PixelShader(in VSOutput input)
         
         GraphicsDevice.GenerateMipmaps(_texture);*/
 
-        DDS dds = new DDS(File.ReadAllBytes("/home/ollie/Pictures/DDS/24bitcolor-RGBA8.dds"));
+        DDS dds = new DDS(File.ReadAllBytes("/home/skye/Pictures/DDS/24bitcolor-RGBA8.dds"));
         
         Console.WriteLine(dds.MipLevels);
         Console.WriteLine(dds.Size);

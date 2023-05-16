@@ -8,4 +8,6 @@ public unsafe struct SdlEvent
     [FieldOffset(0)] public uint Type;
 
     [FieldOffset(0)] public SdlWindowEvent Window;
+
+    [FieldOffset(0)] public SdlKeyboardEvent Keyboard;
 }

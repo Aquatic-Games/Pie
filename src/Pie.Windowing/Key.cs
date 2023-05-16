@@ -65,6 +65,7 @@ public enum Key
     
     Escape = 256,
     Enter,
+    Return = Enter,
     Tab,
     Backspace,
     Insert,

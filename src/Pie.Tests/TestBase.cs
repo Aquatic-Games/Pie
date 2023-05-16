@@ -26,7 +26,7 @@ public abstract class TestBase : IDisposable
     {
         PieLog.DebugLog += DebugLog;
 
-        ImageResult result = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/pie_1f967.png"), ColorComponents.RedGreenBlueAlpha);
+        ImageResult result = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/pie_1f967.png"), ColorComponents.RedGreenBlueAlpha);
         Icon icon = new Icon((uint) result.Width, (uint) result.Height, result.Data);
 
         Window = new WindowBuilder()
