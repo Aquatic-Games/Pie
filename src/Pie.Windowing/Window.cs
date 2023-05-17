@@ -194,13 +194,31 @@ public sealed unsafe class Window : IDisposable
                     case SdlWindowEventId.Resized:
                         @event = new ResizeEvent(new Size(sdlEvent.Window.Data1, sdlEvent.Window.Data2));
                         break;
+                    default:
+                        // Filter out unrecognized events.
+                        return PollEvent(out @event);
                 }
 
                 break;
             
             case SdlEventType.KeyDown:
-                Console.WriteLine(SdlHelper.KeycodeToKey(sdlEvent.Keyboard.KeyCode));
+                ref SdlKeyboardEvent kde = ref sdlEvent.Keyboard;
+
+                WindowEventType kdeType = kde.Repeat != 0 ? WindowEventType.KeyRepeat : WindowEventType.KeyDown;
+
+                @event = new KeyEvent(kdeType, kde.ScanCode, SdlHelper.KeycodeToKey(kde.KeyCode));
                 break;
+            case SdlEventType.KeyUp:
+                ref SdlKeyboardEvent kue = ref sdlEvent.Keyboard;
+
+                @event = new KeyEvent(WindowEventType.KeyUp, kue.ScanCode, SdlHelper.KeycodeToKey(kue.KeyCode));
+                break;
+            
+            default:
+                // Again, filter out unrecognized events.
+                // This literally ignores that they ever exist so that PollEvent *always* returns an event that Pie
+                // can understand.
+                return PollEvent(out @event);
         }
 
         return true;

@@ -3,5 +3,8 @@ namespace Pie.Windowing.Events;
 public enum WindowEventType
 {
     Quit,
-    Resize
+    Resize,
+    KeyDown,
+    KeyUp,
+    KeyRepeat
 }

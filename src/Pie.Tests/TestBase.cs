@@ -47,13 +47,19 @@ public abstract class TestBase : IDisposable
         {
             while (Window.PollEvent(out IWindowEvent evnt))
             {
-                switch (evnt)
+                switch (evnt.EventType)
                 {
-                    case QuitEvent:
+                    case WindowEventType.Quit:
                         wantsClose = true;
                         break;
-                    case ResizeEvent rEvent:
-                        ResizeWindow(rEvent.Size);
+                    case WindowEventType.Resize:
+                        ResizeWindow(((ResizeEvent) evnt).Size);
+                        break;
+                    case WindowEventType.KeyDown:
+                    case WindowEventType.KeyUp:
+                    case WindowEventType.KeyRepeat:
+                        KeyEvent ke = (KeyEvent) evnt;
+                        Console.WriteLine(ke.EventType + ": " + ke.Key + "(" + ke.Scancode + ")");
                         break;
                 }
             }
