@@ -214,6 +214,14 @@ public sealed unsafe class Window : IDisposable
                 @event = new KeyEvent(WindowEventType.KeyUp, kue.ScanCode, SdlHelper.KeycodeToKey(kue.KeyCode));
                 break;
             
+            case SdlEventType.TextInput:
+                ref SdlTextInputEvent textEvent = ref sdlEvent.Text;
+
+                fixed (char* text = textEvent.Text)
+                    @event = new TextInputEvent(new string(text));
+
+                break;
+            
             default:
                 // Again, filter out unrecognized events.
                 // This literally ignores that they ever exist so that PollEvent *always* returns an event that Pie

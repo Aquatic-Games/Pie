@@ -60,6 +60,14 @@ public abstract class TestBase : IDisposable
                     case WindowEventType.KeyRepeat:
                         KeyEvent ke = (KeyEvent) evnt;
                         Console.WriteLine(ke.EventType + ": " + ke.Key + "(" + ke.Scancode + ")");
+
+                        if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.Escape)
+                            wantsClose = true;
+                        break;
+                    case WindowEventType.TextInput:
+                        TextInputEvent text = (TextInputEvent) evnt;
+                        
+                        Console.WriteLine(text.Text);
                         break;
                 }
             }
