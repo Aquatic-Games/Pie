@@ -44,6 +44,9 @@ public static unsafe class Sdl
     [DllImport(SdlName, EntryPoint = "SDL_GetWindowPosition")]
     public static extern void GetWindowPosition(void* window, int* x, int* y);
 
+    [DllImport(SdlName, EntryPoint = "SDL_GetWindowFlags")]
+    public static extern SdlWindowFlags GetWindowFlags(void* window);
+
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowSize")]
     public static extern void SetWindowSize(void* window, int w, int h);
 
@@ -55,6 +58,9 @@ public static unsafe class Sdl
 
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowTitle")]
     public static extern void SetWindowTitle(void* window, sbyte* title);
+
+    [DllImport(SdlName, EntryPoint = "SDL_SetWindowFullscreen")]
+    public static extern void SetWindowFullscreen(void* window, SdlWindowFlags flags);
 
     [DllImport(SdlName, EntryPoint = "SDL_GL_SetAttribute")]
     public static extern int GLSetAttribute(SdlGlAttr attr, int value);

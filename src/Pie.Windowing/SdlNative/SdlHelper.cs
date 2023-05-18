@@ -1,7 +1,15 @@
 namespace Pie.Windowing.SdlNative;
 
+/// <summary>
+/// Provides various SDL helpers, useful internally in Pie.
+/// </summary>
 public static class SdlHelper
 {
+    /// <summary>
+    /// Convert an SDL keycode to Pie <see cref="Key"/>.
+    /// </summary>
+    /// <param name="keycode">The SDL keycode to convert.</param>
+    /// <returns>The appropriate Pie <see cref="Key"/>. If an unknown key is provided, <see cref="Key.Unknown"/> is returned.</returns>
     public static Key KeycodeToKey(uint keycode)
     {
         const uint ScancodeMask = 1 << 30;

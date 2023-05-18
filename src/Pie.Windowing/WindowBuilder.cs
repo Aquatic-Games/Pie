@@ -20,6 +20,8 @@ public class WindowBuilder
 
     public GraphicsApi WindowApi;
 
+    public FullscreenMode WindowFullscreenMode;
+
     public WindowBuilder()
     {
         WindowSize = new Size(1280, 720);
@@ -29,6 +31,7 @@ public class WindowBuilder
         WindowIcon = null;
         DeviceOptions = new GraphicsDeviceOptions(false);
         WindowApi = GraphicsDevice.GetBestApiForPlatform();
+        WindowFullscreenMode = Windowing.FullscreenMode.Windowed;
     }
 
     public WindowBuilder Size(int width, int height)
@@ -81,6 +84,13 @@ public class WindowBuilder
     public WindowBuilder Api(GraphicsApi api)
     {
         WindowApi = api;
+
+        return this;
+    }
+
+    public WindowBuilder FullscreenMode(FullscreenMode fullscreenMode)
+    {
+        WindowFullscreenMode = fullscreenMode;
 
         return this;
     }

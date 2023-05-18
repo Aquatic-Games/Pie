@@ -77,6 +77,33 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    public FullscreenMode FullscreenMode
+    {
+        get
+        {
+            SdlWindowFlags flags = Sdl.GetWindowFlags(_window);
+
+            if ((flags & SdlWindowFlags.FullscreenDesktop) == SdlWindowFlags.FullscreenDesktop)
+                return FullscreenMode.BorderlessFullscreen;
+            if ((flags & SdlWindowFlags.Fullscreen) == SdlWindowFlags.Fullscreen)
+                return FullscreenMode.ExclusiveFullscreen;
+
+            return FullscreenMode.Windowed;
+        }
+        set
+        {
+            SdlWindowFlags flags = value switch
+            {
+                FullscreenMode.Windowed => 0,
+                FullscreenMode.ExclusiveFullscreen => SdlWindowFlags.Fullscreen,
+                FullscreenMode.BorderlessFullscreen => SdlWindowFlags.FullscreenDesktop,
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            };
+            
+            Sdl.SetWindowFullscreen(_window, flags);
+        }
+    }
+
     internal Window(WindowBuilder builder)
     {
         if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
@@ -100,6 +127,14 @@ public sealed unsafe class Window : IDisposable
 
         if (builder.WindowResizable)
             flags |= SdlWindowFlags.Resizable;
+
+        flags |= builder.WindowFullscreenMode switch
+        {
+            FullscreenMode.Windowed => SdlWindowFlags.None,
+            FullscreenMode.ExclusiveFullscreen => SdlWindowFlags.Fullscreen,
+            FullscreenMode.BorderlessFullscreen => SdlWindowFlags.FullscreenDesktop,
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
         if (builder.WindowApi == GraphicsApi.OpenGL)
         {

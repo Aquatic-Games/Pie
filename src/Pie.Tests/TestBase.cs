@@ -31,6 +31,7 @@ public abstract class TestBase : IDisposable
 
         Window = new WindowBuilder()
             .Size(1280, 720)
+            //.FullscreenMode(FullscreenMode.ExclusiveFullscreen)
             .Title("A test with SDL!")
             .Icon(icon)
             .Resizable()
@@ -63,6 +64,15 @@ public abstract class TestBase : IDisposable
 
                         if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.Escape)
                             wantsClose = true;
+
+                        if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.F11)
+                        {
+                            FullscreenMode currentMode = Window.FullscreenMode;
+                            Console.WriteLine(currentMode);
+                            Window.FullscreenMode = currentMode != FullscreenMode.Windowed
+                                ? FullscreenMode.Windowed
+                                : FullscreenMode.BorderlessFullscreen;
+                        }
                         break;
                     case WindowEventType.TextInput:
                         TextInputEvent text = (TextInputEvent) evnt;
