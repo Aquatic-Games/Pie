@@ -1,4 +1,4 @@
-namespace Pie.Windowing.SdlNative;
+namespace Pie.Windowing;
 
 /// <summary>
 /// Provides various SDL helpers, useful internally in Pie.

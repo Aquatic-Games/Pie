@@ -25,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Pie.SDL\Pie.SDL.csproj" />
       <ProjectReference Include="..\Pie\Pie.csproj" />
     </ItemGroup>
 

@@ -1,6 +1,4 @@
-using System;
-
-namespace Pie.Windowing.SdlNative;
+namespace Pie.SDL;
 
 [Flags]
 public enum SdlWindowFlags

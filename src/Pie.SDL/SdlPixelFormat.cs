@@ -1,4 +1,4 @@
-namespace Pie.Windowing.SdlNative;
+namespace Pie.SDL;
 
 public enum SdlPixelFormat
 {

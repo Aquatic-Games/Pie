@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Pie.Windowing.SdlNative;
+namespace Pie.SDL;
 
 [StructLayout(LayoutKind.Explicit, Size = 56)]
 public unsafe struct SdlEvent

@@ -1,8 +1,7 @@
-using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Pie.Windowing.SdlNative;
+namespace Pie.SDL;
 
 public static unsafe class Sdl
 {

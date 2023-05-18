@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Pie.OpenGL;
 using Pie.Windowing.Events;
-using Pie.Windowing.SdlNative;
+using Pie.SDL;
 
 namespace Pie.Windowing;
 

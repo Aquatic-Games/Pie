@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Pie.Windowing.SdlNative;
+namespace Pie.SDL;
 
 [StructLayout(LayoutKind.Sequential)]
 public struct SdlWindowEvent
