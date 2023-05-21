@@ -22,7 +22,7 @@ Graphics debugging can be tough. Pie features an optional debug layer that can p
 Pie features a cross-platform audio library, using [mixr](https://github.com/piegfx/mixr) as its backend. On top of mixr's built-in features, Pie.Audio also features an SDL-powered audio device, so you can immediately start playing audio.
 
 ### Windowing
-Pie features a cross-platform windowing library, powered by GLFW. This is a do-it-yourself abstraction, it creates the window & graphics device for you, and you are expected to create the render loop yourself.
+Pie features a cross-platform windowing library, powered by SDL. This is a do-it-yourself abstraction, it creates the window & graphics device for you, and you are expected to create the render loop yourself.
 
 Don't like this? Pie is fully compatible with [Silk.NET](https://github.com/dotnet/Silk.NET) windowing, which provides a windowing abstraction, but also a fully functional render loop so you can just get started.
 
