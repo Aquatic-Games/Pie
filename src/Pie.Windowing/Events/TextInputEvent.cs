@@ -2,7 +2,7 @@ namespace Pie.Windowing.Events;
 
 public struct TextInputEvent : IWindowEvent
 {
-    public string Text;
+    public readonly string Text;
 
     public TextInputEvent(string text)
     {

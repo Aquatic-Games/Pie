@@ -2,8 +2,8 @@ namespace Pie.Windowing.Events;
 
 public struct KeyEvent : IWindowEvent
 {
-    public uint Scancode;
-    public Key Key;
+    public readonly uint Scancode;
+    public readonly Key Key;
 
     public KeyEvent(WindowEventType eventType, uint scancode, Key key)
     {

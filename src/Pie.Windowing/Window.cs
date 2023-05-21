@@ -257,6 +257,13 @@ public sealed unsafe class Window : IDisposable
 
                 break;
             
+            case SdlEventType.MouseMotion:
+                ref SdlMouseMotionEvent motionEvent = ref sdlEvent.Motion;
+
+                @event = new MouseMoveEvent(motionEvent.X, motionEvent.Y, motionEvent.XRel, motionEvent.YRel);
+
+                break;
+            
             default:
                 // Again, filter out unrecognized events.
                 // This literally ignores that they ever exist so that PollEvent *always* returns an event that Pie

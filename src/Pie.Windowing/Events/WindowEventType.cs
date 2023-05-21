@@ -9,5 +9,6 @@ public enum WindowEventType
     KeyDown,
     KeyUp,
     KeyRepeat,
-    TextInput
+    TextInput,
+    MouseMove
 }
