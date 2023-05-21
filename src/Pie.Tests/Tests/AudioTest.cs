@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using Pie.Audio;
-using Silk.NET.SDL;
 using static Pie.Audio.MixrNative;
 using PCM = Pie.Audio.PCM;
 
@@ -74,13 +73,12 @@ public unsafe class AudioTest : TestBase
 
         _device = new AudioDevice(48000, 256);
         
-        PCM pcm1 = PCM.LoadWav("/home/ollie/Music/thanks_for_the_fish.wav");
-        ///PCM pcm2 = PCM.LoadWav("/home/ollie/Music/dedune-loop.wav");
+        PCM pcm1 = PCM.LoadWav("/home/skye/Music/thanks_for_the_fish.wav");
 
         AudioBuffer buffer1 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm1.Format), pcm1.Data);
         //AudioBuffer buffer2 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm2.Format), pcm2.Data);
 
-        _device.PlayBuffer(buffer1, 0, new ChannelProperties(speed: 50, looping: false));
+        _device.PlayBuffer(buffer1, 0, new ChannelProperties(looping: false));
         //_device.QueueBuffer(buffer2, 0);
 
         /*_device.BufferFinished += (system, channel, buffer) =>
@@ -102,4 +100,11 @@ public unsafe class AudioTest : TestBase
         //mxAdvanceBuffer(_system, (float*) arg1, (nuint) arg2 / 4);
         _system.AdvanceBuffer((float*) arg1, (nuint) arg2 / 4);
     }*/
+
+    public override void Dispose()
+    {
+        _device.Dispose();
+        
+        base.Dispose();
+    }
 }

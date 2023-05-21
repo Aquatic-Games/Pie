@@ -137,7 +137,7 @@ public abstract class TestBase : IDisposable
         Console.WriteLine($"[{logtype}] " + message);
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         GraphicsDevice.Dispose();
         Window.Dispose();

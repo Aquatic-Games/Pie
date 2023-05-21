@@ -17,11 +17,32 @@ public static unsafe class Sdl
     public const int Disable = 0;
     public const int Enable = 1;
 
+    public const int AudioU8 = 0x0008;
+    public const int AudioS8 = 0x8008;
+    public const int AudioU16Lsb = 0x0010;
+    public const int AudioS16Lsb = 0x8010;
+    public const int AudioU16Msb = 0x1010;
+    public const int AudioS16Msb = 0x9010;
+    public const int AudioU16 = AudioU16Lsb;
+    public const int AudioS16 = AudioS16Lsb;
+    public const int AudioS32Lsb = 0x8020;
+    public const int AudioS32Msb = 0x9020;
+    public const int AudioS32 = AudioS32Lsb;
+    public const int AudioF32Lsb = 0x8120;
+    public const int AudioF32Msb = 0x9120;
+    public const int AudioF32 = AudioF32Lsb;
+
     [DllImport(SdlName, EntryPoint = "SDL_Init")]
     public static extern int Init(uint flags);
     
+    [DllImport(SdlName, EntryPoint = "SDL_WasInit")]
+    public static extern uint WasInit(uint flags);
+    
     [DllImport(SdlName, EntryPoint = "SDL_Quit")]
     public static extern void Quit();
+    
+    [DllImport(SdlName, EntryPoint = "SDL_QuitSubSystem")]
+    public static extern void QuitSubSystem(uint flags);
 
     [DllImport(SdlName, EntryPoint = "SDL_GetError")]
     public static extern sbyte* GetError();
@@ -131,6 +152,16 @@ public static unsafe class Sdl
     
     [DllImport(SdlName, EntryPoint = "SDL_ShowCursor")]
     public static extern int ShowCursor(int toggle);
+
+    [DllImport(SdlName, EntryPoint = "SDL_OpenAudioDevice")]
+    public static extern uint OpenAudioDevice(sbyte* device, int isCapture, SdlAudioSpec* desired,
+        SdlAudioSpec* obtained, int allowedChanges);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_CloseAudioDevice")]
+    public static extern void CloseAudioDevice(uint dev);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_PauseAudioDevice")]
+    public static extern void PauseAudioDevice(uint dev, int pauseOn);
     
     #region Safe helpers
 
@@ -150,4 +181,7 @@ public static unsafe class Sdl
     }
 
     #endregion
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void AudioCallback(void* userData, byte* stream, int len);
 }
