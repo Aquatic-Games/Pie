@@ -44,6 +44,7 @@ public abstract class TestBase : IDisposable
             .Title("A test with SDL!")
             .Icon(icon)
             .Resizable()
+            //.Hidden()
             //.Borderless()
             .Api(api)
             .GraphicsDeviceOptions(new GraphicsDeviceOptions(true))

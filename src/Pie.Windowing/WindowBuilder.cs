@@ -16,6 +16,8 @@ public class WindowBuilder
 
     public bool WindowBorderless;
 
+    public bool WindowHidden;
+
     public Icon? WindowIcon;
 
     public GraphicsDeviceOptions DeviceOptions;
@@ -31,6 +33,7 @@ public class WindowBuilder
         WindowTitle = Assembly.GetEntryAssembly()?.GetName().Name ?? "Pie Window";
         WindowResizable = false;
         WindowBorderless = false;
+        WindowHidden = false;
         WindowIcon = null;
         DeviceOptions = new GraphicsDeviceOptions(false);
         WindowApi = GraphicsDevice.GetBestApiForPlatform();
@@ -68,6 +71,13 @@ public class WindowBuilder
     public WindowBuilder Borderless()
     {
         WindowBorderless = true;
+
+        return this;
+    }
+
+    public WindowBuilder Hidden()
+    {
+        WindowHidden = true;
 
         return this;
     }

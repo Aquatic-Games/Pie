@@ -119,6 +119,12 @@ public static unsafe class Sdl
     [DllImport(SdlName, EntryPoint = "SDL_SetRelativeMouseMode")]
     public static extern void SetRelativeMouseMode(bool enabled);
 
+    [DllImport(SdlName, EntryPoint = "SDL_HideWindow")]
+    public static extern void HideWindow(void* window);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_ShowWindow")]
+    public static extern void ShowWindow(void* window);
+
     [DllImport(SdlName, EntryPoint = "SDL_GL_SetAttribute")]
     public static extern int GLSetAttribute(SdlGlAttr attr, int value);
 

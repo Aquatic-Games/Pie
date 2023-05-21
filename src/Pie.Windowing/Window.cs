@@ -159,6 +159,18 @@ public sealed unsafe class Window : IDisposable
         set => Sdl.SetWindowBordered(_window, !value);
     }
 
+    public bool Visible
+    {
+        get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Shown) == SdlWindowFlags.Shown;
+        set
+        {
+            if (value)
+                Sdl.ShowWindow(_window);
+            else
+                Sdl.HideWindow(_window);
+        }
+    }
+
     internal Window(WindowBuilder builder)
     {
         if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
@@ -184,6 +196,8 @@ public sealed unsafe class Window : IDisposable
             flags |= SdlWindowFlags.Resizable;
         if (builder.WindowBorderless)
             flags |= SdlWindowFlags.Borderless;
+        if (builder.WindowHidden)
+            flags |= SdlWindowFlags.Hidden;
 
         flags |= builder.WindowFullscreenMode switch
         {
