@@ -127,6 +127,15 @@ public static unsafe class Sdl
     
     [DllImport(SdlName, EntryPoint = "SDL_RaiseWindow")]
     public static extern void RaiseWindow(void* window);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_MaximizeWindow")]
+    public static extern void MaximizeWindow(void* window);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_MinimizeWindow")]
+    public static extern void MinimizeWindow(void* window);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_RestoreWindow")]
+    public static extern void RestoreWindow(void* window);
 
     [DllImport(SdlName, EntryPoint = "SDL_GL_SetAttribute")]
     public static extern int GLSetAttribute(SdlGlAttr attr, int value);

@@ -252,6 +252,14 @@ public sealed unsafe class Window : IDisposable
 
     public void Focus() => Sdl.RaiseWindow(_window);
 
+    public void Center() => Sdl.SetWindowPosition(_window, (int) Sdl.WindowposCentered, (int) Sdl.WindowposCentered);
+
+    public void Maximize() => Sdl.MaximizeWindow(_window);
+
+    public void Minimize() => Sdl.MinimizeWindow(_window);
+
+    public void Restore() => Sdl.RestoreWindow(_window);
+
     public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions? options = null)
     {
         int width, height;
