@@ -92,6 +92,12 @@ public abstract class TestBase : IDisposable
                         
                         Console.WriteLine($"{buttonEvent.EventType}: {buttonEvent.Button}");
                         break;
+                    
+                    case WindowEventType.MouseScroll:
+                        MouseScrollEvent scrollEvent = (MouseScrollEvent) evnt;
+                        
+                        Console.WriteLine($"Scroll X: {scrollEvent.X}, Y: {scrollEvent.Y}");
+                        break;
                 }
             }
 

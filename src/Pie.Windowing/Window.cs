@@ -278,6 +278,22 @@ public sealed unsafe class Window : IDisposable
 
                 break;
             
+            case SdlEventType.MouseWheel:
+                ref SdlMouseWheelEvent wheelEvent = ref sdlEvent.Wheel;
+
+                float x = wheelEvent.PreciseX;
+                float y = wheelEvent.PreciseY;
+                
+                if (wheelEvent.Direction != 0)
+                {
+                    x = wheelEvent.PreciseX * -1;
+                    y = wheelEvent.PreciseY * -1;
+                }
+
+                @event = new MouseScrollEvent(x, y);
+
+                break;
+
             default:
                 // Again, filter out unrecognized events.
                 // This literally ignores that they ever exist so that PollEvent *always* returns an event that Pie

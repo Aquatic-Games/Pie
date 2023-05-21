@@ -12,5 +12,6 @@ public enum WindowEventType
     TextInput,
     MouseMove,
     MouseButtonDown,
-    MouseButtonUp
+    MouseButtonUp,
+    MouseScroll
 }
