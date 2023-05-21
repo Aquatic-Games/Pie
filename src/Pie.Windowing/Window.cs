@@ -253,7 +253,6 @@ public sealed unsafe class Window : IDisposable
             case GraphicsApi.D3D11:
                 SdlSysWmInfo info = new SdlSysWmInfo();
                 Sdl.GetWindowWMInfo(_window, &info);
-                Console.WriteLine(info.Info.Win.Window);
                 return GraphicsDevice.CreateD3D11(info.Info.Win.Window, size,
                     options ?? new GraphicsDeviceOptions());
 
