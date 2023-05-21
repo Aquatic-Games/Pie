@@ -1,8 +1,5 @@
-using System.Collections.Generic;
 using System.Drawing;
-using Silk.NET.GLFW;
-using GLFWmonitor = Silk.NET.GLFW.Monitor;
-using GLFWvidmode = Silk.NET.GLFW.VideoMode;
+using Pie.SDL;
 
 namespace Pie.Windowing;
 
@@ -10,42 +7,60 @@ public struct Monitor
 {
     public readonly Rectangle Bounds;
 
-    public readonly Point Location;
+    public readonly VideoMode CurrentMode;
 
-    public readonly VideoMode VideoMode;
+    public readonly VideoMode[] SupportedModes;
 
-    public readonly VideoMode[] AvailableModes;
-
-    private Monitor(Rectangle bounds, VideoMode mode, VideoMode[] availableModes)
+    public Monitor(Rectangle bounds, VideoMode currentMode, VideoMode[] supportedModes)
     {
         Bounds = bounds;
-        Location = bounds.Location;
-        VideoMode = mode;
-        AvailableModes = availableModes;
+        CurrentMode = currentMode;
+        SupportedModes = supportedModes;
     }
 
-    private static Monitor[] _monitors;
-    
-    public static Monitor PrimaryMonitor => _monitors[0];
-    
-    public static Monitor[] ConnectedMonitors => _monitors;
-
-    internal static unsafe void DetectMonitors(Glfw glfw)
+    static unsafe Monitor()
     {
-        GLFWmonitor** monitors = glfw.GetMonitors(out int mCount);
-        _monitors = new Monitor[mCount];
-        for (int m = 0; m < mCount; m++)
+        // Init in case this is called before a Pie window is created.
+        if (Sdl.Init(Sdl.InitVideo) < 0)
+            throw new PieException("Failed to initialize SDL: " + Sdl.GetErrorS());
+
+        int numDisplays = Sdl.GetNumVideoDisplays();
+        if (numDisplays < 0)
+            throw new PieException("Failed to get number of displays: " + Sdl.GetErrorS());
+
+        ConnectedMonitors = new Monitor[numDisplays];
+        
+        for (int d = 0; d < numDisplays; d++)
         {
-            GLFWmonitor* monitor = monitors[m];
-            glfw.GetMonitorPos(monitor, out int x, out int y);
-            GLFWvidmode* mode = glfw.GetVideoMode(monitor);
-            Rectangle bounds = new Rectangle(new Point(x, y), new Size(mode->Width, mode->Height));
-            VideoMode vMode = new VideoMode(bounds.Size, mode->RefreshRate);
-            List<VideoMode> availableModes = new List<VideoMode>();
-            GLFWvidmode* modes = glfw.GetVideoModes(monitor, out int vCount);
-            for (int v = 0; v < vCount; v++)
-                availableModes.Add(new VideoMode(new Size(modes[v].Width, modes[v].Height), modes[v].RefreshRate));
-            _monitors[m] = new Monitor(bounds, vMode, availableModes.ToArray());
+            SdlRect bounds;
+            if (Sdl.GetDisplayBounds(d, &bounds) < 0)
+                throw new PieException("Failed to get display bounds: " + Sdl.GetErrorS());
+
+            int numDisplayModes = Sdl.GetNumDisplayModes(d);
+            if (numDisplayModes < 0)
+                throw new PieException("Failed to get display modes: " + Sdl.GetErrorS());
+            
+            SdlDisplayMode currentMode;
+            if (Sdl.GetDesktopDisplayMode(d, &currentMode) < 0)
+                throw new PieException("Failed to get current display mode: " + Sdl.GetErrorS());
+            
+            VideoMode current = new VideoMode(new Size(currentMode.W, currentMode.H), currentMode.RefreshRate);
+
+            VideoMode[] modes = new VideoMode[numDisplayModes];
+
+            for (int m = 0; m < numDisplayModes; m++)
+            {
+                SdlDisplayMode mode;
+                Sdl.GetDisplayMode(d, m, &mode);
+
+                modes[m] = new VideoMode(new Size(mode.W, mode.H), mode.RefreshRate);
+            }
+
+            ConnectedMonitors[d] = new Monitor(new Rectangle(bounds.X, bounds.Y, bounds.W, bounds.H), current, modes);
         }
     }
+
+    public static readonly Monitor[] ConnectedMonitors;
+
+    public static Monitor PrimaryMonitor => ConnectedMonitors[0];
 }

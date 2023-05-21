@@ -1,129 +1,145 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Text;
 using Pie.OpenGL;
-using Silk.NET.Core.Native;
-using Silk.NET.GLFW;
-using Silk.NET.Vulkan;
-using Image = Silk.NET.GLFW.Image;
+using Pie.Windowing.Events;
+using Pie.SDL;
 
 namespace Pie.Windowing;
 
-public unsafe partial class Window : IDisposable
+public sealed unsafe class Window : IDisposable
 {
-    private Glfw _glfw;
-    private WindowHandle* _handle;
-    private WindowSettings _settings;
+    private void* _window;
+    
+    private void* _glContext;
+
     private GraphicsApi _api;
 
-    private InputState _inputState;
-
-    private Window(Glfw glfw, WindowHandle* handle, WindowSettings settings, GraphicsApi api)
-    {
-        _glfw = glfw;
-        _handle = handle;
-        _settings = settings;
-        _api = api;
-        EventDriven = settings.EventDriven;
-        SetupCallbacks();
-        _inputState = new InputState(this, handle, glfw);
-    }
-
     /// <summary>
-    /// Whether or not this window is event driven. If true, <see cref="ProcessEvents"/> will block the thread until
-    /// an event occurs (such as mouse movement, key press, etc.)
-    /// </summary>
-    public bool EventDriven;
-
-    /// <summary>
-    /// The size, in pixels, of this window.
+    /// The size, in <b>screen coordinates</b>, of the window.
     /// </summary>
     public Size Size
     {
         get
         {
-            _glfw.GetWindowSize(_handle, out int width, out int height);
+            int width, height;
+            Sdl.GetWindowSize(_window, &width, &height);
             return new Size(width, height);
         }
-        set => _glfw.SetWindowSize(_handle, value.Width, value.Height);
+
+        set => Sdl.SetWindowSize(_window, value.Width, value.Height);
     }
 
     /// <summary>
-    /// Whether or not the window should close. Use this in your application loop.
+    /// Get the size of the window <b>in pixels</b>. NOTE: This is <b>NOT</b> the same as <see cref="Size"/>, and you
+    /// should use this property when performing actions such as resizing the swapchain.
     /// </summary>
-    public bool ShouldClose
-    {
-        get => _glfw.WindowShouldClose(_handle);
-        set => _glfw.SetWindowShouldClose(_handle, value);
-    }
-
-    /// <summary>
-    /// The title of this window, as displayed in the title bar.
-    /// </summary>
-    public string Title
-    {
-        get => _settings.Title;
-        set
-        {
-            _settings.Title = value;
-            _glfw.SetWindowTitle(_handle, value);
-        }
-    }
-
-    /// <summary>
-    /// The current <see cref="Pie.Windowing.MouseState"/> of this window.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if an invalid enum value is provided.</exception>
-    public MouseState MouseState
+    public Size FramebufferSize
     {
         get
         {
-            CursorModeValue state = (CursorModeValue) _glfw.GetInputMode(_handle, CursorStateAttribute.Cursor);
-            return state switch
-            {
-                CursorModeValue.CursorNormal => MouseState.Visible,
-                CursorModeValue.CursorHidden => MouseState.Hidden,
-                CursorModeValue.CursorDisabled => MouseState.Locked,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-        }
-        set
-        {
-            CursorModeValue val = value switch
-            {
-                MouseState.Visible => CursorModeValue.CursorNormal,
-                MouseState.Hidden => CursorModeValue.CursorHidden,
-                MouseState.Locked => CursorModeValue.CursorDisabled,
-                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
-            };
-            
-            _glfw.SetInputMode(_handle, CursorStateAttribute.Cursor, val);
+            int width, height;
+            Sdl.GetWindowSizeInPixels(_window, &width, &height);
+            return new Size(width, height);
         }
     }
 
-    private WindowBorder _border;
     /// <summary>
-    /// The border of this window. Set as <see cref="WindowBorder.Resizable"/> to make this window resizable.
+    /// Get or set the window position.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if an invalid enum value is provided.</exception>
-    public WindowBorder Border
+    public Point Position
     {
-        get => _border;
+        get
+        {
+            int x, y;
+            Sdl.GetWindowPosition(_window, &x, &y);
+            return new Point(x, y);
+        }
+        set => Sdl.SetWindowPosition(_window, value.X, value.Y);
+    }
+
+    /// <summary>
+    /// Get or set the title of the window.
+    /// </summary>
+    public string Title
+    {
+        get
+        {
+            sbyte* title = Sdl.GetWindowTitle(_window);
+            return Marshal.PtrToStringAnsi((IntPtr) title);
+        }
         set
         {
-            _border = value;
+            fixed (byte* title = Encoding.UTF8.GetBytes(value))
+                Sdl.SetWindowTitle(_window, (sbyte*) title);
+        }
+    }
+
+    public FullscreenMode FullscreenMode
+    {
+        get
+        {
+            SdlWindowFlags flags = Sdl.GetWindowFlags(_window);
+
+            if ((flags & SdlWindowFlags.FullscreenDesktop) == SdlWindowFlags.FullscreenDesktop)
+                return FullscreenMode.BorderlessFullscreen;
+            if ((flags & SdlWindowFlags.Fullscreen) == SdlWindowFlags.Fullscreen)
+                return FullscreenMode.ExclusiveFullscreen;
+
+            return FullscreenMode.Windowed;
+        }
+        set
+        {
+            SdlWindowFlags flags = value switch
+            {
+                FullscreenMode.Windowed => 0,
+                FullscreenMode.ExclusiveFullscreen => SdlWindowFlags.Fullscreen,
+                FullscreenMode.BorderlessFullscreen => SdlWindowFlags.FullscreenDesktop,
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            };
+            
+            Sdl.SetWindowFullscreen(_window, flags);
+        }
+    }
+
+    public CursorMode CursorMode
+    {
+        get
+        {
+            bool visible = Sdl.ShowCursor(Sdl.Query) == Sdl.Enable;
+            bool grabbed = Sdl.GetWindowGrab(_window);
+            bool relative = Sdl.GetRelativeMouseMode();
+
+            if (!grabbed && !relative)
+                return visible ? CursorMode.Visible : CursorMode.Hidden;
+
+            return relative ? CursorMode.Locked : CursorMode.Grabbed;
+        }
+        set
+        {
             switch (value)
             {
-                case WindowBorder.Fixed:
-                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Decorated, true);
-                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Resizable, false);
+                case CursorMode.Visible:
+                    Sdl.SetRelativeMouseMode(false);
+                    Sdl.SetWindowGrab(_window, false);
+                    Sdl.ShowCursor(Sdl.Enable);
                     break;
-                case WindowBorder.Borderless:
-                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Decorated, false);
-                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Resizable, false);
+                case CursorMode.Hidden:
+                    Sdl.SetRelativeMouseMode(false);
+                    Sdl.SetWindowGrab(_window, false);
+                    Sdl.ShowCursor(Sdl.Disable);
                     break;
-                case WindowBorder.Resizable:
-                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Decorated, true);
-                    _glfw.SetWindowAttrib(_handle, WindowAttributeSetter.Resizable, true);
+                case CursorMode.Grabbed:
+                    Sdl.SetRelativeMouseMode(false);
+                    Sdl.SetWindowGrab(_window, true);
+                    Sdl.ShowCursor(Sdl.Enable);
+                    break;
+                case CursorMode.Locked:
+                    Sdl.SetRelativeMouseMode(true);
+                    Sdl.SetWindowGrab(_window, true);
+                    Sdl.ShowCursor(Sdl.Disable);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(value), value, null);
@@ -131,256 +147,235 @@ public unsafe partial class Window : IDisposable
         }
     }
 
-    /// <summary>
-    /// Whether or not this window is focused.
-    /// </summary>
-    public bool Focused => _glfw.GetWindowAttrib(_handle, WindowAttributeGetter.Focused);
-
-    /// <summary>
-    /// Whether or not this window is visible.
-    /// </summary>
-    public bool Visible
+    public bool Resizable
     {
-        get => _glfw.GetWindowAttrib(_handle, WindowAttributeGetter.Visible);
-        set
-        {
-            if (value)
-                _glfw.ShowWindow(_handle);
-            else
-                _glfw.HideWindow(_handle);
-        }
+        get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Resizable) == SdlWindowFlags.Resizable;
+        set => Sdl.SetWindowResizable(_window, value);
     }
 
-    /// <summary>
-    /// Whether or not this window is full screen. If set true, the window will become fullscreen at its current <see cref="Size"/>,
-    /// and will use the refresh rate of the current monitor. Use <see cref="SetFullscreen"/> for more control.
-    /// </summary>
-    public bool Fullscreen
+    public bool Borderless
     {
-        get => _glfw.GetWindowMonitor(_handle) != null;
-        set
-        {
-            Monitor primary = Monitor.PrimaryMonitor;
-            Size size = Size;
-            _glfw.SetWindowMonitor(_handle, value ? _glfw.GetPrimaryMonitor() : null, 0, 0, size.Width, size.Height, primary.VideoMode.RefreshRate);
-            if (!value)
-                Center();
-        }
+        get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Borderless) == SdlWindowFlags.Borderless;
+        set => Sdl.SetWindowBordered(_window, !value);
     }
 
-    /// <summary>
-    /// Process events such as keyboard and mouse input, resize events, and handling the close button being clicked.
-    /// </summary>
-    /// <returns></returns>
-    public InputState ProcessEvents()
+    internal Window(WindowBuilder builder)
     {
-        _inputState.Update(_handle, _glfw);
-        if (EventDriven)
-            _glfw.WaitEvents();
-        else
-            _glfw.PollEvents();
-        return _inputState;
-    }
-
-    /// <summary>
-    /// Center this window on the primary monitor.
-    /// </summary>
-    public void Center()
-    {
-        Rectangle bounds = Monitor.PrimaryMonitor.Bounds;
-        Size size = Size;
-        _glfw.SetWindowPos(_handle, bounds.X + bounds.Width / 2 - size.Width / 2, bounds.Y + bounds.Height / 2 - size.Height / 2);
-    }
-
-    /// <summary>
-    /// Minimize this window to the taskbar.
-    /// </summary>
-    public void Minimize()
-    {
-        _glfw.IconifyWindow(_handle);
-    }
-
-    /// <summary>
-    /// Maximize this window.
-    /// </summary>
-    public void Maximize()
-    {
-        _glfw.MaximizeWindow(_handle);
-    }
-
-    /// <summary>
-    /// Restores this window if it has been minimized.
-    /// </summary>
-    public void Restore()
-    {
-        _glfw.RestoreWindow(_handle);
-    }
-
-    /// <summary>
-    /// Set this window's full screen mode.
-    /// </summary>
-    /// <param name="fullscreen">Whether or not the window is fullscreen.</param>
-    /// <param name="resolution">The new resolution of the window.</param>
-    /// <param name="refreshRate">The refresh rate, if any. Set as -1 to use the monitor's refresh rate.</param>
-    /// <param name="monitorIndex">The monitor index. 0 is the primary monitor.</param>
-    public void SetFullscreen(bool fullscreen, Size resolution, int refreshRate = -1, int monitorIndex = 0)
-    {
-        _glfw.SetWindowMonitor(_handle, fullscreen ? _glfw.GetMonitors(out _)[monitorIndex] : null, 0, 0, resolution.Width, resolution.Height, refreshRate);
-        if (!fullscreen)
-            Center();
-    }
-
-    public static Window CreateWindow(WindowSettings settings, GraphicsApi api)
-    {
-        Glfw glfw = Glfw.GetApi();
-        if (!glfw.Init())
-            throw new PieException("GLFW failed to initialize.");
+        if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
+            throw new PieException($"SDL failed to initialize: {Sdl.GetErrorS()}");
         
-        glfw.WindowHint(WindowHintBool.Visible, false);
-        switch (settings.Border)
-        {
-            case WindowBorder.Fixed:
-                glfw.WindowHint(WindowHintBool.Decorated, true);
-                glfw.WindowHint(WindowHintBool.Resizable, false);
-                break;
-            case WindowBorder.Borderless:
-                glfw.WindowHint(WindowHintBool.Decorated, false);
-                glfw.WindowHint(WindowHintBool.Resizable, false);
-                break;
-            case WindowBorder.Resizable:
-                glfw.WindowHint(WindowHintBool.Decorated, true);
-                glfw.WindowHint(WindowHintBool.Resizable, true);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-        switch (api)
-        {
-            case GraphicsApi.OpenGL:
-                glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.OpenGL);
-                glfw.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
-                glfw.WindowHint(WindowHintInt.ContextVersionMajor, 4);
-                glfw.WindowHint(WindowHintInt.ContextVersionMinor, 3);
-                glfw.WindowHint(WindowHintBool.OpenGLForwardCompat, true);
-                break;
-            case GraphicsApi.D3D11:
-            case GraphicsApi.Null:
-                glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.NoApi);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(api), api, null);
-        }
+        // TODO: Disable/make optional.
+        // I simply disable this cause I find it annoying during development.
+        // I *would* use wayland but it no worky on my 1060 for whatever reason and I am not bothered enough to fix.
+        Sdl.SetHint("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-        WindowHandle* handle = glfw.CreateWindow(settings.Size.Width, settings.Size.Height, settings.Title, null, null);
-        if (handle == null)
+        Point position = builder.WindowPosition ?? new Point((int) Sdl.WindowposCentered, (int) Sdl.WindowposCentered);
+
+        SdlWindowFlags flags = builder.WindowApi switch
         {
-            glfw.Terminate();
-            throw new PieException(
-                $"The window could not be created. This most likely means the chosen graphics API ({api.ToFriendlyString()}) is not supported on the given platform/hardware.");
+            GraphicsApi.OpenGL => SdlWindowFlags.OpenGL,
+            GraphicsApi.D3D11 => SdlWindowFlags.None,
+            GraphicsApi.Vulkan => SdlWindowFlags.Vulkan,
+            GraphicsApi.Null => SdlWindowFlags.None,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        if (builder.WindowResizable)
+            flags |= SdlWindowFlags.Resizable;
+        if (builder.WindowBorderless)
+            flags |= SdlWindowFlags.Borderless;
+
+        flags |= builder.WindowFullscreenMode switch
+        {
+            FullscreenMode.Windowed => SdlWindowFlags.None,
+            FullscreenMode.ExclusiveFullscreen => SdlWindowFlags.Fullscreen,
+            FullscreenMode.BorderlessFullscreen => SdlWindowFlags.FullscreenDesktop,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        if (builder.WindowApi == GraphicsApi.OpenGL)
+        {
+            Sdl.GLSetAttribute(SdlGlAttr.ContextMajorVersion, 4);
+            Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 3);
         }
 
-        Monitor.DetectMonitors(glfw);
-
-        // Set the window position to 0 as on Windows the window starts up in a seemingly random position
-        glfw.SetWindowPos(handle, 0, 0);
-        Rectangle bounds = default;
-        if (settings.StartingMonitor == null)
+        fixed (byte* title = Encoding.UTF8.GetBytes(builder.WindowTitle))
         {
-            glfw.GetCursorPos(handle, out double mx, out double my);
-            foreach (Monitor monitor in Monitor.ConnectedMonitors)
+            _window = Sdl.CreateWindow((sbyte*) title, position.X, position.Y, builder.WindowSize.Width,
+                builder.WindowSize.Height, (uint) flags);
+        }
+
+        if (_window == null)
+        {
+            Sdl.Quit();
+            throw new PieException($"Window failed to create. {Sdl.GetErrorS()}");
+        }
+
+        if (builder.WindowIcon != null)
+        {
+            Icon icon = builder.WindowIcon.Value;
+            void* surface;
+            fixed (void* ptr = icon.Data)
             {
-                bounds = monitor.Bounds;
-                if (bounds.Contains((int) mx, (int) my))
-                    break;
+                // ABGR ?????
+                // The hell endianness has SDL been compiled in?
+                surface = Sdl.CreateRGBSurfaceWithFormatFrom(ptr, (int) icon.Width, (int) icon.Height, 0,
+                    (int) icon.Width * 4, (uint) SdlPixelFormat.ABGR8888);
             }
+
+            Sdl.SetWindowIcon(_window, surface);
         }
-        else
-            bounds = Monitor.ConnectedMonitors[settings.StartingMonitor.Value].Bounds;
 
-        glfw.SetWindowPos(handle, bounds.X + bounds.Width / 2 - settings.Size.Width / 2,
-            bounds.Y + bounds.Height / 2 - settings.Size.Height / 2);
+        _glContext = Sdl.GLCreateContext(_window);
 
-        if (settings.Icons != null)
-        {
-            Image[] images = new Image[settings.Icons.Length];
-            for (int i = 0; i < images.Length; i++)
-            {
-                ref Icon icon = ref settings.Icons[i];
-                fixed (byte* pixels = icon.Data)
-                {
-                    images[i] = new Image()
-                    {
-                        Width = (int) icon.Width,
-                        Height = (int) icon.Height,
-                        Pixels = pixels
-                    };
-                }
-            }
-            
-            fixed (Image* imgs = images)
-                glfw.SetWindowIcon(handle, settings.Icons.Length, imgs);
-        }
-        
-        glfw.MakeContextCurrent(handle);
-        if (settings.StartVisible)
-            glfw.ShowWindow(handle);
+        // Juuust make sure the context is current, even though it should already be.
+        Sdl.GLMakeCurrent(_window, _glContext);
 
-        return new Window(glfw, handle, settings, api);
+        _api = builder.WindowApi;
     }
-    
-    public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions options = default)
+
+    public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions? options = null)
     {
-        _glfw.MakeContextCurrent(_handle);
+        int width, height;
+        
+        Sdl.GetWindowSizeInPixels(_window, &width, &height);
+        Size size = new Size(width, height);
+        
         switch (_api)
         {
             case GraphicsApi.OpenGL:
-                PieGlContext context = new PieGlContext(s => _glfw.GetProcAddress(s), i =>
+                return GraphicsDevice.CreateOpenGL(new PieGlContext(Sdl.GLGetProcAddress, i =>
                 {
-                    _glfw.SwapInterval(i);
-                    _glfw.SwapBuffers(_handle);
-                });
-
-                return GraphicsDevice.CreateOpenGL(context, _settings.Size, options);
+                    Sdl.GLSetSwapInterval(i);
+                    Sdl.GLSwapWindow(_window);
+                }), size, options ?? new GraphicsDeviceOptions());
+            
             case GraphicsApi.D3D11:
-                return GraphicsDevice.CreateD3D11(new GlfwNativeWindow(_glfw, _handle).Win32!.Value.Hwnd,
-                    _settings.Size, options);
+                SdlSysWmInfo info = new SdlSysWmInfo();
+                Sdl.GetWindowWMInfo(_window, &info);
+                Console.WriteLine(info.Info.Win.Window);
+                return GraphicsDevice.CreateD3D11(info.Info.Win.Window, size,
+                    options ?? new GraphicsDeviceOptions());
+
             case GraphicsApi.Vulkan:
-                throw new NotImplementedException("VK is not at a ready state.");
+                throw new NotSupportedException("Vulkan does not actually exist and this API should be removed.");
+                break;
             case GraphicsApi.Null:
-                return GraphicsDevice.CreateNull(_settings.Size);
+                return GraphicsDevice.CreateNull(size, options ?? new GraphicsDeviceOptions());
+            
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    public static Window CreateWindow(WindowSettings settings)
+    public bool PollEvent(out IWindowEvent @event)
     {
-        return CreateWindow(settings, GraphicsDevice.GetBestApiForPlatform());
+        SdlEvent sdlEvent;
+        @event = null;
+        if (!Sdl.PollEvent(&sdlEvent))
+            return false;
+
+        switch ((SdlEventType) sdlEvent.Type)
+        {
+            case SdlEventType.Quit:
+                @event = new QuitEvent();
+                break;
+            case SdlEventType.WindowEvent:
+                switch ((SdlWindowEventId) sdlEvent.Window.Event)
+                {
+                    case SdlWindowEventId.Resized:
+                        @event = new ResizeEvent(new Size(sdlEvent.Window.Data1, sdlEvent.Window.Data2));
+                        break;
+                    default:
+                        // Filter out unrecognized events.
+                        return PollEvent(out @event);
+                }
+
+                break;
+            
+            case SdlEventType.KeyDown:
+                ref SdlKeyboardEvent kde = ref sdlEvent.Keyboard;
+
+                WindowEventType kdeType = kde.Repeat != 0 ? WindowEventType.KeyRepeat : WindowEventType.KeyDown;
+
+                @event = new KeyEvent(kdeType, kde.ScanCode, SdlHelper.KeycodeToKey(kde.KeyCode));
+                break;
+            case SdlEventType.KeyUp:
+                ref SdlKeyboardEvent kue = ref sdlEvent.Keyboard;
+
+                @event = new KeyEvent(WindowEventType.KeyUp, kue.ScanCode, SdlHelper.KeycodeToKey(kue.KeyCode));
+                break;
+            
+            case SdlEventType.TextInput:
+                ref SdlTextInputEvent textEvent = ref sdlEvent.Text;
+
+                fixed (char* text = textEvent.Text)
+                    @event = new TextInputEvent(new string(text));
+
+                break;
+            
+            case SdlEventType.MouseMotion:
+                ref SdlMouseMotionEvent motionEvent = ref sdlEvent.Motion;
+
+                @event = new MouseMoveEvent(motionEvent.X, motionEvent.Y, motionEvent.XRel, motionEvent.YRel);
+
+                break;
+            
+            case SdlEventType.MouseButtonDown:
+                ref SdlMouseButtonEvent bdEvent = ref sdlEvent.Button;
+
+                @event = new MouseButtonEvent(WindowEventType.MouseButtonDown, (MouseButton) bdEvent.Button);
+
+                break;
+            
+            case SdlEventType.MouseButtonUp:
+                ref SdlMouseButtonEvent buEvent = ref sdlEvent.Button;
+
+                @event = new MouseButtonEvent(WindowEventType.MouseButtonUp, (MouseButton) buEvent.Button);
+
+                break;
+            
+            case SdlEventType.MouseWheel:
+                ref SdlMouseWheelEvent wheelEvent = ref sdlEvent.Wheel;
+
+                float x = wheelEvent.PreciseX;
+                float y = wheelEvent.PreciseY;
+                
+                if (wheelEvent.Direction != 0)
+                {
+                    x = wheelEvent.PreciseX * -1;
+                    y = wheelEvent.PreciseY * -1;
+                }
+
+                @event = new MouseScrollEvent(x, y);
+
+                break;
+
+            default:
+                // Again, filter out unrecognized events.
+                // This literally ignores that they ever exist so that PollEvent *always* returns an event that Pie
+                // can understand.
+                return PollEvent(out @event);
+        }
+
+        return true;
     }
 
-    public static Window CreateWithGraphicsDevice(WindowSettings settings, GraphicsApi api, out GraphicsDevice device,
-        GraphicsDeviceOptions options = default)
+    public IWindowEvent[] PollEvents()
     {
-        Window window = CreateWindow(settings, api);
+        List<IWindowEvent> events = new List<IWindowEvent>();
+        while (PollEvent(out IWindowEvent evnt))
+            events.Add(evnt);
 
-        device = window.CreateGraphicsDevice(options);
-
-        return window;
-    }
-
-    public static Window CreateWithGraphicsDevice(WindowSettings settings, out GraphicsDevice device)
-    {
-        return CreateWithGraphicsDevice(settings, GraphicsDevice.GetBestApiForPlatform(), out device);
+        return events.ToArray();
     }
 
     public void Dispose()
     {
-        _glfw.Terminate();
-        _glfw.Dispose();
-    }
-
-    private static void CenterWindowInternal(Glfw glfw, WindowHandle* handle, Size size)
-    {
+        if (_glContext != null)
+            Sdl.GLDeleteContext(_glContext);
         
+        Sdl.DestroyWindow(_window);
+        Sdl.Quit();
     }
 }

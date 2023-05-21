@@ -1,8 +1,9 @@
 namespace Pie.Windowing;
 
-public enum MouseState
+public enum CursorMode
 {
     Visible,
     Hidden,
+    Grabbed,
     Locked
 }
