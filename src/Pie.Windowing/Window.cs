@@ -267,7 +267,6 @@ public sealed unsafe class Window : IDisposable
             case GraphicsApi.D3D11:
                 SdlSysWmInfo info = new SdlSysWmInfo();
                 Sdl.GetWindowWMInfo(_window, &info);
-                Console.WriteLine(info.Info.Win.Window);
                 return GraphicsDevice.CreateD3D11(info.Info.Win.Window, size,
                     options ?? new GraphicsDeviceOptions());
 
@@ -298,7 +297,7 @@ public sealed unsafe class Window : IDisposable
                 switch ((SdlWindowEventId) sdlEvent.Window.Event)
                 {
                     case SdlWindowEventId.Resized:
-                        @event = new ResizeEvent(new Size(sdlEvent.Window.Data1, sdlEvent.Window.Data2));
+                        @event = new ResizeEvent(sdlEvent.Window.Data1, sdlEvent.Window.Data2);
                         break;
                     default:
                         // Filter out unrecognized events.
