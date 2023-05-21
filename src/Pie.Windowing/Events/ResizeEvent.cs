@@ -4,12 +4,14 @@ namespace Pie.Windowing.Events;
 
 public struct ResizeEvent : IWindowEvent
 {
-    public WindowEventType EventType => WindowEventType.Resize;
+    public readonly int Width;
+    public readonly int Height;
 
-    public readonly Size Size;
-
-    public ResizeEvent(Size size)
+    public ResizeEvent(int width, int height)
     {
-        Size = size;
+        Width = width;
+        Height = height;
     }
+    
+    public WindowEventType EventType => WindowEventType.Resize;
 }

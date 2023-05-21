@@ -283,7 +283,7 @@ public sealed unsafe class Window : IDisposable
                 switch ((SdlWindowEventId) sdlEvent.Window.Event)
                 {
                     case SdlWindowEventId.Resized:
-                        @event = new ResizeEvent(new Size(sdlEvent.Window.Data1, sdlEvent.Window.Data2));
+                        @event = new ResizeEvent(sdlEvent.Window.Data1, sdlEvent.Window.Data2);
                         break;
                     default:
                         // Filter out unrecognized events.
