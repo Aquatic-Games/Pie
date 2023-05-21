@@ -55,6 +55,21 @@ public static unsafe class Sdl
     
     [DllImport(SdlName, EntryPoint = "SDL_GetRelativeMouseMode")]
     public static extern bool GetRelativeMouseMode();
+    
+    [DllImport(SdlName, EntryPoint = "SDL_GetDisplayMode")]
+    public static extern int GetDisplayMode(int displayIndex, int modeIndex, SdlDisplayMode* mode);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_GetDisplayBounds")]
+    public static extern int GetDisplayBounds(int displayIndex, SdlRect* rect);
+
+    [DllImport(SdlName, EntryPoint = "SDL_GetNumDisplayModes")]
+    public static extern int GetNumDisplayModes(int displayIndex);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_GetNumVideoDisplays")]
+    public static extern int GetNumVideoDisplays();
+    
+    [DllImport(SdlName, EntryPoint = "SDL_GetDesktopDisplayMode")]
+    public static extern int GetDesktopDisplayMode(int displayIndex, SdlDisplayMode* mode);
 
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowSize")]
     public static extern void SetWindowSize(void* window, int w, int h);

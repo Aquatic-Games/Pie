@@ -24,6 +24,15 @@ public abstract class TestBase : IDisposable
 
     public void Run(GraphicsApi api)
     {
+        Console.WriteLine("Num monitors: " + Monitor.ConnectedMonitors.Length);
+
+        Monitor primary = Monitor.PrimaryMonitor;
+        Console.WriteLine("Primary bounds: " + primary.Bounds);
+        Console.WriteLine("Primary disp mode: " + primary.CurrentMode + " | AR: " + primary.CurrentMode.AspectRatio + " | AAR: " + primary.CurrentMode.AccurateAspectRatio);
+        Console.WriteLine("Primary supported modes:");
+        foreach (VideoMode mode in primary.SupportedModes)
+            Console.WriteLine(mode + " | AR: " + mode.AspectRatio + " | AAR: " + mode.AccurateAspectRatio);
+        
         PieLog.DebugLog += DebugLog;
 
         ImageResult result = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/pie_1f967.png"), ColorComponents.RedGreenBlueAlpha);

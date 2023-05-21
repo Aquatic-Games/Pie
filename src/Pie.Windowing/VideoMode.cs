@@ -20,7 +20,12 @@ public struct VideoMode
         AccurateAspectRatio = size / GreatestCommonFactor(size.Width, size.Height);
         AspectRatio = CalculateAspectRatio(size);
     }
-    
+
+    public override string ToString()
+    {
+        return Size.Width + "x" + Size.Height + "@" + RefreshRate + "Hz";
+    }
+
     // Before you ask, yes I did copy this from Silk.NET videomode because I wrote it :)
     // No I didn't just copy and paste, what made you think that? Absolutely not!
     private static Size CalculateAspectRatio(Size res)
