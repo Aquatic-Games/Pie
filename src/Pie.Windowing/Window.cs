@@ -171,6 +171,8 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    public bool Focused => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.InputFocus) == SdlWindowFlags.InputFocus;
+
     internal Window(WindowBuilder builder)
     {
         if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
@@ -247,6 +249,8 @@ public sealed unsafe class Window : IDisposable
 
         _api = builder.WindowApi;
     }
+
+    public void Focus() => Sdl.RaiseWindow(_window);
 
     public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions? options = null)
     {

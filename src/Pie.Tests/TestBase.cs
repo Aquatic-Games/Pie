@@ -65,7 +65,8 @@ public abstract class TestBase : IDisposable
                         wantsClose = true;
                         break;
                     case WindowEventType.Resize:
-                        ResizeWindow(((ResizeEvent) evnt).Size);
+                        ResizeEvent resizeEvent = (ResizeEvent) evnt;
+                        ResizeWindow(new Size(resizeEvent.Width, resizeEvent.Height));
                         break;
                     case WindowEventType.KeyDown:
                     case WindowEventType.KeyUp:
