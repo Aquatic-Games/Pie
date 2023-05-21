@@ -85,6 +85,13 @@ public abstract class TestBase : IDisposable
                         Console.WriteLine(
                             $"Mouse X: {moveEvent.MouseX}, Y: {moveEvent.MouseY}, Delta X: {moveEvent.DeltaX}, Delta Y: {moveEvent.DeltaY}");
                         break;
+                    
+                    case WindowEventType.MouseButtonDown:
+                    case WindowEventType.MouseButtonUp:
+                        MouseButtonEvent buttonEvent = (MouseButtonEvent) evnt;
+                        
+                        Console.WriteLine($"{buttonEvent.EventType}: {buttonEvent.Button}");
+                        break;
                 }
             }
 

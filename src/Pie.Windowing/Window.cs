@@ -264,6 +264,20 @@ public sealed unsafe class Window : IDisposable
 
                 break;
             
+            case SdlEventType.MouseButtonDown:
+                ref SdlMouseButtonEvent bdEvent = ref sdlEvent.Button;
+
+                @event = new MouseButtonEvent(WindowEventType.MouseButtonDown, (MouseButton) bdEvent.Button);
+
+                break;
+            
+            case SdlEventType.MouseButtonUp:
+                ref SdlMouseButtonEvent buEvent = ref sdlEvent.Button;
+
+                @event = new MouseButtonEvent(WindowEventType.MouseButtonUp, (MouseButton) buEvent.Button);
+
+                break;
+            
             default:
                 // Again, filter out unrecognized events.
                 // This literally ignores that they ever exist so that PollEvent *always* returns an event that Pie

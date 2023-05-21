@@ -14,4 +14,6 @@ public unsafe struct SdlEvent
     [FieldOffset(0)] public SdlTextInputEvent Text;
 
     [FieldOffset(0)] public SdlMouseMotionEvent Motion;
+
+    [FieldOffset(0)] public SdlMouseButtonEvent Button;
 }
