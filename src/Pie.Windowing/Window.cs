@@ -104,6 +104,49 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    public CursorMode CursorMode
+    {
+        get
+        {
+            bool visible = Sdl.ShowCursor(Sdl.Query) == Sdl.Enable;
+            bool grabbed = Sdl.GetWindowGrab(_window);
+            bool relative = Sdl.GetRelativeMouseMode();
+
+            if (!grabbed && !relative)
+                return visible ? CursorMode.Visible : CursorMode.Hidden;
+
+            return relative ? CursorMode.Locked : CursorMode.Grabbed;
+        }
+        set
+        {
+            switch (value)
+            {
+                case CursorMode.Visible:
+                    Sdl.SetRelativeMouseMode(false);
+                    Sdl.SetWindowGrab(_window, false);
+                    Sdl.ShowCursor(Sdl.Enable);
+                    break;
+                case CursorMode.Hidden:
+                    Sdl.SetRelativeMouseMode(false);
+                    Sdl.SetWindowGrab(_window, false);
+                    Sdl.ShowCursor(Sdl.Disable);
+                    break;
+                case CursorMode.Grabbed:
+                    Sdl.SetRelativeMouseMode(false);
+                    Sdl.SetWindowGrab(_window, true);
+                    Sdl.ShowCursor(Sdl.Enable);
+                    break;
+                case CursorMode.Locked:
+                    Sdl.SetRelativeMouseMode(true);
+                    Sdl.SetWindowGrab(_window, true);
+                    Sdl.ShowCursor(Sdl.Disable);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value), value, null);
+            }
+        }
+    }
+
     internal Window(WindowBuilder builder)
     {
         if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)

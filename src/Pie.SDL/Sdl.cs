@@ -13,6 +13,10 @@ public static unsafe class Sdl
 
     public const uint WindowposCentered = 0x2FFF0000;
 
+    public const int Query = -1;
+    public const int Disable = 0;
+    public const int Enable = 1;
+
     [DllImport(SdlName, EntryPoint = "SDL_Init")]
     public static extern int Init(uint flags);
     
@@ -45,6 +49,12 @@ public static unsafe class Sdl
 
     [DllImport(SdlName, EntryPoint = "SDL_GetWindowFlags")]
     public static extern SdlWindowFlags GetWindowFlags(void* window);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_GetWindowGrab")]
+    public static extern bool GetWindowGrab(void* window);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_GetRelativeMouseMode")]
+    public static extern bool GetRelativeMouseMode();
 
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowSize")]
     public static extern void SetWindowSize(void* window, int w, int h);
@@ -60,6 +70,12 @@ public static unsafe class Sdl
 
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowFullscreen")]
     public static extern void SetWindowFullscreen(void* window, SdlWindowFlags flags);
+
+    [DllImport(SdlName, EntryPoint = "SDL_SetWindowGrab")]
+    public static extern void SetWindowGrab(void* window, bool grabbed);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_SetRelativeMouseMode")]
+    public static extern void SetRelativeMouseMode(bool enabled);
 
     [DllImport(SdlName, EntryPoint = "SDL_GL_SetAttribute")]
     public static extern int GLSetAttribute(SdlGlAttr attr, int value);
@@ -91,6 +107,9 @@ public static unsafe class Sdl
 
     [DllImport(SdlName, EntryPoint = "SDL_GetWindowWMInfo")]
     public static extern bool GetWindowWMInfo(void* window, SdlSysWmInfo* wmInfo);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_ShowCursor")]
+    public static extern int ShowCursor(int toggle);
     
     #region Safe helpers
 
