@@ -147,6 +147,18 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    public bool Resizable
+    {
+        get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Resizable) == SdlWindowFlags.Resizable;
+        set => Sdl.SetWindowResizable(_window, value);
+    }
+
+    public bool Borderless
+    {
+        get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Borderless) == SdlWindowFlags.Borderless;
+        set => Sdl.SetWindowBordered(_window, !value);
+    }
+
     internal Window(WindowBuilder builder)
     {
         if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
@@ -170,6 +182,8 @@ public sealed unsafe class Window : IDisposable
 
         if (builder.WindowResizable)
             flags |= SdlWindowFlags.Resizable;
+        if (builder.WindowBorderless)
+            flags |= SdlWindowFlags.Borderless;
 
         flags |= builder.WindowFullscreenMode switch
         {

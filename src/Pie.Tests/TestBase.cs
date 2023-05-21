@@ -35,6 +35,7 @@ public abstract class TestBase : IDisposable
             .Title("A test with SDL!")
             .Icon(icon)
             .Resizable()
+            //.Borderless()
             .Api(api)
             .GraphicsDeviceOptions(new GraphicsDeviceOptions(true))
             .Build(out GraphicsDevice);
@@ -42,7 +43,7 @@ public abstract class TestBase : IDisposable
         Initialize();
 
         bool wantsClose = false;
-        
+
         Stopwatch sw = Stopwatch.StartNew();
         while (!wantsClose)
         {

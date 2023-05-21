@@ -70,6 +70,12 @@ public static unsafe class Sdl
 
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowFullscreen")]
     public static extern void SetWindowFullscreen(void* window, SdlWindowFlags flags);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_SetWindowResizable")]
+    public static extern void SetWindowResizable(void* window, bool resizable);
+    
+    [DllImport(SdlName, EntryPoint = "SDL_SetWindowBordered")]
+    public static extern void SetWindowBordered(void* window, bool bordered);
 
     [DllImport(SdlName, EntryPoint = "SDL_SetWindowGrab")]
     public static extern void SetWindowGrab(void* window, bool grabbed);
