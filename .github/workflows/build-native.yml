@@ -14,4 +14,5 @@ jobs:
           fetch-depth: 0
           submodules: 'recursive'
       - name: Run build script
+        shell: bash
         run: ./scripts/BuildNative.sh . build/ native-libs/
