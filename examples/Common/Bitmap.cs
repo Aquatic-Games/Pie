@@ -16,4 +16,10 @@ public class Bitmap
         Data = result.Data;
         Size = new Size(result.Width, result.Height);
     }
+
+    public Bitmap(byte[] data, Size size)
+    {
+        Data = data;
+        Size = size;
+    }
 }

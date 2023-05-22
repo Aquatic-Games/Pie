@@ -19,6 +19,7 @@ cbuffer ProjModel : register(b0)
 {
     float4x4 projection;
     float4x4 model;
+    float4 tint;
 }
 
 Texture2D sprite   : register(t1);
@@ -38,7 +39,7 @@ PSOutput PixelShader(const in VSOutput input)
 {
     PSOutput output;
     
-    output.color = sprite.Sample(state, input.texCoord);
+    output.color = sprite.Sample(state, input.texCoord) * tint;
 
     return output;
 }

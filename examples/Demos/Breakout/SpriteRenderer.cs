@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.IO;
 using System.Numerics;
 using Pie;
@@ -65,17 +66,23 @@ public class SpriteRenderer : IDisposable
         _projModel = new ProjModel()
         {
             Projection = Matrix4x4.CreateOrthographicOffCenter(0, 800, 600, 0, -1, 1),
-            Model = Matrix4x4.Identity
+            Model = Matrix4x4.Identity,
+            Tint = Vector4.One
         };
 
         _projModelBuffer = device.CreateBuffer(BufferType.UniformBuffer, _projModel, true);
     }
 
-    public void Draw(Texture texture, Vector2 position)
+    public void Draw(Texture texture, Vector2 position, Color tint, float rotation, Vector2 scale, Vector2 origin)
     {
-        Matrix4x4 model = Matrix4x4.CreateScale(texture.Description.Width, texture.Description.Height, 1) *
-                          Matrix4x4.CreateTranslation(position.X, position.Y, 0);
+        Vector2 texSize = new Vector2(texture.Description.Width, texture.Description.Height);
+        Matrix4x4 model =
+            Matrix4x4.CreateTranslation(-origin.X, -origin.Y, 0) *
+            Matrix4x4.CreateScale(texSize.X * scale.X, texSize.Y * scale.Y, 1) *
+            Matrix4x4.CreateRotationZ(rotation) *
+            Matrix4x4.CreateTranslation(position.X, position.Y, 0);
         _projModel.Model = model;
+        _projModel.Tint = tint.Normalize();
         
         _device.UpdateBuffer(_projModelBuffer, 0, _projModel);
         _device.SetUniformBuffer(0, _projModelBuffer);
@@ -102,5 +109,6 @@ public class SpriteRenderer : IDisposable
     {
         public Matrix4x4 Projection;
         public Matrix4x4 Model;
+        public Vector4 Tint;
     }
 }

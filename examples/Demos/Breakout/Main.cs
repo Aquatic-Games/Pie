@@ -20,10 +20,7 @@ public class Main : SampleApplication
         Log(LogType.Debug, "Creating sprite renderer.");
         _spriteRenderer = new SpriteRenderer(GraphicsDevice);
 
-        Bitmap bitmap = new Bitmap("/home/skye/Pictures/awesomeface.png");
-        _texture = GraphicsDevice.CreateTexture(
-            new TextureDescription(bitmap.Size.Width, bitmap.Size.Height, Format.R8G8B8A8_UNorm, 1, 1,
-                TextureUsage.ShaderResource), bitmap.Data);
+        _texture = Utils.CreateTexture2D(GraphicsDevice, new Bitmap(new byte[] { 255, 255, 255, 255 }, new Size(1, 1)));
     }
 
     protected override void Draw(double dt)
@@ -32,6 +29,6 @@ public class Main : SampleApplication
         
         GraphicsDevice.ClearColorBuffer(Color.CornflowerBlue);
         
-        _spriteRenderer.Draw(_texture, new Vector2(200));
+        _spriteRenderer.Draw(_texture, Input.MousePosition with { Y = 570 }, Color.MediumPurple, 0, new Vector2(100, 25), new Vector2(0.5f));
     }
 }

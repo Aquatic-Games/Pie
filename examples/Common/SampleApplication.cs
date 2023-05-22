@@ -55,6 +55,7 @@ public abstract class SampleApplication : IDisposable
 
         while (!_wantsClose)
         {
+            Input.NewFrame();
             while (Window.PollEvent(out IWindowEvent winEvent))
             {
                 switch (winEvent)
@@ -66,6 +67,23 @@ public abstract class SampleApplication : IDisposable
                         Log(LogType.Warning, $"New size {resize.Width}x{resize.Height}");
                         GraphicsDevice.ResizeSwapchain(new Size(resize.Width, resize.Height));
                         GraphicsDevice.Viewport = new Rectangle(0, 0, resize.Width, resize.Height);
+                        break;
+                    
+                    case KeyEvent key:
+                        switch (key.EventType)
+                        {
+                            case WindowEventType.KeyDown:
+                                Input.AddKeyDown(key);
+                                break;
+                            case WindowEventType.KeyUp:
+                                Input.AddKeyUp(key);
+                                break;
+                        }
+
+                        break;
+                    
+                    case MouseMoveEvent mouseMove:
+                        Input.AddMouseMove(mouseMove);
                         break;
                 }
             }
