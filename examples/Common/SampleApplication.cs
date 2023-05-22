@@ -1,0 +1,90 @@
+﻿using System;
+using System.Diagnostics;
+using System.Drawing;
+using Pie;
+using Pie.Windowing;
+using Pie.Windowing.Events;
+
+namespace Common;
+
+public abstract class SampleApplication : IDisposable
+{
+    private string _title;
+    private Size _size;
+    private bool _wantsClose;
+
+    public Window Window;
+    public GraphicsDevice GraphicsDevice;
+    
+    protected SampleApplication(Size size, string title)
+    {
+        _size = size;
+        _title = title;
+        _wantsClose = false;
+        
+        PieLog.DebugLog += Log;
+    }
+
+    protected virtual void Initialize() { }
+
+    protected virtual void Update(double dt) { }
+
+    protected virtual void Draw(double dt) { }
+
+    public void Run()
+    {
+        Window = new WindowBuilder()
+            .Size(_size.Width, _size.Height)
+            .Title(_title)
+            .Resizable()
+            .GraphicsDeviceOptions(new GraphicsDeviceOptions() { Debug = true })
+            .Build(out GraphicsDevice);
+        
+        Log(LogType.Debug, "Initializing application.");
+        Initialize();
+        
+        Log(LogType.Debug, "Entering render loop.");
+        
+        Stopwatch sw = Stopwatch.StartNew();
+
+        while (!_wantsClose)
+        {
+            while (Window.PollEvent(out IWindowEvent winEvent))
+            {
+                switch (winEvent)
+                {
+                    case QuitEvent:
+                        _wantsClose = true;
+                        break;
+                    case ResizeEvent resize:
+                        Log(LogType.Warning, $"New size {resize.Width}x{resize.Height}");
+                        GraphicsDevice.ResizeSwapchain(new Size(resize.Width, resize.Height));
+                        break;
+                }
+            }
+
+            double delta = sw.Elapsed.TotalSeconds;
+            sw.Restart();
+            
+            Update(delta);
+            Draw(delta);
+            
+            GraphicsDevice.Present(1);
+        }
+    }
+
+    public virtual void Dispose()
+    {
+        GraphicsDevice.Dispose();
+        Window.Dispose();
+    }
+    
+    public static void Log(LogType logtype, string message)
+    {
+        if (logtype == LogType.Critical)
+            throw new Exception("Critical error! " + message);
+
+        // Pad to ensure each log type has the same alignment
+        Console.WriteLine($"[{logtype}] ".PadRight(10) + message);
+    }
+}
