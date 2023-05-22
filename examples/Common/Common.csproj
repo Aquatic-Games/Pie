@@ -7,8 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Pie.Audio\Pie.Audio.csproj" />
     <ProjectReference Include="..\..\src\Pie.Windowing\Pie.Windowing.csproj" />
     <ProjectReference Include="..\..\src\Pie\Pie.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StbVorbisSharp" Version="1.22.4" />
   </ItemGroup>
 
 </Project>

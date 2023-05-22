@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using Pie;
+using Pie.Audio;
 using Pie.Windowing;
 using Pie.Windowing.Events;
 
@@ -15,6 +16,7 @@ public abstract class SampleApplication : IDisposable
 
     public Window Window;
     public GraphicsDevice GraphicsDevice;
+    public AudioDevice AudioDevice;
     
     protected SampleApplication(Size size, string title)
     {
@@ -33,12 +35,16 @@ public abstract class SampleApplication : IDisposable
 
     public void Run()
     {
+        Log(LogType.Debug, "Creating window and device.");
         Window = new WindowBuilder()
             .Size(_size.Width, _size.Height)
             .Title(_title)
             .Resizable()
             .GraphicsDeviceOptions(new GraphicsDeviceOptions() { Debug = true })
             .Build(out GraphicsDevice);
+        
+        Log(LogType.Debug, "Creating audio device.");
+        AudioDevice = new AudioDevice(48000, 16);
         
         Log(LogType.Debug, "Initializing application.");
         Initialize();
