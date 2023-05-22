@@ -24,20 +24,20 @@ full_output_path="${current_loc}/${native_output_location}"
 echo "Creating ${SPIRV_CROSS_NAME} build directory."
 mkdir -p "${spirv_build_location}" || exit 1
 
-echo "Creating native output location."
-mkdir -p "${full_output_path}"
-
 pushd "${spirv_build_location}" || exit 1
 
 echo "Creating ${SPIRV_CROSS_NAME} build files."
-cmake "${spirv_location}" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY="${full_output_path}" -DCMAKE_BUILD_TYPE=Release -DSPIRV_CROSS_SHARED=ON -DSPIRV_CROSS_CLI=OFF || exit 1
+cmake "${spirv_location}" -DCMAKE_BUILD_TYPE=Release -DSPIRV_CROSS_SHARED=ON -DSPIRV_CROSS_CLI=OFF || exit 1
 
 echo "Building ${SPIRV_CROSS_NAME}."
 cmake --build . --config Release || exit 1
 
 popd || exit 1
 
-#echo "Copying ${SPIRV_CROSS_LIB_NAME} to output location."
-#cp -L "${spirv_build_location}/${SPIRV_CROSS_LIB_NAME}" "${full_output_path}" || exit 1
+echo "Creating native output location."
+mkdir -p "${full_output_path}"
+
+echo "Copying ${SPIRV_CROSS_LIB_NAME} to output location."
+find "${spirv_build_location}" \( -iname "*.dll" -o -iname "*.so" \) -exec cp -L {} "${full_output_path}" \; || exit 1
 
 echo "${SPIRV_CROSS_NAME} build successful!"
