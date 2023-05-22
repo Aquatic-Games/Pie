@@ -1,0 +1,12 @@
+<Project>
+    <PropertyGroup>
+        <Description>Make cross-platform graphics programming as easy as pie.</Description>
+        <RepositoryUrl>https://github.com/piegfx/Pie</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <Authors>Skye Barnes</Authors>
+        <PackageProjectUrl>https://piegfx.com/pie/</PackageProjectUrl>
+        <PackageTags>graphics;opengl;directx;vulkan;cross-platform;</PackageTags>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+</Project>
