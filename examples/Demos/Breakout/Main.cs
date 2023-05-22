@@ -8,10 +8,18 @@ namespace Breakout;
 
 public class Main : SampleApplication
 {
-    private SpriteRenderer _spriteRenderer;
-    private Texture _texture;
+    public const int Width = 800;
+    public const int Height = 600;
     
-    public Main() : base(new Size(800, 600), "Breakout Demo") { }
+    private SpriteRenderer _spriteRenderer;
+
+    private Texture _background;
+    private Texture _texture;
+
+    private Ball _ball;
+    private Paddle _paddle;
+    
+    public Main() : base(new Size(Width, Height), "Breakout Demo") { }
 
     protected override void Initialize()
     {
@@ -20,15 +28,41 @@ public class Main : SampleApplication
         Log(LogType.Debug, "Creating sprite renderer.");
         _spriteRenderer = new SpriteRenderer(GraphicsDevice);
 
+        _background = Utils.CreateTexture2D(GraphicsDevice, "Content/Textures/bricks.png");
+
         _texture = Utils.CreateTexture2D(GraphicsDevice, new Bitmap(new byte[] { 255, 255, 255, 255 }, new Size(1, 1)));
+
+        _ball = new Ball(_texture)
+        {
+            Position = new Vector2(100, 100),
+            Velocity = new Vector2(180),
+            Size = new Size(20, 20)
+        };
+
+        _paddle = new Paddle(_texture, _ball)
+        {
+            Size = new Size(100, 25)
+        };
+    }
+
+    protected override void Update(double dt)
+    {
+        base.Update(dt);
+        
+        _paddle.Update(dt);
+        _ball.Update(dt);
     }
 
     protected override void Draw(double dt)
     {
         base.Draw(dt);
         
-        GraphicsDevice.ClearColorBuffer(Color.CornflowerBlue);
+        GraphicsDevice.ClearColorBuffer(Color.Black);
         
-        _spriteRenderer.Draw(_texture, Input.MousePosition with { Y = 570 }, Color.MediumPurple, 0, new Vector2(100, 25), new Vector2(0.5f));
+        _spriteRenderer.Draw(_background, Vector2.Zero, Color.White, 0, Vector2.One, Vector2.Zero);
+        
+        _ball.Draw(dt, _spriteRenderer);
+        
+        _paddle.Draw(dt, _spriteRenderer);
     }
 }

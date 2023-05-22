@@ -65,7 +65,7 @@ public class SpriteRenderer : IDisposable
 
         _projModel = new ProjModel()
         {
-            Projection = Matrix4x4.CreateOrthographicOffCenter(0, 800, 600, 0, -1, 1),
+            Projection = Matrix4x4.CreateOrthographicOffCenter(0, Main.Width, Main.Height, 0, -1, 1),
             Model = Matrix4x4.Identity,
             Tint = Vector4.One
         };

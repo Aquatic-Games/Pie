@@ -1,4 +1,5 @@
 using Pie;
+using Pie.Audio;
 
 namespace Common;
 
@@ -13,4 +14,16 @@ public static class Utils
 
         return device.CreateTexture(description, bitmap.Data);
     }
+
+    public static ushort GetFreeChannel(AudioSystem system)
+    {
+        for (ushort c = 0; c < system.NumChannels; c++)
+        {
+            if (!system.IsPlaying(c))
+                return c;
+        }
+
+        return 0;
+    }
+    
 }
