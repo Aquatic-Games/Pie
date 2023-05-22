@@ -34,6 +34,9 @@ cmake --build . --config Release || exit 1
 
 popd || exit 1
 
+echo "Creating native output location."
+mkdir -p "${full_output_path}"
+
 echo "Copying ${SPIRV_CROSS_LIB_NAME} to output location."
 cp -L "${spirv_build_location}/${SPIRV_CROSS_LIB_NAME}" "${full_output_path}" || exit 1
 
