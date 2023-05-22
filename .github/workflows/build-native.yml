@@ -16,14 +16,7 @@ jobs:
       - name: Run build script
         shell: bash
         run: ./scripts/BuildNative.sh . build/ native-libs/
-        
-  upload:
-    name: Uploading artifacts
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/upload-artifact@v3
         with:
-          name: native-libs
+          name: ${{ matrix.os }}-build
           path: native-libs/
-          
