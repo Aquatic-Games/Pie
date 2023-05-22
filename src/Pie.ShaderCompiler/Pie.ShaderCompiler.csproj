@@ -16,15 +16,19 @@
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Spirzza.Interop.Shaderc" Version="0.0.1" />
-      <!--<PackageReference Include="Spirzza.Interop.SpirvCross" Version="0.0.1" />-->
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Spirzza\sources\Spirzza\Interop\SpirvCross\Spirzza.Interop.SpirvCross.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Spirv" />
+        <Content Include="spirv-cross-c-shared.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+            <PackagePath>runtimes/win-x64/native/</PackagePath>
+        </Content>
+        <Content Include="libspirv-cross-c-shared.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+            <PackagePath>runtimes/linux-x64/native/</PackagePath>
+        </Content>
     </ItemGroup>
 
 </Project>

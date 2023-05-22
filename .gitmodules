@@ -1,9 +1,6 @@
 [submodule "mixr"]
 	path = mixr
 	url = https://github.com/piegfx/mixr
-[submodule "Spirzza"]
-	path = Spirzza
-	url = https://github.com/piegfx/Spirzza
 [submodule "SPIRV-Cross"]
 	path = SPIRV-Cross
 	url = https://github.com/KhronosGroup/SPIRV-Cross
