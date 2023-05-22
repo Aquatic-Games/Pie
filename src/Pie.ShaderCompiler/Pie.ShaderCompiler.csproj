@@ -23,4 +23,8 @@
       <ProjectReference Include="..\..\Spirzza\sources\Spirzza\Interop\SpirvCross\Spirzza.Interop.SpirvCross.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Spirv" />
+    </ItemGroup>
+
 </Project>
