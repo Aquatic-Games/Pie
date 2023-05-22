@@ -213,6 +213,7 @@ public sealed unsafe class Window : IDisposable
         {
             Sdl.GLSetAttribute(SdlGlAttr.ContextMajorVersion, 4);
             Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 3);
+            Sdl.GLSetAttribute(SdlGlAttr.ContextProfileMask, 1); // use core profile.
         }
 
         fixed (byte* title = Encoding.UTF8.GetBytes(builder.WindowTitle))

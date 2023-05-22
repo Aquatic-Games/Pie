@@ -65,6 +65,7 @@ public abstract class SampleApplication : IDisposable
                     case ResizeEvent resize:
                         Log(LogType.Warning, $"New size {resize.Width}x{resize.Height}");
                         GraphicsDevice.ResizeSwapchain(new Size(resize.Width, resize.Height));
+                        GraphicsDevice.Viewport = new Rectangle(0, 0, resize.Width, resize.Height);
                         break;
                 }
             }
