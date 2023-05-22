@@ -1,0 +1,17 @@
+name: Build native
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: 'recursive'
+      - name: Run build script
+        run: ./scripts/BuildNative.sh . build/ native-libs/
