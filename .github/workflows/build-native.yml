@@ -6,7 +6,7 @@ jobs:
     name: Build ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -16,3 +16,7 @@ jobs:
       - name: Run build script
         shell: bash
         run: ./scripts/BuildNative.sh . build/ native-libs/
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}-build
+          path: native-libs/
