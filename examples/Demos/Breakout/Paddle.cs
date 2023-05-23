@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using Common;
 using Pie;
+using Pie.Audio;
 
 namespace Breakout;
 
@@ -17,15 +18,16 @@ public class Paddle : Entity
         _texture = texture;
     }
 
-    public override void Update(double dt)
+    public override void Update(double dt, Main main)
     {
-        base.Update(dt);
+        base.Update(dt, main);
 
         Position = new Vector2(Input.MousePosition.X - Size.Width / 2f, 570);
 
         if (CollisionRect.IntersectsWith(_ball.CollisionRect))
         {
             _ball.Velocity.Y *= -1;
+            main.AudioDevice.PlayBuffer(main.Hit, 1, new ChannelProperties());
         }
     }
 

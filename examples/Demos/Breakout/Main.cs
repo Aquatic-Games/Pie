@@ -10,6 +10,10 @@ public class Main : SampleApplication
 {
     public const int Width = 800;
     public const int Height = 600;
+
+    public AudioBuffer Hit;
+
+    private VorbisPlayer _vorbis;
     
     private SpriteRenderer _spriteRenderer;
 
@@ -18,6 +22,8 @@ public class Main : SampleApplication
 
     private Ball _ball;
     private Paddle _paddle;
+
+    private Brick[] _bricks;
     
     public Main() : base(new Size(Width, Height), "Breakout Demo") { }
 
@@ -32,10 +38,17 @@ public class Main : SampleApplication
 
         _texture = Utils.CreateTexture2D(GraphicsDevice, new Bitmap(new byte[] { 255, 255, 255, 255 }, new Size(1, 1)));
 
+        PCM hit = PCM.LoadWav("Content/Audio/hit.wav");
+        Hit = AudioDevice.CreateBuffer(new BufferDescription(DataType.Pcm, hit.Format), hit.Data);
+
+        //_vorbis = new VorbisPlayer(AudioDevice, "Content/Audio/excite.ogg");
+        //_vorbis = new VorbisPlayer(AudioDevice, "/home/skye/Music/Cave.ogg");
+        //_vorbis.Play(0, new ChannelProperties());
+
         _ball = new Ball(_texture)
         {
-            Position = new Vector2(100, 100),
-            Velocity = new Vector2(180),
+            Position = new Vector2(Width / 2f, Height / 2f),
+            Velocity = new Vector2(180 * 2),
             Size = new Size(20, 20)
         };
 
@@ -43,14 +56,44 @@ public class Main : SampleApplication
         {
             Size = new Size(100, 25)
         };
+
+        const int numBricksX = 13;
+        const int numBricksY = 5;
+
+        _bricks = new Brick[numBricksX * numBricksY];
+
+        for (int x = 0; x < numBricksX; x++)
+        {
+            for (int y = 0; y < numBricksY; y++)
+            {
+                _bricks[y * numBricksX + x] = new Brick(_texture, _ball)
+                {
+                    Position = new Vector2(15 + (x * 60), 10 + (y * 40)),
+                    Size = new Size(50, 30),
+                    NumHits = 1 + (numBricksY - y)
+                };
+            }
+        }
     }
 
     protected override void Update(double dt)
     {
         base.Update(dt);
         
-        _paddle.Update(dt);
-        _ball.Update(dt);
+        _paddle.Update(dt, this);
+        _ball.Update(dt, this);
+
+        for (int i = 0; i < _bricks.Length; i++)
+        {
+            ref Brick brick = ref _bricks[i];
+            if (brick == null)
+                continue;
+            
+            brick.Update(dt, this);
+
+            if (brick.ShouldDestroy)
+                brick = null;
+        }
     }
 
     protected override void Draw(double dt)
@@ -64,5 +107,13 @@ public class Main : SampleApplication
         _ball.Draw(dt, _spriteRenderer);
         
         _paddle.Draw(dt, _spriteRenderer);
+
+        foreach (Brick brick in _bricks)
+        {
+            if (brick == null)
+                continue;
+            
+            brick.Draw(dt, _spriteRenderer);
+        }
     }
 }
