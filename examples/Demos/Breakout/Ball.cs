@@ -29,13 +29,13 @@ public class Ball : Entity
         if (Position.X <= 0 || Position.X + Size.Width >= Main.Width)
         {
             Velocity.X *= -1;
-            main.AudioDevice.PlayBuffer(main.Hit, 1, new ChannelProperties(speed: 0.8));
+            main.AudioDevice.PlayBuffer(main.Hit, 1, new PlayProperties(speed: 0.8));
         }
 
         if (Position.Y <= 0)
         {
             Velocity.Y *= -1;
-            main.AudioDevice.PlayBuffer(main.Hit, 1, new ChannelProperties(speed: 0.64));
+            main.AudioDevice.PlayBuffer(main.Hit, 1, new PlayProperties(speed: 0.64));
         }
         
         if (Position.Y >= Main.Height + 20)

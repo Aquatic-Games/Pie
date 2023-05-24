@@ -25,7 +25,7 @@ public class Brick : Entity
         if (CollisionRect.IntersectsWith(_ball.CollisionRect))
         {
             _ball.Velocity.Y *= -1;
-            main.AudioDevice.PlayBuffer(main.Hit, 1, new ChannelProperties(speed: 0.4));
+            main.AudioDevice.PlayBuffer(main.Hit, 1, new PlayProperties(speed: 0.4));
             NumHits--;
             if (NumHits <= 0)
                 ShouldDestroy = true;

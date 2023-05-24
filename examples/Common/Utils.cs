@@ -15,7 +15,7 @@ public static class Utils
         return device.CreateTexture(description, bitmap.Data);
     }
 
-    public static ushort GetFreeChannel(AudioSystem system)
+    /*public static ushort GetFreeChannel(AudioSystem system)
     {
         for (ushort c = 0; c < system.NumChannels; c++)
         {
@@ -24,6 +24,6 @@ public static class Utils
         }
 
         return 0;
-    }
+    }*/
     
 }
