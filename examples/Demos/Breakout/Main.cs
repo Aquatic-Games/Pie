@@ -1,8 +1,10 @@
+using System;
 using System.Drawing;
 using System.Numerics;
 using Common;
 using Pie;
 using Pie.Audio;
+using Pie.Windowing;
 
 namespace Breakout;
 
@@ -10,6 +12,8 @@ public class Main : SampleApplication
 {
     public const int Width = 800;
     public const int Height = 600;
+
+    public bool IsPlaying;
 
     public AudioBuffer Hit;
 
@@ -41,9 +45,9 @@ public class Main : SampleApplication
         PCM hit = PCM.LoadWav("Content/Audio/hit.wav");
         Hit = AudioDevice.CreateBuffer(new BufferDescription(DataType.Pcm, hit.Format), hit.Data);
 
-        //_vorbis = new VorbisPlayer(AudioDevice, "Content/Audio/excite.ogg");
+        _vorbis = new VorbisPlayer(AudioDevice, "Content/Audio/excite.ogg");
         //_vorbis = new VorbisPlayer(AudioDevice, "/home/skye/Music/Cave.ogg");
-        //_vorbis.Play(0, new ChannelProperties());
+        _vorbis.Play(0, new ChannelProperties(speed: 1.3));
 
         _ball = new Ball(_texture)
         {
@@ -54,6 +58,7 @@ public class Main : SampleApplication
 
         _paddle = new Paddle(_texture, _ball)
         {
+            Position = new Vector2(Width / 2f, 570),
             Size = new Size(100, 25)
         };
 
@@ -74,11 +79,22 @@ public class Main : SampleApplication
                 };
             }
         }
+
+        Window.CursorMode = CursorMode.Locked;
     }
 
     protected override void Update(double dt)
     {
         base.Update(dt);
+
+        if (!IsPlaying && Input.KeyDown(Key.Space))
+        {
+            IsPlaying = true;
+            _ball.Velocity = new Vector2(Random.Shared.NextInt64(-400, 400), -400);
+        }
+        
+        if (Input.KeyDown(Key.Escape))
+            Close();
         
         _paddle.Update(dt, this);
         _ball.Update(dt, this);

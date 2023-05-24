@@ -18,6 +18,8 @@ public static class Input
     
     public static Vector2 MouseDelta { get; private set; }
 
+    public static bool KeyDown(Key key) => _keysDown.Contains(key);
+
     internal static void NewFrame()
     {
         MouseDelta = Vector2.Zero;

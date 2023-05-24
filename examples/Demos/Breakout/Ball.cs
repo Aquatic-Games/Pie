@@ -21,7 +21,10 @@ public class Ball : Entity
     {
         base.Update(dt, main);
 
-        Position += Velocity * (float) dt; ;
+        if (!main.IsPlaying)
+            return;
+        
+        Position += Velocity * (float) dt;
 
         if (Position.X <= 0 || Position.X + Size.Width >= Main.Width)
         {
@@ -29,13 +32,16 @@ public class Ball : Entity
             main.AudioDevice.PlayBuffer(main.Hit, 1, new ChannelProperties(speed: 0.8));
         }
 
-        if (Position.Y <= 0 || Position.Y + Size.Height >= Main.Height)
+        if (Position.Y <= 0)
         {
             Velocity.Y *= -1;
             main.AudioDevice.PlayBuffer(main.Hit, 1, new ChannelProperties(speed: 0.64));
         }
+        
+        if (Position.Y >= Main.Height + 20)
+            main.IsPlaying = false;
 
-        Position = Vector2.Clamp(Position, Vector2.Zero, new Vector2(Main.Width - Size.Width, Main.Height - Size.Height));
+        Position = Vector2.Clamp(Position, Vector2.Zero, new Vector2(Main.Width - Size.Width, float.MaxValue));
     }
 
     public override void Draw(double dt, SpriteRenderer renderer)

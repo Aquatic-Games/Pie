@@ -98,6 +98,11 @@ public abstract class SampleApplication : IDisposable
         }
     }
 
+    public void Close()
+    {
+        _wantsClose = true;
+    }
+
     public virtual void Dispose()
     {
         GraphicsDevice.Dispose();

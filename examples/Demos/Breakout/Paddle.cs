@@ -22,7 +22,15 @@ public class Paddle : Entity
     {
         base.Update(dt, main);
 
-        Position = new Vector2(Input.MousePosition.X - Size.Width / 2f, 570);
+        Position.X += Input.MouseDelta.X;
+        Position.X = float.Clamp(Position.X, 0, Main.Width - Size.Width);
+
+        if (!main.IsPlaying)
+        {
+            _ball.Position = Position + new Vector2(Size.Width / 2 - _ball.Size.Width / 2, -_ball.Size.Height);
+            
+            return;
+        }
 
         if (CollisionRect.IntersectsWith(_ball.CollisionRect))
         {
