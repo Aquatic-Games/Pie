@@ -1,9 +1,6 @@
 using System;
-using System.IO;
-using System.Runtime.InteropServices;
 using Pie.Audio;
-using static Pie.Audio.MixrNative;
-using PCM = Pie.Audio.PCM;
+using Pie.Audio.Stream;
 
 namespace Pie.Tests.Tests;
 
@@ -73,12 +70,12 @@ public unsafe class AudioTest : TestBase
 
         _device = new AudioDevice(48000, 256);
         
-        PCM pcm1 = PCM.LoadWav("/home/skye/Music/thanks_for_the_fish.wav");
+        using Wav wav = Wav.FromFile("/home/skye/Music/thanks_for_the_fish.wav");
 
-        AudioBuffer buffer1 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm1.Format), pcm1.Data);
+        AudioBuffer buffer1 = _device.CreateBuffer(new BufferDescription(wav.Format), wav.GetPcm());
         //AudioBuffer buffer2 = _device.CreateBuffer(new BufferDescription(DataType.Pcm, pcm2.Format), pcm2.Data);
 
-        _device.PlayBuffer(buffer1, 0, new ChannelProperties(looping: false));
+        _device.PlayBuffer(buffer1, 0, new PlayProperties(speed: 1.15));
         //_device.QueueBuffer(buffer2, 0);
 
         /*_device.BufferFinished += (system, channel, buffer) =>
@@ -92,7 +89,7 @@ public unsafe class AudioTest : TestBase
     {
         base.Update(dt);
         
-        Console.WriteLine(_device.IsPlaying(0));
+        //Console.WriteLine(_device.GetPosition(0));
     }
 
     /*private void AudioCallback(void* arg0, byte* arg1, int arg2)

@@ -1,14 +1,12 @@
 namespace Pie.Audio;
 
-/// <summary>
-/// Buffers can contain various types of data which is decoded during playback.
-/// </summary>
 public enum DataType
 {
-    /// <summary>
-    /// This buffer is a raw PCM buffer.
-    /// </summary>
-    Pcm,
-    //Wav,
-    //Module
+    I8,
+    U8,
+    I16,
+    U16,
+    I32,
+    F32,
+    F64
 }

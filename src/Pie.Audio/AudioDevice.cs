@@ -18,13 +18,13 @@ public class AudioDevice : AudioSystem
     /// <param name="sampleRate">The sample rate. Typical values include 44100 (CD quality) and 48000 (DAT quality).</param>
     /// <param name="channels">The number of channels. (Sounds that can be played at once).</param>
     /// <exception cref="Exception">Thrown if SDL fails to initialize.</exception>
-    public unsafe AudioDevice(int sampleRate, ushort channels) : base(sampleRate, channels)
+    public unsafe AudioDevice(uint sampleRate, ushort channels) : base(sampleRate, channels)
     {
         if (Sdl.Init(Sdl.InitAudio) < 0)
             throw new Exception("SDL did not init: " + Sdl.GetErrorS());
 
         SdlAudioSpec spec;
-        spec.Freq = sampleRate;
+        spec.Freq = (int) sampleRate;
         spec.Format = Sdl.AudioF32;
         spec.Channels = 2;
         spec.Samples = 512;
@@ -40,7 +40,7 @@ public class AudioDevice : AudioSystem
     
     private unsafe void AudioCallback(void* arg0, byte* arg1, int arg2)
     {
-        AdvanceBuffer((float*) arg1, (nuint) arg2 / 4);
+        ReadBufferStereoF32((float*) arg1, (nuint) arg2 / 4);
     }
 
     public override void Dispose()
