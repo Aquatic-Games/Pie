@@ -29,6 +29,7 @@ public static class PieLog
                 break;
             case LogType.Debug:
             case LogType.Info:
+            case LogType.Verbose:
             default:
                 break;
         }
@@ -44,6 +45,7 @@ public static class PieLog
 
 public enum LogType
 {
+    Verbose,
     Debug,
     Info,
     Warning,
