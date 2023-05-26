@@ -9,7 +9,7 @@ public static class Utils
     
     public static Texture CreateTexture2D(GraphicsDevice device, Bitmap bitmap)
     {
-        TextureDescription description = new TextureDescription(bitmap.Size.Width, bitmap.Size.Height,
+        TextureDescription description = TextureDescription.Texture2D(bitmap.Size.Width, bitmap.Size.Height,
             Format.R8G8B8A8_UNorm, 1, 1, TextureUsage.ShaderResource);
 
         return device.CreateTexture(description, bitmap.Data);

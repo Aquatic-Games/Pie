@@ -106,7 +106,7 @@ PSOutput PixelShader(in VSOutput input)
         Console.WriteLine(dds.Size);
 
         _texture = GraphicsDevice.CreateTexture(
-            new TextureDescription(dds.Size.Width, dds.Size.Height, Format.R8G8B8A8_UNorm, dds.MipLevels, 1,
+            TextureDescription.Texture2D(dds.Size.Width, dds.Size.Height, Format.R8G8B8A8_UNorm, dds.MipLevels, 1,
                 TextureUsage.ShaderResource), PieUtils.Combine(dds.Bitmaps[0]));
         
         GraphicsDevice.UpdateTexture(_texture, 0, 0, 0, 0, 0, result1.Width, result1.Height, 0, result1.Data);

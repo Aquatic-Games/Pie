@@ -82,7 +82,7 @@ PSOutput PixelShader(in VSOutput input)
         ImageResult result1 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/awesomeface.png"), ColorComponents.RedGreenBlueAlpha);
         ImageResult result2 = ImageResult.FromMemory(File.ReadAllBytes("/home/ollie/Pictures/piegfx-logo-square-temp.png"), ColorComponents.RedGreenBlueAlpha);
         
-        _texture = GraphicsDevice.CreateTexture(new TextureDescription(result1.Width, result1.Height,
+        _texture = GraphicsDevice.CreateTexture(TextureDescription.Texture2D(result1.Width, result1.Height,
             Format.R8G8B8A8_UNorm, 0, 2, TextureUsage.ShaderResource), PieUtils.Combine(result1.Data, result2.Data));
         GraphicsDevice.GenerateMipmaps(_texture);
 
