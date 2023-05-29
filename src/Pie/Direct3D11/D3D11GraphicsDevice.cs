@@ -65,7 +65,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
         SwapChainDesc swapChainDescription = new SwapChainDesc()
         {
-            Flags = (uint) SwapChainFlag.None,
+            Flags = (uint) SwapChainFlag.AllowTearing | (uint) SwapChainFlag.AllowModeSwitch,
             BufferCount = 2,
             BufferDesc = new ModeDesc((uint) winSize.Width, (uint) winSize.Height, format: Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm),
             BufferUsage = DXGI.UsageRenderTargetOutput,

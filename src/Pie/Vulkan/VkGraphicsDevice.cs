@@ -301,14 +301,14 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
             PApplicationName = appName.AsPtr,
             PEngineName = engineName.AsPtr,
         };
-        
-        
-        
+
+
+
         InstanceCreateInfo instanceCreateInfo = new InstanceCreateInfo()
         {
             SType = StructureType.InstanceCreateInfo,
-            
-        }
+
+        };
     }
     
     #endregion
