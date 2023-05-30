@@ -48,11 +48,11 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         D3DCompiler = D3DCompiler.GetApi();
 
         bool debug = options.Debug;
-        /*if (debug && !SdkLayersAvailable())
+        if (debug && !CheckDebugSdk(D3D11))
         {
             debug = false;
             PieLog.Log(LogType.Warning, "Debug has been enabled however no SDK layers have been found. Direct3D debug has therefore been disabled.");
-        }*/
+        }
         
         if (!Succeeded(DXGI.CreateDXGIFactory2(debug ? (uint) DXGI.CreateFactoryDebug : 0, out _dxgiFactory)))
             throw new PieException("Failed to create DXGI factory.");
@@ -83,7 +83,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         Adapter = new GraphicsAdapter(Marshal.PtrToStringAnsi((IntPtr) desc.Description));
 
         if (!Succeeded(D3D11.CreateDeviceAndSwapChain(new ComPtr<IDXGIAdapter>((IDXGIAdapter*) null), D3DDriverType.Hardware, 0,
-                (uint) flags, null, 0, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref Device, ref level,
+                (uint) flags, &level, 1, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref Device, null,
                 ref Context)))
         {
             throw new PieException("Failed to create device or swapchain.");

@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
+using Silk.NET.DXGI;
 
 namespace Pie.Direct3D11;
 
@@ -103,4 +104,13 @@ internal static class DxUtils
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool Succeeded(int result) => Succeeded(result, out _);
+
+    internal static unsafe bool CheckDebugSdk(D3D11 d3d11)
+    {
+        if (!Succeeded(d3d11.CreateDevice(new ComPtr<IDXGIAdapter>((IDXGIAdapter*) null), D3DDriverType.Hardware, 0,
+                (uint) CreateDeviceFlag.Debug, null, 0, D3D11.SdkVersion, null, null, null)))
+            return false;
+
+        return true;
+    }
 }
