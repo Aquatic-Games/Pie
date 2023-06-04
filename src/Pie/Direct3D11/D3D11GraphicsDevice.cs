@@ -460,7 +460,11 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void Present(int swapInterval)
     {
-        _swapChain.Present((uint) swapInterval, 0);
+        uint flags = 0;
+
+        if (swapInterval == 0)
+            flags |= DXGI.PresentAllowTearing;
+        _swapChain.Present((uint) swapInterval, flags);
         // ?????? This only seems to happen on AMD but after presentation the render targets go off to floaty land
         // I'm sure usually this is resolved by setting render targets at the start of a frame (like what Easel does)
         // but Pie has no way of knowing when the start of a frame is, so just do it at the end of presentation.

@@ -86,6 +86,7 @@ public abstract class TestBase : IDisposable
                         if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.F11)
                         {
                             FullscreenMode currentMode = Window.FullscreenMode;
+                            //Window.Size = new Size(1920, 1080);
                             Console.WriteLine(currentMode);
                             Window.FullscreenMode = currentMode != FullscreenMode.Windowed
                                 ? FullscreenMode.Windowed
