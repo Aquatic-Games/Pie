@@ -29,5 +29,9 @@
     <ItemGroup>
       <ProjectReference Include="..\Pie.SDL\Pie.SDL.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Native" />
+    </ItemGroup>
     
 </Project>

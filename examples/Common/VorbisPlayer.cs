@@ -22,39 +22,36 @@ public class VorbisPlayer : IDisposable
 
         _buffers = new AudioBuffer[2];
             
-        AudioFormat format = new AudioFormat((byte) _vorbis.Channels, _vorbis.SampleRate, FormatType.I16);
+        AudioFormat format = new AudioFormat(DataType.I16, (uint) _vorbis.SampleRate, (byte) _vorbis.Channels);
 
         for (int i = 0; i < _buffers.Length; i++)
         {
             _vorbis.SubmitBuffer();
-            _buffers[i] = _device.CreateBuffer(new BufferDescription(DataType.Pcm, format), _vorbis.SongBuffer);
+            _buffers[i] = _device.CreateBuffer(new BufferDescription(format), _vorbis.SongBuffer);
         }
         
         _device.BufferFinished += DeviceOnBufferFinished;
     }
 
-    private void DeviceOnBufferFinished(AudioSystem system, ushort channel, AudioBuffer buffer)
+    private void DeviceOnBufferFinished(AudioBuffer buffer, ushort voice)
     {
-        if (channel != _voice)
+        if (voice != _voice)
             return;
 
         _vorbis.SubmitBuffer();
         if (_vorbis.Decoded * _vorbis.Channels < _vorbis.SongBuffer.Length)
             _vorbis.Restart();
-
-        // YES! I know that this can cause the buffer to repeat itself.
-        // However unfortunately mixr has a fatal bug which means that you must provide a buffer equal to or larger
-        // than the already existing buffer otherwise it errors.
-        // This should be fixed in the mixr rewrite which will hopefully come to Pie 0.9.1.
-        system.UpdateBuffer(_buffers[_currentBuffer], _vorbis.SongBuffer);
-        system.QueueBuffer(_buffers[_currentBuffer], channel);
+        
+        _device.UpdateBuffer(_buffers[_currentBuffer],
+            new AudioFormat(DataType.I16, (uint) _vorbis.SampleRate, (byte) _vorbis.Channels), _vorbis.SongBuffer[..(_vorbis.Decoded * _vorbis.Channels)]);
+        _device.QueueBuffer(_buffers[_currentBuffer], voice);
 
         _currentBuffer++;
         if (_currentBuffer >= _buffers.Length)
             _currentBuffer = 0;
     }
 
-    public void Play(ushort voice, in ChannelProperties properties)
+    public void Play(ushort voice, in PlayProperties properties)
     {
         _voice = voice;
         
@@ -65,11 +62,11 @@ public class VorbisPlayer : IDisposable
 
     public void Dispose()
     {
-        _device.Stop(_voice);
+        _device.SetVoiceState(_voice, PlayState.Stopped);
         _device.BufferFinished -= DeviceOnBufferFinished;
         
         foreach (AudioBuffer buffer in _buffers)
-            _device.DeleteBuffer(buffer);
+            _device.DestroyBuffer(buffer);
         
         _vorbis.Dispose();
     }

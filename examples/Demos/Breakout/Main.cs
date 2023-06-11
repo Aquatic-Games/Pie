@@ -4,6 +4,7 @@ using System.Numerics;
 using Common;
 using Pie;
 using Pie.Audio;
+using Pie.Audio.Stream;
 using Pie.Windowing;
 
 namespace Breakout;
@@ -42,12 +43,12 @@ public class Main : SampleApplication
 
         _texture = Utils.CreateTexture2D(GraphicsDevice, new Bitmap(new byte[] { 255, 255, 255, 255 }, new Size(1, 1)));
 
-        PCM hit = PCM.LoadWav("Content/Audio/hit.wav");
-        Hit = AudioDevice.CreateBuffer(new BufferDescription(DataType.Pcm, hit.Format), hit.Data);
+        using Wav hit = Wav.FromFile("Content/Audio/hit.wav");
+        Hit = AudioDevice.CreateBuffer(new BufferDescription(hit.Format), hit.GetPcm());
 
         _vorbis = new VorbisPlayer(AudioDevice, "Content/Audio/excite.ogg");
         //_vorbis = new VorbisPlayer(AudioDevice, "/home/skye/Music/Cave.ogg");
-        _vorbis.Play(0, new ChannelProperties(speed: 1.3));
+        _vorbis.Play(0, new PlayProperties(speed: 1.0));
 
         _ball = new Ball(_texture)
         {

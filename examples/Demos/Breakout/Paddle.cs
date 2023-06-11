@@ -35,7 +35,7 @@ public class Paddle : Entity
         if (CollisionRect.IntersectsWith(_ball.CollisionRect))
         {
             _ball.Velocity.Y *= -1;
-            main.AudioDevice.PlayBuffer(main.Hit, 1, new ChannelProperties());
+            main.AudioDevice.PlayBuffer(main.Hit, 1, new PlayProperties());
         }
     }
 
