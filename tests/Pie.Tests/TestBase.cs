@@ -35,14 +35,14 @@ public abstract class TestBase : IDisposable
         
         PieLog.DebugLog += DebugLog;
 
-        ImageResult result = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/pie_1f967.png"), ColorComponents.RedGreenBlueAlpha);
-        Icon icon = new Icon((uint) result.Width, (uint) result.Height, result.Data);
+        //ImageResult result = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/pie_1f967.png"), ColorComponents.RedGreenBlueAlpha);
+       // Icon icon = new Icon((uint) result.Width, (uint) result.Height, result.Data);
 
-        Window = new WindowBuilder()
+       Window = new WindowBuilder()
             .Size(1280, 720)
             //.FullscreenMode(FullscreenMode.ExclusiveFullscreen)
             .Title("A test with SDL!")
-            .Icon(icon)
+            //.Icon(icon)
             .Resizable()
             //.Hidden()
             //.Borderless()
@@ -53,6 +53,9 @@ public abstract class TestBase : IDisposable
         Initialize();
 
         bool wantsClose = false;
+        
+        uint numFrames = 0;
+        double currentTime = 0.0;
 
         Stopwatch sw = Stopwatch.StartNew();
         while (!wantsClose)
@@ -116,8 +119,19 @@ public abstract class TestBase : IDisposable
                 }
             }
 
-            double dt = sw.Elapsed.TotalSeconds;
+            numFrames++;
             
+            double dt = sw.Elapsed.TotalSeconds;
+            currentTime += dt;
+
+            if (currentTime >= 1.0)
+            {
+                currentTime = currentTime - 1.0;
+                
+                Console.WriteLine(numFrames);
+                numFrames = 0;
+            }
+
             Update(dt);
             Draw(dt);
             

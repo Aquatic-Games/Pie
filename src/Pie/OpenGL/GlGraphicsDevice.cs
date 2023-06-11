@@ -471,16 +471,16 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         DebugType debugType = (DebugType) type;
         LogType logType = debugType switch
         {
-            DebugType.DontCare => LogType.Debug,
+            DebugType.DontCare => LogType.Verbose,
             DebugType.DebugTypeError => LogType.Critical,
             DebugType.DebugTypeDeprecatedBehavior => LogType.Error,
             DebugType.DebugTypeUndefinedBehavior => LogType.Critical,
             DebugType.DebugTypePortability => LogType.Warning,
             DebugType.DebugTypePerformance => LogType.Warning,
-            DebugType.DebugTypeOther => LogType.Debug,
+            DebugType.DebugTypeOther => LogType.Verbose,
             DebugType.DebugTypeMarker => LogType.Debug,
-            DebugType.DebugTypePushGroup => LogType.Debug,
-            DebugType.DebugTypePopGroup => LogType.Debug,
+            DebugType.DebugTypePushGroup => LogType.Verbose,
+            DebugType.DebugTypePopGroup => LogType.Verbose,
             _ => throw new ArgumentOutOfRangeException()
         };
         
