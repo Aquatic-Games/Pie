@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using Pie.Audio.Native;
 
 namespace Pie.Audio;
@@ -6,10 +7,20 @@ namespace Pie.Audio;
 public unsafe class AudioSystem : IDisposable
 {
     private void* _system;
+
+    private GCHandle _callbackHandle;
+
+    public event OnBufferFinished BufferFinished;
     
     public AudioSystem(uint sampleRate, ushort voices)
     {
         _system = Mixr.CreateSystem(sampleRate, voices);
+
+        OnBufferFinished finishedCallback = new OnBufferFinished(BufferFinishedCallback);
+        _callbackHandle = GCHandle.Alloc(finishedCallback);
+
+        Mixr.SetBufferFinishedCallback(_system,
+            (delegate*<AudioBuffer, ushort, void>) Marshal.GetFunctionPointerForDelegate(finishedCallback));
     }
 
     public AudioBuffer CreateBuffer<T>(in BufferDescription description, T[] data) where T : unmanaged
@@ -20,7 +31,7 @@ public unsafe class AudioSystem : IDisposable
         else
         {
             fixed (void* ptr = data)
-                CheckResult(Mixr.CreateBuffer(_system, description, ptr, (nuint) data.Length, &buffer));
+                CheckResult(Mixr.CreateBuffer(_system, description, ptr, (nuint) (data.Length * sizeof(T)), &buffer));
         }
 
         return buffer;
@@ -38,13 +49,18 @@ public unsafe class AudioSystem : IDisposable
         else
         {
             fixed (void* ptr = data)
-                CheckResult(Mixr.UpdateBuffer(_system, buffer, format, ptr, (nuint) data.Length));
+                CheckResult(Mixr.UpdateBuffer(_system, buffer, format, ptr, (nuint) (data.Length * sizeof(T))));
         }
     }
 
     public void PlayBuffer(in AudioBuffer buffer, ushort voice, in PlayProperties properties)
     {
         CheckResult(Mixr.PlayBuffer(_system, buffer, voice, properties));
+    }
+
+    public void QueueBuffer(in AudioBuffer buffer, ushort voice)
+    {
+        CheckResult(Mixr.QueueBuffer(_system, buffer, voice));
     }
 
     public PlayProperties GetPlayProperties(ushort voice)
@@ -113,6 +129,7 @@ public unsafe class AudioSystem : IDisposable
     public virtual void Dispose()
     {
         Mixr.DestroySystem(_system);
+        _callbackHandle.Free();
     }
 
     private static void CheckResult(MixrResult result)
@@ -120,4 +137,11 @@ public unsafe class AudioSystem : IDisposable
         if (result != MixrResult.Ok)
             throw new Exception($"Mixr operation failed. Result: {result}");
     }
+
+    private void BufferFinishedCallback(AudioBuffer buffer, ushort channel)
+    {
+        BufferFinished?.Invoke(buffer, channel);
+    }
+
+    public delegate void OnBufferFinished(AudioBuffer buffer, ushort channel);
 }

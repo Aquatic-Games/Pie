@@ -21,6 +21,9 @@ public static unsafe partial class Mixr
 
     [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxPlayBuffer", ExactSpelling = true)]
     public static extern MixrResult PlayBuffer(void* system, AudioBuffer buffer, [NativeTypeName("uint16_t")] ushort voice, PlayProperties properties);
+    
+    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxQueueBuffer", ExactSpelling = true)]
+    public static extern MixrResult QueueBuffer(void* system, AudioBuffer buffer, [NativeTypeName("uint16_t")] ushort voice);
 
     [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxGetPlayProperties", ExactSpelling = true)]
     public static extern MixrResult GetPlayProperties(void* system, [NativeTypeName("uint16_t")] ushort voice, PlayProperties* properties);
@@ -45,6 +48,9 @@ public static unsafe partial class Mixr
 
     [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxSetPosition", ExactSpelling = true)]
     public static extern MixrResult SetPosition(void* system, [NativeTypeName("uint16_t")] ushort voice, double position);
+    
+    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxSetBufferFinishedCallback", ExactSpelling = true)]
+    public static extern void SetBufferFinishedCallback(void* system, delegate*<AudioBuffer, ushort, void> callback);
 
     [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxReadBufferStereoF32", ExactSpelling = true)]
     public static extern void ReadBufferStereoF32(void* system, float* buffer, [NativeTypeName("uintptr_t")] nuint length);
