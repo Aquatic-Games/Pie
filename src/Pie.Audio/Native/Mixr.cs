@@ -54,6 +54,9 @@ public static unsafe partial class Mixr
 
     [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxReadBufferStereoF32", ExactSpelling = true)]
     public static extern void ReadBufferStereoF32(void* system, float* buffer, [NativeTypeName("uintptr_t")] nuint length);
+    
+    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxGetNumVoices", ExactSpelling = true)]
+    public static extern ushort GetNumVoices(void* system);
 
     [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxStreamLoadWav", ExactSpelling = true)]
     public static extern MixrResult StreamLoadWav([NativeTypeName("const char *")] sbyte* path, void** stream);

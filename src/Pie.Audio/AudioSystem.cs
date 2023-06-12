@@ -11,7 +11,9 @@ public unsafe class AudioSystem : IDisposable
     private GCHandle _callbackHandle;
 
     public event OnBufferFinished BufferFinished;
-    
+
+    public ushort NumVoices => Mixr.GetNumVoices(_system);
+
     public AudioSystem(uint sampleRate, ushort voices)
     {
         _system = Mixr.CreateSystem(sampleRate, voices);
