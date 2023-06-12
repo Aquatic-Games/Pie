@@ -45,10 +45,12 @@ public class AudioDevice : AudioSystem
 
     public override void Dispose()
     {
-        base.Dispose();
-        
         Sdl.CloseAudioDevice(_device);
         Sdl.QuitSubSystem(Sdl.InitAudio);
+        
+        // Must call base.Dispose here as otherwise the AudioSystem will be disposed before SDL's audio device,
+        // potentially causing issues.
+        base.Dispose();
         
         if (Sdl.WasInit(0) == 0)
             Sdl.Quit();

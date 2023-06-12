@@ -56,6 +56,8 @@ public abstract class SampleApplication : IDisposable
         while (!_wantsClose)
         {
             Input.NewFrame();
+
+            bool focused = Window.Focused;
             while (Window.PollEvent(out IWindowEvent winEvent))
             {
                 switch (winEvent)
@@ -70,6 +72,9 @@ public abstract class SampleApplication : IDisposable
                         break;
                     
                     case KeyEvent key:
+                        if (!focused)
+                            break;
+                        
                         switch (key.EventType)
                         {
                             case WindowEventType.KeyDown:
@@ -83,6 +88,9 @@ public abstract class SampleApplication : IDisposable
                         break;
                     
                     case MouseMoveEvent mouseMove:
+                        if (!focused)
+                            break;
+                        
                         Input.AddMouseMove(mouseMove);
                         break;
                 }

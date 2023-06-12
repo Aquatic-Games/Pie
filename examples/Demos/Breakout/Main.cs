@@ -47,8 +47,7 @@ public class Main : SampleApplication
         Hit = AudioDevice.CreateBuffer(new BufferDescription(hit.Format), hit.GetPcm());
 
         _vorbis = new VorbisPlayer(AudioDevice, "Content/Audio/excite.ogg");
-        //_vorbis = new VorbisPlayer(AudioDevice, "/home/skye/Music/Cave.ogg");
-        _vorbis.Play(0, new PlayProperties(speed: 1.0));
+        _vorbis.Play(0, new PlayProperties());
 
         _ball = new Ball(_texture)
         {
