@@ -180,6 +180,9 @@ public static unsafe class Sdl
     
     [DllImport(SdlName, EntryPoint = "SDL_PauseAudioDevice")]
     public static extern void PauseAudioDevice(uint dev, int pauseOn);
+
+    [DllImport(SdlName, EntryPoint = "SDL_ShowSimpleMessageBox")]
+    public static extern int ShowSimpleMessageBox(uint flags, sbyte* title, sbyte* message, void* window);
     
     #region Safe helpers
 

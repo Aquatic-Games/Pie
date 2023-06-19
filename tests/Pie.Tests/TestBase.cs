@@ -77,6 +77,9 @@ public abstract class TestBase : IDisposable
                         KeyEvent ke = (KeyEvent) evnt;
                         Console.WriteLine(ke.EventType + ": " + ke.Key + "(" + ke.Scancode + ")");
 
+                        if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.Enter)
+                            MessageBox.Show(MessageBox.MessageBoxType.Warning, "Trolled", "You just got do the trolled");
+                        
                         if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.Space)
                             Window.Minimize();
                         
