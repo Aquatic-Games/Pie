@@ -185,14 +185,7 @@ public sealed unsafe class Window : IDisposable
 
         Point position = builder.WindowPosition ?? new Point((int) Sdl.WindowposCentered, (int) Sdl.WindowposCentered);
 
-        SdlWindowFlags flags = builder.WindowApi switch
-        {
-            GraphicsApi.OpenGL => SdlWindowFlags.OpenGL,
-            GraphicsApi.D3D11 => SdlWindowFlags.None,
-            GraphicsApi.Vulkan => SdlWindowFlags.Vulkan,
-            GraphicsApi.Null => SdlWindowFlags.None,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+        SdlWindowFlags flags = SdlWindowFlags.None;
 
         if (builder.WindowResizable)
             flags |= SdlWindowFlags.Resizable;
@@ -209,11 +202,28 @@ public sealed unsafe class Window : IDisposable
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        if (builder.WindowApi == GraphicsApi.OpenGL)
+        switch (builder.WindowApi)
         {
-            Sdl.GLSetAttribute(SdlGlAttr.ContextMajorVersion, 4);
-            Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 3);
-            Sdl.GLSetAttribute(SdlGlAttr.ContextProfileMask, 1); // use core profile.
+            case GraphicsApi.OpenGL:
+                flags |= SdlWindowFlags.OpenGL;
+                Sdl.GLSetAttribute(SdlGlAttr.ContextMajorVersion, 4);
+                Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 3);
+                Sdl.GLSetAttribute(SdlGlAttr.ContextProfileMask, (int) SdlGlProfile.Core);
+                break;
+            case GraphicsApi.OpenGLES:
+                flags |= SdlWindowFlags.OpenGL;
+                Sdl.GLSetAttribute(SdlGlAttr.ContextMajorVersion, 3);
+                Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 0);
+                Sdl.GLSetAttribute(SdlGlAttr.ContextProfileMask, (int) SdlGlProfile.ES);
+                break;
+            case GraphicsApi.Vulkan:
+                flags |= SdlWindowFlags.Vulkan;
+                break;
+            case GraphicsApi.D3D11:
+            case GraphicsApi.Null:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         fixed (byte* title = Encoding.UTF8.GetBytes(builder.WindowTitle))
@@ -243,7 +253,7 @@ public sealed unsafe class Window : IDisposable
             Sdl.SetWindowIcon(_window, surface);
         }
 
-        if (builder.WindowApi == GraphicsApi.OpenGL)
+        if (builder.WindowApi is GraphicsApi.OpenGL or GraphicsApi.OpenGLES)
         {
             _glContext = Sdl.GLCreateContext(_window);
             if (_glContext == null)
@@ -277,11 +287,12 @@ public sealed unsafe class Window : IDisposable
         switch (_api)
         {
             case GraphicsApi.OpenGL:
+            case GraphicsApi.OpenGLES:
                 return GraphicsDevice.CreateOpenGL(new PieGlContext(Sdl.GLGetProcAddress, i =>
                 {
                     Sdl.GLSetSwapInterval(i);
                     Sdl.GLSwapWindow(_window);
-                }), size, options ?? new GraphicsDeviceOptions());
+                }), size, _api == GraphicsApi.OpenGLES, options ?? new GraphicsDeviceOptions());
             
             case GraphicsApi.D3D11:
                 SdlSysWmInfo info = new SdlSysWmInfo();
@@ -290,7 +301,7 @@ public sealed unsafe class Window : IDisposable
                     options ?? new GraphicsDeviceOptions());
 
             case GraphicsApi.Vulkan:
-                throw new NotSupportedException("Vulkan does not actually exist and this API should be removed.");
+                throw new NotSupportedException("Vulkan implementation is not yet in a state where it is supported.");
                 break;
             case GraphicsApi.Null:
                 return GraphicsDevice.CreateNull(size, options ?? new GraphicsDeviceOptions());

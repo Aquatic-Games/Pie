@@ -12,19 +12,16 @@ public static class SilkPie
     public static IWindow CreateWindow(ref WindowOptions options, GraphicsApi api)
     {
         options.ShouldSwapAutomatically = false;
-        switch (api)
+        options.API = api switch
         {
-            case GraphicsApi.OpenGL:
-                options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.ForwardCompatible,
-                    new APIVersion(3, 3));
-                break;
-            case GraphicsApi.D3D11:
-                options.API = GraphicsAPI.None;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(api), api, null);
-        }
-        
+            GraphicsApi.OpenGL => new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Default, new APIVersion(4, 3)),
+            GraphicsApi.OpenGLES => new GraphicsAPI(ContextAPI.OpenGLES, ContextProfile.Core, ContextFlags.Default, new APIVersion(3, 0)),
+            GraphicsApi.Vulkan => new GraphicsAPI(ContextAPI.Vulkan, new APIVersion(1, 3)),
+            GraphicsApi.D3D11 => GraphicsAPI.None,
+            GraphicsApi.Null => GraphicsAPI.None,
+            _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)
+        };
+
         return Window.Create(options);
     }
 
@@ -46,13 +43,14 @@ public static class SilkPie
         switch (api)
         {
             case GraphicsApi.OpenGL:
+            case GraphicsApi.OpenGLES:
                 IGLContext glContext = window.GLContext;
                 PieGlContext context = new PieGlContext(s => glContext.GetProcAddress(s), i =>
                 {
                     glContext.SwapInterval(i);
                     glContext.SwapBuffers();
                 });
-                return GraphicsDevice.CreateOpenGL(context, winSize, options);
+                return GraphicsDevice.CreateOpenGL(context, winSize, api == GraphicsApi.OpenGLES, options);
             case GraphicsApi.D3D11:
                 return GraphicsDevice.CreateD3D11(window.Native!.Win32!.Value.Hwnd, winSize, options);
             default:

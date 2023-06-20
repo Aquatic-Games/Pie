@@ -14,6 +14,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     private PieGlContext _context;
     internal static GL Gl;
     internal static bool Debug;
+    internal static bool IsES;
     
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
@@ -35,13 +36,14 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
 
     private int _defaultFramebufferId;
     
-    public unsafe GlGraphicsDevice(PieGlContext context, Size winSize, GraphicsDeviceOptions options)
+    public unsafe GlGraphicsDevice(bool es, PieGlContext context, Size winSize, GraphicsDeviceOptions options)
     {
         _context = context;
         Gl = GL.GetApi(context.GetProcFunc);
         _vao = Gl.GenVertexArray();
         Gl.BindVertexArray(_vao);
         Debug = options.Debug;
+        IsES = es;
         
         Swapchain = new Swapchain()
         {

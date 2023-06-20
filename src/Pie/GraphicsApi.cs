@@ -8,7 +8,7 @@ namespace Pie;
 public enum GraphicsApi
 {
     /// <summary>
-    /// OpenGL, GLSL version 430.
+    /// OpenGL 4.3, GLSL version 430.
     /// </summary>
     OpenGL,
 
@@ -18,14 +18,19 @@ public enum GraphicsApi
     D3D11,
     
     /// <summary>
-    /// !EXPERIMENTAL! Vulkan
+    /// !EXPERIMENTAL! Vulkan 1.3
     /// </summary>
     Vulkan,
 
     /// <summary>
-    /// Null
+    /// Null device. Does not do any rendering.
     /// </summary>
-    Null
+    Null,
+    
+    /// <summary>
+    /// OpenGL ES 3.0, ESSL version 300.
+    /// </summary>
+    OpenGLES
 }
 
 public static class GraphicsApiExtensions

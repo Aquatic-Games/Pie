@@ -453,11 +453,12 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="context">The GL context.</param>
     /// <param name="winSize">The size of the window on startup.</param>
+    /// <param name="isEs">If enabled, the device will behave like it has been created with an OpenGL ES 3.0 context.</param>
     /// <param name="options">The options for this graphics device, if any.</param>
     /// <returns>The created graphics device.</returns>
-    public static GraphicsDevice CreateOpenGL(PieGlContext context, Size winSize, GraphicsDeviceOptions options = default)
+    public static GraphicsDevice CreateOpenGL(PieGlContext context, Size winSize, bool isEs, GraphicsDeviceOptions options = default)
     {
-        GraphicsDevice device = new GlGraphicsDevice(context, winSize, options);
+        GraphicsDevice device = new GlGraphicsDevice(isEs, context, winSize, options);
 
         if (options.Debug)
             return new DebugGraphicsDevice(device);
