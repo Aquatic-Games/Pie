@@ -5,13 +5,13 @@ namespace Pie.OpenGL;
 
 internal static class GlUtils
 {
-    internal static BufferAccessARB ToGlMapMode(this MapMode mode)
+    internal static MapBufferAccessMask ToGlMapMode(this MapMode mode)
     {
         return mode switch
         {
-            MapMode.Read => BufferAccessARB.ReadOnly,
-            MapMode.Write => BufferAccessARB.WriteOnly,
-            MapMode.ReadWrite => BufferAccessARB.ReadWrite,
+            MapMode.Read => MapBufferAccessMask.ReadBit,
+            MapMode.Write => MapBufferAccessMask.WriteBit,
+            MapMode.ReadWrite => MapBufferAccessMask.ReadBit | MapBufferAccessMask.WriteBit,
             _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
         };
     }

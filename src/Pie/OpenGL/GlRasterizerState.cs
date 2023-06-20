@@ -62,7 +62,8 @@ internal sealed class GlRasterizerState : RasterizerState
         
         Gl.FrontFace(_frontFace);
 
-        Gl.PolygonMode(TriangleFace.FrontAndBack, _mode);
+        if (!IsES)
+            Gl.PolygonMode(TriangleFace.FrontAndBack, _mode);
         
         if (_scissor)
             Gl.Enable(EnableCap.ScissorTest);

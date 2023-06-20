@@ -32,6 +32,9 @@ internal sealed class GlTexture : Texture
 
     public static unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
+        if (IsES && description.TextureType == TextureType.Texture1D)
+            throw new NotSupportedException("OpenGL ES does not support 1D textures.");
+        
         bool isRenderbuffer = (description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer &&
                               (description.Usage & TextureUsage.ShaderResource) != TextureUsage.ShaderResource;
 

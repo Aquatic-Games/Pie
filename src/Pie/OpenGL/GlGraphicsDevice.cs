@@ -129,28 +129,28 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
         fixed (void* dat = data)
-            return GlGraphicsBuffer.CreateBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), dat, dynamic);
+            return new GlGraphicsBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), dat, dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
     {
         fixed (void* dat = new T[] { data })
-            return GlGraphicsBuffer.CreateBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
+            return new GlGraphicsBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
     {
-        return GlGraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, null, dynamic);
+        return new GlGraphicsBuffer(bufferType, sizeInBytes, null, dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
-        return GlGraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);
+        return new GlGraphicsBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);
     }
 
     public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
-        return GlGraphicsBuffer.CreateBuffer(bufferType, sizeInBytes, data, dynamic);
+        return new GlGraphicsBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
     public override unsafe Texture CreateTexture(TextureDescription description)
@@ -261,7 +261,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     {
         GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
         Gl.BindBuffer(glBuf.Target, glBuf.Handle);
-        return (IntPtr) Gl.MapBuffer(glBuf.Target, mode.ToGlMapMode());
+        return (IntPtr) Gl.MapBufferRange(glBuf.Target, 0, glBuf.SizeInBytes, mode.ToGlMapMode());
     }
 
     public override void UnmapBuffer(GraphicsBuffer buffer)

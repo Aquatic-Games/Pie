@@ -10,33 +10,28 @@ internal sealed class GlGraphicsBuffer : GraphicsBuffer
 
     public readonly uint Handle;
     public readonly BufferTargetARB Target;
+    public readonly uint SizeInBytes;
 
-    public GlGraphicsBuffer(uint handle, BufferTargetARB target)
+    public unsafe GlGraphicsBuffer(BufferType type, uint sizeInBytes, void* data, bool dynamic)
     {
-        Handle = handle;
-        Target = target;
-    }
-
-    public static unsafe GraphicsBuffer CreateBuffer(BufferType type, uint sizeInBytes, void* data, bool dynamic)
-    {
-        BufferTargetARB target;
-
+        SizeInBytes = sizeInBytes;
+        
         switch (type)
         {
             case BufferType.VertexBuffer:
-                target = BufferTargetARB.ArrayBuffer;
+                Target = BufferTargetARB.ArrayBuffer;
                 PieMetrics.VertexBufferCount++;
                 break;
             case BufferType.IndexBuffer:
-                target = BufferTargetARB.ElementArrayBuffer;
+                Target = BufferTargetARB.ElementArrayBuffer;
                 PieMetrics.IndexBufferCount++;
                 break;
             case BufferType.UniformBuffer:
-                target = BufferTargetARB.UniformBuffer;
+                Target = BufferTargetARB.UniformBuffer;
                 PieMetrics.UniformBufferCount++;
                 break;
             case BufferType.ShaderStorageBuffer:
-                target = BufferTargetARB.ShaderStorageBuffer;
+                Target = BufferTargetARB.ShaderStorageBuffer;
                 // TODO: Shader storage buffer count?
                 break;
             default:
@@ -45,11 +40,9 @@ internal sealed class GlGraphicsBuffer : GraphicsBuffer
 
         BufferUsageARB usage = dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw;
 
-        uint handle = Gl.GenBuffer();
-        Gl.BindBuffer(target, handle);
-        Gl.BufferData(target, sizeInBytes, data, usage);
-
-        return new GlGraphicsBuffer(handle, target);
+        Handle = Gl.GenBuffer();
+        Gl.BindBuffer(Target, Handle);
+        Gl.BufferData(Target, sizeInBytes, data, usage);
     }
 
     public unsafe void Update(uint offsetInBytes, uint sizeInBytes, void* data)
