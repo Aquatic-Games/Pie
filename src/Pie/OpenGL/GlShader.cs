@@ -35,7 +35,7 @@ internal sealed class GlShader : Shader
             uint handle = Gl.CreateShader(type);
             attachments[i].TempHandle = handle;
             
-            CompilerResult result = Compiler.FromSpirv(Language.GLSL, attachments[i].Spirv, constants);
+            CompilerResult result = Compiler.FromSpirv(IsES ? Language.ESSL : Language.GLSL, attachments[i].Spirv, constants);
             if (!result.IsSuccess)
                 throw new PieException(result.Error);
             

@@ -25,22 +25,15 @@ public struct CompilerResult
     public readonly string Error;
 
     /// <summary>
-    /// The <see cref="ReflectionInfo"/>, if any.
-    /// </summary>
-    public readonly ReflectionInfo? ReflectionInfo;
-
-    /// <summary>
     /// Create a new <see cref="CompilerResult"/>.
     /// </summary>
     /// <param name="result">The result, if any. This should be <see langword="null" /> if <paramref name="isSuccess"/> is <see langword="false" />.</param>
     /// <param name="isSuccess">Whether or not the result was a success.</param>
     /// <param name="error">An error string, if any. This should be <see langword="null" /> or empty if <paramref name="isSuccess"/> is <see langword="true" />.</param>
-    /// <param name="reflectionInfo">The <see cref="ReflectionInfo"/>, if any.</param>
-    public CompilerResult(byte[] result, bool isSuccess, string error, ReflectionInfo? reflectionInfo)
+    public CompilerResult(byte[] result, bool isSuccess, string error)
     {
         Result = result;
         IsSuccess = isSuccess;
         Error = error;
-        ReflectionInfo = reflectionInfo;
     }
 }

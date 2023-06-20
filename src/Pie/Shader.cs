@@ -14,11 +14,6 @@ public abstract class Shader : IDisposable
     /// Will return <see langword="true" /> when this <see cref="Shader"/> has been disposed.
     /// </summary>
     public abstract bool IsDisposed { get; protected set; }
-    
-    /// <summary>
-    /// The <see cref="ShaderCompiler.ReflectionInfo"/> of this <see cref="Shader"/>, if any.
-    /// </summary>
-    public ReflectionInfo[] ReflectionInfo { get; set; }
 
     /// <summary>
     /// Dispose of this <see cref="Shader"/>.

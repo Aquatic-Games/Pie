@@ -44,6 +44,8 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         Gl.BindVertexArray(_vao);
         Debug = options.Debug;
         IsES = es;
+
+        Api = IsES ? GraphicsApi.OpenGLES : GraphicsApi.OpenGL;
         
         Swapchain = new Swapchain()
         {
@@ -64,7 +66,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         }
     }
     
-    public override GraphicsApi Api => GraphicsApi.OpenGL;
+    public override GraphicsApi Api { get; }
     public override Swapchain Swapchain { get; }
     public override GraphicsAdapter Adapter { get; }
 

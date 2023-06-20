@@ -19,11 +19,10 @@ public static class Compiler
     /// <param name="language">The source's shading language.</param>
     /// <param name="source">The source code, in ASCII representation.</param>
     /// <param name="entryPoint">The entry point of the shader. Usually "main" for GLSL.</param>
-    /// <param name="reflect">Whether or not to return <see cref="ReflectionInfo"/>. This causes a slight performance
     /// hit, so use wisely.</param>
     /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
-    public static unsafe CompilerResult ToSpirv(Stage stage, Language language, byte[] source, string entryPoint, bool reflect = false)
+    public static unsafe CompilerResult ToSpirv(Stage stage, Language language, byte[] source, string entryPoint)
     {
         shaderc_compiler* compiler = shaderc_compiler_initialize();
         shaderc_compile_options* options = shaderc_compile_options_initialize();
@@ -33,6 +32,7 @@ public static class Compiler
         {
             Language.GLSL => shaderc_source_language.shaderc_source_language_glsl,
             Language.HLSL => shaderc_source_language.shaderc_source_language_hlsl,
+            Language.ESSL => shaderc_source_language.shaderc_source_language_glsl,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
         };
 
@@ -64,8 +64,7 @@ public static class Compiler
             shaderc_result_release(result);
             shaderc_compiler_release(compiler);
 
-            return new CompilerResult(null, false, $"Failed to convert {stage.ToString().ToLower()} shader: " + error,
-                null);
+            return new CompilerResult(null, false, $"Failed to convert {stage.ToString().ToLower()} shader: " + error);
         }
 
         sbyte* bytes = shaderc_result_get_bytes(result);
@@ -75,15 +74,11 @@ public static class Compiler
         
         fixed (byte* cmpPtr = compiled)
             Unsafe.CopyBlock(cmpPtr, bytes, (uint) length);
-        
-        ReflectionInfo? info = null;
-        if (reflect)
-            info = ReflectionInfo.FromJson(Encoding.UTF8.GetString(SpirvToShaderCode(spvc_backend.SPVC_BACKEND_JSON, (byte*) bytes, length, null).Result), stage);
-        
+
         shaderc_result_release(result);
         shaderc_compiler_release(compiler);
 
-        return new CompilerResult(compiled, true, string.Empty, info);
+        return new CompilerResult(compiled, true, string.Empty);
     }
 
     private static sbyte[] GetFromString(string text)
@@ -96,7 +91,7 @@ public static class Compiler
         return Marshal.PtrToStringAnsi((IntPtr) text);
     }
 
-    private static unsafe CompilerResult SpirvToShaderCode(spvc_backend backend, byte* result, nuint length, SpecializationConstant[] constants)
+    private static unsafe CompilerResult SpirvToShaderCode(Language language, byte* result, nuint length, SpecializationConstant[] constants)
     {
         spvc_context_s* context;
         Spvc.context_create(&context);
@@ -108,28 +103,38 @@ public static class Compiler
             string error = ConvertToString(Spvc.context_get_last_error_string(context));
             Spvc.context_destroy(context);
 
-            return new CompilerResult(null, false, error, null);
+            return new CompilerResult(null, false, error);
         }
+
+        spvc_backend backend = language switch
+        {
+            Language.GLSL => spvc_backend.SPVC_BACKEND_GLSL,
+            Language.HLSL => spvc_backend.SPVC_BACKEND_HLSL,
+            Language.ESSL => spvc_backend.SPVC_BACKEND_GLSL,
+            _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
+        };
         
         spvc_compiler_s* compl;
         Spvc.context_create_compiler(context, backend, ir, spvc_capture_mode.SPVC_CAPTURE_MODE_COPY, &compl);
 
         spvc_compiler_options_s* options;
         Spvc.compiler_create_compiler_options(compl, &options);
-        switch (backend)
+        switch (language)
         {
-            case spvc_backend.SPVC_BACKEND_GLSL:
+            case Language.GLSL:
                 Spvc.compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 430);
                 Spvc.compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, Spvc.SPVC_FALSE);
                 break;
-            case spvc_backend.SPVC_BACKEND_HLSL:
+            case Language.ESSL:
+                Spvc.compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 300);
+                Spvc.compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, Spvc.SPVC_TRUE);
+                break;
+            case Language.HLSL:
                 Spvc.compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_SHADER_MODEL,
                     50);
                 Spvc.compiler_options_set_bool(options,
                     spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_FLATTEN_MATRIX_VERTEX_INPUT_SEMANTICS, Spvc.SPVC_TRUE);
                  break;
-            case spvc_backend.SPVC_BACKEND_JSON:
-                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(backend), backend, null);
         }
@@ -213,14 +218,14 @@ public static class Compiler
             string error = ConvertToString(Spvc.context_get_last_error_string(context));
             Spvc.context_destroy(context);
 
-            return new CompilerResult(null, false, error, null);
+            return new CompilerResult(null, false, error);
         }
         
         byte[] compiled = Encoding.UTF8.GetBytes(ConvertToString(compiledResult));
         
         Spvc.context_destroy(context);
 
-        return new CompilerResult(compiled, true, string.Empty, null);
+        return new CompilerResult(compiled, true, string.Empty);
     }
 
     /// <summary>
@@ -234,15 +239,8 @@ public static class Compiler
     {
         CompilerResult result;
 
-        spvc_backend backend = language switch
-        {
-            Language.GLSL => spvc_backend.SPVC_BACKEND_GLSL,
-            Language.HLSL => spvc_backend.SPVC_BACKEND_HLSL,
-            _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-        };
-
         fixed (byte* sPtr = spirv)
-            result = SpirvToShaderCode(backend, sPtr, (nuint) spirv.Length, constants);
+            result = SpirvToShaderCode(language, sPtr, (nuint) spirv.Length, constants);
 
         return result;
     }
