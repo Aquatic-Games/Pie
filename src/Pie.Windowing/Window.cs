@@ -243,10 +243,16 @@ public sealed unsafe class Window : IDisposable
             Sdl.SetWindowIcon(_window, surface);
         }
 
-        _glContext = Sdl.GLCreateContext(_window);
+        if (builder.WindowApi == GraphicsApi.OpenGL)
+        {
+            _glContext = Sdl.GLCreateContext(_window);
+            if (_glContext == null)
+                throw new PieException($"Failed to create GL context. {Sdl.GetErrorS()}");
 
-        // Juuust make sure the context is current, even though it should already be.
-        Sdl.GLMakeCurrent(_window, _glContext);
+            // Juuust make sure the context is current, even though it should already be.
+            if (Sdl.GLMakeCurrent(_window, _glContext) < 0)
+                throw new PieException($"Failed to make GL context current. {Sdl.GetErrorS()}");
+        }
 
         _api = builder.WindowApi;
     }
