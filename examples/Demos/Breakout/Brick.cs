@@ -10,8 +10,10 @@ public class Brick : Entity
     private Texture _texture;
     private Ball _ball;
 
+    private bool _hasHit;
+
     public int NumHits;
-    
+
     public Brick(Texture texture, Ball ball)
     {
         _texture = texture;
@@ -24,11 +26,19 @@ public class Brick : Entity
 
         if (CollisionRect.IntersectsWith(_ball.CollisionRect))
         {
+            if (_ball.HasHit) return;
+            
             _ball.Velocity.Y *= -1;
+            _ball.HasHit = true;
+            _hasHit = true;
             main.AudioDevice.PlayBuffer(main.Hit, 1, new PlayProperties(speed: 0.4));
             NumHits--;
             if (NumHits <= 0)
                 ShouldDestroy = true;
+        }
+        else
+        {
+            _hasHit = false;
         }
     }
 

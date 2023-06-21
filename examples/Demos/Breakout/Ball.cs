@@ -11,6 +11,8 @@ public class Ball : Entity
     private Texture _texture;
 
     public Vector2 Velocity;
+
+    public bool HasHit;
     
     public Ball(Texture texture)
     {
@@ -20,6 +22,8 @@ public class Ball : Entity
     public override void Update(double dt, Main main)
     {
         base.Update(dt, main);
+
+        HasHit = false;
 
         if (!main.IsPlaying)
             return;
