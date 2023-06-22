@@ -2,16 +2,22 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Numerics;
+using System.Reflection;
+using System.Text;
+using Common;
 using Pie;
 using Pie.ShaderCompiler;
 using Pie.Utils;
 
 namespace Breakout;
 
-// A very simple sprite renderer. Just draws sprites as and when you ask it to.
+// Super simple sprite renderer.
+// Does not perform any batching.
+// Do note: If you are implementing a sprite renderer for yourself, I recommend using batching.
+// However, batching is beyond the scope of the demos as it is not a Pie specific feature.
 public class SpriteRenderer : IDisposable
 {
-    private GraphicsDevice _device;
+    public readonly GraphicsDevice Device;
 
     private GraphicsBuffer _vertexBuffer;
     private GraphicsBuffer _indexBuffer;
@@ -25,10 +31,11 @@ public class SpriteRenderer : IDisposable
     private DepthStencilState _depthStencilState;
     private RasterizerState _rasterizerState;
     private SamplerState _samplerState;
+    private BlendState _blendState;
 
-    public SpriteRenderer(GraphicsDevice device)
+    public SpriteRenderer(GraphicsDevice device, Size size)
     {
-        _device = device;
+        Device = device;
         
         VertexPositionTexture[] vertices = new[]
         {
@@ -47,7 +54,9 @@ public class SpriteRenderer : IDisposable
         _vertexBuffer = device.CreateBuffer(BufferType.VertexBuffer, vertices);
         _indexBuffer = device.CreateBuffer(BufferType.IndexBuffer, indices);
 
-        string hlslCode = File.ReadAllText("Content/Shaders/Sprite.hlsl");
+        string hlslCode =
+            Encoding.UTF8.GetString(Utils.LoadEmbeddedResource(Assembly.GetExecutingAssembly(),
+                "Common.Shaders.Sprite.hlsl"));
         _shader = device.CreateShader(new[]
         {
             new ShaderAttachment(ShaderStage.Vertex, hlslCode, Language.HLSL, "VertexShader"),
@@ -60,12 +69,13 @@ public class SpriteRenderer : IDisposable
         );
 
         _depthStencilState = device.CreateDepthStencilState(DepthStencilStateDescription.Disabled);
-        _rasterizerState = device.CreateRasterizerState(RasterizerStateDescription.CullNone);
+        _rasterizerState = device.CreateRasterizerState(RasterizerStateDescription.CullClockwise);
         _samplerState = device.CreateSamplerState(SamplerStateDescription.PointClamp);
+        _blendState = device.CreateBlendState(BlendStateDescription.NonPremultiplied);
 
         _projModel = new ProjModel()
         {
-            Projection = Matrix4x4.CreateOrthographicOffCenter(0, Main.Width, Main.Height, 0, -1, 1),
+            Projection = Matrix4x4.CreateOrthographicOffCenter(0, size.Width, size.Height, 0, -1, 1),
             Model = Matrix4x4.Identity,
             Tint = Vector4.One
         };
@@ -84,25 +94,18 @@ public class SpriteRenderer : IDisposable
         _projModel.Model = model;
         _projModel.Tint = tint.Normalize();
         
-        _device.UpdateBuffer(_projModelBuffer, 0, _projModel);
-        _device.SetUniformBuffer(0, _projModelBuffer);
+        Device.UpdateBuffer(_projModelBuffer, 0, _projModel);
+        Device.SetUniformBuffer(0, _projModelBuffer);
         
-        _device.SetPrimitiveType(PrimitiveType.TriangleList);
-        _device.SetShader(_shader);
-        _device.SetTexture(1, texture, _samplerState);
-        _device.SetDepthStencilState(_depthStencilState);
-        _device.SetRasterizerState(_rasterizerState);
-        _device.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _inputLayout);
-        _device.SetIndexBuffer(_indexBuffer, IndexType.UInt);
-        _device.DrawIndexed(6);
-    }
-    
-    public void Dispose()
-    {
-        _vertexBuffer.Dispose();
-        _indexBuffer.Dispose();
-        _shader.Dispose();
-        _inputLayout.Dispose();
+        Device.SetPrimitiveType(PrimitiveType.TriangleList);
+        Device.SetShader(_shader);
+        Device.SetTexture(1, texture, _samplerState);
+        Device.SetDepthStencilState(_depthStencilState);
+        Device.SetRasterizerState(_rasterizerState);
+        Device.SetBlendState(_blendState);
+        Device.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _inputLayout);
+        Device.SetIndexBuffer(_indexBuffer, IndexType.UInt);
+        Device.DrawIndexed(6);
     }
 
     private struct ProjModel
@@ -110,5 +113,18 @@ public class SpriteRenderer : IDisposable
         public Matrix4x4 Projection;
         public Matrix4x4 Model;
         public Vector4 Tint;
+    }
+
+    public void Dispose()
+    {
+        _vertexBuffer.Dispose();
+        _indexBuffer.Dispose();
+        _projModelBuffer.Dispose();
+        _shader.Dispose();
+        _inputLayout.Dispose();
+        _depthStencilState.Dispose();
+        _rasterizerState.Dispose();
+        _samplerState.Dispose();
+        _blendState.Dispose();
     }
 }

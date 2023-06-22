@@ -31,6 +31,7 @@ public class Brick : Entity
             
             _ball.Velocity.Y *= -1;
             _ball.HasHit = true;
+            _ball.Score += 10;
             _hasHit = true;
             main.AudioDevice.PlayBuffer(main.Hit, Utils.GetFreeChannel(main.AudioDevice), new PlayProperties(speed: 0.4));
             NumHits--;

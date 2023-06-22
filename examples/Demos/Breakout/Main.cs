@@ -29,6 +29,7 @@ public class Main : SampleApplication
     private Paddle _paddle;
 
     private Brick[] _bricks;
+    private Font _font;
     
     public Main() : base(new Size(Width, Height), "Breakout Demo") { }
 
@@ -37,7 +38,7 @@ public class Main : SampleApplication
         base.Initialize();
         
         Log(LogType.Debug, "Creating sprite renderer.");
-        _spriteRenderer = new SpriteRenderer(GraphicsDevice);
+        _spriteRenderer = new SpriteRenderer(GraphicsDevice, new Size(Width, Height));
 
         _background = Utils.CreateTexture2D(GraphicsDevice, "Content/Textures/bricks.png");
 
@@ -80,6 +81,8 @@ public class Main : SampleApplication
             }
         }
 
+        _font = new Font("/home/skye/Documents/Roboto-Regular.ttf");
+
         Window.CursorMode = CursorMode.Locked;
     }
 
@@ -90,11 +93,15 @@ public class Main : SampleApplication
         if (!IsPlaying && Input.KeyDown(Key.Space))
         {
             IsPlaying = true;
-            _ball.Velocity = new Vector2(Random.Shared.NextInt64(-400, 400), -400);
+            _ball.Velocity = new Vector2(Random.Shared.NextSingle() >= 0.5f ? 400 : -400, -400);
         }
         
         if (Input.KeyDown(Key.Escape))
             Close();
+        
+        // Uncomment to make the game play itself!
+        //if (IsPlaying)
+        //    _paddle.Position.X = _ball.Position.X;
         
         _paddle.Update(dt, this);
         _ball.Update(dt, this);
@@ -131,5 +138,7 @@ public class Main : SampleApplication
             
             brick.Draw(dt, _spriteRenderer);
         }
+        
+        _font.Draw(_spriteRenderer, 48, _ball.Score.ToString(), new Vector2(0, 0));
     }
 }

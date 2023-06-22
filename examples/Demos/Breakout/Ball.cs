@@ -13,10 +13,13 @@ public class Ball : Entity
     public Vector2 Velocity;
 
     public bool HasHit;
+
+    public int Score;
     
     public Ball(Texture texture)
     {
         _texture = texture;
+        Score = 0;
     }
 
     public override void Update(double dt, Main main)

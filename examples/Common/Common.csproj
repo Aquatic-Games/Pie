@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Pie.Audio\Pie.Audio.csproj" />
+    <ProjectReference Include="..\..\src\Pie.Text\Pie.Text.csproj" />
     <ProjectReference Include="..\..\src\Pie.Utils\Pie.Utils.csproj" />
     <ProjectReference Include="..\..\src\Pie.Windowing\Pie.Windowing.csproj" />
     <ProjectReference Include="..\..\src\Pie\Pie.csproj" />
@@ -16,6 +17,10 @@
   <ItemGroup>
     <PackageReference Include="StbImageSharp" Version="2.27.13" />
     <PackageReference Include="StbVorbisSharp" Version="1.22.4" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Shaders/**/*" />
   </ItemGroup>
 
 </Project>
