@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using Pie.ShaderCompiler;
-using static Pie.Debugging.DebugGraphicsDevice;
+using static Pie.DebugLayer.DebugGraphicsDevice;
 
 namespace Pie.DebugLayer;
 

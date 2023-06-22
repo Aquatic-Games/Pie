@@ -1,6 +1,6 @@
 using System.Drawing;
 using System.Text;
-using static Pie.Debugging.DebugGraphicsDevice;
+using static Pie.DebugLayer.DebugGraphicsDevice;
 
 namespace Pie.DebugLayer;
 

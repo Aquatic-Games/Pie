@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Numerics;
-using Pie.Debugging;
+using Pie.DebugLayer;
 using Pie.Direct3D11;
 using Pie.Null;
 using Pie.OpenGL;

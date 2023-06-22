@@ -2,10 +2,9 @@
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Pie.DebugLayer;
 using Pie.ShaderCompiler;
 
-namespace Pie.Debugging;
+namespace Pie.DebugLayer;
 
 internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
 { 
