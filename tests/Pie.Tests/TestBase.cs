@@ -130,7 +130,7 @@ public abstract class TestBase : IDisposable
 
             if (currentTime >= 1.0)
             {
-                currentTime = currentTime - 1.0;
+                currentTime -= 1.0;
                 
                 Console.WriteLine(numFrames);
                 numFrames = 0;

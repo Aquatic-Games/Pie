@@ -547,4 +547,14 @@ internal sealed class GlTexture : Texture
                 break;
         }
     }
+
+    internal override MappedSubresource Map(MapMode mode)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal override void Unmap()
+    {
+        throw new NotImplementedException();
+    }
 }

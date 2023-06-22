@@ -165,12 +165,12 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
         throw new NotImplementedException();
     }
 
-    public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
+    public override MappedSubresource MapResource(GraphicsResource resource, MapMode mode)
     {
         throw new NotImplementedException();
     }
 
-    public override void UnmapBuffer(GraphicsBuffer buffer)
+    public override void UnmapResource(GraphicsResource resource)
     {
         throw new NotImplementedException();
     }

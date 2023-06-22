@@ -1,4 +1,5 @@
 ﻿using System;
+using static Pie.Debugging.DebugGraphicsDevice;
 
 namespace Pie.DebugLayer;
 
@@ -10,7 +11,7 @@ internal sealed unsafe class DebugTexture : Texture
     
     public override TextureDescription Description { get; set; }
 
-    public DebugTexture(GraphicsDevice device, TextureDescription description, void* data)
+    public DebugTexture(TextureDescription description, void* data)
     {
         Validity validity = description.Validity;
         if (!validity.IsValid)
@@ -41,13 +42,12 @@ internal sealed unsafe class DebugTexture : Texture
     HasInitialData: {data != null}
 ");
 
-        Texture = device.CreateTexture(description, data);
+        Texture = Device.CreateTexture(description, data);
         
         Description = Texture.Description;
     }
 
-    public void Update(GraphicsDevice device, int mipLevel, int arrayIndex, int x, int y, int z, int width, int height,
-        int depth, void* data)
+    public void Update(int mipLevel, int arrayIndex, int x, int y, int z, int width, int height, int depth, void* data)
     {
         if (IsDisposed)
             PieLog.Log(LogType.Critical, "Attempted to update a disposed texture!");
@@ -59,7 +59,7 @@ internal sealed unsafe class DebugTexture : Texture
         if (arrayIndex >= Description.ArraySize)
             PieLog.Log(LogType.Critical, "Array index was out of range.");
         
-        device.UpdateTexture(Texture, mipLevel, arrayIndex, x, y, z, width, height, depth, data);
+        Device.UpdateTexture(Texture, mipLevel, arrayIndex, x, y, z, width, height, depth, data);
     }
     
     public override void Dispose()
@@ -68,5 +68,15 @@ internal sealed unsafe class DebugTexture : Texture
         IsDisposed = Texture.IsDisposed;
         
         PieLog.Log(LogType.Debug, "Texture disposed.");
+    }
+
+    internal override MappedSubresource Map(MapMode mode)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal override void Unmap()
+    {
+        throw new NotImplementedException();
     }
 }

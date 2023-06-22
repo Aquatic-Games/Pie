@@ -290,18 +290,18 @@ public abstract class GraphicsDevice : IDisposable
         int width, int height, int depth, void* data);
 
     /// <summary>
-    /// Map the given buffer to CPU accessible memory.
+    /// Map the given resource to CPU accessible memory.
     /// </summary>
-    /// <param name="buffer">The buffer to map.</param>
-    /// <param name="mode">The CPU access mode of this buffer.</param>
-    /// <returns>The mapped buffer's data.</returns>
-    public abstract IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode);
+    /// <param name="resource">The resource to map.</param>
+    /// <param name="mode">The CPU access mode of this resource.</param>
+    /// <returns>The mapped resource's data.</returns>
+    public abstract MappedSubresource MapResource(GraphicsResource resource, MapMode mode);
 
     /// <summary>
-    /// Unmapped the given mapped buffer.
+    /// Unmapped the given mapped resource.
     /// </summary>
-    /// <param name="buffer">The buffer that will be mapped.</param>
-    public abstract void UnmapBuffer(GraphicsBuffer buffer);
+    /// <param name="resource">The resource to unmap.</param>
+    public abstract void UnmapResource(GraphicsResource resource);
 
     /// <summary>
     /// Set the shader that will be used on next draw.

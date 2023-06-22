@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using static Pie.Debugging.DebugGraphicsDevice;
 
 namespace Pie.DebugLayer;
 
@@ -15,7 +16,7 @@ internal sealed class DebugInputLayout : InputLayout
 
     public override InputLayoutDescription[] Descriptions => InputLayout.Descriptions;
 
-    public DebugInputLayout(GraphicsDevice device, InputLayoutDescription[] descriptions)
+    public DebugInputLayout(InputLayoutDescription[] descriptions)
     {
         StringBuilder builder = new StringBuilder();
 
@@ -53,7 +54,7 @@ internal sealed class DebugInputLayout : InputLayout
         
         PieLog.Log(LogType.Debug, $"Layout info:\n    CalculatedStride: {stride}\n{builder}");
 
-        InputLayout = device.CreateInputLayout(descriptions);
+        InputLayout = Device.CreateInputLayout(descriptions);
     }
     
     public override void Dispose()

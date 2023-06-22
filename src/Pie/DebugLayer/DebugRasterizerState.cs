@@ -1,4 +1,6 @@
-﻿namespace Pie.DebugLayer;
+﻿using static Pie.Debugging.DebugGraphicsDevice;
+
+namespace Pie.DebugLayer;
 
 internal sealed class DebugRasterizerState : RasterizerState
 {
@@ -8,7 +10,7 @@ internal sealed class DebugRasterizerState : RasterizerState
 
     public override RasterizerStateDescription Description => RasterizerState.Description;
 
-    public DebugRasterizerState(GraphicsDevice device, RasterizerStateDescription description)
+    public DebugRasterizerState(RasterizerStateDescription description)
     {
         PieLog.Log(LogType.Debug, $@"Rasterizer state info:
     CullDirection: {description.CullDirection}
@@ -16,7 +18,7 @@ internal sealed class DebugRasterizerState : RasterizerState
     FillMode: {description.FillMode}
     ScissorTestEnabled: {description.ScissorTest}");
         
-        RasterizerState = device.CreateRasterizerState(description);
+        RasterizerState = Device.CreateRasterizerState(description);
     }
     
     public override void Dispose()

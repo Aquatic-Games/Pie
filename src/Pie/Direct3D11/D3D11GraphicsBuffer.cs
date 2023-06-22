@@ -68,8 +68,8 @@ internal sealed unsafe class D3D11GraphicsBuffer : GraphicsBuffer
     {
         if (_dynamic)
         {
-            MappedSubresource subresource = default;
-            Context.Map(Buffer, 0, Map.WriteDiscard, 0, ref subresource);
+            Silk.NET.Direct3D11.MappedSubresource subresource = default;
+            Context.Map(Buffer, 0, Silk.NET.Direct3D11.Map.WriteDiscard, 0, ref subresource);
             Unsafe.CopyBlock((byte*) subresource.PData + (int) offsetInBytes, data, sizeInBytes);
             Context.Unmap(Buffer, 0);
         }
@@ -97,5 +97,20 @@ internal sealed unsafe class D3D11GraphicsBuffer : GraphicsBuffer
             default:
                 throw new ArgumentOutOfRangeException();
         }
+    }
+
+    internal override MappedSubresource Map(MapMode mode)
+    {
+        Silk.NET.Direct3D11.MappedSubresource resource = default;
+        if (!Succeeded(Context.Map(Buffer, 0, mode.ToDx11MapMode(), 0, ref resource)))
+            throw new PieException("Failed to map resource.");
+        void* data = resource.PData;
+
+        return new MappedSubresource((IntPtr) data);
+    }
+
+    internal override void Unmap()
+    {
+        Context.Unmap(Buffer, 0);
     }
 }

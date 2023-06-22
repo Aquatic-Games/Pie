@@ -1,4 +1,7 @@
-﻿namespace Pie.DebugLayer;
+﻿using System;
+using static Pie.Debugging.DebugGraphicsDevice;
+
+namespace Pie.DebugLayer;
 
 internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
 {
@@ -14,7 +17,7 @@ internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
 
     public BufferType BufferType;
 
-    public DebugGraphicsBuffer(GraphicsDevice device, BufferType type, uint sizeInBytes, void* data, bool dynamic)
+    public DebugGraphicsBuffer(BufferType type, uint sizeInBytes, void* data, bool dynamic)
     {
         _sizeInBytes = sizeInBytes;
         
@@ -28,10 +31,10 @@ internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
     VideoMemory: {sizeInBytes}B
     HasInitialData: {data != null}");
         
-        Buffer = device.CreateBuffer(type, sizeInBytes, data, dynamic);
+        Buffer = Device.CreateBuffer(type, sizeInBytes, data, dynamic);
     }
 
-    public void Update(GraphicsDevice device, uint offsetInBytes, uint sizeInBytes, void* data)
+    public void Update(uint offsetInBytes, uint sizeInBytes, void* data)
     {
         if (IsDisposed)
             PieLog.Log(LogType.Critical, "Attempting to update a disposed buffer!");
@@ -46,7 +49,7 @@ internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
         if (offsetInBytes + sizeInBytes > _sizeInBytes)
             PieLog.Log(LogType.Critical, "The data size cannot fit into the buffer with the given offset, its end point is larger than the size of the buffer.");
         
-        device.UpdateBuffer(Buffer, offsetInBytes, sizeInBytes, data);
+        Device.UpdateBuffer(Buffer, offsetInBytes, sizeInBytes, data);
     }
     
     public override void Dispose()
@@ -55,5 +58,38 @@ internal sealed unsafe class DebugGraphicsBuffer : GraphicsBuffer
         IsDisposed = Buffer.IsDisposed;
         
         PieLog.Log(LogType.Debug, "Buffer disposed.");
+    }
+
+    internal override MappedSubresource Map(MapMode mode)
+    {
+        if (IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to map a disposed buffer!");
+        
+        if (!IsDynamic)
+            PieLog.Log(LogType.Critical, "Cannot map a non-dynamic buffer.");
+
+        if (IsMapped)
+            PieLog.Log(LogType.Critical, "Cannot map a buffer that has already been mapped.");
+
+        IsMapped = true;
+
+        return Device.MapResource(Buffer, mode);
+    }
+
+    internal override void Unmap()
+    {
+        if (IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to unmap a disposed buffer!");
+        
+        if (!IsMapped)
+            PieLog.Log(LogType.Critical, "Cannot unmap a buffer that has not been mapped.");
+        
+        // This should never happen but it doesn't hurt to have the check!
+        if (!IsDynamic)
+            PieLog.Log(LogType.Critical, "Attempted to unmap a non-dynamic buffer. If you see this message, Pie's checks have gone wrong. Either that or something MAJORLY bad has happened. You should now panic.");
+
+        IsMapped = false;
+        
+        Device.UnmapResource(Buffer);
     }
 }

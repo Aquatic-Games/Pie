@@ -257,16 +257,14 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         ((GlTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data);
     }
 
-    public override unsafe IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
+    public override MappedSubresource MapResource(GraphicsResource resource, MapMode mode)
     {
-        GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
-        Gl.BindBuffer(glBuf.Target, glBuf.Handle);
-        return (IntPtr) Gl.MapBufferRange(glBuf.Target, 0, glBuf.SizeInBytes, mode.ToGlMapMode());
+        return resource.Map(mode);
     }
 
-    public override void UnmapBuffer(GraphicsBuffer buffer)
+    public override void UnmapResource(GraphicsResource resource)
     {
-        Gl.UnmapBuffer(((GlGraphicsBuffer) buffer).Target);
+        resource.Unmap();
     }
 
     public override void SetShader(Shader shader)

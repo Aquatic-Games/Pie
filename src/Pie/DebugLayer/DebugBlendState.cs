@@ -1,3 +1,5 @@
+using static Pie.Debugging.DebugGraphicsDevice;
+
 namespace Pie.DebugLayer;
 
 internal sealed class DebugBlendState : BlendState
@@ -8,7 +10,7 @@ internal sealed class DebugBlendState : BlendState
 
     public override BlendStateDescription Description => BlendState.Description;
 
-    public DebugBlendState(GraphicsDevice device, BlendStateDescription description)
+    public DebugBlendState(BlendStateDescription description)
     {
         PieLog.Log(LogType.Debug, $@"Blend state info:
     Enabled: {description.Enabled}
@@ -21,7 +23,7 @@ internal sealed class DebugBlendState : BlendState
     ColorWriteMask: {description.ColorWriteMask}");
         
         // TODO: There are a bunch of unsupported blending combinations. Find out what they are and add checks.
-        BlendState = device.CreateBlendState(description);
+        BlendState = Device.CreateBlendState(description);
     }
     
     public override void Dispose()

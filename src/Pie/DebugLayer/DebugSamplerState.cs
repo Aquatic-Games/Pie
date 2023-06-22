@@ -1,3 +1,5 @@
+using static Pie.Debugging.DebugGraphicsDevice;
+
 namespace Pie.DebugLayer;
 
 internal sealed class DebugSamplerState : SamplerState
@@ -8,7 +10,7 @@ internal sealed class DebugSamplerState : SamplerState
 
     public override SamplerStateDescription Description => SamplerState.Description;
 
-    public DebugSamplerState(GraphicsDevice device, SamplerStateDescription description)
+    public DebugSamplerState(SamplerStateDescription description)
     {
         PieLog.Log(LogType.Debug, $@"Sampler state info:
     Filter: {description.Filter}
@@ -20,7 +22,7 @@ internal sealed class DebugSamplerState : SamplerState
     MaxLOD: {description.MaxLOD}
     BorderColor: {description.BorderColor}");
 
-        SamplerState = device.CreateSamplerState(description);
+        SamplerState = Device.CreateSamplerState(description);
     }
     
     public override void Dispose()

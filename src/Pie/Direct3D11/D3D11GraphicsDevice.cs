@@ -297,17 +297,14 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         ((D3D11Texture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data);
     }
 
-    public override IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
+    public override MappedSubresource MapResource(GraphicsResource resource, MapMode mode)
     {
-        MappedSubresource resource = default;
-        if (!Succeeded(Context.Map(((D3D11GraphicsBuffer) buffer).Buffer, 0, mode.ToDx11MapMode(), 0, ref resource)))
-            throw new PieException("Failed to map resource.");
-        return (IntPtr) resource.PData;
+        return resource.Map(mode);
     }
 
-    public override void UnmapBuffer(GraphicsBuffer buffer)
+    public override void UnmapResource(GraphicsResource resource)
     {
-        Context.Unmap(((D3D11GraphicsBuffer) buffer).Buffer, 0);
+        resource.Unmap();
     }
 
     public override void SetShader(Shader shader)

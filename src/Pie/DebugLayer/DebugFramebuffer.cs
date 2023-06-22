@@ -1,6 +1,6 @@
 using System.Drawing;
 using System.Text;
-using Silk.NET.OpenGL;
+using static Pie.Debugging.DebugGraphicsDevice;
 
 namespace Pie.DebugLayer;
 
@@ -14,7 +14,7 @@ internal sealed class DebugFramebuffer : Framebuffer
     
     public override Size Size { get; set; }
 
-    public DebugFramebuffer(GraphicsDevice device, FramebufferAttachment[] attachments)
+    public DebugFramebuffer(FramebufferAttachment[] attachments)
     {
         StringBuilder builder = new StringBuilder();
 
@@ -60,7 +60,7 @@ internal sealed class DebugFramebuffer : Framebuffer
 
         Attachments = attachments;
         
-        Framebuffer = device.CreateFramebuffer(mainAttachments);
+        Framebuffer = Device.CreateFramebuffer(mainAttachments);
 
         Size = Framebuffer.Size;
     }

@@ -70,4 +70,17 @@ internal sealed class GlGraphicsBuffer : GraphicsBuffer
                 break;
         }
     }
+
+    internal override unsafe MappedSubresource Map(MapMode mode)
+    {
+        Gl.BindBuffer(Target, Handle);
+        void* mapped = Gl.MapBufferRange(Target, 0, SizeInBytes, mode.ToGlMapMode());
+
+        return new MappedSubresource((IntPtr) mapped);
+    }
+
+    internal override void Unmap()
+    {
+        Gl.UnmapBuffer(Target);
+    }
 }

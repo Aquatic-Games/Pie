@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Pie.ShaderCompiler;
+using static Pie.Debugging.DebugGraphicsDevice;
 
 namespace Pie.DebugLayer;
 
@@ -9,7 +10,7 @@ internal sealed class DebugShader : Shader
     
     public override bool IsDisposed { get; protected set; }
 
-    public DebugShader(GraphicsDevice device, ShaderAttachment[] attachments, SpecializationConstant[] constants)
+    public DebugShader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
         StringBuilder builder = new StringBuilder();
 
@@ -32,7 +33,7 @@ internal sealed class DebugShader : Shader
 
         PieLog.Log(LogType.Debug, $"Shader info:\n{builder}");
 
-        Shader = device.CreateShader(attachments, constants);
+        Shader = Device.CreateShader(attachments, constants);
     }
     
     public override void Dispose()

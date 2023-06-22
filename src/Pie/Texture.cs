@@ -7,7 +7,7 @@ namespace Pie;
 /// A texture is a data store that can be sampled from in a <see cref="Shader"/>. This includes preloaded texture data,
 /// or a <see cref="Framebuffer"/>.
 /// </summary>
-public abstract class Texture : IDisposable
+public abstract class Texture : GraphicsResource, IDisposable
 {
     /// <summary>
     /// Will return <see langword="true" /> when this <see cref="Texture"/> has been disposed.

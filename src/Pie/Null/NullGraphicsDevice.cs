@@ -167,9 +167,9 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override unsafe IntPtr MapBuffer(GraphicsBuffer buffer, MapMode mode)
+    public override unsafe MappedSubresource MapResource(GraphicsResource resource, MapMode mode)
     {
-        return (IntPtr) ((NullGraphicsBuffer) buffer).Data;
+        return new MappedSubresource((IntPtr) ((NullGraphicsBuffer) resource).Data);
     }
 
     public override void Present(int swapInterval)
@@ -221,7 +221,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override void UnmapBuffer(GraphicsBuffer buffer)
+    public override void UnmapResource(GraphicsResource resource)
     {
     }
 

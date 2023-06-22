@@ -1,4 +1,6 @@
-﻿namespace Pie.DebugLayer;
+﻿using static Pie.Debugging.DebugGraphicsDevice;
+
+namespace Pie.DebugLayer;
 
 internal sealed class DebugDepthStencilState : DepthStencilState
 {
@@ -8,7 +10,7 @@ internal sealed class DebugDepthStencilState : DepthStencilState
 
     public override DepthStencilStateDescription Description => DepthStencilState.Description;
 
-    public DebugDepthStencilState(GraphicsDevice device, DepthStencilStateDescription description)
+    public DebugDepthStencilState(DepthStencilStateDescription description)
     {
         PieLog.Log(LogType.Debug, $@"Depth stencil state info:
     DepthEnabled: {description.DepthEnabled}
@@ -28,7 +30,7 @@ internal sealed class DebugDepthStencilState : DepthStencilState
     StencilReadMask: {description.StencilReadMask}
     StencilWriteMask: {description.StencilWriteMask}");
         
-        DepthStencilState = device.CreateDepthStencilState(description);
+        DepthStencilState = Device.CreateDepthStencilState(description);
     }
     
     public override void Dispose()
