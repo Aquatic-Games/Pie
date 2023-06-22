@@ -16,7 +16,6 @@ public static class SilkPie
         {
             GraphicsApi.OpenGL => new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Default, new APIVersion(4, 3)),
             GraphicsApi.OpenGLES => new GraphicsAPI(ContextAPI.OpenGLES, ContextProfile.Core, ContextFlags.Default, new APIVersion(3, 0)),
-            GraphicsApi.Vulkan => new GraphicsAPI(ContextAPI.Vulkan, new APIVersion(1, 3)),
             GraphicsApi.D3D11 => GraphicsAPI.None,
             GraphicsApi.Null => GraphicsAPI.None,
             _ => throw new ArgumentOutOfRangeException(nameof(api), api, null)

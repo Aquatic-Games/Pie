@@ -216,9 +216,6 @@ public sealed unsafe class Window : IDisposable
                 Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 0);
                 Sdl.GLSetAttribute(SdlGlAttr.ContextProfileMask, (int) SdlGlProfile.ES);
                 break;
-            case GraphicsApi.Vulkan:
-                flags |= SdlWindowFlags.Vulkan;
-                break;
             case GraphicsApi.D3D11:
             case GraphicsApi.Null:
                 break;
@@ -299,10 +296,7 @@ public sealed unsafe class Window : IDisposable
                 Sdl.GetWindowWMInfo(_window, &info);
                 return GraphicsDevice.CreateD3D11(info.Info.Win.Window, size,
                     options ?? new GraphicsDeviceOptions());
-
-            case GraphicsApi.Vulkan:
-                throw new NotSupportedException("Vulkan implementation is not yet in a state where it is supported.");
-                break;
+            
             case GraphicsApi.Null:
                 return GraphicsDevice.CreateNull(size, options ?? new GraphicsDeviceOptions());
             

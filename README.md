@@ -11,7 +11,6 @@ The cross-platform graphics toolkit. Featuring a Direct3D-style cross-platform g
 Pie's API is styled similarly to Direct3D 11. It is fully object-oriented, and does a fair amount of the hard work for you.
 
 Pie currently supports the following APIs:
-* Vulkan (**experimental**)
 * Direct3D 11
 * OpenGL 4.3
 
@@ -36,7 +35,7 @@ Used by Pie itself, the shader compiler provides a simple way to transpile shade
 A raw wrapper around SDL, mostly for use by Pie.Windowing and Pie.Audio. It aims to be feature complete, though! (Although note at time of writing the bindings are *very* incomplete. PRs welcome!)
 
 ### Credits
-* [Silk.NET](https://github.com/dotnet/Silk.NET) - Direct3D, OpenGL and Vulkan bindings.
+* [Silk.NET](https://github.com/dotnet/Silk.NET) - Direct3D and OpenGL bindings.
 * [Spirzza](https://github.com/TechPizzaDev/Spirzza) - shaderc & spirv-cross bindings.
 * [mixr](https://github.com/piegfx/mixr) - Native audio library for Pie.Audio
 * Twitter for it's pie emoji (I don't own it!)
