@@ -15,15 +15,15 @@ public static class Utils
         return device.CreateTexture(description, bitmap.Data);
     }
 
-    /*public static ushort GetFreeChannel(AudioSystem system)
+    public static ushort GetFreeChannel(AudioSystem system)
     {
-        for (ushort c = 0; c < system.NumChannels; c++)
+        for (ushort c = 0; c < system.NumVoices; c++)
         {
-            if (!system.IsPlaying(c))
+            if (system.GetVoiceState(c) == PlayState.Stopped)
                 return c;
         }
 
         return 0;
-    }*/
+    }
     
 }
