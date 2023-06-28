@@ -29,7 +29,7 @@ public sealed class Font : IDisposable
         _characterDict = new Dictionary<uint, Dictionary<char, (Character, Texture)>>();
     }
 
-    public void Draw(SpriteRenderer renderer, uint size, string text, Vector2 position)
+    public void Draw(SpriteRenderer renderer, uint size, string text, Vector2 position, uint maxWidth = 0)
     {
         if (!_characterDict.TryGetValue(size, out Dictionary<char, (Character, Texture)> dict))
         {
@@ -75,8 +75,14 @@ public sealed class Font : IDisposable
                 pos.X = position.X;
                 continue;
             }
-            
+
             (Character character, Texture texture) = dict[c];
+
+            if (maxWidth > 0 && pos.X + character.Advance > position.X + maxWidth)
+            {
+                pos.Y += size;
+                pos.X = position.X;
+            }
 
             if (texture != null)
             {

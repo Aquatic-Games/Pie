@@ -18,6 +18,11 @@ public sealed unsafe class Window : IDisposable
     private GraphicsApi _api;
 
     /// <summary>
+    /// The SDL window handle.
+    /// </summary>
+    public IntPtr Handle => (IntPtr) _window;
+
+    /// <summary>
     /// The size, in <b>screen coordinates</b>, of the window.
     /// </summary>
     public Size Size

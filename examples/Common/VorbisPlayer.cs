@@ -32,6 +32,8 @@ public class VorbisPlayer : IDisposable
         }
         
         _device.BufferFinished += DeviceOnBufferFinished;
+
+        _voice = ushort.MaxValue;
     }
 
     private void DeviceOnBufferFinished(AudioBuffer buffer, ushort voice)
