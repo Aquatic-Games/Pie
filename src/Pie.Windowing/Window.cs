@@ -210,16 +210,173 @@ public sealed unsafe class Window : IDisposable
         switch (builder.WindowApi)
         {
             case GraphicsApi.OpenGL:
+            case GraphicsApi.OpenGLES:
                 flags |= SdlWindowFlags.OpenGL;
                 Sdl.GLSetAttribute(SdlGlAttr.ContextMajorVersion, 4);
                 Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 3);
-                Sdl.GLSetAttribute(SdlGlAttr.ContextProfileMask, (int) SdlGlProfile.Core);
-                break;
-            case GraphicsApi.OpenGLES:
-                flags |= SdlWindowFlags.OpenGL;
-                Sdl.GLSetAttribute(SdlGlAttr.ContextMajorVersion, 3);
-                Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 0);
-                Sdl.GLSetAttribute(SdlGlAttr.ContextProfileMask, (int) SdlGlProfile.ES);
+                Sdl.GLSetAttribute(SdlGlAttr.ContextProfileMask,
+                    builder.WindowApi == GraphicsApi.OpenGLES ? (int) SdlGlProfile.ES : (int) SdlGlProfile.Core);
+
+                (int r, int g, int b, int a, bool srgb, bool fp) bits;
+                
+                // TODO: Compare behaviour with D3D11 to make sure each combination works.
+                // There may still be more of these formats to add into the "unsupported" pile.
+                switch (builder.DeviceOptions.ColorBufferFormat)
+                {
+                    case Format.R8_UNorm:
+                    case Format.R8_SNorm:
+                    case Format.R8_SInt:
+                    case Format.R8_UInt:
+                        bits = (8, 0, 0, 0, false, false);
+                        break;
+                    
+                    case Format.R8G8_UNorm:
+                    case Format.R8G8_SNorm:
+                    case Format.R8G8_SInt:
+                    case Format.R8G8_UInt:
+                        bits = (8, 8, 0, 0, false, false);
+                        break;
+                    
+                    case Format.R8G8B8A8_UNorm:
+                    case Format.R8G8B8A8_SNorm:
+                    case Format.R8G8B8A8_SInt:
+                    case Format.R8G8B8A8_UInt:
+                    case Format.B8G8R8A8_UNorm:
+                        bits = (8, 8, 8, 8, false, false);
+                        break;
+                    
+                    case Format.R8G8B8A8_UNorm_SRgb:
+                    case Format.B8G8R8A8_UNorm_SRgb:
+                        bits = (8, 8, 8, 8, true, false);
+                        break;
+                    
+                    case Format.R16_UNorm:
+                    case Format.R16_SNorm:
+                    case Format.R16_SInt:
+                    case Format.R16_UInt:
+                        bits = (16, 0, 0, 0, false, false);
+                        break;
+                    
+                    case Format.R16_Float:
+                        bits = (16, 0, 0, 0, false, true);
+                        break;
+                    
+                    case Format.R16G16_UNorm:
+                    case Format.R16G16_SNorm:
+                    case Format.R16G16_SInt:
+                    case Format.R16G16_UInt:
+                        bits = (16, 16, 0, 0, false, false);
+                        break;
+                    
+                    case Format.R16G16_Float:
+                        bits = (16, 16, 0, 0, false, true);
+                        break;
+                    
+                    case Format.R16G16B16A16_UNorm:
+                    case Format.R16G16B16A16_SNorm:
+                    case Format.R16G16B16A16_SInt:
+                    case Format.R16G16B16A16_UInt:
+                        bits = (16, 16, 16, 16, false, false);
+                        break;
+                    
+                    case Format.R16G16B16A16_Float:
+                        bits = (16, 16, 16, 16, false, true);
+                        break;
+                    
+                    case Format.R32_SInt:
+                    case Format.R32_UInt:
+                        bits = (32, 0, 0, 0, false, false);
+                        break;
+                    
+                    case Format.R32_Float:
+                        bits = (32, 0, 0, 0, false, true);
+                        break;
+                    
+                    case Format.R32G32_SInt:
+                    case Format.R32G32_UInt:
+                        bits = (32, 32, 0, 0, false, false);
+                        break;
+                    
+                    case Format.R32G32_Float:
+                        bits = (32, 32, 0, 0, false, true);
+                        break;
+                    
+                    case Format.R32G32B32_SInt:
+                    case Format.R32G32B32_UInt:
+                        bits = (32, 32, 32, 0, false, false);
+                        break;
+                    
+                    case Format.R32G32B32_Float:
+                        bits = (32, 32, 32, 0, false, true);
+                        break;
+                    
+                    case Format.R32G32B32A32_SInt:
+                    case Format.R32G32B32A32_UInt:
+                        bits = (32, 32, 32, 32, false, false);
+                        break;
+                    
+                    case Format.R32G32B32A32_Float:
+                        bits = (32, 32, 32, 32, false, true);
+                        break;
+                    
+                    case Format.D24_UNorm_S8_UInt:
+                    case Format.D32_Float:
+                    case Format.D16_UNorm:
+                    case Format.BC1_UNorm:
+                    case Format.BC1_UNorm_SRgb:
+                    case Format.BC2_UNorm:
+                    case Format.BC2_UNorm_SRgb:
+                    case Format.BC3_UNorm:
+                    case Format.BC3_UNorm_SRgb:
+                    case Format.BC4_UNorm:
+                    case Format.BC4_SNorm:
+                    case Format.BC5_UNorm:
+                    case Format.BC5_SNorm:
+                    case Format.BC6H_UF16:
+                    case Format.BC6H_SF16:
+                    case Format.BC7_UNorm:
+                    case Format.BC7_UNorm_SRgb:
+                        throw new NotSupportedException("The given format cannot be used as a color buffer format.");
+                    
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                (int depth, int stencil) depthBits;
+
+                switch (builder.DeviceOptions.DepthStencilBufferFormat)
+                {
+                    case Format.D24_UNorm_S8_UInt:
+                        depthBits = (24, 8);
+                        break;
+                    
+                    case Format.D32_Float:
+                        depthBits = (32, 0);
+                        break;
+                    
+                    case Format.D16_UNorm:
+                        depthBits = (16, 0);
+                        break;
+                    
+                    case null:
+                        depthBits = (0, 0);
+                        break;
+                    
+                    default:
+                        throw new NotSupportedException("The given format cannot be used as a depth format.");
+                }
+
+                Sdl.GLSetAttribute(SdlGlAttr.RedSize, bits.r);
+                Sdl.GLSetAttribute(SdlGlAttr.GreenSize, bits.g);
+                Sdl.GLSetAttribute(SdlGlAttr.BlueSize, bits.b);
+                Sdl.GLSetAttribute(SdlGlAttr.AlphaSize, bits.a);
+
+                Sdl.GLSetAttribute(SdlGlAttr.DepthSize, depthBits.depth);
+                Sdl.GLSetAttribute(SdlGlAttr.StencilSize, depthBits.stencil);
+                
+                Sdl.GLSetAttribute(SdlGlAttr.FramebufferSrgbCapable, bits.srgb ? 1 : 0);
+                Sdl.GLSetAttribute(SdlGlAttr.FloatBuffers, bits.fp ? 1 : 0);
+                
                 break;
             case GraphicsApi.D3D11:
             case GraphicsApi.Null:

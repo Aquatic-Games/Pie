@@ -21,6 +21,9 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     public static D3D11 D3D11;
     public static DXGI DXGI;
     public static D3DCompiler D3DCompiler;
+
+    private Silk.NET.DXGI.Format _colorFormat;
+    private Silk.NET.DXGI.Format? _depthFormat;
     
     public static ComPtr<ID3D11Device> Device;
     public static ComPtr<ID3D11DeviceContext> Context;
@@ -63,11 +66,14 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         if (debug)
             flags |= CreateDeviceFlag.Debug;
 
+        _colorFormat = options.ColorBufferFormat.ToDxgiFormat(false);
+        _depthFormat = options.DepthStencilBufferFormat?.ToDxgiFormat(false);
+
         SwapChainDesc swapChainDescription = new SwapChainDesc()
         {
             Flags = (uint) SwapChainFlag.AllowTearing | (uint) SwapChainFlag.AllowModeSwitch,
             BufferCount = 2,
-            BufferDesc = new ModeDesc((uint) winSize.Width, (uint) winSize.Height, format: Silk.NET.DXGI.Format.FormatB8G8R8A8Unorm),
+            BufferDesc = new ModeDesc((uint) winSize.Width, (uint) winSize.Height, format: _colorFormat),
             BufferUsage = DXGI.UsageRenderTargetOutput,
             OutputWindow = hwnd,
             SampleDesc = new SampleDesc(1, 0),
@@ -476,9 +482,13 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         Context.Flush();
         Context.OMSetRenderTargets(1, (ID3D11RenderTargetView*) null, (ID3D11DepthStencilView*) null);
         _colorTargetView.Dispose();
-        _depthStencilTargetView.Dispose();
         _colorTexture.Dispose();
-        _depthStencilTexture.Dispose();
+
+        if (_depthFormat != null)
+        {
+            _depthStencilTargetView.Dispose();
+            _depthStencilTexture.Dispose();
+        }
 
         _swapChain.ResizeBuffers(0, (uint) newSize.Width, (uint) newSize.Height, Silk.NET.DXGI.Format.FormatUnknown, 0);
         _colorTexture = _swapChain.GetBuffer<ID3D11Texture2D>(0);
@@ -515,9 +525,12 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     private void CreateDepthStencilView(Size size)
     {
+        if (_depthFormat == null)
+            return;
+        
         Texture2DDesc texDesc = new Texture2DDesc()
         {
-            Format = Silk.NET.DXGI.Format.FormatD24UnormS8Uint,
+            Format = _depthFormat.Value,
             Width = (uint) size.Width,
             Height = (uint) size.Height,
             ArraySize = 1,
