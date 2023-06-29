@@ -12,6 +12,8 @@ public unsafe class PinnedStringArray : IDisposable
 
     public nint Handle => (nint) _ptr;
 
+    public uint Length => _numStrings;
+
     public PinnedStringArray(string[] strings)
     {
         _numStrings = (uint) strings.Length;
@@ -20,7 +22,9 @@ public unsafe class PinnedStringArray : IDisposable
 
         for (int i = 0; i < _numStrings; i++)
         {
-            byte[] bytes = Encoding.UTF8.GetBytes(strings[i]);
+            // We need to append a null character at the end as one is not added for us.
+            // C strings are always null terminated.
+            byte[] bytes = Encoding.UTF8.GetBytes(strings[i] + '\0');
             _ptr[i] = (byte*) NativeMemory.Alloc((uint) bytes.Length);
             fixed (byte* ptr = bytes)
                 Unsafe.CopyBlock(_ptr[i], ptr, (uint) bytes.Length);

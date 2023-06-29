@@ -37,5 +37,12 @@ public class ClearTest : TestBase
         _vkLayer = new VkLayer(context, true);
     }
 
+    public override void Dispose()
+    {
+        _vkLayer.Dispose();
+        
+        base.Dispose();
+    }
+
     public ClearTest() : base(new Size(1280, 720), "VkLayer clearing test") { }
 }

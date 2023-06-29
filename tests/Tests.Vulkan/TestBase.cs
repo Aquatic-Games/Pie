@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Text;
+using Pie;
 using Pie.SDL;
 
 namespace Tests.Vulkan;
@@ -26,6 +27,8 @@ public abstract unsafe class TestBase : IDisposable
 
     public void Run()
     {
+        PieLog.DebugLog += (type, message) => Console.WriteLine($"[{type}] " + message); 
+        
         Sdl.SetHint("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
         
         if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
