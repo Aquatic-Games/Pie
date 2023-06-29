@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Silk.NET.Core;
 using Silk.NET.Vulkan;
@@ -152,6 +153,34 @@ public unsafe class VkLayer : IDisposable
             Device = device,
             QueueFamilyIndices = indices
         };
+    }
+
+    public void CreateDevice(VkPhysicalDevice pDevice)
+    {
+        if (!pDevice.QueueFamilyIndices.IsComplete)
+            throw new Exception("Incomplete queue families!");
+
+        HashSet<uint> uniqueQueueFamilies = new HashSet<uint>()
+        {
+            pDevice.QueueFamilyIndices.GraphicsQueue!.Value,
+            pDevice.QueueFamilyIndices.PresentQueue!.Value
+        };
+
+        DeviceQueueCreateInfo[] queueCreateInfos = new DeviceQueueCreateInfo[uniqueQueueFamilies.Count];
+
+        float queuePriority = 1.0f;
+        
+        int i = 0;
+        foreach (uint queueFamily in uniqueQueueFamilies)
+        {
+            queueCreateInfos[i++] = new DeviceQueueCreateInfo()
+            {
+                SType = StructureType.DeviceQueueCreateInfo,
+                QueueFamilyIndex = queueFamily,
+                QueueCount = 1,
+                PQueuePriorities = &queuePriority,
+            };
+        }
     }
 
     public void Dispose()
