@@ -35,6 +35,8 @@ public class ClearTest : TestBase
         });
 
         _vkLayer = new VkLayer(context, true);
+
+        VkLayer.VkPhysicalDevice pDevice = _vkLayer.GetBestPhysicalDevice();
     }
 
     public override void Dispose()

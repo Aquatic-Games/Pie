@@ -1,7 +1,9 @@
 using System;
 using System.Runtime.InteropServices;
+using Silk.NET.Core;
 using Silk.NET.Vulkan;
 using Silk.NET.Vulkan.Extensions.EXT;
+using Silk.NET.Vulkan.Extensions.KHR;
 
 namespace Pie.Vulkan;
 
@@ -13,6 +15,12 @@ public unsafe class VkLayer : IDisposable
 
     private ExtDebugUtils _debugUtils;
     private DebugUtilsMessengerEXT _debugMessenger;
+
+    private KhrSurface _surfaceExt;
+    private SurfaceKHR _surface;
+
+    private KhrSwapchain _swapchainExt;
+    private SwapchainKHR _swapchain;
 
     public VkLayer(PieVkContext context, bool debug)
     {
@@ -92,10 +100,65 @@ public unsafe class VkLayer : IDisposable
             CheckResult(
                 _debugUtils.CreateDebugUtilsMessenger(Instance, &messengerCreateInfo, null, out _debugMessenger));
         }
+        
+        PieLog.Log(LogType.Verbose, "Creating window surface.");
+        Vk.TryGetInstanceExtension(Instance, out _surfaceExt);
+        _surface = new SurfaceKHR((ulong) context.CreateSurface(Instance.Handle));
+    }
+
+    public VkPhysicalDevice GetBestPhysicalDevice()
+    {
+        uint numPhysicalDevices;
+        CheckResult(Vk.EnumeratePhysicalDevices(Instance, &numPhysicalDevices, null));
+
+        PhysicalDevice[] devices = new PhysicalDevice[numPhysicalDevices];
+        
+        fixed (PhysicalDevice* devicePtr = devices)
+            CheckResult(Vk.EnumeratePhysicalDevices(Instance, &numPhysicalDevices, devicePtr));
+
+        PhysicalDevice device = devices[0];
+        
+        uint numQueueFamilies;
+        Vk.GetPhysicalDeviceQueueFamilyProperties(device, &numQueueFamilies, null);
+
+        QueueFamilyProperties[] queueProps = new QueueFamilyProperties[numQueueFamilies];
+
+        fixed (QueueFamilyProperties* queuePropsPtr = queueProps)
+            Vk.GetPhysicalDeviceQueueFamilyProperties(device, &numQueueFamilies, queuePropsPtr);
+
+        QueueFamilyIndices indices = new QueueFamilyIndices();
+
+        uint i = 0;
+        foreach (QueueFamilyProperties property in queueProps)
+        {
+            if ((property.QueueFlags & QueueFlags.GraphicsBit) == QueueFlags.GraphicsBit)
+                indices.GraphicsQueue = i;
+
+            _surfaceExt.GetPhysicalDeviceSurfaceSupport(device, i, _surface, out Bool32 canPresent);
+
+            if (canPresent)
+                indices.PresentQueue = i;
+
+            if (indices.IsComplete)
+                break;
+
+            i++;
+        }
+            
+        // TODO: Devices NEED to check to make sure VK is supported, as well as ranking best device to worst, so that
+        // the best is picked in almost all cases.
+        return new VkPhysicalDevice()
+        {
+            Device = device,
+            QueueFamilyIndices = indices
+        };
     }
 
     public void Dispose()
     {
+        _surfaceExt.DestroySurface(Instance, _surface, null);
+        _surfaceExt.Dispose();
+        
         if (_debugUtils != null)
         {
             _debugUtils.DestroyDebugUtilsMessenger(Instance, _debugMessenger, null);
@@ -127,5 +190,19 @@ public unsafe class VkLayer : IDisposable
         PieLog.Log(type, $"{messagetypes} | " + Marshal.PtrToStringAnsi((nint) pcallbackdata->PMessage));
 
         return Vk.False;
+    }
+
+    public struct QueueFamilyIndices
+    {
+        public uint? GraphicsQueue;
+        public uint? PresentQueue;
+
+        public bool IsComplete => GraphicsQueue.HasValue && PresentQueue.HasValue;
+    }
+
+    public struct VkPhysicalDevice
+    {
+        public PhysicalDevice Device;
+        public QueueFamilyIndices QueueFamilyIndices;
     }
 }
