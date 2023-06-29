@@ -157,6 +157,12 @@ public static unsafe class Sdl
 
     [DllImport(SdlName, EntryPoint = "SDL_GL_GetProcAddress")]
     public static extern void* GLGetProcAddress(sbyte* proc);
+
+    [DllImport(SdlName, EntryPoint = "SDL_Vulkan_GetInstanceExtensions")]
+    public static extern bool VulkanGetInstanceExtensions(void* window, uint* pCount, sbyte** pNames);
+
+    [DllImport(SdlName, EntryPoint = "SDL_Vulkan_CreateSurface")]
+    public static extern bool VulkanCreateSurface(void* window, nint instance, void* surface);
     
     [DllImport(SdlName, EntryPoint = "SDL_PollEvent")]
     public static extern bool PollEvent(SdlEvent* @event);

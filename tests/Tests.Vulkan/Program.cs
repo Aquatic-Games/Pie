@@ -1,5 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Tests.Vulkan;
+using Tests.Vulkan.Tests.Layer;
 
-using System;
-
-Console.WriteLine("Hello, World!");
+using TestBase test = new ClearTest();
+test.Run();
