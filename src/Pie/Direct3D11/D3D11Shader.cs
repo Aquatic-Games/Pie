@@ -24,8 +24,9 @@ internal sealed unsafe class D3D11Shader : Shader
         for (int i = 0; i < attachments.Length; i++)
         {
             ref ShaderAttachment attachment = ref attachments[i];
-            
-            CompilerResult result = ShaderCompiler.Compiler.FromSpirv(Language.HLSL, attachment.Spirv, constants);
+
+            CompilerResult result = Compiler.FromSpirv(Language.HLSL, attachment.Stage, attachment.Spirv,
+                attachment.EntryPoint, constants);
             if (!result.IsSuccess)
                 throw new PieException(result.Error);
         
