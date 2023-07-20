@@ -25,6 +25,8 @@ cbuffer ProjModel : register(b0)
 Texture2D sprite   : register(t1);
 SamplerState state : register(s1);
 
+[[vk::constant_id(0)]] const uint test = 0;
+
 VSOutput VertexShader(const in VSInput input)
 {
     VSOutput output;
@@ -40,6 +42,9 @@ PSOutput PixelShader(const in VSOutput input)
     PSOutput output;
     
     output.color = sprite.Sample(state, input.texCoord) * tint;
+
+    if (test)
+        output.color.rgb = 1.0 - output.color.rgb;
 
     return output;
 }

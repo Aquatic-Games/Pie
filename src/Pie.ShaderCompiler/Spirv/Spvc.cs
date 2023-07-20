@@ -34,6 +34,9 @@ namespace Pie.ShaderCompiler.Spirv
 
         [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, EntryPoint = "spvc_compiler_compile", ExactSpelling = true)]
         public static extern spvc_result compiler_compile([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char **")] sbyte** source);
+        
+        [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, EntryPoint = "spvc_compiler_set_entry_point", ExactSpelling = true)]
+        public static extern spvc_result compiler_set_entry_point([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char *")] sbyte* name, SpvExecutionModel model);
 
         [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, EntryPoint = "spvc_compiler_set_decoration", ExactSpelling = true)]
         public static extern void compiler_set_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvId")] uint id, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration, [NativeTypeName("unsigned int")] uint argument);

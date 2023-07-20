@@ -61,6 +61,11 @@ public class SpriteRenderer : IDisposable
         {
             new ShaderAttachment(ShaderStage.Vertex, hlslCode, Language.HLSL, "VertexShader"),
             new ShaderAttachment(ShaderStage.Pixel, hlslCode, Language.HLSL, "PixelShader")
+        }, new []
+        {
+            // Setting this to 1 will invert the colours.
+            // Why? To test specialization constants that's why!
+            new SpecializationConstant(0, 0)
         });
 
         _inputLayout = device.CreateInputLayout(

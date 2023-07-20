@@ -149,7 +149,13 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void ClearColorBuffer(Vector4 color)
     {
-        Context.ClearRenderTargetView(_currentFramebuffer?.Targets[0] ?? _colorTargetView, &color.X);
+        if (_currentFramebuffer != null)
+        {
+            for (int i = 0; i < _currentFramebuffer.Targets.Length; i++)
+                Context.ClearRenderTargetView(_currentFramebuffer.Targets[i], &color.X);
+        }
+        else
+            Context.ClearRenderTargetView(_colorTargetView, &color.X);
     }
 
     public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)

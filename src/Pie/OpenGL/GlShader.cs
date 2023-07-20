@@ -21,6 +21,24 @@ internal sealed class GlShader : Shader
     {
         // TODO: Improve this so it doesn't use the temporary handle.
         Handle = Gl.CreateProgram();
+
+        uint[] constIndex = null;
+        uint[] constValue = null;
+        uint constLength = 0;
+
+        if (SpirvSupported && constants != null && constants.Length > 0)
+        {
+            constIndex = new uint[constants.Length];
+            constValue = new uint[constants.Length];
+            constLength = (uint) constants.Length;
+
+            for (int i = 0; i < constants.Length; i++)
+            {
+                constIndex[i] = constants[i].ID;
+                constValue[i] = unchecked((uint) constants[i].Value);
+            }
+        }
+        
         for (int i = 0; i < attachments.Length; i++)
         {
             ShaderType type = attachments[i].Stage switch
@@ -34,16 +52,38 @@ internal sealed class GlShader : Shader
 
             uint handle = Gl.CreateShader(type);
             attachments[i].TempHandle = handle;
-            
-            CompilerResult result = Compiler.FromSpirv(IsES ? Language.ESSL : Language.GLSL, attachments[i].Spirv, constants);
-            if (!result.IsSuccess)
-                throw new PieException(result.Error);
-            
-            byte[] source = result.Result;
-            fixed (byte* src = source)
-                Gl.ShaderSource(handle, 1, src, source.Length);
-            
-            Gl.CompileShader(handle);
+
+            // TODO: THIS SHIT IS BROKEN
+            // OpenGL appears to have no ability to ignore unused specialization constants, so it just crashes on
+            // compilation. Uhhuh. Yep. The API famous for ignoring things is now suddenly unable to ignore anything.
+            // OpenGL strikes again!!!!!!!!1111111111111111
+            // For now this will remain disabled, so if you want this, sowwy >w<
+            if (SpirvSupported)
+            {
+                fixed (byte* ptr = attachments[i].Spirv)
+                {
+                    Gl.ShaderBinary(1, &handle, ShaderBinaryFormat.ShaderBinaryFormatSpirV, ptr,
+                        (uint) attachments[i].Spirv.Length);
+                }
+
+                fixed (uint* pConstI = constIndex)
+                fixed (uint* pConstV = constValue)
+                    Gl.SpecializeShader(handle, attachments[i].EntryPoint,  constLength, pConstI, pConstV);
+            }
+            else
+            {
+                CompilerResult result = Compiler.FromSpirv(IsES ? Language.ESSL : Language.GLSL, attachments[i].Stage,
+                    attachments[i].Spirv, attachments[i].EntryPoint, constants);
+                if (!result.IsSuccess)
+                    throw new PieException(result.Error);
+
+                byte[] source = result.Result;
+                fixed (byte* src = source)
+                    Gl.ShaderSource(handle, 1, src, source.Length);
+
+                Gl.CompileShader(handle);
+            }
+
             Gl.GetShader(handle, ShaderParameterName.CompileStatus, out int compStatus);
             if (compStatus != (int) GLEnum.True)
             {

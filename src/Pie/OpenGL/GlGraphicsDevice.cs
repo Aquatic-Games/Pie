@@ -15,6 +15,8 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     internal static GL Gl;
     internal static bool Debug;
     internal static bool IsES;
+
+    internal const bool SpirvSupported = false;
     
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
@@ -64,6 +66,8 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
             Gl.Enable(EnableCap.DebugOutputSynchronous);
             Gl.DebugMessageCallback(DebugCallback, null);
         }
+
+        //SpirvSupported = Gl.IsExtensionPresent("ARB_gl_spirv");
     }
     
     public override GraphicsApi Api { get; }

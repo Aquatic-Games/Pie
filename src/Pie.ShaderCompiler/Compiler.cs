@@ -15,14 +15,14 @@ public static class Compiler
     /// <summary>
     /// Compile GLSL/HLSL code to Spir-V.
     /// </summary>
-    /// <param name="stage">The shader <see cref="Stage"/> to compile.</param>
+    /// <param name="stage">The shader <see cref="ShaderStage"/> to compile.</param>
     /// <param name="language">The source's shading language.</param>
     /// <param name="source">The source code, in ASCII representation.</param>
     /// <param name="entryPoint">The entry point of the shader. Usually "main" for GLSL.</param>
     /// hit, so use wisely.</param>
     /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
-    public static unsafe CompilerResult ToSpirv(Stage stage, Language language, byte[] source, string entryPoint)
+    public static unsafe CompilerResult ToSpirv(ShaderStage stage, Language language, byte[] source, string entryPoint)
     {
         shaderc_compiler* compiler = shaderc_compiler_initialize();
         shaderc_compile_options* options = shaderc_compile_options_initialize();
@@ -42,10 +42,10 @@ public static class Compiler
 
         shaderc_shader_kind kind = stage switch
         {
-            Stage.Vertex => shaderc_shader_kind.shaderc_vertex_shader,
-            Stage.Fragment => shaderc_shader_kind.shaderc_fragment_shader,
-            Stage.Geometry => shaderc_shader_kind.shaderc_geometry_shader,
-            Stage.Compute => shaderc_shader_kind.shaderc_compute_shader,
+            ShaderStage.Vertex => shaderc_shader_kind.shaderc_vertex_shader,
+            ShaderStage.Fragment => shaderc_shader_kind.shaderc_fragment_shader,
+            ShaderStage.Geometry => shaderc_shader_kind.shaderc_geometry_shader,
+            ShaderStage.Compute => shaderc_shader_kind.shaderc_compute_shader,
             _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
 
@@ -91,7 +91,8 @@ public static class Compiler
         return Marshal.PtrToStringAnsi((IntPtr) text);
     }
 
-    private static unsafe CompilerResult SpirvToShaderCode(Language language, byte* result, nuint length, SpecializationConstant[] constants)
+    private static unsafe CompilerResult SpirvToShaderCode(Language language, ShaderStage stage, byte* result,
+        byte* entryPoint, nuint length, SpecializationConstant[] constants)
     {
         spvc_context_s* context;
         Spvc.context_create(&context);
@@ -116,6 +117,17 @@ public static class Compiler
         
         spvc_compiler_s* compl;
         Spvc.context_create_compiler(context, backend, ir, spvc_capture_mode.SPVC_CAPTURE_MODE_COPY, &compl);
+
+        SpvExecutionModel model = stage switch
+        {
+            ShaderStage.Vertex => SpvExecutionModel.SpvExecutionModelVertex,
+            ShaderStage.Fragment => SpvExecutionModel.SpvExecutionModelFragment,
+            ShaderStage.Geometry => SpvExecutionModel.SpvExecutionModelGeometry,
+            ShaderStage.Compute => SpvExecutionModel.SpvExecutionModelGLCompute,
+            _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
+        };
+
+        Spvc.compiler_set_entry_point(compl, (sbyte*) entryPoint, model);
 
         spvc_compiler_options_s* options;
         Spvc.compiler_create_compiler_options(compl, &options);
@@ -232,15 +244,20 @@ public static class Compiler
     /// Transpile Spir-V to shader source code.
     /// </summary>
     /// <param name="language">The language to transpile to.</param>
+    /// <param name="stage">The shader stage.</param>
     /// <param name="spirv">The Spir-V bytecode to transpile.</param>
     /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
-    public static unsafe CompilerResult FromSpirv(Language language, byte[] spirv, SpecializationConstant[] constants)
+    public static unsafe CompilerResult FromSpirv(Language language, ShaderStage stage, byte[] spirv, string entryPoint,
+        SpecializationConstant[] constants)
     {
         CompilerResult result;
+        
+        Console.WriteLine(entryPoint);
 
         fixed (byte* sPtr = spirv)
-            result = SpirvToShaderCode(language, sPtr, (nuint) spirv.Length, constants);
+        fixed (byte* ePtr = Encoding.UTF8.GetBytes(entryPoint))
+            result = SpirvToShaderCode(language, stage, sPtr, ePtr, (nuint) spirv.Length, constants);
 
         return result;
     }
