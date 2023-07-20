@@ -8,6 +8,7 @@ namespace Tests.Vulkan.Tests.Layer;
 public class ClearTest : TestBase
 {
     private VkLayer _vkLayer;
+    private VkLayer.VkDevice _device;
     
     protected override unsafe void Initialize()
     {
@@ -37,10 +38,12 @@ public class ClearTest : TestBase
         _vkLayer = new VkLayer(context, true);
 
         VkLayer.VkPhysicalDevice pDevice = _vkLayer.GetBestPhysicalDevice();
+        _device = _vkLayer.CreateDevice(pDevice);
     }
 
     public override void Dispose()
     {
+        _vkLayer.DestroyDevice(_device);
         _vkLayer.Dispose();
         
         base.Dispose();

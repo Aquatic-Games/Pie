@@ -14,6 +14,8 @@ public unsafe class VkLayer : IDisposable
     public Vk Vk;
     public Instance Instance;
 
+    private string[] _layers;
+
     private ExtDebugUtils _debugUtils;
     private DebugUtilsMessengerEXT _debugMessenger;
 
@@ -42,26 +44,24 @@ public unsafe class VkLayer : IDisposable
 
         string[] instanceExtensions = context.GetInstanceExtensions();
 
-        string[] layers;
-
         if (debug)
         {
             Array.Resize(ref instanceExtensions, instanceExtensions.Length + 1);
             instanceExtensions[^1] = ExtDebugUtils.ExtensionName;
 
-            layers = new[]
+            _layers = new[]
             {
                 "VK_LAYER_KHRONOS_validation"
             };
         }
         else
-            layers = Array.Empty<string>();
+            _layers = Array.Empty<string>();
         
         PieLog.Log(LogType.Verbose, "Instance extensions: " + string.Join(", ", instanceExtensions));
-        PieLog.Log(LogType.Verbose, "Layers: " + string.Join(", ", layers));
+        PieLog.Log(LogType.Verbose, "Layers: " + string.Join(", ", _layers));
 
         using PinnedStringArray instanceExtPtrs = new PinnedStringArray(instanceExtensions);
-        using PinnedStringArray layersPtr = new PinnedStringArray(layers);
+        using PinnedStringArray layersPtr = new PinnedStringArray(_layers);
 
         InstanceCreateInfo instanceInfo = new InstanceCreateInfo()
         {
@@ -155,8 +155,10 @@ public unsafe class VkLayer : IDisposable
         };
     }
 
-    public void CreateDevice(VkPhysicalDevice pDevice)
+    public VkDevice CreateDevice(VkPhysicalDevice pDevice)
     {
+        PieLog.Log(LogType.Verbose, "Creating logical device.");
+        
         if (!pDevice.QueueFamilyIndices.IsComplete)
             throw new Exception("Incomplete queue families!");
 
@@ -181,6 +183,48 @@ public unsafe class VkLayer : IDisposable
                 PQueuePriorities = &queuePriority,
             };
         }
+
+        PhysicalDeviceFeatures features = new PhysicalDeviceFeatures();
+
+        using PinnedStringArray layers = new PinnedStringArray(_layers);
+
+        Device device = default;
+
+        fixed (DeviceQueueCreateInfo* queuePtr = queueCreateInfos)
+        {
+            DeviceCreateInfo deviceCreateInfo = new DeviceCreateInfo()
+            {
+                SType = StructureType.DeviceCreateInfo,
+                
+                PQueueCreateInfos = queuePtr,
+                QueueCreateInfoCount = (uint) queueCreateInfos.Length,
+                
+                PEnabledFeatures = &features,
+                
+                PpEnabledLayerNames = (byte**) layers.Handle,
+                EnabledLayerCount = (uint) _layers.Length
+            };
+            
+            CheckResult(Vk.CreateDevice(pDevice.Device, &deviceCreateInfo, null, out device));
+        }
+
+        PieLog.Log(LogType.Verbose, "Getting graphics queue.");
+        Vk.GetDeviceQueue(device, pDevice.QueueFamilyIndices.GraphicsQueue.Value, 0, out Queue graphicsQueue);
+        
+        PieLog.Log(LogType.Verbose, "Getting present queue.");
+        Vk.GetDeviceQueue(device, pDevice.QueueFamilyIndices.PresentQueue.Value, 0, out Queue presentQueue);
+
+        return new VkDevice()
+        {
+            Device = device,
+            GraphicsQueue = graphicsQueue,
+            PresentQueue = presentQueue
+        };
+    }
+
+    public void DestroyDevice(VkDevice device)
+    {
+        Vk.DestroyDevice(device.Device, null);
     }
 
     public void Dispose()
@@ -233,5 +277,12 @@ public unsafe class VkLayer : IDisposable
     {
         public PhysicalDevice Device;
         public QueueFamilyIndices QueueFamilyIndices;
+    }
+
+    public struct VkDevice
+    {
+        public Device Device;
+        public Queue GraphicsQueue;
+        public Queue PresentQueue;
     }
 }
