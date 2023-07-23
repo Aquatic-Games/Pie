@@ -188,7 +188,7 @@ public unsafe class VkLayer : IDisposable
 
         using PinnedStringArray layers = new PinnedStringArray(_layers);
 
-        Device device = default;
+        Device device;
 
         fixed (DeviceQueueCreateInfo* queuePtr = queueCreateInfos)
         {

@@ -12,7 +12,7 @@ internal class PinnedString : IDisposable
 
     public PinnedString(string @string)
     {
-        _handle = GCHandle.Alloc(Encoding.UTF8.GetBytes(@string), GCHandleType.Pinned);
+        _handle = GCHandle.Alloc(Encoding.UTF8.GetBytes(@string + '\0'), GCHandleType.Pinned);
     }
 
     public void Dispose()
