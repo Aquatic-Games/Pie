@@ -20,8 +20,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
-
-    // TODO: Implement these same optimizations for D3D
+    
     private InputLayout _currentLayout;
     private RasterizerState _currentRState;
     private BlendState _currentBState;
@@ -29,6 +28,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     private Silk.NET.OpenGL.PrimitiveType _glType;
     private PrimitiveType _currentPType;
     private DrawElementsType _currentEType;
+    private uint _currentShader;
 
     private GraphicsBuffer _currentVBuffer;
     
@@ -274,10 +274,10 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
     public override void SetShader(Shader shader)
     {
         GlShader glShader = (GlShader) shader;
-        if (glShader.Handle == GlShader.BoundHandle)
+        if (glShader.Handle == _currentShader)
             return;
         Gl.UseProgram(glShader.Handle);
-        GlShader.BoundHandle = glShader.Handle;
+        _currentShader = glShader.Handle;
     }
 
     public override void SetTexture(uint bindingSlot, Texture texture, SamplerState state)

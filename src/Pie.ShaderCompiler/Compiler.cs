@@ -252,8 +252,6 @@ public static class Compiler
         SpecializationConstant[] constants)
     {
         CompilerResult result;
-        
-        Console.WriteLine(entryPoint);
 
         fixed (byte* sPtr = spirv)
         fixed (byte* ePtr = Encoding.UTF8.GetBytes(entryPoint))
