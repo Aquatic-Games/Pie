@@ -4,12 +4,11 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Pie.ShaderCompiler;
-using Silk.NET.Core.Contexts;
 using Silk.NET.OpenGL;
 
 namespace Pie.OpenGL;
 
-internal sealed class GlGraphicsDevice : GraphicsDevice
+internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 {
     private PieGlContext _context;
     internal static GL Gl;
@@ -38,7 +37,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
 
     private int _defaultFramebufferId;
     
-    public unsafe GlGraphicsDevice(bool es, PieGlContext context, Size winSize, GraphicsDeviceOptions options)
+    public GlGraphicsDevice(bool es, PieGlContext context, Size winSize, GraphicsDeviceOptions options)
     {
         _context = context;
         Gl = GL.GetApi(context.GetProcFunc);
@@ -130,56 +129,55 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         PieMetrics.TriCount = 0;
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
         fixed (void* dat = data)
-            return new GlGraphicsBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), dat, dynamic);
+            return new GlGraphicsBuffer(bufferType, (uint) (data.Length * sizeof(T)), dat, dynamic);
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
     {
-        fixed (void* dat = new T[] { data })
-            return new GlGraphicsBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
+        return new GlGraphicsBuffer(bufferType, (uint) sizeof(T), Unsafe.AsPointer(ref data), dynamic);
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
     {
         return new GlGraphicsBuffer(bufferType, sizeInBytes, null, dynamic);
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
         return new GlGraphicsBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
         return new GlGraphicsBuffer(bufferType, sizeInBytes, data, dynamic);
     }
 
-    public override unsafe Texture CreateTexture(TextureDescription description)
+    public override Texture CreateTexture(TextureDescription description)
     {
         return GlTexture.CreateTexture(description, null);
     }
 
-    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[] data)
+    public override Texture CreateTexture<T>(TextureDescription description, T[] data)
     {
         fixed (void* ptr = data)
             return GlTexture.CreateTexture(description, ptr);
     }
 
-    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[][] data)
+    public override Texture CreateTexture<T>(TextureDescription description, T[][] data)
     {
         fixed (void* ptr = PieUtils.Combine(data))
             return GlTexture.CreateTexture(description, ptr);
     }
 
-    public override unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
+    public override Texture CreateTexture(TextureDescription description, IntPtr data)
     {
         return GlTexture.CreateTexture(description, data.ToPointer());
     }
 
-    public override unsafe Texture CreateTexture(TextureDescription description, void* data)
+    public override Texture CreateTexture(TextureDescription description, void* data)
     {
         return GlTexture.CreateTexture(description, data);
     }
@@ -220,42 +218,41 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         return new GlFramebuffer(attachments);
     }
 
-    public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
+    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
         fixed (void* dat = data)
-            ((GlGraphicsBuffer) buffer).Update(offsetInBytes, (uint) (data.Length * Unsafe.SizeOf<T>()), dat);
+            ((GlGraphicsBuffer) buffer).Update(offsetInBytes, (uint) (data.Length * sizeof(T)), dat);
     }
 
-    public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
+    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
     {
-        fixed (void* dat = new T[] { data })
-            ((GlGraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
+        ((GlGraphicsBuffer) buffer).Update(offsetInBytes, (uint) sizeof(T), Unsafe.AsPointer(ref data));
     }
 
-    public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data)
+    public override void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data)
     {
         ((GlGraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data.ToPointer());
     }
 
-    public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data)
+    public override void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data)
     {
         ((GlGraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data);
     }
 
-    public override unsafe void UpdateTexture<T>(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
+    public override void UpdateTexture<T>(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
         int width, int height, int depth, T[] data)
     {
         fixed (void* dat = data)
             ((GlTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, dat);
     }
 
-    public override unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width,
+    public override void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width,
         int height, int depth, IntPtr data)
     {
         ((GlTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data.ToPointer());
     }
 
-    public override unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
+    public override void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
         int width, int height, int depth, void* data)
     {
         ((GlTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data);
@@ -375,7 +372,7 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         Gl.BindBufferBase(BufferTargetARB.UniformBuffer, bindingSlot, ((GlGraphicsBuffer) buffer).Handle);
     }
 
-    public override unsafe void SetFramebuffer(Framebuffer framebuffer)
+    public override void SetFramebuffer(Framebuffer framebuffer)
     {
         if (framebuffer == null)
         {
@@ -404,28 +401,28 @@ internal sealed class GlGraphicsDevice : GraphicsDevice
         PieMetrics.TriCount += vertexCount / 3;
     }
 
-    public override unsafe void DrawIndexed(uint indexCount)
+    public override void DrawIndexed(uint indexCount)
     {
         Gl.DrawElements(_glType, indexCount, _currentEType, null);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3;
     }
 
-    public override unsafe void DrawIndexed(uint indexCount, int startIndex)
+    public override void DrawIndexed(uint indexCount, int startIndex)
     {
         Gl.DrawElements(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize));
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3;
     }
 
-    public override unsafe void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
+    public override void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
         Gl.DrawElementsBaseVertex(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize), baseVertex);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3;
     }
 
-    public override unsafe void DrawIndexedInstanced(uint indexCount, uint instanceCount)
+    public override void DrawIndexedInstanced(uint indexCount, uint instanceCount)
     {
         Gl.DrawElementsInstanced(_glType, indexCount, _currentEType, null, instanceCount);
         PieMetrics.DrawCalls++;

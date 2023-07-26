@@ -25,8 +25,8 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     private Silk.NET.DXGI.Format _colorFormat;
     private Silk.NET.DXGI.Format? _depthFormat;
     
-    public static ComPtr<ID3D11Device> Device;
-    public static ComPtr<ID3D11DeviceContext> Context;
+    private ComPtr<ID3D11Device> _device;
+    private ComPtr<ID3D11DeviceContext> _context;
     
     private ComPtr<IDXGIFactory2> _dxgiFactory;
     private ComPtr<IDXGISwapChain> _swapChain;
@@ -44,12 +44,15 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     private D3D11Framebuffer _currentFramebuffer;
 
-    public unsafe D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options)
+    static D3D11GraphicsDevice()
     {
         DXGI = DXGI.GetApi(null);
         D3D11 = D3D11.GetApi(null);
         D3DCompiler = D3DCompiler.GetApi();
+    }
 
+    public D3D11GraphicsDevice(IntPtr hwnd, Size winSize, GraphicsDeviceOptions options)
+    {
         bool debug = options.Debug;
         if (debug && !CheckDebugSdk(D3D11))
         {
@@ -89,8 +92,8 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         Adapter = new GraphicsAdapter(Marshal.PtrToStringAnsi((IntPtr) desc.Description));
 
         if (!Succeeded(D3D11.CreateDeviceAndSwapChain(new ComPtr<IDXGIAdapter>((IDXGIAdapter*) null), D3DDriverType.Hardware, 0,
-                (uint) flags, &level, 1, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref Device, null,
-                ref Context)))
+                (uint) flags, &level, 1, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref _device, null,
+                ref _context)))
         {
             throw new PieException("Failed to create device or swapchain.");
         }
@@ -98,7 +101,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         if (!Succeeded(_swapChain.GetBuffer(0, out _colorTexture)))
             throw new PieException("Failed to get the back color buffer.");
 
-        if (!Succeeded(Device.CreateRenderTargetView(_colorTexture, null, ref _colorTargetView)))
+        if (!Succeeded(_device.CreateRenderTargetView(_colorTexture, null, ref _colorTargetView)))
             throw new PieException("Failed to create swapchain color target.");
         CreateDepthStencilView(winSize);
         
@@ -108,7 +111,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             Size = winSize
         };
 
-        Context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
+        _context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
     }
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
@@ -123,7 +126,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         {
             _viewport = value;
             Silk.NET.Direct3D11.Viewport viewport = new Viewport(value.X, value.Y, value.Width, value.Height, 0f, 1f);
-            Context.RSSetViewports(1, viewport);
+            _context.RSSetViewports(1, viewport);
         }
     }
 
@@ -138,7 +141,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
             Silk.NET.Maths.Box2D<int> scissor =
                 new Silk.NET.Maths.Box2D<int>(value.X, value.Y, value.Width, value.Height);
-            Context.RSSetScissorRects(1, scissor);
+            _context.RSSetScissorRects(1, scissor);
         }
     }
 
@@ -152,15 +155,15 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         if (_currentFramebuffer != null)
         {
             for (int i = 0; i < _currentFramebuffer.Targets.Length; i++)
-                Context.ClearRenderTargetView(_currentFramebuffer.Targets[i], &color.X);
+                _context.ClearRenderTargetView(_currentFramebuffer.Targets[i], &color.X);
         }
         else
-            Context.ClearRenderTargetView(_colorTargetView, &color.X);
+            _context.ClearRenderTargetView(_colorTargetView, &color.X);
     }
 
     public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
     {
-        //Context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
+        //_context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
         uint cf = 0;
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
             cf |= (uint) ClearFlag.Depth;
@@ -168,7 +171,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
             cf |= (uint) ClearFlag.Stencil;
 
-        Context.ClearDepthStencilView(_currentFramebuffer?.DepthStencil ?? _depthStencilTargetView, cf, depth, stencil);
+        _context.ClearDepthStencilView(_currentFramebuffer?.DepthStencil ?? _depthStencilTargetView, cf, depth, stencil);
     }
 
     private void InvalidateCache()
@@ -179,131 +182,129 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         _currentDStencilState = null;
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
     {
         fixed (void* dat = data) 
-            return new D3D11GraphicsBuffer(bufferType, (uint) (data.Length * Unsafe.SizeOf<T>()), dat, dynamic);
+            return new D3D11GraphicsBuffer(_device, _context, bufferType, (uint) (data.Length * sizeof(T)), dat, dynamic);
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T data, bool dynamic = false)
     {
-        fixed (void* dat = new T[] { data })
-            return new D3D11GraphicsBuffer(bufferType, (uint) Unsafe.SizeOf<T>(), dat, dynamic);
+        return new D3D11GraphicsBuffer(_device, _context, bufferType, (uint) sizeof(T), Unsafe.AsPointer(ref data), dynamic);
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, bool dynamic = false)
     {
-        return new D3D11GraphicsBuffer(bufferType, sizeInBytes, null, dynamic);
+        return new D3D11GraphicsBuffer(_device, _context, bufferType, sizeInBytes, null, dynamic);
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, IntPtr data, bool dynamic = false)
     {
-        return new D3D11GraphicsBuffer(bufferType, sizeInBytes, data.ToPointer(), dynamic);
+        return new D3D11GraphicsBuffer(_device, _context, bufferType, sizeInBytes, data.ToPointer(), dynamic);
     }
 
-    public override unsafe GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
+    public override GraphicsBuffer CreateBuffer(BufferType bufferType, uint sizeInBytes, void* data, bool dynamic = false)
     {
-        return new D3D11GraphicsBuffer(bufferType, sizeInBytes, data, dynamic);
+        return new D3D11GraphicsBuffer(_device, _context, bufferType, sizeInBytes, data, dynamic);
     }
 
-    public override unsafe Texture CreateTexture(TextureDescription description)
+    public override Texture CreateTexture(TextureDescription description)
     {
-        return new D3D11Texture(description, null);
+        return new D3D11Texture(_device, _context, description, null);
     }
 
-    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[] data)
+    public override Texture CreateTexture<T>(TextureDescription description, T[] data)
     {
         fixed (void* ptr = data)
-            return new D3D11Texture(description, ptr);
+            return new D3D11Texture(_device, _context, description, ptr);
     }
 
-    public override unsafe Texture CreateTexture<T>(TextureDescription description, T[][] data)
+    public override Texture CreateTexture<T>(TextureDescription description, T[][] data)
     {
         fixed (void* ptr = PieUtils.Combine(data))
-            return new D3D11Texture(description, ptr);
+            return new D3D11Texture(_device, _context, description, ptr);
     }
 
-    public override unsafe Texture CreateTexture(TextureDescription description, IntPtr data)
+    public override Texture CreateTexture(TextureDescription description, IntPtr data)
     {
-        return new D3D11Texture(description, data.ToPointer());
+        return new D3D11Texture(_device, _context, description, data.ToPointer());
     }
 
-    public override unsafe Texture CreateTexture(TextureDescription description, void* data)
+    public override Texture CreateTexture(TextureDescription description, void* data)
     {
-        return new D3D11Texture(description, data);
+        return new D3D11Texture(_device, _context, description, data);
     }
 
     public override Shader CreateShader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
-        return new D3D11Shader(attachments, constants);
+        return new D3D11Shader(_device, _context, attachments, constants);
     }
 
     public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
     {
-        return new D3D11InputLayout(descriptions);
+        return new D3D11InputLayout(_device, descriptions);
     }
 
     public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)
     {
-        return new D3D11RasterizerState(description);
+        return new D3D11RasterizerState(_device, description);
     }
 
     public override BlendState CreateBlendState(BlendStateDescription description)
     {
-        return new D3D11BlendState(description);
+        return new D3D11BlendState(_device, description);
     }
 
     public override DepthStencilState CreateDepthStencilState(DepthStencilStateDescription description)
     {
-        return new D3D11DepthStencilState(description);
+        return new D3D11DepthStencilState(_device, description);
     }
 
     public override SamplerState CreateSamplerState(SamplerStateDescription description)
     {
-        return new D3D11SamplerState(description);
+        return new D3D11SamplerState(_device, description);
     }
 
     public override Framebuffer CreateFramebuffer(params FramebufferAttachment[] attachments)
     {
-        return new D3D11Framebuffer(attachments);
+        return new D3D11Framebuffer(_device, attachments);
     }
 
-    public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
+    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T[] data)
     {
         fixed (void* dat = data)
-            ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, (uint) (data.Length * Unsafe.SizeOf<T>()), dat);
+            ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, (uint) (data.Length * sizeof(T)), dat);
     }
 
-    public override unsafe void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
+    public override void UpdateBuffer<T>(GraphicsBuffer buffer, uint offsetInBytes, T data)
     {
-        fixed (void* dat = new T[] { data })
-            ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, (uint) Unsafe.SizeOf<T>(), dat);
+        ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, (uint) sizeof(T), Unsafe.AsPointer(ref data));
     }
 
-    public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data)
+    public override void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, IntPtr data)
     {
         ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data.ToPointer());
     }
 
-    public override unsafe void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data)
+    public override void UpdateBuffer(GraphicsBuffer buffer, uint offsetInBytes, uint sizeInBytes, void* data)
     {
         ((D3D11GraphicsBuffer) buffer).Update(offsetInBytes, sizeInBytes, data);
     }
 
-    public override unsafe void UpdateTexture<T>(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
+    public override void UpdateTexture<T>(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
         int width, int height, int depth, T[] data)
     {
         fixed (void* dat = data)
             ((D3D11Texture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, dat);
     }
 
-    public override unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width,
+    public override void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z, int width,
         int height, int depth, IntPtr data)
     {
         ((D3D11Texture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data.ToPointer());
     }
 
-    public override unsafe void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
+    public override void UpdateTexture(Texture texture, int mipLevel, int arrayIndex, int x, int y, int z,
         int width, int height, int depth, void* data)
     {
         ((D3D11Texture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data);
@@ -328,8 +329,8 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     public override void SetTexture(uint bindingSlot, Texture texture, SamplerState state)
     {
         D3D11Texture tex = (D3D11Texture) texture;
-        Context.PSSetShaderResources(bindingSlot, 1, ref tex.View);
-        Context.PSSetSamplers(bindingSlot, 1, ref ((D3D11SamplerState) state).State);
+        _context.PSSetShaderResources(bindingSlot, 1, ref tex.View);
+        _context.PSSetSamplers(bindingSlot, 1, ref ((D3D11SamplerState) state).State);
     }
 
     public override void SetRasterizerState(RasterizerState state)
@@ -337,7 +338,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         //if (state == _currentRState)
         //    return;
         _currentRState = state;
-        Context.RSSetState(((D3D11RasterizerState) state).State);
+        _context.RSSetState(((D3D11RasterizerState) state).State);
     }
 
     public override void SetBlendState(BlendState state)
@@ -345,7 +346,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         //if (state == _currentBState)
         //    return;
         _currentBState = state;
-        Context.OMSetBlendState(((D3D11BlendState) state).State, null, uint.MaxValue);
+        _context.OMSetBlendState(((D3D11BlendState) state).State, null, uint.MaxValue);
     }
 
     public override void SetDepthStencilState(DepthStencilState state, int stencilRef)
@@ -353,7 +354,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         //if (state == _currentDStencilState)
         //    return;
         _currentDStencilState = state;
-        Context.OMSetDepthStencilState(((D3D11DepthStencilState) state).State, (uint) stencilRef);
+        _context.OMSetDepthStencilState(((D3D11DepthStencilState) state).State, (uint) stencilRef);
     }
 
     public override void SetPrimitiveType(PrimitiveType type)
@@ -376,7 +377,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
         
-        Context.IASetPrimitiveTopology(topology);
+        _context.IASetPrimitiveTopology(topology);
     }
 
     public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
@@ -385,10 +386,10 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         //{
         //    _currentLayout = layout;
             D3D11InputLayout lt = (D3D11InputLayout) layout;
-            Context.IASetInputLayout(lt.Layout);
+            _context.IASetInputLayout(lt.Layout);
         //}
 
-        Context.IASetVertexBuffers(slot, 1, ref ((D3D11GraphicsBuffer) buffer).Buffer, stride, 0);
+        _context.IASetVertexBuffers(slot, 1, ref ((D3D11GraphicsBuffer) buffer).Buffer, stride, 0);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
@@ -400,26 +401,26 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
         
-        Context.IASetIndexBuffer(((D3D11GraphicsBuffer) buffer).Buffer, fmt, 0);
+        _context.IASetIndexBuffer(((D3D11GraphicsBuffer) buffer).Buffer, fmt, 0);
     }
 
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
     {
         D3D11GraphicsBuffer buf = (D3D11GraphicsBuffer) buffer;
-        Context.VSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
-        Context.PSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
-        Context.GSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
-        Context.CSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
+        _context.VSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
+        _context.PSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
+        _context.GSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
+        _context.CSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
     }
 
     public override void SetFramebuffer(Framebuffer framebuffer)
     {
         _currentFramebuffer = (D3D11Framebuffer) framebuffer;
         if (framebuffer == null)
-            Context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
+            _context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
         else
         {
-            Context.OMSetRenderTargets((uint) _currentFramebuffer.Targets.Length, ref _currentFramebuffer.Targets[0],
+            _context.OMSetRenderTargets((uint) _currentFramebuffer.Targets.Length, ref _currentFramebuffer.Targets[0],
                 _currentFramebuffer.DepthStencil);
         }
 
@@ -427,42 +428,42 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void Draw(uint vertexCount)
     {
-        Context.Draw(vertexCount, 0);
+        _context.Draw(vertexCount, 0);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += vertexCount / 3;
     }
 
     public override void Draw(uint vertexCount, int startVertex)
     {
-        Context.Draw(vertexCount, (uint) startVertex);
+        _context.Draw(vertexCount, (uint) startVertex);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += vertexCount/ 3;
     }
 
     public override void DrawIndexed(uint indexCount)
     {
-        Context.DrawIndexed(indexCount, 0, 0);
+        _context.DrawIndexed(indexCount, 0, 0);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3;
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex)
     {
-        Context.DrawIndexed(indexCount, (uint) startIndex, 0);
+        _context.DrawIndexed(indexCount, (uint) startIndex, 0);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount/ 3;
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
-        Context.DrawIndexed(indexCount, (uint) startIndex, baseVertex);
+        _context.DrawIndexed(indexCount, (uint) startIndex, baseVertex);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount/ 3;
     }
 
     public override void DrawIndexedInstanced(uint indexCount, uint instanceCount)
     {
-        Context.DrawIndexedInstanced( indexCount, instanceCount, 0, 0, 0);
+        _context.DrawIndexedInstanced( indexCount, instanceCount, 0, 0, 0);
         PieMetrics.TriCount += indexCount / 3 * instanceCount;
         PieMetrics.DrawCalls++;
     }
@@ -477,7 +478,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         // ?????? This only seems to happen on AMD but after presentation the render targets go off to floaty land
         // I'm sure usually this is resolved by setting render targets at the start of a frame (like what Easel does)
         // but Pie has no way of knowing when the start of a frame is, so just do it at the end of presentation.
-        Context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
+        _context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
         
         PieMetrics.DrawCalls = 0;
         PieMetrics.TriCount = 0;
@@ -485,8 +486,8 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void ResizeSwapchain(Size newSize)
     {
-        Context.Flush();
-        Context.OMSetRenderTargets(1, (ID3D11RenderTargetView*) null, (ID3D11DepthStencilView*) null);
+        _context.Flush();
+        _context.OMSetRenderTargets(1, (ID3D11RenderTargetView*) null, (ID3D11DepthStencilView*) null);
         _colorTargetView.Dispose();
         _colorTexture.Dispose();
 
@@ -498,7 +499,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
         _swapChain.ResizeBuffers(0, (uint) newSize.Width, (uint) newSize.Height, Silk.NET.DXGI.Format.FormatUnknown, 0);
         _colorTexture = _swapChain.GetBuffer<ID3D11Texture2D>(0);
-        if (!Succeeded(Device.CreateRenderTargetView(_colorTexture, null, ref _colorTargetView)))
+        if (!Succeeded(_device.CreateRenderTargetView(_colorTexture, null, ref _colorTargetView)))
             throw new PieException("Failed to create swapchain color target.");
         CreateDepthStencilView(newSize);
 
@@ -507,25 +508,25 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void GenerateMipmaps(Texture texture)
     {
-        Context.GenerateMips(((D3D11Texture) texture).View);
+        _context.GenerateMips(((D3D11Texture) texture).View);
     }
 
     public override void Dispatch(uint groupCountX, uint groupCountY, uint groupCountZ)
     {
-        Context.Dispatch(groupCountX, groupCountY, groupCountZ);
+        _context.Dispatch(groupCountX, groupCountY, groupCountZ);
     }
 
     public override void Flush()
     {
-        Context.Flush();
+        _context.Flush();
     }
 
     public override void Dispose()
     {
         _colorTargetView.Dispose();
         _swapChain.Dispose();
-        Device.Dispose();
-        Context.Dispose();
+        _device.Dispose();
+        _context.Dispose();
         _dxgiFactory.Dispose();
     }
 
@@ -554,10 +555,10 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             ViewDimension = DsvDimension.Texture2D
         };
 
-        if (!Succeeded(Device.CreateTexture2D(&texDesc, null, ref _depthStencilTexture)))
+        if (!Succeeded(_device.CreateTexture2D(&texDesc, null, ref _depthStencilTexture)))
             throw new PieException("Failed to create swapchain depth texture.");
 
-        if (!Succeeded(Device.CreateDepthStencilView(_depthStencilTexture, &viewDesc, ref _depthStencilTargetView)))
+        if (!Succeeded(_device.CreateDepthStencilView(_depthStencilTexture, &viewDesc, ref _depthStencilTargetView)))
             throw new PieException("Failed to create swapchain depth view.");
     }
 }

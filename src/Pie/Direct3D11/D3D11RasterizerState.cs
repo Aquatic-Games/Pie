@@ -14,7 +14,7 @@ internal sealed unsafe class D3D11RasterizerState : RasterizerState
 
     public override RasterizerStateDescription Description { get; }
 
-    public D3D11RasterizerState(RasterizerStateDescription description)
+    public D3D11RasterizerState(ComPtr<ID3D11Device> device, RasterizerStateDescription description)
     {
         Description = description;
 
@@ -41,7 +41,7 @@ internal sealed unsafe class D3D11RasterizerState : RasterizerState
             ScissorEnable = description.ScissorTest
         };
 
-        if (!Succeeded(Device.CreateRasterizerState(&desc, ref State)))
+        if (!Succeeded(device.CreateRasterizerState(&desc, ref State)))
             throw new PieException("Failed to create rasterizer state.");
     }
 

@@ -9,6 +9,8 @@ namespace Pie.Direct3D11;
 
 internal sealed unsafe class D3D11Texture : Texture
 {
+    private ComPtr<ID3D11DeviceContext> _context;
+
     public ComPtr<ID3D11Resource> Texture;
     public ComPtr<ID3D11ShaderResourceView> View;
 
@@ -16,8 +18,10 @@ internal sealed unsafe class D3D11Texture : Texture
     
     public override TextureDescription Description { get; set; }
 
-    public D3D11Texture(in TextureDescription description, void* data)
+    public D3D11Texture(ComPtr<ID3D11Device> device, ComPtr<ID3D11DeviceContext> context, in TextureDescription description, void* data)
     {
+        _context = context;
+        
         Description = description;
         
         int pitch = PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
@@ -70,7 +74,7 @@ internal sealed unsafe class D3D11Texture : Texture
                 };
 
                 ComPtr<ID3D11Texture1D> tex1d = null;
-                if (!Succeeded(Device.CreateTexture1D(&desc1d, null, ref tex1d)))
+                if (!Succeeded(device.CreateTexture1D(&desc1d, null, ref tex1d)))
                     throw new PieException("Failed to create 1D texture.");
                 Texture = ComPtr.Downcast<ID3D11Texture1D, ID3D11Resource>(tex1d);
 
@@ -115,7 +119,7 @@ internal sealed unsafe class D3D11Texture : Texture
                 };
 
                 ComPtr<ID3D11Texture2D> tex2d = null;
-                if (!Succeeded(Device.CreateTexture2D(&desc2d, null, ref tex2d)))
+                if (!Succeeded(device.CreateTexture2D(&desc2d, null, ref tex2d)))
                     throw new PieException("Failed to create 2D texture.");
                 Texture = ComPtr.Downcast<ID3D11Texture2D, ID3D11Resource>(tex2d);
 
@@ -158,7 +162,7 @@ internal sealed unsafe class D3D11Texture : Texture
                 };
 
                 ComPtr<ID3D11Texture3D> tex3d = null;
-                if (!Succeeded(Device.CreateTexture3D(&desc3d, null, ref tex3d)))
+                if (!Succeeded(device.CreateTexture3D(&desc3d, null, ref tex3d)))
                     throw new PieException("Failed to create 3D texture.");
                 Texture = ComPtr.Downcast<ID3D11Texture3D, ID3D11Resource>(tex3d);
                 
@@ -192,7 +196,7 @@ internal sealed unsafe class D3D11Texture : Texture
                 };
 
                 ComPtr<ID3D11Texture2D> texCube = null;
-                if (!Succeeded(Device.CreateTexture2D(&desc2dcube, null, ref texCube)))
+                if (!Succeeded(device.CreateTexture2D(&desc2dcube, null, ref texCube)))
                     throw new PieException("Failed to create Cubemap texture.");
                 Texture = ComPtr.Downcast<ID3D11Texture2D, ID3D11Resource>(texCube);
 
@@ -236,7 +240,7 @@ internal sealed unsafe class D3D11Texture : Texture
                     int rowPitch = PieUtils.CalculatePitch(description.Format, width, out _);
                     int depthPitch = PieUtils.CalculatePitch(description.Format, depth, out _);
 
-                    Context.UpdateSubresource(Texture, CalcSubresource((uint) i, (uint) a, (uint) mipLevels), null,
+                    context.UpdateSubresource(Texture, CalcSubresource((uint) i, (uint) a, (uint) mipLevels), null,
                         (byte*) data + currentOffset, (uint) rowPitch, (uint) depthPitch);
 
                     currentOffset += currSize;
@@ -258,7 +262,7 @@ internal sealed unsafe class D3D11Texture : Texture
 
         if ((description.Usage & TextureUsage.ShaderResource) == TextureUsage.ShaderResource)
         {
-            if (!Succeeded(Device.CreateShaderResourceView(Texture, &svDesc, ref View)))
+            if (!Succeeded(device.CreateShaderResourceView(Texture, &svDesc, ref View)))
                 throw new PieException("Failed to create shader resource view.");
         }
     }
@@ -278,7 +282,7 @@ internal sealed unsafe class D3D11Texture : Texture
         Box box = new Box((uint) x, (uint) y, (uint) z, (uint) (x + width), (uint) (y + height),
             (uint) (z + depth + 1));
         
-        Context.UpdateSubresource(Texture, subresource, box, data, (uint) rowPitch, (uint) depthPitch);
+        _context.UpdateSubresource(Texture, subresource, box, data, (uint) rowPitch, (uint) depthPitch);
     }
 
     public override void Dispose()
