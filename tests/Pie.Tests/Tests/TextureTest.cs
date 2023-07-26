@@ -23,6 +23,9 @@ public class TextureTest : TestBase
 
     private DepthStencilState _depthStencilState;
     private RasterizerState _rasterizerState;
+
+    private Framebuffer _fb;
+    private Texture _fbTexture;
     
     protected override void Initialize()
     {
@@ -146,11 +149,17 @@ PSOutput PixelShader(in VSOutput input)
 
         _depthStencilState = GraphicsDevice.CreateDepthStencilState(DepthStencilStateDescription.Disabled);
         _rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone);
+
+        _fbTexture = GraphicsDevice.CreateTexture(TextureDescription.Texture2D(640, 480, Format.R8G8B8A8_UNorm, 1, 1,
+            TextureUsage.Framebuffer | TextureUsage.ShaderResource));
+        _fb = GraphicsDevice.CreateFramebuffer(new FramebufferAttachment(_fbTexture));
     }
 
     protected override void Draw(double dt)
     {
         base.Draw(dt);
+
+        //GraphicsDevice.SetFramebuffer(_fb);
         
         GraphicsDevice.ClearColorBuffer(Color.CornflowerBlue);
         
@@ -162,5 +171,11 @@ PSOutput PixelShader(in VSOutput input)
         GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _layout);
         GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UInt);
         GraphicsDevice.DrawIndexed(6);
+        
+        /*GraphicsDevice.SetFramebuffer(null);
+        
+        GraphicsDevice.ClearColorBuffer(new Vector4(1.0f, 0.5f, 0.25f, 1.0f));
+        GraphicsDevice.SetTexture(0, _fbTexture, _samplerState);
+        GraphicsDevice.DrawIndexed(6);*/
     }
 }
