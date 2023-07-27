@@ -54,9 +54,7 @@ public class SpriteRenderer : IDisposable
         _vertexBuffer = device.CreateBuffer(BufferType.VertexBuffer, vertices);
         _indexBuffer = device.CreateBuffer(BufferType.IndexBuffer, indices);
 
-        string hlslCode =
-            Encoding.UTF8.GetString(Utils.LoadEmbeddedResource(Assembly.GetExecutingAssembly(),
-                "Common.Shaders.Sprite.hlsl"));
+        string hlslCode = File.ReadAllText("Shaders/Sprite.hlsl");
         _shader = device.CreateShader(new[]
         {
             new ShaderAttachment(ShaderStage.Vertex, hlslCode, Language.HLSL, "VertexShader"),

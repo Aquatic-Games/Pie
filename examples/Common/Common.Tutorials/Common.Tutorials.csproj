@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Common.Demos\Common.Demos.csproj" />
+    <ProjectReference Include="..\..\..\src\Pie.Utils\Pie.Utils.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <Content Include="Content\**\*">
+    <Content Include="Content/**/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

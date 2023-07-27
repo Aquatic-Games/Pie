@@ -29,15 +29,4 @@ public static class Utils
 
         return 0;
     }
-
-    public static byte[] LoadEmbeddedResource(Assembly assembly, string resName)
-    {
-        using Stream stream = assembly.GetManifestResourceStream(resName);
-        if (stream == null)
-            throw new Exception($"The embedded resource \"{resName}\" was not found in assembly \"{assembly}\".");
-
-        using MemoryStream memStream = new MemoryStream();
-        stream.CopyTo(memStream);
-        return memStream.ToArray();
-    }
 }

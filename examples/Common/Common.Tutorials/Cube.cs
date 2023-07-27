@@ -1,7 +1,7 @@
 using System.Numerics;
 using Pie.Utils;
 
-namespace Common;
+namespace Common.Tutorials;
 
 public static class Cube
 {

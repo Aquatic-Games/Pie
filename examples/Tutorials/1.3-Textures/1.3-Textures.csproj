@@ -9,15 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\src\Pie.Utils\Pie.Utils.csproj" />
-        <ProjectReference Include="..\..\..\src\Pie\Pie.csproj" />
-        <ProjectReference Include="..\..\Common\Common.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Pie" Version="0.9.1" />
-      <PackageReference Include="Pie.Utils" Version="0.9.1" />
-      <PackageReference Include="Pie.Windowing" Version="0.9.1" />
+        <ProjectReference Include="..\..\Common\Common.Tutorials\Common.Tutorials.csproj" />
     </ItemGroup>
 
 </Project>
