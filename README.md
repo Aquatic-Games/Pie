@@ -23,8 +23,6 @@ Pie features a cross-platform audio library, using [mixr](https://github.com/pie
 ### Windowing
 Pie features a cross-platform windowing library, powered by SDL. This is a do-it-yourself abstraction, it creates the window & graphics device for you, and you are expected to create the render loop yourself.
 
-Don't like this? Pie is fully compatible with [Silk.NET](https://github.com/dotnet/Silk.NET) windowing, which provides a windowing abstraction, but also a fully functional render loop so you can just get started.
-
 ### Text
 Cross-platform FreeType bindings, complete with a simple abstraction layer, to make text rendering easy.
 
@@ -33,9 +31,3 @@ Used by Pie itself, the shader compiler provides a simple way to transpile shade
 
 ### SDL
 A raw wrapper around SDL, mostly for use by Pie.Windowing and Pie.Audio. It aims to be feature complete, though! (Although note at time of writing the bindings are *very* incomplete. PRs welcome!)
-
-### Credits
-* [Silk.NET](https://github.com/dotnet/Silk.NET) - Direct3D and OpenGL bindings.
-* [Spirzza](https://github.com/TechPizzaDev/Spirzza) - shaderc & spirv-cross bindings.
-* [mixr](https://github.com/piegfx/mixr) - Native audio library for Pie.Audio
-* Twitter for it's pie emoji (I don't own it!)

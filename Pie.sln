@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Audio", "src\Pie.Audio\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Windowing", "src\Pie.Windowing\Pie.Windowing.csproj", "{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Extensions.SilkWindowing", "src\Pie.Extensions.SilkWindowing\Pie.Extensions.SilkWindowing.csproj", "{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Text", "src\Pie.Text\Pie.Text.csproj", "{6E6A1480-FF25-45A6-BDDB-904E07DCA291}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.SDL", "src\Pie.SDL\Pie.SDL.csproj", "{F7DE6842-6488-4071-95E3-697F6905DE63}"
@@ -77,10 +75,6 @@ Global
 		{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0EF6E4A-E0DC-4E02-BAAB-4A8CBA3EAA1C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FDBF3E89-EBB3-4A49-A54D-57FAF932FB38}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E6A1480-FF25-45A6-BDDB-904E07DCA291}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6E6A1480-FF25-45A6-BDDB-904E07DCA291}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E6A1480-FF25-45A6-BDDB-904E07DCA291}.Release|Any CPU.ActiveCfg = Release|Any CPU
