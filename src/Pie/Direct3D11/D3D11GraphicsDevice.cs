@@ -145,20 +145,22 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         }
     }
 
-    public override void ClearColorBuffer(Color color)
-    {
-        ClearColorBuffer(new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f));
-    }
+    public override void ClearColorBuffer(Color color) =>
+        ClearColorBuffer(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
 
-    public override void ClearColorBuffer(Vector4 color)
+    public override void ClearColorBuffer(Vector4 color) => ClearColorBuffer(color.X, color.Y, color.Z, color.W);
+
+    public override void ClearColorBuffer(float r, float g, float b, float a)
     {
+        float* color = stackalloc float[4] { r, g, b, a };
+        
         if (_currentFramebuffer != null)
         {
             for (int i = 0; i < _currentFramebuffer.Targets.Length; i++)
-                _context.ClearRenderTargetView(_currentFramebuffer.Targets[i], &color.X);
+                _context.ClearRenderTargetView(_currentFramebuffer.Targets[i], color);
         }
         else
-            _context.ClearRenderTargetView(_colorTargetView, &color.X);
+            _context.ClearRenderTargetView(_colorTargetView, color);
     }
 
     public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)

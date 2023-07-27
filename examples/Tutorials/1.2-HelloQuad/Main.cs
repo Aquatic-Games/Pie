@@ -94,7 +94,7 @@ void main()
 
     protected override void Draw(double dt)
     {
-        GraphicsDevice.ClearColorBuffer(new Vector4(0.2f, 0.3f, 0.3f, 1.0f));
+        GraphicsDevice.ClearColorBuffer(0.2f, 0.3f, 0.3f, 1.0f);
         
         // Set all our values and draw!
         GraphicsDevice.SetShader(_shader);

@@ -96,14 +96,14 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         }
     }
 
-    public override void ClearColorBuffer(Color color)
-    {
-        ClearColorBuffer(new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f));
-    }
+    public override void ClearColorBuffer(Color color) =>
+        ClearColorBuffer(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
 
-    public override void ClearColorBuffer(Vector4 color)
+    public override void ClearColorBuffer(Vector4 color) => ClearColorBuffer(color.X, color.Y, color.Z, color.W);
+
+    public override void ClearColorBuffer(float r, float g, float b, float a)
     {
-        Gl.ClearColor(color.X, color.Y, color.Z, color.W);
+        Gl.ClearColor(r, g, b, a);
         Gl.Clear(ClearBufferMask.ColorBufferBit);
     }
 

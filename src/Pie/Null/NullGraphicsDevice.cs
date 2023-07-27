@@ -35,6 +35,10 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     {
     }
 
+    public override void ClearColorBuffer(float r, float g, float b, float a)
+    {
+    }
+
     public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
     {
     }

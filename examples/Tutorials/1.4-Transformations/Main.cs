@@ -116,7 +116,7 @@ void main()
                               Matrix4x4.CreateTranslation(0.5f, -0.5f, 0.0f);
         GraphicsDevice.UpdateBuffer(_transformBuffer, 0, transform);
         
-        GraphicsDevice.ClearColorBuffer(new Vector4(0.2f, 0.3f, 0.3f, 1.0f));
+        GraphicsDevice.ClearColorBuffer(0.2f, 0.3f, 0.3f, 1.0f);
         
         GraphicsDevice.SetShader(_shader);
         GraphicsDevice.SetUniformBuffer(0, _transformBuffer);

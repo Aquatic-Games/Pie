@@ -162,7 +162,7 @@ void main()
 
     protected override void Draw(double dt)
     {
-        GraphicsDevice.ClearColorBuffer(new Vector4(0.2f, 0.3f, 0.3f, 1.0f));
+        GraphicsDevice.ClearColorBuffer(0.2f, 0.3f, 0.3f, 1.0f);
         GraphicsDevice.ClearDepthStencilBuffer(ClearFlags.Depth, 1.0f, 0);
         
         GraphicsDevice.SetShader(_shader);
