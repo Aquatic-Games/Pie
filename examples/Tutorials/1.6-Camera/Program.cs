@@ -1,4 +1,4 @@
 ﻿using PieSamples;
 
-using Main window = new Main("Learn Pie: Chapter 1 Part 6 - Camera");
+using Main window = new Main();
 window.Run();

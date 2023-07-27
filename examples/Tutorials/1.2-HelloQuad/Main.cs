@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using Common;
 using Pie;
 using Pie.ShaderCompiler;
@@ -72,20 +73,20 @@ void main()
     protected override void Initialize()
     {
         // Create our vertex and index buffers using the respective arrays.
-        _vertexBuffer = Device.CreateBuffer(BufferType.VertexBuffer, _vertices);
-        _indexBuffer = Device.CreateBuffer(BufferType.IndexBuffer, _indices);
+        _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, _vertices);
+        _indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, _indices);
 
         // Create our shader from our code above.
         // Pie's native shading language is SPIR-V, however it can compile shaders at runtime if you pass a string.
-        _shader = Device.CreateShader(new []
+        _shader = GraphicsDevice.CreateShader(new []
         {
             new ShaderAttachment(ShaderStage.Vertex, VertexShader),
             new ShaderAttachment(ShaderStage.Fragment, FragmentShader)
         });
 
-        // Create an input layout. Input layouts determine how the graphics device will interpret the vertex data, that
+        // Create an input layout. Input layouts determine how the graphics GraphicsDevice will interpret the vertex data, that
         // we uploaded earlier into our vertex array.
-        _inputLayout = Device.CreateInputLayout(
+        _inputLayout = GraphicsDevice.CreateInputLayout(
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex), // aPosition
             new InputLayoutDescription(Format.R32G32B32_Float, 12, 0, InputType.PerVertex) // aColor
         );
@@ -93,12 +94,14 @@ void main()
 
     protected override void Draw(double dt)
     {
+        GraphicsDevice.ClearColorBuffer(new Vector4(0.2f, 0.3f, 0.3f, 1.0f));
+        
         // Set all our values and draw!
-        Device.SetShader(_shader);
-        Device.SetPrimitiveType(PrimitiveType.TriangleList);
-        Device.SetVertexBuffer(0, _vertexBuffer, VertexPositionColor.SizeInBytes, _inputLayout);
-        Device.SetIndexBuffer(_indexBuffer, IndexType.UInt);
-        Device.DrawIndexed((uint) _indices.Length);
+        GraphicsDevice.SetShader(_shader);
+        GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionColor.SizeInBytes, _inputLayout);
+        GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UInt);
+        GraphicsDevice.DrawIndexed((uint) _indices.Length);
     }
 
     public override void Dispose()
@@ -112,5 +115,5 @@ void main()
         base.Dispose();
     }
 
-    public Main(string title) : base(title) { }
+    public Main() : base(new Size(800, 600), "Learn Pie: Chapter 1 Part 2 - Drawing a quad") { }
 }

@@ -1,12 +1,12 @@
 using System;
-using System.IO;
+using System.Drawing;
 using System.Numerics;
-using System.Reflection;
+using System.Runtime.InteropServices;
+using Common;
 using Pie;
 using Pie.ShaderCompiler;
 using Pie.Utils;
 using Pie.Windowing;
-using Silk.NET.Maths;
 
 namespace PieSamples;
 
@@ -79,18 +79,18 @@ void main()
 
     private Camera _camera;
 
-    public override void Initialize()
+    protected override void Initialize()
     {
-        _vertexBuffer = Device.CreateBuffer(BufferType.VertexBuffer, Cube.Vertices);
-        _indexBuffer = Device.CreateBuffer(BufferType.IndexBuffer, Cube.Indices);
+        _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, Cube.Vertices);
+        _indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, Cube.Indices);
 
-        _shader = Device.CreateShader(new []
+        _shader = GraphicsDevice.CreateShader(new []
         {
             new ShaderAttachment(ShaderStage.Vertex, VertexShader),
             new ShaderAttachment(ShaderStage.Fragment, FragmentShader)
         });
 
-        _inputLayout = Device.CreateInputLayout(
+        _inputLayout = GraphicsDevice.CreateInputLayout(
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex), // aPosition
             new InputLayoutDescription(Format.R32G32_Float, 12, 0, InputType.PerVertex) // aTexCoords
         );
@@ -98,24 +98,24 @@ void main()
         TextureDescription textureDesc =
             TextureDescription.Texture2D(0, 0, Format.R8G8B8A8_UNorm, 0, 1, TextureUsage.ShaderResource);
         
-        Bitmap b1 = new Bitmap(GetFullPath("Content/Textures/container.png"));
+        Bitmap b1 = new Bitmap("Content/Textures/container.png");
         textureDesc.Width = b1.Size.Width;
         textureDesc.Height = b1.Size.Height;
-        _texture1 = Device.CreateTexture(textureDesc, b1.Data);
-        Device.GenerateMipmaps(_texture1);
+        _texture1 = GraphicsDevice.CreateTexture(textureDesc, b1.Data);
+        GraphicsDevice.GenerateMipmaps(_texture1);
 
-        Bitmap b2 = new Bitmap(GetFullPath("Content/Textures/awesomeface.png"));
+        Bitmap b2 = new Bitmap("Content/Textures/awesomeface.png");
         textureDesc.Width = b2.Size.Width;
         textureDesc.Height = b2.Size.Height;
-        _texture2 = Device.CreateTexture(textureDesc, b2.Data);
-        Device.GenerateMipmaps(_texture2);
+        _texture2 = GraphicsDevice.CreateTexture(textureDesc, b2.Data);
+        GraphicsDevice.GenerateMipmaps(_texture2);
 
-        _samplerState = Device.CreateSamplerState(SamplerStateDescription.LinearRepeat);
+        _samplerState = GraphicsDevice.CreateSamplerState(SamplerStateDescription.LinearRepeat);
 
         _projViewTransform = new ProjViewTransform();
-        _transformBuffer = Device.CreateBuffer(BufferType.UniformBuffer, _projViewTransform, true);
+        _transformBuffer = GraphicsDevice.CreateBuffer(BufferType.UniformBuffer, _projViewTransform, true);
 
-        _depthStencilState = Device.CreateDepthStencilState(DepthStencilStateDescription.LessEqual);
+        _depthStencilState = GraphicsDevice.CreateDepthStencilState(DepthStencilStateDescription.LessEqual);
 
         _camera = new Camera(45, Window.Size.Width / (float) Window.Size.Height);
         _camera.Position = new Vector3(0, 0, -3);
@@ -123,52 +123,55 @@ void main()
         Window.CursorMode = CursorMode.Locked;
     }
 
-    public override void Update(float dt)
+    protected override void Update(double dt)
     {
         base.Update(dt);
 
         const float camSpeed = 20;
         const float mouseSpeed = 0.01f;
 
-        if (IsKeyDown(Key.W))
-            _camera.Position += _camera.Forward * camSpeed * dt;
-        if (IsKeyDown(Key.S))
-            _camera.Position -= _camera.Forward * camSpeed * dt;
-        if (IsKeyDown(Key.A))
-            _camera.Position -= _camera.Right * camSpeed * dt;
-        if (IsKeyDown(Key.D))
-            _camera.Position += _camera.Right * camSpeed * dt;
+        if (Input.KeyDown(Key.W))
+            _camera.Position += _camera.Forward * camSpeed * (float) dt;
+        if (Input.KeyDown(Key.S))
+            _camera.Position -= _camera.Forward * camSpeed * (float) dt;
+        if (Input.KeyDown(Key.A))
+            _camera.Position -= _camera.Right * camSpeed * (float) dt;
+        if (Input.KeyDown(Key.D))
+            _camera.Position += _camera.Right * camSpeed * (float) dt;
 
-        _camera.Rotation.X -= DeltaMousePosition.X * mouseSpeed;
-        _camera.Rotation.Y -= DeltaMousePosition.Y * mouseSpeed;
+        _camera.Rotation.X -= Input.MouseDelta.X * mouseSpeed;
+        _camera.Rotation.Y -= Input.MouseDelta.Y * mouseSpeed;
 
         _camera.Rotation.Y = float.Clamp(_camera.Rotation.Y, -MathF.PI / 2, MathF.PI / 2);
 
         _projViewTransform.Projection = _camera.ProjectionMatrix;
         _projViewTransform.View = _camera.ViewMatrix;
 
-        if (IsKeyDown(Key.Escape))
+        if (Input.KeyDown(Key.Escape))
             Close();
     }
 
-    public override void Draw(float dt)
+    protected override void Draw(double dt)
     {
-        Device.SetShader(_shader);
-        Device.SetUniformBuffer(0, _transformBuffer);
-        Device.SetTexture(1, _texture1, _samplerState);
-        Device.SetTexture(2, _texture2, _samplerState);
-        Device.SetDepthStencilState(_depthStencilState);
-        Device.SetPrimitiveType(PrimitiveType.TriangleList);
-        Device.SetVertexBuffer(0, _vertexBuffer, VertexPositionTextureNormal.SizeInBytes, _inputLayout);
-        Device.SetIndexBuffer(_indexBuffer, IndexType.UInt);
+        GraphicsDevice.ClearColorBuffer(new Vector4(0.2f, 0.3f, 0.3f, 1.0f));
+        GraphicsDevice.ClearDepthStencilBuffer(ClearFlags.Depth, 1.0f, 0);
+        
+        GraphicsDevice.SetShader(_shader);
+        GraphicsDevice.SetUniformBuffer(0, _transformBuffer);
+        GraphicsDevice.SetTexture(1, _texture1, _samplerState);
+        GraphicsDevice.SetTexture(2, _texture2, _samplerState);
+        GraphicsDevice.SetDepthStencilState(_depthStencilState);
+        GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTextureNormal.SizeInBytes, _inputLayout);
+        GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UInt);
 
         for (int i = 0; i < _cubePos.Length; i++)
         {
             Quaternion rotation = Quaternion.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), 20.0f * i);
             _projViewTransform.Transform = Matrix4x4.CreateFromQuaternion(Quaternion.Normalize(rotation)) *
                                            Matrix4x4.CreateTranslation(_cubePos[i]);
-            Device.UpdateBuffer(_transformBuffer, 0, _projViewTransform);
-            Device.DrawIndexed((uint) Cube.Indices.Length);
+            GraphicsDevice.UpdateBuffer(_transformBuffer, 0, _projViewTransform);
+            GraphicsDevice.DrawIndexed((uint) Cube.Indices.Length);
         }
     }
 
@@ -182,6 +185,7 @@ void main()
         base.Dispose();
     }
     
+    [StructLayout(LayoutKind.Sequential)]
     private struct ProjViewTransform
     {
         public Matrix4x4 Projection;
@@ -196,5 +200,5 @@ void main()
         }
     }
 
-    public Main(string title) : base(title) { }
+    public Main() : base(new Size(800, 600), "Learn Pie: Chapter 1 Part 6 - Camera") { }
 }

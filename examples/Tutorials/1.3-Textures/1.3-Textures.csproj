@@ -9,6 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\src\Pie.Utils\Pie.Utils.csproj" />
+        <ProjectReference Include="..\..\..\src\Pie\Pie.csproj" />
         <ProjectReference Include="..\..\Common\Common.csproj" />
     </ItemGroup>
 

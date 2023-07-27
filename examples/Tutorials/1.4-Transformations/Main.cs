@@ -1,7 +1,6 @@
-using System;
-using System.IO;
+using System.Drawing;
 using System.Numerics;
-using System.Reflection;
+using Common;
 using Pie;
 using Pie.ShaderCompiler;
 using Pie.Utils;
@@ -71,18 +70,18 @@ void main()
 
     private GraphicsBuffer _transformBuffer;
 
-    public override void Initialize()
+    protected override void Initialize()
     {
-        _vertexBuffer = Device.CreateBuffer(BufferType.VertexBuffer, _vertices);
-        _indexBuffer = Device.CreateBuffer(BufferType.IndexBuffer, _indices);
+        _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, _vertices);
+        _indexBuffer = GraphicsDevice.CreateBuffer(BufferType.IndexBuffer, _indices);
 
-        _shader = Device.CreateShader(new []
+        _shader = GraphicsDevice.CreateShader(new []
         {
             new ShaderAttachment(ShaderStage.Vertex, VertexShader),
             new ShaderAttachment(ShaderStage.Fragment, FragmentShader)
         });
 
-        _inputLayout = Device.CreateInputLayout(
+        _inputLayout = GraphicsDevice.CreateInputLayout(
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex), // aPosition
             new InputLayoutDescription(Format.R32G32_Float, 12, 0, InputType.PerVertex) // aTexCoords
         );
@@ -90,41 +89,43 @@ void main()
         TextureDescription textureDesc =
             TextureDescription.Texture2D(0, 0, Format.R8G8B8A8_UNorm, 0, 1, TextureUsage.ShaderResource);
         
-        Bitmap b1 = new Bitmap(GetFullPath("Content/Textures/container.png"));
+        Bitmap b1 = new Bitmap("Content/Textures/container.png");
         textureDesc.Width = b1.Size.Width;
         textureDesc.Height = b1.Size.Height;
-        _texture1 = Device.CreateTexture(textureDesc, b1.Data);
-        Device.GenerateMipmaps(_texture1);
+        _texture1 = GraphicsDevice.CreateTexture(textureDesc, b1.Data);
+        GraphicsDevice.GenerateMipmaps(_texture1);
 
-        Bitmap b2 = new Bitmap(GetFullPath("Content/Textures/awesomeface.png"));
+        Bitmap b2 = new Bitmap("Content/Textures/awesomeface.png");
         textureDesc.Width = b2.Size.Width;
         textureDesc.Height = b2.Size.Height;
-        _texture2 = Device.CreateTexture(textureDesc, b2.Data);
-        Device.GenerateMipmaps(_texture2);
+        _texture2 = GraphicsDevice.CreateTexture(textureDesc, b2.Data);
+        GraphicsDevice.GenerateMipmaps(_texture2);
 
-        _samplerState = Device.CreateSamplerState(SamplerStateDescription.LinearRepeat);
+        _samplerState = GraphicsDevice.CreateSamplerState(SamplerStateDescription.LinearRepeat);
 
-        _transformBuffer = Device.CreateBuffer(BufferType.UniformBuffer, Matrix4x4.Identity, true);
+        _transformBuffer = GraphicsDevice.CreateBuffer(BufferType.UniformBuffer, Matrix4x4.Identity, true);
     }
 
-    private float _time;
+    private double _time;
 
-    public override void Draw(float dt)
+    protected override void Draw(double dt)
     {
         _time += dt;
 
-        Matrix4x4 transform = Matrix4x4.CreateRotationZ(_time) * 
+        Matrix4x4 transform = Matrix4x4.CreateRotationZ((float) _time) * 
                               Matrix4x4.CreateTranslation(0.5f, -0.5f, 0.0f);
-        Device.UpdateBuffer(_transformBuffer, 0, transform);
+        GraphicsDevice.UpdateBuffer(_transformBuffer, 0, transform);
         
-        Device.SetShader(_shader);
-        Device.SetUniformBuffer(0, _transformBuffer);
-        Device.SetTexture(1, _texture1, _samplerState);
-        Device.SetTexture(2, _texture2, _samplerState);
-        Device.SetPrimitiveType(PrimitiveType.TriangleList);
-        Device.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _inputLayout);
-        Device.SetIndexBuffer(_indexBuffer, IndexType.UInt);
-        Device.DrawIndexed((uint) _indices.Length);
+        GraphicsDevice.ClearColorBuffer(new Vector4(0.2f, 0.3f, 0.3f, 1.0f));
+        
+        GraphicsDevice.SetShader(_shader);
+        GraphicsDevice.SetUniformBuffer(0, _transformBuffer);
+        GraphicsDevice.SetTexture(1, _texture1, _samplerState);
+        GraphicsDevice.SetTexture(2, _texture2, _samplerState);
+        GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _inputLayout);
+        GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UInt);
+        GraphicsDevice.DrawIndexed((uint) _indices.Length);
     }
 
     public override void Dispose()
@@ -137,5 +138,5 @@ void main()
         base.Dispose();
     }
 
-    public Main(string title) : base(title) { }
+    public Main() : base(new Size(800, 600), "Learn Pie: Chapter 1 Part 4 - Transformations") { }
 }
