@@ -6,6 +6,7 @@ using System.Text;
 using Pie.OpenGL;
 using Pie.Windowing.Events;
 using Pie.SDL;
+using Pie.Vulkan;
 
 namespace Pie.Windowing;
 
@@ -378,6 +379,11 @@ public sealed unsafe class Window : IDisposable
                 Sdl.GLSetAttribute(SdlGlAttr.FloatBuffers, bits.fp ? 1 : 0);
                 
                 break;
+            
+            case GraphicsApi.Vulkan:
+                flags |= SdlWindowFlags.Vulkan;
+                break;
+            
             case GraphicsApi.D3D11:
             case GraphicsApi.Null:
                 break;
@@ -462,6 +468,31 @@ public sealed unsafe class Window : IDisposable
             case GraphicsApi.Null:
                 return GraphicsDevice.CreateNull(size, options ?? new GraphicsDeviceOptions());
             
+            case GraphicsApi.Vulkan:
+                PieVkContext context = new PieVkContext(() =>
+                {
+                    uint extCount = 0;
+                    Sdl.VulkanGetInstanceExtensions(_window, &extCount, null);
+
+                    sbyte** instancePtrs = (sbyte**) NativeMemory.Alloc((nuint) (extCount * sizeof(sbyte*)));
+                    Sdl.VulkanGetInstanceExtensions(_window, &extCount, instancePtrs);
+
+                    string[] instanceExtensions = NativeHelper.PtrToStringArray((nint) instancePtrs, extCount);
+
+                    NativeMemory.Free(instancePtrs);
+
+                    return instanceExtensions;
+                }, instance =>
+                {
+                    void** surface;
+                    if (!Sdl.VulkanCreateSurface(_window, instance, &surface))
+                        throw new Exception("Failed to create vulkan surface!");
+
+                    return (nint) surface;
+                });
+                
+                return GraphicsDevice.CreateVulkan(context, size, options ?? new GraphicsDeviceOptions());
+
             default:
                 throw new ArgumentOutOfRangeException();
         }

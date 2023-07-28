@@ -2,13 +2,19 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using Pie.ShaderCompiler;
+using Silk.NET.Vulkan;
 
 namespace Pie.Vulkan;
 
-internal class VkGraphicsDevice : GraphicsDevice
+internal unsafe class VkGraphicsDevice : GraphicsDevice
 {
     private VkLayer _layer;
+    
     private VkLayer.VkDevice _device;
+    
+    private VkLayer.VkSwapchain _swapchain;
+    private ImageView[] _swapchainImageViews;
+    
     
     public override GraphicsApi Api => GraphicsApi.Vulkan;
     
@@ -23,10 +29,72 @@ internal class VkGraphicsDevice : GraphicsDevice
     public VkGraphicsDevice(PieVkContext context, Size winSize, GraphicsDeviceOptions options)
     {
         _layer = new VkLayer(context, options.Debug);
+        ref Vk vk = ref _layer.Vk;
 
         VkLayer.VkPhysicalDevice pDevice = _layer.GetBestPhysicalDevice();
 
         _device = _layer.CreateDevice(pDevice);
+
+        SurfaceFormatKHR surfaceFormat;
+        foreach (SurfaceFormatKHR format in pDevice.SupportedFormats)
+        {
+            if (format.Format == options.ColorBufferFormat.ToVkFormat() &&
+                format.ColorSpace == ColorSpaceKHR.SpaceSrgbNonlinearKhr)
+            {
+                surfaceFormat = format;
+                goto FORMAT_FOUND;
+            }
+        }
+
+        // TODO: Print Pie.Formats instead of VkFormat. In fact I'm not even sure this code will print anything useful at all.
+        throw new PieException(
+            $"The given color buffer format, {options.ColorBufferFormat} is not supported by the graphics device. The supported formats are: {string.Join(", ", pDevice.SupportedFormats)}");
+        
+        FORMAT_FOUND: ;
+
+        // TODO: Better image count detector.
+        uint imageCount = pDevice.SurfaceCapabilities.MinImageCount + 1;
+        SurfaceTransformFlagsKHR transform = pDevice.SurfaceCapabilities.CurrentTransform;
+
+        // TODO: Check compatibility with fifo, may need to be that swapchain cannot be created until the first Present()
+        // is called.
+        _swapchain = _layer.CreateSwapchain(_device, surfaceFormat, PresentModeKHR.FifoKhr,
+            new Extent2D((uint) winSize.Width, (uint) winSize.Height), imageCount, transform);
+
+        _swapchainImageViews = new ImageView[_swapchain.Images.Length];
+
+        for (int i = 0; i < _swapchainImageViews.Length; i++)
+        {
+            PieLog.Log(LogType.Verbose, $"Creating swapchain image view {i}.");
+            
+            ImageViewCreateInfo viewCreate = new ImageViewCreateInfo()
+            {
+                SType = StructureType.ImageViewCreateInfo,
+                Image = _swapchain.Images[i],
+
+                ViewType = ImageViewType.Type2D,
+                Format = surfaceFormat.Format,
+
+                Components = new ComponentMapping()
+                {
+                    R = ComponentSwizzle.Identity,
+                    G = ComponentSwizzle.Identity,
+                    B = ComponentSwizzle.Identity,
+                    A = ComponentSwizzle.Identity,
+                },
+
+                SubresourceRange = new ImageSubresourceRange()
+                {
+                    AspectMask = ImageAspectFlags.ColorBit,
+                    BaseMipLevel = 0,
+                    LevelCount = 1,
+                    BaseArrayLayer = 0,
+                    LayerCount = 1
+                }
+            };
+
+            VkLayer.CheckResult(vk.CreateImageView(_device.Device, &viewCreate, null, out _swapchainImageViews[i]));
+        }
         
         
     }
@@ -43,7 +111,7 @@ internal class VkGraphicsDevice : GraphicsDevice
 
     public override void ClearColorBuffer(float r, float g, float b, float a)
     {
-        throw new NotImplementedException();
+        
     }
 
     public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
@@ -266,7 +334,7 @@ internal class VkGraphicsDevice : GraphicsDevice
 
     public override void Present(int swapInterval)
     {
-        throw new NotImplementedException();
+        
     }
 
     public override void ResizeSwapchain(Size newSize)
@@ -291,6 +359,15 @@ internal class VkGraphicsDevice : GraphicsDevice
 
     public override void Dispose()
     {
-        throw new NotImplementedException();
+        ref Vk vk = ref _layer.Vk;
+        
+        foreach (ImageView view in _swapchainImageViews)
+            vk.DestroyImageView(_device.Device, view, null);
+        
+        _layer.DestroySwapchain(_device, _swapchain);
+        
+        _layer.DestroyDevice(_device);
+        
+        _layer.Dispose();
     }
 }

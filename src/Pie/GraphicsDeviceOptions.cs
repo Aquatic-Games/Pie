@@ -36,7 +36,7 @@ public struct GraphicsDeviceOptions
     /// Create a new <see cref="GraphicsDeviceOptions"/>.
     /// </summary>
     /// <param name="debug">If enabled, the graphics device will run in debug mode.</param>
-    public GraphicsDeviceOptions(bool debug = false, Format colorBufferFormat = Format.R8G8B8A8_UNorm,
+    public GraphicsDeviceOptions(bool debug = false, Format colorBufferFormat = Format.B8G8R8A8_UNorm,
         Format? depthStencilBufferFormat = Format.D24_UNorm_S8_UInt)
     {
         Debug = debug;
