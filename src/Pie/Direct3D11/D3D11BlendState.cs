@@ -1,7 +1,6 @@
 using System;
 using Silk.NET.Core.Native;
 using Silk.NET.Direct3D11;
-using static Pie.Direct3D11.D3D11GraphicsDevice;
 using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
@@ -12,7 +11,7 @@ internal sealed unsafe class D3D11BlendState : BlendState
 
     public ComPtr<ID3D11BlendState> State;
     
-    public D3D11BlendState(BlendStateDescription description)
+    public D3D11BlendState(ComPtr<ID3D11Device> device, BlendStateDescription description)
     {
         Description = description;
 
@@ -31,7 +30,7 @@ internal sealed unsafe class D3D11BlendState : BlendState
             RenderTargetWriteMask = (byte) description.ColorWriteMask
         };
 
-        if (!Succeeded(Device.CreateBlendState(&desc, ref State)))
+        if (!Succeeded(device.CreateBlendState(&desc, ref State)))
             throw new PieException("Failed to create blend state.");
     }
 

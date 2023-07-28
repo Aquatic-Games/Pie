@@ -10,7 +10,7 @@ internal sealed unsafe class D3D11SamplerState : SamplerState
 {
     public ComPtr<ID3D11SamplerState> State;
     
-    public D3D11SamplerState(SamplerStateDescription description)
+    public D3D11SamplerState(ComPtr<ID3D11Device> device, SamplerStateDescription description)
     {
         Description = description;
         
@@ -46,7 +46,7 @@ internal sealed unsafe class D3D11SamplerState : SamplerState
         desc.BorderColor[2] = description.BorderColor.B / 255f;
         desc.BorderColor[3] = description.BorderColor.A / 255f;
 
-        if (!Succeeded(Device.CreateSamplerState(&desc, ref State)))
+        if (!Succeeded(device.CreateSamplerState(&desc, ref State)))
             throw new PieException("Failed to create sampler state.");
     }
     

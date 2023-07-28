@@ -50,8 +50,18 @@ public abstract class GraphicsDevice : IDisposable
     /// Clears the set Framebuffer's color texture with the given normalized color and flags. If no framebuffer is set,
     /// this clears the back buffer.
     /// </summary>
-    /// <param name="color">The color to clear with.</param>
+    /// <param name="color">The color to clear with. This value should be normalized between 0-1.</param>
     public abstract void ClearColorBuffer(Vector4 color);
+
+    /// <summary>
+    /// Clears the set Framebuffer's color texture with the given normalized color and flags. If no framebuffer is set,
+    /// this clears the back buffer.
+    /// </summary>
+    /// <param name="r">The red channel, normalized between 0-1.</param>
+    /// <param name="g">The green channel, normalized between 0-1.</param>
+    /// <param name="b">The blue channel, normalized between 0-1.</param>
+    /// <param name="a">The alpha channel, normalized between 0-1.</param>
+    public abstract void ClearColorBuffer(float r, float g, float b, float a);
 
     /// <summary>
     /// Clears the set Framebuffer's depth stencil texture with the given flags. If no framebuffer is set, this clears

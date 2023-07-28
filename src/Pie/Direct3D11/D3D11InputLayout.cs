@@ -12,7 +12,7 @@ internal sealed unsafe class D3D11InputLayout : InputLayout
 {
     public readonly ComPtr<ID3D11InputLayout> Layout;
 
-    public D3D11InputLayout(InputLayoutDescription[] descriptions)
+    public D3D11InputLayout(ComPtr<ID3D11Device> device, InputLayoutDescription[] descriptions)
     {
         GCHandle handle = GCHandle.Alloc(Encoding.UTF8.GetBytes("TEXCOORD"), GCHandleType.Pinned);
         IntPtr addr = handle.AddrOfPinnedObject();
@@ -40,7 +40,7 @@ internal sealed unsafe class D3D11InputLayout : InputLayout
         Descriptions = descriptions;
 
         ComPtr<ID3D10Blob> dummyBlob = GenerateDummyShader(descriptions);
-        if (!Succeeded(Device.CreateInputLayout(in iedesc[0], (uint) iedesc.Length, dummyBlob.GetBufferPointer(),
+        if (!Succeeded(device.CreateInputLayout(in iedesc[0], (uint) iedesc.Length, dummyBlob.GetBufferPointer(),
                 dummyBlob.GetBufferSize(), ref Layout)))
         {
             throw new PieException("Failed to create input layout.");

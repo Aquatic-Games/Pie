@@ -23,8 +23,6 @@ public struct ShaderAttachment
     /// </summary>
     public string EntryPoint;
 
-    internal uint TempHandle;
-
     /// <summary>
     /// Create a new shader attachment.
     /// </summary>
@@ -36,7 +34,6 @@ public struct ShaderAttachment
         Stage = stage;
         Spirv = spirv;
         EntryPoint = entryPoint;
-        TempHandle = 0;
     }
     
     /// <summary>
@@ -56,7 +53,5 @@ public struct ShaderAttachment
         
         Spirv = result.Result;
         EntryPoint = entryPoint;
-        
-        TempHandle = 0;
     }
 }

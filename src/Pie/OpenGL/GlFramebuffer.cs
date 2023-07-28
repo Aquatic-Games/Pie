@@ -55,6 +55,8 @@ internal class GlFramebuffer : Framebuffer
 
         if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != GLEnum.FramebufferComplete)
             throw new PieException($"OpenGL: Framebuffer is not complete: {Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer)}");
+        
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
     
     public override bool IsDisposed { get; protected set; }

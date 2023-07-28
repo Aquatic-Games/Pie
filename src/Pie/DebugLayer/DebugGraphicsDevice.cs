@@ -51,6 +51,11 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
        Device.ClearColorBuffer(color);
     }
 
+    public override void ClearColorBuffer(float r, float g, float b, float a)
+    {
+        Device.ClearColorBuffer(r, g, b, a);
+    }
+
     public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
     {
         Device.ClearDepthStencilBuffer(flags, depth, stencil);

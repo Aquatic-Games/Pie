@@ -13,7 +13,7 @@ internal sealed unsafe class D3D11Framebuffer : Framebuffer
     public ComPtr<ID3D11RenderTargetView>[] Targets;
     public ComPtr<ID3D11DepthStencilView> DepthStencil;
 
-    public D3D11Framebuffer(FramebufferAttachment[] attachments)
+    public D3D11Framebuffer(ComPtr<ID3D11Device> device, FramebufferAttachment[] attachments)
     {
         int depthCount = 0;
 
@@ -41,7 +41,7 @@ internal sealed unsafe class D3D11Framebuffer : Framebuffer
                         }
                     };
 
-                    if (!Succeeded(Device.CreateDepthStencilView(((D3D11Texture) attachment.Texture).Texture,
+                    if (!Succeeded(device.CreateDepthStencilView(((D3D11Texture) attachment.Texture).Texture,
                             &depthDesc, ref DepthStencil)))
                         throw new PieException("Failed to create depth stencil view.");
                     break;
@@ -58,7 +58,7 @@ internal sealed unsafe class D3D11Framebuffer : Framebuffer
                     };
 
                     ComPtr<ID3D11RenderTargetView> targetView = null;
-                    Device.CreateRenderTargetView(((D3D11Texture) attachment.Texture).Texture, &viewDesc,
+                    device.CreateRenderTargetView(((D3D11Texture) attachment.Texture).Texture, &viewDesc,
                         ref targetView);
 
                     targets.Add(targetView);

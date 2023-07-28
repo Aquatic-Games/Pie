@@ -10,7 +10,7 @@ internal sealed unsafe class D3D11DepthStencilState : DepthStencilState
 {
     public ComPtr<ID3D11DepthStencilState> State;
     
-    public D3D11DepthStencilState(DepthStencilStateDescription description)
+    public D3D11DepthStencilState(ComPtr<ID3D11Device> device, DepthStencilStateDescription description)
     {
         Description = description;
 
@@ -33,7 +33,7 @@ internal sealed unsafe class D3D11DepthStencilState : DepthStencilState
         desc.BackFace.StencilPassOp = StencilOpToOperation(description.StencilFrontFace.DepthStencilPassOp);
         desc.BackFace.StencilDepthFailOp = StencilOpToOperation(description.StencilFrontFace.DepthFailOp);
 
-        if (!Succeeded(Device.CreateDepthStencilState(&desc, ref State)))
+        if (!Succeeded(device.CreateDepthStencilState(&desc, ref State)))
             throw new PieException("Failed to create depth stencil state.");
     }
 
