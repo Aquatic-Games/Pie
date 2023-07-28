@@ -3,5 +3,5 @@ using Pie.Tests;
 using Pie.Tests.Tests;
 using Pie.Windowing;
 
-using TestBase tb = new TextureTest();
+using TestBase tb = new ClearTest();
 tb.Run(GraphicsDevice.GetBestApiForPlatform());

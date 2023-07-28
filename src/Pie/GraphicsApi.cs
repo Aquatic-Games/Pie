@@ -25,7 +25,12 @@ public enum GraphicsApi
     /// <summary>
     /// Null device. Does not do any rendering.
     /// </summary>
-    Null
+    Null,
+    
+    /// <summary>
+    /// Vulkan 1.3.
+    /// </summary>
+    Vulkan
 }
 
 public static class GraphicsApiExtensions

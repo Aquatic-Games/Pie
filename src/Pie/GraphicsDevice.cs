@@ -6,6 +6,7 @@ using Pie.Direct3D11;
 using Pie.Null;
 using Pie.OpenGL;
 using Pie.ShaderCompiler;
+using Pie.Vulkan;
 
 namespace Pie;
 
@@ -505,6 +506,16 @@ public abstract class GraphicsDevice : IDisposable
         if (options.Debug)
             return new DebugGraphicsDevice(device);
         
+        return device;
+    }
+
+    public static GraphicsDevice CreateVulkan(PieVkContext context, Size winSize, GraphicsDeviceOptions options = default)
+    {
+        GraphicsDevice device = new VkGraphicsDevice(context, winSize, options);
+
+        if (options.Debug)
+            return new DebugGraphicsDevice(device);
+
         return device;
     }
 
