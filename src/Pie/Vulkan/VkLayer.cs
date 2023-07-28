@@ -262,19 +262,77 @@ public unsafe class VkLayer : IDisposable
         return new VkDevice()
         {
             Device = device,
+            
             GraphicsQueue = graphicsQueue,
-            PresentQueue = presentQueue
+            PresentQueue = presentQueue,
+            
+            QueueFamilyIndices = pDevice.QueueFamilyIndices
         };
     }
 
-    public VkSwapchain CreateSwapchain()
+    public VkSwapchain CreateSwapchain(VkDevice device, SurfaceFormatKHR surfaceFormat, PresentModeKHR presentMode, Extent2D extent, uint imageCount, SurfaceTransformFlagsKHR transform)
     {
+        PieLog.Log(LogType.Verbose, "Creating swapchain.");
         
+        SwapchainCreateInfoKHR swapchainInfo = new SwapchainCreateInfoKHR()
+        {
+            SType = StructureType.SwapchainCreateInfoKhr,
+
+            Surface = _surface,
+
+            MinImageCount = imageCount,
+            ImageFormat = surfaceFormat.Format,
+            ImageColorSpace = surfaceFormat.ColorSpace,
+            ImageExtent = extent,
+            ImageArrayLayers = 1,
+            ImageUsage = ImageUsageFlags.ColorAttachmentBit,
+            
+            PreTransform = transform,
+            
+            CompositeAlpha = CompositeAlphaFlagsKHR.OpaqueBitKhr,
+            
+            PresentMode = presentMode,
+            Clipped = true
+        };
+        
+        uint* queueFamilyIndices = stackalloc uint[]
+            { device.QueueFamilyIndices.GraphicsQueue!.Value, device.QueueFamilyIndices.PresentQueue!.Value };
+
+        if (device.QueueFamilyIndices.GraphicsQueue == device.QueueFamilyIndices.PresentQueue)
+            swapchainInfo.ImageSharingMode = SharingMode.Exclusive;
+        else
+        {
+            swapchainInfo.ImageSharingMode = SharingMode.Concurrent;
+            swapchainInfo.QueueFamilyIndexCount = 2;
+            swapchainInfo.PQueueFamilyIndices = queueFamilyIndices;
+        }
+        
+        CheckResult(_swapchainExt.CreateSwapchain(device.Device, &swapchainInfo, null, out SwapchainKHR swapchain));
+        
+        PieLog.Log(LogType.Verbose, "Fetching swapchain images.");
+
+        uint sImageCount;
+        _swapchainExt.GetSwapchainImages(device.Device, swapchain, &sImageCount, null);
+
+        Image[] images = new Image[sImageCount];
+        fixed (Image* imagePtr = images)
+            _swapchainExt.GetSwapchainImages(device.Device, swapchain, &sImageCount, imagePtr);
+
+        return new VkSwapchain()
+        {
+            Swapchain = swapchain,
+            Images = images
+        };
     }
 
     public void DestroyDevice(VkDevice device)
     {
         Vk.DestroyDevice(device.Device, null);
+    }
+
+    public void DestroySwapchain(VkDevice device, VkSwapchain swapchain)
+    {
+        _swapchainExt.DestroySwapchain(device.Device, swapchain.Swapchain, null);
     }
 
     public void Dispose()
@@ -339,12 +397,16 @@ public unsafe class VkLayer : IDisposable
     public struct VkDevice
     {
         public Device Device;
+        
         public Queue GraphicsQueue;
         public Queue PresentQueue;
+
+        public QueueFamilyIndices QueueFamilyIndices;
     }
 
     public struct VkSwapchain
     {
         public SwapchainKHR Swapchain;
+        public Image[] Images;
     }
 }
