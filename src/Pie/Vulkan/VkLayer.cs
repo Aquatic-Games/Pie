@@ -15,6 +15,7 @@ public unsafe class VkLayer : IDisposable
     public Instance Instance;
 
     private string[] _layers;
+    private string[] _deviceExtensions;
 
     private ExtDebugUtils _debugUtils;
     private DebugUtilsMessengerEXT _debugMessenger;
@@ -23,11 +24,15 @@ public unsafe class VkLayer : IDisposable
     private SurfaceKHR _surface;
 
     private KhrSwapchain _swapchainExt;
-    private SwapchainKHR _swapchain;
 
     public VkLayer(PieVkContext context, bool debug)
     {
         PieLog.Log(LogType.Verbose, "Creating VK layer.");
+
+        _deviceExtensions = new[]
+        {
+            KhrSwapchain.ExtensionName
+        };
         
         Vk = Vk.GetApi();
         
@@ -59,6 +64,7 @@ public unsafe class VkLayer : IDisposable
         
         PieLog.Log(LogType.Verbose, "Instance extensions: " + string.Join(", ", instanceExtensions));
         PieLog.Log(LogType.Verbose, "Layers: " + string.Join(", ", _layers));
+        PieLog.Log(LogType.Verbose, "Device extensions: " + string.Join(", ", _deviceExtensions));
 
         using PinnedStringArray instanceExtPtrs = new PinnedStringArray(instanceExtensions);
         using PinnedStringArray layersPtr = new PinnedStringArray(_layers);
@@ -145,13 +151,44 @@ public unsafe class VkLayer : IDisposable
 
             i++;
         }
-            
+
+        if (!indices.IsComplete)
+            throw new Exception("Device is not supported.");
+        
+        _surfaceExt.GetPhysicalDeviceSurfaceCapabilities(device, _surface, out SurfaceCapabilitiesKHR surfaceCapabilities);
+        SurfaceFormatKHR[] surfaceFormats;
+        PresentModeKHR[] presentModes;
+
+        uint formatCount;
+        _surfaceExt.GetPhysicalDeviceSurfaceFormats(device, _surface, &formatCount, null);
+
+        if (formatCount == 0)
+            throw new Exception("Device is not supported.");
+
+        surfaceFormats = new SurfaceFormatKHR[formatCount];
+        fixed (SurfaceFormatKHR* formatPtr = surfaceFormats)
+            _surfaceExt.GetPhysicalDeviceSurfaceFormats(device, _surface, &formatCount, formatPtr);
+
+        uint presentModeCount;
+        _surfaceExt.GetPhysicalDeviceSurfacePresentModes(device, _surface, &presentModeCount, null);
+
+        if (presentModeCount == 0)
+            throw new Exception("Device is not supported.");
+
+        presentModes = new PresentModeKHR[presentModeCount];
+        fixed (PresentModeKHR* presentPtr = presentModes)
+            _surfaceExt.GetPhysicalDeviceSurfacePresentModes(device, _surface, &presentModeCount, presentPtr);
+
         // TODO: Devices NEED to check to make sure VK is supported, as well as ranking best device to worst, so that
         // the best is picked in almost all cases.
         return new VkPhysicalDevice()
         {
             Device = device,
-            QueueFamilyIndices = indices
+            QueueFamilyIndices = indices,
+            
+            SurfaceCapabilities = surfaceCapabilities,
+            SupportedFormats = surfaceFormats,
+            SupportedPresentModes = presentModes
         };
     }
 
@@ -187,6 +224,7 @@ public unsafe class VkLayer : IDisposable
         PhysicalDeviceFeatures features = new PhysicalDeviceFeatures();
 
         using PinnedStringArray layers = new PinnedStringArray(_layers);
+        using PinnedStringArray deviceExtensions = new PinnedStringArray(_deviceExtensions);
 
         Device device;
 
@@ -202,11 +240,18 @@ public unsafe class VkLayer : IDisposable
                 PEnabledFeatures = &features,
                 
                 PpEnabledLayerNames = (byte**) layers.Handle,
-                EnabledLayerCount = (uint) _layers.Length
+                EnabledLayerCount = layers.Length,
+                
+                PpEnabledExtensionNames = (byte**) deviceExtensions.Handle,
+                EnabledExtensionCount = deviceExtensions.Length
             };
             
             CheckResult(Vk.CreateDevice(pDevice.Device, &deviceCreateInfo, null, out device));
         }
+
+        PieLog.Log(LogType.Verbose, "Getting swapchain extension.");
+        // TODO: Device extensions should be stored per VkDevice, not globally.
+        Vk.TryGetDeviceExtension(Instance, device, out _swapchainExt);
 
         PieLog.Log(LogType.Verbose, "Getting graphics queue.");
         Vk.GetDeviceQueue(device, pDevice.QueueFamilyIndices.GraphicsQueue.Value, 0, out Queue graphicsQueue);
@@ -222,6 +267,11 @@ public unsafe class VkLayer : IDisposable
         };
     }
 
+    public VkSwapchain CreateSwapchain()
+    {
+        
+    }
+
     public void DestroyDevice(VkDevice device)
     {
         Vk.DestroyDevice(device.Device, null);
@@ -229,6 +279,8 @@ public unsafe class VkLayer : IDisposable
 
     public void Dispose()
     {
+        _swapchainExt.Dispose();
+        
         _surfaceExt.DestroySurface(Instance, _surface, null);
         _surfaceExt.Dispose();
         
@@ -276,7 +328,12 @@ public unsafe class VkLayer : IDisposable
     public struct VkPhysicalDevice
     {
         public PhysicalDevice Device;
+        
         public QueueFamilyIndices QueueFamilyIndices;
+
+        public SurfaceCapabilitiesKHR SurfaceCapabilities;
+        public SurfaceFormatKHR[] SupportedFormats;
+        public PresentModeKHR[] SupportedPresentModes;
     }
 
     public struct VkDevice
@@ -284,5 +341,10 @@ public unsafe class VkLayer : IDisposable
         public Device Device;
         public Queue GraphicsQueue;
         public Queue PresentQueue;
+    }
+
+    public struct VkSwapchain
+    {
+        public SwapchainKHR Swapchain;
     }
 }

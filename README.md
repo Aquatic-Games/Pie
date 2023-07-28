@@ -13,6 +13,7 @@ The cross-platform graphics toolkit. Create high-performance GPU accelerated gra
 Pie's API has been designed to be safe and easy to use. Unlike other libraries, Pie has been designed from the ground up in C#, so you'll feel right at home using it.
 
 Pie currently supports the following backends:
+* Vulkan 1.3 (working, but still WIP, may be buggy)
 * Direct3D 11
 * OpenGL 4.3
 * OpenGL ES 3.0
