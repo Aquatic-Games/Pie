@@ -14,7 +14,12 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
     
     private VkLayer.VkSwapchain _swapchain;
     private ImageView[] _swapchainImageViews;
-    
+    private uint _currentImage;
+
+    private CommandBuffer _commandBuffer;
+    private Semaphore _imageAvailableSemaphore;
+    private Semaphore _renderFinishedSemaphore;
+    private Fence _inFlightFence;
     
     public override GraphicsApi Api => GraphicsApi.Vulkan;
     
@@ -34,6 +39,7 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
         VkLayer.VkPhysicalDevice pDevice = _layer.GetBestPhysicalDevice();
 
         _device = _layer.CreateDevice(pDevice);
+        _commandBuffer = _layer.CreateCommandBuffer(_device, CommandBufferLevel.Primary);
 
         SurfaceFormatKHR surfaceFormat;
         foreach (SurfaceFormatKHR format in pDevice.SupportedFormats)
@@ -96,22 +102,47 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
             VkLayer.CheckResult(vk.CreateImageView(_device.Device, &viewCreate, null, out _swapchainImageViews[i]));
         }
         
+        PieLog.Log(LogType.Verbose, "Creating semaphores.");
+
+        SemaphoreCreateInfo semaphoreCreateInfo = new SemaphoreCreateInfo()
+        {
+            SType = StructureType.SemaphoreCreateInfo
+        };
         
-    }
-    
-    public override void ClearColorBuffer(Color color)
-    {
-        throw new NotImplementedException();
+        VkLayer.CheckResult(vk.CreateSemaphore(_device.Device, &semaphoreCreateInfo, null, out _imageAvailableSemaphore));
+        VkLayer.CheckResult(vk.CreateSemaphore(_device.Device, &semaphoreCreateInfo, null, out _renderFinishedSemaphore));
+        
+        PieLog.Log(LogType.Verbose, "Creating fences.");
+
+        FenceCreateInfo fenceCreateInfo = new FenceCreateInfo()
+        {
+            SType = StructureType.FenceCreateInfo
+        };
+        
+        VkLayer.CheckResult(vk.CreateFence(_device.Device, &fenceCreateInfo, null, out _inFlightFence));
+
+        _layer.SwapchainExt.AcquireNextImage(_device.Device, _swapchain.Swapchain, ulong.MaxValue,
+            _imageAvailableSemaphore, new Fence(), ref _currentImage);
+        
+        Swapchain = new Swapchain()
+        {
+            Size = winSize
+        };
     }
 
-    public override void ClearColorBuffer(Vector4 color)
-    {
-        throw new NotImplementedException();
-    }
+    public override void ClearColorBuffer(Color color) =>
+        ClearColorBuffer(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
+
+    public override void ClearColorBuffer(Vector4 color) => ClearColorBuffer(color.X, color.Y, color.Z, color.W);
 
     public override void ClearColorBuffer(float r, float g, float b, float a)
     {
+        ImageView swapchainView = _swapchainImageViews[_currentImage];
+
+        _layer.CommandBufferBegin(_commandBuffer, _swapchain.Images[_currentImage], Swapchain.Size,
+            new ClearColorValue(r, g, b, a), &swapchainView, 1);
         
+        _layer.CommandBufferEnd(_commandBuffer, _swapchain.Images[_currentImage]);
     }
 
     public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
@@ -334,7 +365,18 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
 
     public override void Present(int swapInterval)
     {
+        ref Vk vk = ref _layer.Vk;
+
+        _layer.SwapchainPresent(_device, _swapchain, _commandBuffer, _currentImage, _inFlightFence,
+            _renderFinishedSemaphore, _imageAvailableSemaphore);
+
+        vk.WaitForFences(_device.Device, 1, _inFlightFence, true, ulong.MaxValue);
+        vk.ResetFences(_device.Device, 1, _inFlightFence);
         
+        _layer.SwapchainExt.AcquireNextImage(_device.Device, _swapchain.Swapchain, ulong.MaxValue,
+            _imageAvailableSemaphore, new Fence(), ref _currentImage);
+
+        vk.ResetCommandBuffer(_commandBuffer, CommandBufferResetFlags.None);
     }
 
     public override void ResizeSwapchain(Size newSize)
@@ -360,6 +402,10 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
     public override void Dispose()
     {
         ref Vk vk = ref _layer.Vk;
+        
+        vk.DestroyFence(_device.Device, _inFlightFence, null);
+        vk.DestroySemaphore(_device.Device, _renderFinishedSemaphore, null);
+        vk.DestroySemaphore(_device.Device, _imageAvailableSemaphore, null);
         
         foreach (ImageView view in _swapchainImageViews)
             vk.DestroyImageView(_device.Device, view, null);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using Silk.NET.Core;
 using Silk.NET.Vulkan;
@@ -362,7 +363,7 @@ public unsafe class VkLayer : IDisposable
         return buffer;
     }
 
-    public void CommandBufferBegin(CommandBuffer buffer, RenderingInfo renderingInfo, Image swapchainImage)
+    public void CommandBufferBegin(CommandBuffer buffer, Image swapchainImage, Size renderSize, ClearColorValue clearColor, ImageView* colorAttachments, uint numColorAttachments)
     {
         CommandBufferBeginInfo beginInfo = new CommandBufferBeginInfo()
         {
@@ -390,7 +391,32 @@ public unsafe class VkLayer : IDisposable
 
         Vk.CmdPipelineBarrier(buffer, PipelineStageFlags.TopOfPipeBit, PipelineStageFlags.ColorAttachmentOutputBit,
             DependencyFlags.None, 0, null, 0, null, 1, &memoryBarrier);
-        
+
+        RenderingAttachmentInfo* colorAttachmentInfos = stackalloc RenderingAttachmentInfo[(int) numColorAttachments];
+
+        for (int i = 0; i < numColorAttachments; i++)
+        {
+            colorAttachmentInfos[i] = new RenderingAttachmentInfo()
+            {
+                SType = StructureType.RenderingAttachmentInfo,
+                ImageView = colorAttachments[i],
+                ImageLayout = ImageLayout.AttachmentOptimal,
+                LoadOp = AttachmentLoadOp.Clear,
+                StoreOp = AttachmentStoreOp.Store,
+                ClearValue = new ClearValue(clearColor)
+            };
+        }
+
+        RenderingInfo renderingInfo = new RenderingInfo()
+        {
+            SType = StructureType.RenderingInfo,
+            RenderArea =
+                new Rect2D(new Offset2D(0, 0), new Extent2D((uint) renderSize.Width, (uint) renderSize.Height)),
+            LayerCount = 1,
+            ColorAttachmentCount = numColorAttachments,
+            PColorAttachments = colorAttachmentInfos
+        };
+
         Vk.CmdBeginRendering(buffer, &renderingInfo);
     }
 

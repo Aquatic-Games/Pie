@@ -139,26 +139,10 @@ public class ClearTest : TestBase
 
         vk.ResetCommandBuffer(_commandBuffer, CommandBufferResetFlags.None);
 
-        RenderingAttachmentInfo colorBufferAttachment = new RenderingAttachmentInfo()
-        {
-            SType = StructureType.RenderingAttachmentInfo,
-            ImageView = _swapchainImageViews[imgIndex],
-            ImageLayout = ImageLayout.AttachmentOptimal,
-            LoadOp = AttachmentLoadOp.Clear,
-            StoreOp = AttachmentStoreOp.Store,
-            ClearValue = new ClearValue(new ClearColorValue(1.0f, 0.5f, 0.25f, 1.0f))
-        };
+        ImageView currentSwapchainImage = _swapchainImageViews[imgIndex];
 
-        RenderingInfo renderingInfo = new RenderingInfo()
-        {
-            SType = StructureType.RenderingInfo,
-            RenderArea = new Rect2D(new Offset2D(0, 0), new Extent2D(1280, 720)),
-            LayerCount = 1,
-            ColorAttachmentCount = 1,
-            PColorAttachments = &colorBufferAttachment
-        };
-        
-        _vkLayer.CommandBufferBegin(_commandBuffer, renderingInfo, _swapchain.Images[imgIndex]);
+        _vkLayer.CommandBufferBegin(_commandBuffer, _swapchain.Images[imgIndex], new Size(1280, 720),
+            new ClearColorValue(1.0f, 0.5f, 0.25f), &currentSwapchainImage, 1);
         _vkLayer.CommandBufferEnd(_commandBuffer, _swapchain.Images[imgIndex]);
         
         _vkLayer.SwapchainPresent(_device, _swapchain, _commandBuffer, imgIndex, _inFlightFence, _renderFinished, _imgAvailable);
