@@ -11,6 +11,8 @@ public class ClearTest : TestBase
     private VkLayer _vkLayer;
     private VkLayer.VkDevice _device;
     private VkLayer.VkSwapchain _swapchain;
+    private ImageView[] _swapchainImageViews;
+    private CommandBuffer _commandBuffer;
     
     protected override unsafe void Initialize()
     {
@@ -41,6 +43,7 @@ public class ClearTest : TestBase
 
         VkLayer.VkPhysicalDevice pDevice = _vkLayer.GetBestPhysicalDevice();
         _device = _vkLayer.CreateDevice(pDevice);
+        _commandBuffer = _vkLayer.CreateCommandBuffer(_device, CommandBufferLevel.Primary);
 
         SurfaceFormatKHR surfaceFormat = pDevice.SupportedFormats[0];
         foreach (SurfaceFormatKHR format in pDevice.SupportedFormats)
@@ -61,10 +64,47 @@ public class ClearTest : TestBase
         uint imageCount = pDevice.SurfaceCapabilities.MinImageCount + 1;
 
         _swapchain = _vkLayer.CreateSwapchain(_device, surfaceFormat, presentMode, extent, imageCount, transform);
+
+        _swapchainImageViews = new ImageView[_swapchain.Images.Length];
+        for (int i = 0; i < _swapchainImageViews.Length; i++)
+        {
+            ImageViewCreateInfo imageViewInfo = new ImageViewCreateInfo()
+            {
+                SType = StructureType.ImageViewCreateInfo,
+
+                Image = _swapchain.Images[i],
+
+                ViewType = ImageViewType.Type2D,
+                Format = surfaceFormat.Format,
+
+                Components = new ComponentMapping()
+                {
+                    R = ComponentSwizzle.Identity,
+                    G = ComponentSwizzle.Identity,
+                    B = ComponentSwizzle.Identity,
+                    A = ComponentSwizzle.Identity,
+                },
+
+                SubresourceRange = new ImageSubresourceRange()
+                {
+                    AspectMask = ImageAspectFlags.ColorBit,
+                    BaseMipLevel = 0,
+                    LevelCount = 1,
+                    BaseArrayLayer = 0,
+                    LayerCount = 1
+                }
+            };
+
+            VkLayer.CheckResult(_vkLayer.Vk.CreateImageView(_device.Device, &imageViewInfo, null,
+                out _swapchainImageViews[i]));
+        }
     }
 
-    public override void Dispose()
+    public override unsafe void Dispose()
     {
+        foreach (ImageView view in _swapchainImageViews)
+            _vkLayer.Vk.DestroyImageView(_device.Device, view, null);
+        
         _vkLayer.DestroySwapchain(_device, _swapchain);
         _vkLayer.DestroyDevice(_device);
         _vkLayer.Dispose();

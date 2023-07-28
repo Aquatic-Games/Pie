@@ -31,7 +31,8 @@ public unsafe class VkLayer : IDisposable
 
         _deviceExtensions = new[]
         {
-            KhrSwapchain.ExtensionName
+            KhrSwapchain.ExtensionName,
+            KhrDynamicRendering.ExtensionName
         };
         
         Vk = Vk.GetApi();
@@ -222,6 +223,12 @@ public unsafe class VkLayer : IDisposable
         }
 
         PhysicalDeviceFeatures features = new PhysicalDeviceFeatures();
+        
+        PhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeatures = new PhysicalDeviceDynamicRenderingFeaturesKHR()
+        {
+            SType = StructureType.PhysicalDeviceDynamicRenderingFeaturesKhr,
+            DynamicRendering = true
+        };
 
         using PinnedStringArray layers = new PinnedStringArray(_layers);
         using PinnedStringArray deviceExtensions = new PinnedStringArray(_deviceExtensions);
@@ -233,6 +240,7 @@ public unsafe class VkLayer : IDisposable
             DeviceCreateInfo deviceCreateInfo = new DeviceCreateInfo()
             {
                 SType = StructureType.DeviceCreateInfo,
+                PNext = &dynamicRenderingFeatures,
                 
                 PQueueCreateInfos = queuePtr,
                 QueueCreateInfoCount = (uint) queueCreateInfos.Length,
@@ -258,6 +266,17 @@ public unsafe class VkLayer : IDisposable
         
         PieLog.Log(LogType.Verbose, "Getting present queue.");
         Vk.GetDeviceQueue(device, pDevice.QueueFamilyIndices.PresentQueue.Value, 0, out Queue presentQueue);
+        
+        PieLog.Log(LogType.Verbose, "Creating command pool.");
+
+        CommandPoolCreateInfo poolCreateInfo = new CommandPoolCreateInfo()
+        {
+            SType = StructureType.CommandPoolCreateInfo,
+            Flags = CommandPoolCreateFlags.ResetCommandBufferBit,
+            QueueFamilyIndex = pDevice.QueueFamilyIndices.GraphicsQueue.Value
+        };
+        
+        CheckResult(Vk.CreateCommandPool(device, &poolCreateInfo, null, out CommandPool pool));
 
         return new VkDevice()
         {
@@ -266,7 +285,9 @@ public unsafe class VkLayer : IDisposable
             GraphicsQueue = graphicsQueue,
             PresentQueue = presentQueue,
             
-            QueueFamilyIndices = pDevice.QueueFamilyIndices
+            QueueFamilyIndices = pDevice.QueueFamilyIndices,
+            
+            CommandPool = pool
         };
     }
 
@@ -325,8 +346,26 @@ public unsafe class VkLayer : IDisposable
         };
     }
 
+    public CommandBuffer CreateCommandBuffer(VkDevice device, CommandBufferLevel level)
+    {
+        PieLog.Log(LogType.Verbose, "Creating command buffer.");
+        
+        CommandBufferAllocateInfo allocInfo = new CommandBufferAllocateInfo()
+        {
+            SType = StructureType.CommandBufferAllocateInfo,
+            CommandPool = device.CommandPool,
+            Level = level,
+            CommandBufferCount = 1
+        };
+        
+        CheckResult(Vk.AllocateCommandBuffers(device.Device, &allocInfo, out CommandBuffer buffer));
+
+        return buffer;
+    }
+
     public void DestroyDevice(VkDevice device)
     {
+        Vk.DestroyCommandPool(device.Device, device.CommandPool, null);
         Vk.DestroyDevice(device.Device, null);
     }
 
@@ -402,6 +441,8 @@ public unsafe class VkLayer : IDisposable
         public Queue PresentQueue;
 
         public QueueFamilyIndices QueueFamilyIndices;
+
+        public CommandPool CommandPool;
     }
 
     public struct VkSwapchain
