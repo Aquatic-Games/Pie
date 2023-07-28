@@ -10,9 +10,10 @@ using Silk.NET.Vulkan.Extensions.KHR;
 namespace Pie.Vulkan;
 
 // Acts as a minimal abstraction over vulkan.
-public unsafe class VkLayer : IDisposable
+internal unsafe class VkLayer : IDisposable
 {
-    public Vk Vk;
+    public static readonly Vk VK;
+    
     public Instance Instance;
 
     private string[] _layers;
@@ -26,6 +27,11 @@ public unsafe class VkLayer : IDisposable
 
     public KhrSwapchain SwapchainExt;
 
+    static VkLayer()
+    {
+        VK = Vk.GetApi();
+    }
+
     public VkLayer(PieVkContext context, bool debug)
     {
         PieLog.Log(LogType.Verbose, "Creating VK layer.");
@@ -34,9 +40,7 @@ public unsafe class VkLayer : IDisposable
         {
             KhrSwapchain.ExtensionName
         };
-        
-        Vk = Vk.GetApi();
-        
+
         using PinnedString appName = new PinnedString("Pie Application");
         using PinnedString engineName = new PinnedString("Pie");
 
@@ -82,14 +86,14 @@ public unsafe class VkLayer : IDisposable
             EnabledLayerCount = layersPtr.Length
         };
         
-        CheckResult(Vk.CreateInstance(&instanceInfo, null, out Instance));
+        CheckResult(VK.CreateInstance(&instanceInfo, null, out Instance));
 
         if (debug)
         {
             PieLog.Log(LogType.Verbose, "Debug is enabled.");
             
             PieLog.Log(LogType.Verbose, "Getting debug utils.");
-            Vk.TryGetInstanceExtension(Instance, out _debugUtils);
+            VK.TryGetInstanceExtension(Instance, out _debugUtils);
             
             PieLog.Log(LogType.Verbose, "Creating debug messenger.");
             DebugUtilsMessengerCreateInfoEXT messengerCreateInfo = new DebugUtilsMessengerCreateInfoEXT()
@@ -110,29 +114,29 @@ public unsafe class VkLayer : IDisposable
         }
         
         PieLog.Log(LogType.Verbose, "Creating window surface.");
-        Vk.TryGetInstanceExtension(Instance, out _surfaceExt);
+        VK.TryGetInstanceExtension(Instance, out _surfaceExt);
         _surface = new SurfaceKHR((ulong) context.CreateSurface(Instance.Handle));
     }
 
     public VkPhysicalDevice GetBestPhysicalDevice()
     {
         uint numPhysicalDevices;
-        CheckResult(Vk.EnumeratePhysicalDevices(Instance, &numPhysicalDevices, null));
+        CheckResult(VK.EnumeratePhysicalDevices(Instance, &numPhysicalDevices, null));
 
         PhysicalDevice[] devices = new PhysicalDevice[numPhysicalDevices];
         
         fixed (PhysicalDevice* devicePtr = devices)
-            CheckResult(Vk.EnumeratePhysicalDevices(Instance, &numPhysicalDevices, devicePtr));
+            CheckResult(VK.EnumeratePhysicalDevices(Instance, &numPhysicalDevices, devicePtr));
 
         PhysicalDevice device = devices[0];
         
         uint numQueueFamilies;
-        Vk.GetPhysicalDeviceQueueFamilyProperties(device, &numQueueFamilies, null);
+        VK.GetPhysicalDeviceQueueFamilyProperties(device, &numQueueFamilies, null);
 
         QueueFamilyProperties[] queueProps = new QueueFamilyProperties[numQueueFamilies];
 
         fixed (QueueFamilyProperties* queuePropsPtr = queueProps)
-            Vk.GetPhysicalDeviceQueueFamilyProperties(device, &numQueueFamilies, queuePropsPtr);
+            VK.GetPhysicalDeviceQueueFamilyProperties(device, &numQueueFamilies, queuePropsPtr);
 
         QueueFamilyIndices indices = new QueueFamilyIndices();
 
@@ -254,18 +258,18 @@ public unsafe class VkLayer : IDisposable
                 EnabledExtensionCount = deviceExtensions.Length
             };
             
-            CheckResult(Vk.CreateDevice(pDevice.Device, &deviceCreateInfo, null, out device));
+            CheckResult(VK.CreateDevice(pDevice.Device, &deviceCreateInfo, null, out device));
         }
 
         PieLog.Log(LogType.Verbose, "Getting swapchain extension.");
         // TODO: Device extensions should be stored per VkDevice, not globally.
-        Vk.TryGetDeviceExtension(Instance, device, out SwapchainExt);
+        VK.TryGetDeviceExtension(Instance, device, out SwapchainExt);
 
         PieLog.Log(LogType.Verbose, "Getting graphics queue.");
-        Vk.GetDeviceQueue(device, pDevice.QueueFamilyIndices.GraphicsQueue.Value, 0, out Queue graphicsQueue);
+        VK.GetDeviceQueue(device, pDevice.QueueFamilyIndices.GraphicsQueue.Value, 0, out Queue graphicsQueue);
         
         PieLog.Log(LogType.Verbose, "Getting present queue.");
-        Vk.GetDeviceQueue(device, pDevice.QueueFamilyIndices.PresentQueue.Value, 0, out Queue presentQueue);
+        VK.GetDeviceQueue(device, pDevice.QueueFamilyIndices.PresentQueue.Value, 0, out Queue presentQueue);
         
         PieLog.Log(LogType.Verbose, "Creating command pool.");
 
@@ -276,11 +280,15 @@ public unsafe class VkLayer : IDisposable
             QueueFamilyIndex = pDevice.QueueFamilyIndices.GraphicsQueue.Value
         };
         
-        CheckResult(Vk.CreateCommandPool(device, &poolCreateInfo, null, out CommandPool pool));
+        CheckResult(VK.CreateCommandPool(device, &poolCreateInfo, null, out CommandPool pool));
+
+        PhysicalDeviceMemoryProperties memoryProperties;
+        VK.GetPhysicalDeviceMemoryProperties(pDevice.Device, &memoryProperties);
 
         return new VkDevice()
         {
             Device = device,
+            MemoryProperties = memoryProperties,
             
             GraphicsQueue = graphicsQueue,
             PresentQueue = presentQueue,
@@ -358,7 +366,7 @@ public unsafe class VkLayer : IDisposable
             CommandBufferCount = 1
         };
         
-        CheckResult(Vk.AllocateCommandBuffers(device.Device, &allocInfo, out CommandBuffer buffer));
+        CheckResult(VK.AllocateCommandBuffers(device.Device, &allocInfo, out CommandBuffer buffer));
 
         return buffer;
     }
@@ -370,7 +378,7 @@ public unsafe class VkLayer : IDisposable
             SType = StructureType.CommandBufferBeginInfo
         };
         
-        CheckResult(Vk.BeginCommandBuffer(buffer, &beginInfo));
+        CheckResult(VK.BeginCommandBuffer(buffer, &beginInfo));
 
         ImageMemoryBarrier memoryBarrier = new ImageMemoryBarrier()
         {
@@ -389,7 +397,7 @@ public unsafe class VkLayer : IDisposable
             }
         };
 
-        Vk.CmdPipelineBarrier(buffer, PipelineStageFlags.TopOfPipeBit, PipelineStageFlags.ColorAttachmentOutputBit,
+        VK.CmdPipelineBarrier(buffer, PipelineStageFlags.TopOfPipeBit, PipelineStageFlags.ColorAttachmentOutputBit,
             DependencyFlags.None, 0, null, 0, null, 1, &memoryBarrier);
 
         RenderingAttachmentInfo* colorAttachmentInfos = stackalloc RenderingAttachmentInfo[(int) numColorAttachments];
@@ -417,12 +425,12 @@ public unsafe class VkLayer : IDisposable
             PColorAttachments = colorAttachmentInfos
         };
 
-        Vk.CmdBeginRendering(buffer, &renderingInfo);
+        VK.CmdBeginRendering(buffer, &renderingInfo);
     }
 
     public void CommandBufferEnd(CommandBuffer buffer, Image swapchainImage)
     {
-        Vk.CmdEndRendering(buffer);
+        VK.CmdEndRendering(buffer);
 
         ImageMemoryBarrier memoryBarrier = new ImageMemoryBarrier()
         {
@@ -441,10 +449,10 @@ public unsafe class VkLayer : IDisposable
             }
         };
 
-        Vk.CmdPipelineBarrier(buffer, PipelineStageFlags.ColorAttachmentOutputBit, PipelineStageFlags.BottomOfPipeBit,
+        VK.CmdPipelineBarrier(buffer, PipelineStageFlags.ColorAttachmentOutputBit, PipelineStageFlags.BottomOfPipeBit,
             DependencyFlags.None, 0, null, 0, null, 1, &memoryBarrier);
         
-        CheckResult(Vk.EndCommandBuffer(buffer));
+        CheckResult(VK.EndCommandBuffer(buffer));
     }
 
     public void SwapchainPresent(VkDevice device, VkSwapchain swapchain, CommandBuffer buffer, uint imageIndex,
@@ -467,7 +475,7 @@ public unsafe class VkLayer : IDisposable
             PSignalSemaphores = &signalSemaphore
         };
         
-        CheckResult(Vk.QueueSubmit(device.GraphicsQueue, 1, &submitInfo, fence));
+        CheckResult(VK.QueueSubmit(device.GraphicsQueue, 1, &submitInfo, fence));
 
         PresentInfoKHR presentInfo = new PresentInfoKHR()
         {
@@ -484,10 +492,21 @@ public unsafe class VkLayer : IDisposable
         SwapchainExt.QueuePresent(device.PresentQueue, &presentInfo);
     }
 
+    public uint GetSuitableMemoryType(VkDevice device, MemoryRequirements requirements, MemoryPropertyFlags propertyFlags)
+    {
+        for (int i = 0; i < device.MemoryProperties.MemoryTypeCount; i++)
+        {
+            if ((requirements.MemoryTypeBits & (1 << i)) != 0 && (device.MemoryProperties.MemoryTypes[i].PropertyFlags & propertyFlags) == propertyFlags)
+                return (uint) i;
+        }
+
+        throw new PieException("Failed to get suitable memory type.");
+    }
+
     public void DestroyDevice(VkDevice device)
     {
-        Vk.DestroyCommandPool(device.Device, device.CommandPool, null);
-        Vk.DestroyDevice(device.Device, null);
+        VK.DestroyCommandPool(device.Device, device.CommandPool, null);
+        VK.DestroyDevice(device.Device, null);
     }
 
     public void DestroySwapchain(VkDevice device, VkSwapchain swapchain)
@@ -508,7 +527,7 @@ public unsafe class VkLayer : IDisposable
             _debugUtils.Dispose();
         }
         
-        Vk.DestroyInstance(Instance, null);
+        VK.DestroyInstance(Instance, null);
     }
 
     public static void CheckResult(Result result)
@@ -557,6 +576,8 @@ public unsafe class VkLayer : IDisposable
     public struct VkDevice
     {
         public Device Device;
+
+        public PhysicalDeviceMemoryProperties MemoryProperties;
         
         public Queue GraphicsQueue;
         public Queue PresentQueue;

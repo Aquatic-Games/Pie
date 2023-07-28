@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using Pie.ShaderCompiler;
 using Silk.NET.Vulkan;
+using static Pie.Vulkan.VkLayer;
 
 namespace Pie.Vulkan;
 
@@ -10,9 +11,9 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
 {
     private VkLayer _layer;
     
-    private VkLayer.VkDevice _device;
+    private VkDevice _device;
     
-    private VkLayer.VkSwapchain _swapchain;
+    private VkSwapchain _swapchain;
     private ImageView[] _swapchainImageViews;
     private uint _currentImage;
 
@@ -34,9 +35,8 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
     public VkGraphicsDevice(PieVkContext context, Size winSize, GraphicsDeviceOptions options)
     {
         _layer = new VkLayer(context, options.Debug);
-        ref Vk vk = ref _layer.Vk;
 
-        VkLayer.VkPhysicalDevice pDevice = _layer.GetBestPhysicalDevice();
+        VkPhysicalDevice pDevice = _layer.GetBestPhysicalDevice();
 
         _device = _layer.CreateDevice(pDevice);
         _commandBuffer = _layer.CreateCommandBuffer(_device, CommandBufferLevel.Primary);
@@ -99,7 +99,7 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
                 }
             };
 
-            VkLayer.CheckResult(vk.CreateImageView(_device.Device, &viewCreate, null, out _swapchainImageViews[i]));
+            CheckResult(VK.CreateImageView(_device.Device, &viewCreate, null, out _swapchainImageViews[i]));
         }
         
         PieLog.Log(LogType.Verbose, "Creating semaphores.");
@@ -109,8 +109,8 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
             SType = StructureType.SemaphoreCreateInfo
         };
         
-        VkLayer.CheckResult(vk.CreateSemaphore(_device.Device, &semaphoreCreateInfo, null, out _imageAvailableSemaphore));
-        VkLayer.CheckResult(vk.CreateSemaphore(_device.Device, &semaphoreCreateInfo, null, out _renderFinishedSemaphore));
+        CheckResult(VK.CreateSemaphore(_device.Device, &semaphoreCreateInfo, null, out _imageAvailableSemaphore));
+        CheckResult(VK.CreateSemaphore(_device.Device, &semaphoreCreateInfo, null, out _renderFinishedSemaphore));
         
         PieLog.Log(LogType.Verbose, "Creating fences.");
 
@@ -119,7 +119,7 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
             SType = StructureType.FenceCreateInfo
         };
         
-        VkLayer.CheckResult(vk.CreateFence(_device.Device, &fenceCreateInfo, null, out _inFlightFence));
+        VkLayer.CheckResult(VK.CreateFence(_device.Device, &fenceCreateInfo, null, out _inFlightFence));
 
         _layer.SwapchainExt.AcquireNextImage(_device.Device, _swapchain.Swapchain, ulong.MaxValue,
             _imageAvailableSemaphore, new Fence(), ref _currentImage);
@@ -365,18 +365,16 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
 
     public override void Present(int swapInterval)
     {
-        ref Vk vk = ref _layer.Vk;
-
         _layer.SwapchainPresent(_device, _swapchain, _commandBuffer, _currentImage, _inFlightFence,
             _renderFinishedSemaphore, _imageAvailableSemaphore);
 
-        vk.WaitForFences(_device.Device, 1, _inFlightFence, true, ulong.MaxValue);
-        vk.ResetFences(_device.Device, 1, _inFlightFence);
+        VK.WaitForFences(_device.Device, 1, _inFlightFence, true, ulong.MaxValue);
+        VK.ResetFences(_device.Device, 1, _inFlightFence);
         
         _layer.SwapchainExt.AcquireNextImage(_device.Device, _swapchain.Swapchain, ulong.MaxValue,
             _imageAvailableSemaphore, new Fence(), ref _currentImage);
 
-        vk.ResetCommandBuffer(_commandBuffer, CommandBufferResetFlags.None);
+        VK.ResetCommandBuffer(_commandBuffer, CommandBufferResetFlags.None);
     }
 
     public override void ResizeSwapchain(Size newSize)
@@ -401,19 +399,17 @@ internal unsafe class VkGraphicsDevice : GraphicsDevice
 
     public override void Dispose()
     {
-        ref Vk vk = ref _layer.Vk;
-        
-        vk.DestroyFence(_device.Device, _inFlightFence, null);
-        vk.DestroySemaphore(_device.Device, _renderFinishedSemaphore, null);
-        vk.DestroySemaphore(_device.Device, _imageAvailableSemaphore, null);
+        VK.DestroyFence(_device.Device, _inFlightFence, null);
+        VK.DestroySemaphore(_device.Device, _renderFinishedSemaphore, null);
+        VK.DestroySemaphore(_device.Device, _imageAvailableSemaphore, null);
         
         foreach (ImageView view in _swapchainImageViews)
-            vk.DestroyImageView(_device.Device, view, null);
+            VK.DestroyImageView(_device.Device, view, null);
         
         _layer.DestroySwapchain(_device, _swapchain);
         
         _layer.DestroyDevice(_device);
-        
+
         _layer.Dispose();
     }
 }
