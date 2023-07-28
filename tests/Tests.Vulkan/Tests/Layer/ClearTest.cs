@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using Pie.SDL;
@@ -12,8 +13,12 @@ public class ClearTest : TestBase
     private VkLayer.VkDevice _device;
     private VkLayer.VkSwapchain _swapchain;
     private ImageView[] _swapchainImageViews;
-    private CommandBuffer _commandBuffer;
     
+    private CommandBuffer _commandBuffer;
+    private Semaphore _imgAvailable;
+    private Semaphore _renderFinished;
+    private Fence _inFlightFence;
+
     protected override unsafe void Initialize()
     {
         base.Initialize();
@@ -65,6 +70,7 @@ public class ClearTest : TestBase
 
         _swapchain = _vkLayer.CreateSwapchain(_device, surfaceFormat, presentMode, extent, imageCount, transform);
 
+        Console.WriteLine("Creating image views.");
         _swapchainImageViews = new ImageView[_swapchain.Images.Length];
         for (int i = 0; i < _swapchainImageViews.Length; i++)
         {
@@ -98,10 +104,74 @@ public class ClearTest : TestBase
             VkLayer.CheckResult(_vkLayer.Vk.CreateImageView(_device.Device, &imageViewInfo, null,
                 out _swapchainImageViews[i]));
         }
+        
+        Console.WriteLine("Creating synchronization objects.");
+
+        SemaphoreCreateInfo semaphoreCreateInfo = new SemaphoreCreateInfo()
+        {
+            SType = StructureType.SemaphoreCreateInfo,
+        };
+        
+        VkLayer.CheckResult(_vkLayer.Vk.CreateSemaphore(_device.Device, &semaphoreCreateInfo, null, out _imgAvailable));
+        VkLayer.CheckResult(_vkLayer.Vk.CreateSemaphore(_device.Device, &semaphoreCreateInfo, null, out _renderFinished));
+
+        FenceCreateInfo fenceCreateInfo = new FenceCreateInfo()
+        {
+            SType = StructureType.FenceCreateInfo,
+            Flags = FenceCreateFlags.SignaledBit
+        };
+        
+        VkLayer.CheckResult(_vkLayer.Vk.CreateFence(_device.Device, &fenceCreateInfo, null, out _inFlightFence));
+    }
+
+    protected override unsafe void Draw()
+    {
+        base.Draw();
+
+        ref Vk vk = ref _vkLayer.Vk;
+
+        vk.WaitForFences(_device.Device, 1, _inFlightFence, true, ulong.MaxValue);
+        vk.ResetFences(_device.Device, 1, _inFlightFence);
+
+        uint imgIndex;
+        _vkLayer.SwapchainExt.AcquireNextImage(_device.Device, _swapchain.Swapchain, ulong.MaxValue, _imgAvailable,
+            new Fence(), &imgIndex);
+
+        vk.ResetCommandBuffer(_commandBuffer, CommandBufferResetFlags.None);
+
+        RenderingAttachmentInfo colorBufferAttachment = new RenderingAttachmentInfo()
+        {
+            SType = StructureType.RenderingAttachmentInfo,
+            ImageView = _swapchainImageViews[imgIndex],
+            ImageLayout = ImageLayout.AttachmentOptimal,
+            LoadOp = AttachmentLoadOp.Clear,
+            StoreOp = AttachmentStoreOp.Store,
+            ClearValue = new ClearValue(new ClearColorValue(1.0f, 0.5f, 0.25f, 1.0f))
+        };
+
+        RenderingInfo renderingInfo = new RenderingInfo()
+        {
+            SType = StructureType.RenderingInfo,
+            RenderArea = new Rect2D(new Offset2D(0, 0), new Extent2D(1280, 720)),
+            LayerCount = 1,
+            ColorAttachmentCount = 1,
+            PColorAttachments = &colorBufferAttachment
+        };
+        
+        _vkLayer.CommandBufferBegin(_commandBuffer, renderingInfo, _swapchain.Images[imgIndex]);
+        _vkLayer.CommandBufferEnd(_commandBuffer, _swapchain.Images[imgIndex]);
+        
+        _vkLayer.SwapchainPresent(_device, _swapchain, _commandBuffer, imgIndex, _inFlightFence, _renderFinished, _imgAvailable);
     }
 
     public override unsafe void Dispose()
     {
+        _vkLayer.Vk.DeviceWaitIdle(_device.Device);
+        
+        _vkLayer.Vk.DestroyFence(_device.Device, _inFlightFence, null);
+        _vkLayer.Vk.DestroySemaphore(_device.Device, _imgAvailable, null);
+        _vkLayer.Vk.DestroySemaphore(_device.Device, _renderFinished, null);
+        
         foreach (ImageView view in _swapchainImageViews)
             _vkLayer.Vk.DestroyImageView(_device.Device, view, null);
         

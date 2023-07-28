@@ -23,7 +23,7 @@ public unsafe class VkLayer : IDisposable
     private KhrSurface _surfaceExt;
     private SurfaceKHR _surface;
 
-    private KhrSwapchain _swapchainExt;
+    public KhrSwapchain SwapchainExt;
 
     public VkLayer(PieVkContext context, bool debug)
     {
@@ -31,8 +31,7 @@ public unsafe class VkLayer : IDisposable
 
         _deviceExtensions = new[]
         {
-            KhrSwapchain.ExtensionName,
-            KhrDynamicRendering.ExtensionName
+            KhrSwapchain.ExtensionName
         };
         
         Vk = Vk.GetApi();
@@ -224,9 +223,9 @@ public unsafe class VkLayer : IDisposable
 
         PhysicalDeviceFeatures features = new PhysicalDeviceFeatures();
         
-        PhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeatures = new PhysicalDeviceDynamicRenderingFeaturesKHR()
+        PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = new PhysicalDeviceDynamicRenderingFeatures()
         {
-            SType = StructureType.PhysicalDeviceDynamicRenderingFeaturesKhr,
+            SType = StructureType.PhysicalDeviceDynamicRenderingFeatures,
             DynamicRendering = true
         };
 
@@ -259,7 +258,7 @@ public unsafe class VkLayer : IDisposable
 
         PieLog.Log(LogType.Verbose, "Getting swapchain extension.");
         // TODO: Device extensions should be stored per VkDevice, not globally.
-        Vk.TryGetDeviceExtension(Instance, device, out _swapchainExt);
+        Vk.TryGetDeviceExtension(Instance, device, out SwapchainExt);
 
         PieLog.Log(LogType.Verbose, "Getting graphics queue.");
         Vk.GetDeviceQueue(device, pDevice.QueueFamilyIndices.GraphicsQueue.Value, 0, out Queue graphicsQueue);
@@ -328,16 +327,16 @@ public unsafe class VkLayer : IDisposable
             swapchainInfo.PQueueFamilyIndices = queueFamilyIndices;
         }
         
-        CheckResult(_swapchainExt.CreateSwapchain(device.Device, &swapchainInfo, null, out SwapchainKHR swapchain));
+        CheckResult(SwapchainExt.CreateSwapchain(device.Device, &swapchainInfo, null, out SwapchainKHR swapchain));
         
         PieLog.Log(LogType.Verbose, "Fetching swapchain images.");
 
         uint sImageCount;
-        _swapchainExt.GetSwapchainImages(device.Device, swapchain, &sImageCount, null);
+        SwapchainExt.GetSwapchainImages(device.Device, swapchain, &sImageCount, null);
 
         Image[] images = new Image[sImageCount];
         fixed (Image* imagePtr = images)
-            _swapchainExt.GetSwapchainImages(device.Device, swapchain, &sImageCount, imagePtr);
+            SwapchainExt.GetSwapchainImages(device.Device, swapchain, &sImageCount, imagePtr);
 
         return new VkSwapchain()
         {
@@ -363,6 +362,102 @@ public unsafe class VkLayer : IDisposable
         return buffer;
     }
 
+    public void CommandBufferBegin(CommandBuffer buffer, RenderingInfo renderingInfo, Image swapchainImage)
+    {
+        CommandBufferBeginInfo beginInfo = new CommandBufferBeginInfo()
+        {
+            SType = StructureType.CommandBufferBeginInfo
+        };
+        
+        CheckResult(Vk.BeginCommandBuffer(buffer, &beginInfo));
+
+        ImageMemoryBarrier memoryBarrier = new ImageMemoryBarrier()
+        {
+            SType = StructureType.ImageMemoryBarrier,
+            DstAccessMask = AccessFlags.ColorAttachmentWriteBit,
+            OldLayout = ImageLayout.Undefined,
+            NewLayout = ImageLayout.ColorAttachmentOptimal,
+            Image = swapchainImage,
+            SubresourceRange = new ImageSubresourceRange()
+            {
+                AspectMask = ImageAspectFlags.ColorBit,
+                BaseMipLevel = 0,
+                LevelCount = 1,
+                BaseArrayLayer = 0,
+                LayerCount = 1
+            }
+        };
+
+        Vk.CmdPipelineBarrier(buffer, PipelineStageFlags.TopOfPipeBit, PipelineStageFlags.ColorAttachmentOutputBit,
+            DependencyFlags.None, 0, null, 0, null, 1, &memoryBarrier);
+        
+        Vk.CmdBeginRendering(buffer, &renderingInfo);
+    }
+
+    public void CommandBufferEnd(CommandBuffer buffer, Image swapchainImage)
+    {
+        Vk.CmdEndRendering(buffer);
+
+        ImageMemoryBarrier memoryBarrier = new ImageMemoryBarrier()
+        {
+            SType = StructureType.ImageMemoryBarrier,
+            SrcAccessMask = AccessFlags.ColorAttachmentWriteBit,
+            OldLayout = ImageLayout.ColorAttachmentOptimal,
+            NewLayout = ImageLayout.PresentSrcKhr,
+            Image = swapchainImage,
+            SubresourceRange = new ImageSubresourceRange()
+            {
+                AspectMask = ImageAspectFlags.ColorBit,
+                BaseMipLevel = 0,
+                LevelCount = 1,
+                BaseArrayLayer = 0,
+                LayerCount = 1
+            }
+        };
+
+        Vk.CmdPipelineBarrier(buffer, PipelineStageFlags.ColorAttachmentOutputBit, PipelineStageFlags.BottomOfPipeBit,
+            DependencyFlags.None, 0, null, 0, null, 1, &memoryBarrier);
+        
+        CheckResult(Vk.EndCommandBuffer(buffer));
+    }
+
+    public void SwapchainPresent(VkDevice device, VkSwapchain swapchain, CommandBuffer buffer, uint imageIndex,
+        Fence fence, Semaphore signalSemaphore, Semaphore waitSemaphore)
+    {
+        PipelineStageFlags waitStage = PipelineStageFlags.ColorAttachmentOutputBit;
+
+        SubmitInfo submitInfo = new SubmitInfo()
+        {
+            SType = StructureType.SubmitInfo,
+
+            WaitSemaphoreCount = 1,
+            PWaitSemaphores = &waitSemaphore,
+            PWaitDstStageMask = &waitStage,
+
+            CommandBufferCount = 1,
+            PCommandBuffers = &buffer,
+
+            SignalSemaphoreCount = 1,
+            PSignalSemaphores = &signalSemaphore
+        };
+        
+        CheckResult(Vk.QueueSubmit(device.GraphicsQueue, 1, &submitInfo, fence));
+
+        PresentInfoKHR presentInfo = new PresentInfoKHR()
+        {
+            SType = StructureType.PresentInfoKhr,
+
+            WaitSemaphoreCount = 1,
+            PWaitSemaphores = &signalSemaphore,
+
+            SwapchainCount = 1,
+            PSwapchains = &swapchain.Swapchain,
+            PImageIndices = &imageIndex
+        };
+
+        SwapchainExt.QueuePresent(device.PresentQueue, &presentInfo);
+    }
+
     public void DestroyDevice(VkDevice device)
     {
         Vk.DestroyCommandPool(device.Device, device.CommandPool, null);
@@ -371,12 +466,12 @@ public unsafe class VkLayer : IDisposable
 
     public void DestroySwapchain(VkDevice device, VkSwapchain swapchain)
     {
-        _swapchainExt.DestroySwapchain(device.Device, swapchain.Swapchain, null);
+        SwapchainExt.DestroySwapchain(device.Device, swapchain.Swapchain, null);
     }
 
     public void Dispose()
     {
-        _swapchainExt.Dispose();
+        SwapchainExt.Dispose();
         
         _surfaceExt.DestroySurface(Instance, _surface, null);
         _surfaceExt.Dispose();
