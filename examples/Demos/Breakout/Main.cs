@@ -81,7 +81,7 @@ public class Main : SampleApplication
             }
         }
 
-        _font = new Font("/home/skye/Documents/Roboto-Regular.ttf");
+        _font = new Font("Content/Roboto-Regular.ttf");
 
         Window.CursorMode = CursorMode.Locked;
     }
