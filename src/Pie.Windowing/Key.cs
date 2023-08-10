@@ -1,6 +1,8 @@
 namespace Pie.Windowing;
 
-// Represents ASCII chars where possible, in order.
+/// <summary>
+/// Represents a key on a keyboard. Uses ASCII chars where possible, in order.
+/// </summary>
 public enum Key
 {
     Unknown = 0,
