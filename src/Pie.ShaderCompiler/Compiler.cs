@@ -19,7 +19,6 @@ public static class Compiler
     /// <param name="language">The source's shading language.</param>
     /// <param name="source">The source code, in ASCII representation.</param>
     /// <param name="entryPoint">The entry point of the shader. Usually "main" for GLSL.</param>
-    /// hit, so use wisely.</param>
     /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
     public static unsafe CompilerResult ToSpirv(ShaderStage stage, Language language, byte[] source, string entryPoint)
@@ -94,12 +93,12 @@ public static class Compiler
     private static unsafe CompilerResult SpirvToShaderCode(Language language, ShaderStage stage, byte* result,
         byte* entryPoint, nuint length, SpecializationConstant[] constants)
     {
-        spvc_context_s* context;
+        SpvcContextS* context;
         Spvc.context_create(&context);
 
-        spvc_parsed_ir_s* ir;
-        spvc_result spirvResult = Spvc.context_parse_spirv(context, (uint*) result, length / (nuint) sizeof(uint), &ir);
-        if (spirvResult != spvc_result.SPVC_SUCCESS)
+        SpvcParsedIrS* ir;
+        SpvcResult spirvResult = Spvc.context_parse_spirv(context, (uint*) result, length / (nuint) sizeof(uint), &ir);
+        if (spirvResult != SpvcResult.SpvcSuccess)
         {
             string error = ConvertToString(Spvc.context_get_last_error_string(context));
             Spvc.context_destroy(context);
@@ -107,45 +106,45 @@ public static class Compiler
             return new CompilerResult(null, false, error);
         }
 
-        spvc_backend backend = language switch
+        SpvcBackend backend = language switch
         {
-            Language.GLSL => spvc_backend.SPVC_BACKEND_GLSL,
-            Language.HLSL => spvc_backend.SPVC_BACKEND_HLSL,
-            Language.ESSL => spvc_backend.SPVC_BACKEND_GLSL,
+            Language.GLSL => SpvcBackend.SpvcBackendGlsl,
+            Language.HLSL => SpvcBackend.SpvcBackendHlsl,
+            Language.ESSL => SpvcBackend.SpvcBackendGlsl,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
         };
         
-        spvc_compiler_s* compl;
-        Spvc.context_create_compiler(context, backend, ir, spvc_capture_mode.SPVC_CAPTURE_MODE_COPY, &compl);
+        SpvcCompilerS* compl;
+        Spvc.context_create_compiler(context, backend, ir, SpvcCaptureMode.SpvcCaptureModeCopy, &compl);
 
         SpvExecutionModel model = stage switch
         {
             ShaderStage.Vertex => SpvExecutionModel.SpvExecutionModelVertex,
             ShaderStage.Fragment => SpvExecutionModel.SpvExecutionModelFragment,
             ShaderStage.Geometry => SpvExecutionModel.SpvExecutionModelGeometry,
-            ShaderStage.Compute => SpvExecutionModel.SpvExecutionModelGLCompute,
+            ShaderStage.Compute => SpvExecutionModel.SpvExecutionModelGlCompute,
             _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
 
         Spvc.compiler_set_entry_point(compl, (sbyte*) entryPoint, model);
 
-        spvc_compiler_options_s* options;
+        SpvcCompilerOptionsS* options;
         Spvc.compiler_create_compiler_options(compl, &options);
         switch (language)
         {
             case Language.GLSL:
-                Spvc.compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 430);
-                Spvc.compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, Spvc.SPVC_FALSE);
+                Spvc.compiler_options_set_uint(options, SpvcCompilerOption.SpvcCompilerOptionGlslVersion, 430);
+                Spvc.compiler_options_set_bool(options, SpvcCompilerOption.SpvcCompilerOptionGlslEs, Spvc.SpvcFalse);
                 break;
             case Language.ESSL:
-                Spvc.compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 300);
-                Spvc.compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, Spvc.SPVC_TRUE);
+                Spvc.compiler_options_set_uint(options, SpvcCompilerOption.SpvcCompilerOptionGlslVersion, 300);
+                Spvc.compiler_options_set_bool(options, SpvcCompilerOption.SpvcCompilerOptionGlslEs, Spvc.SpvcTrue);
                 break;
             case Language.HLSL:
-                Spvc.compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_SHADER_MODEL,
+                Spvc.compiler_options_set_uint(options, SpvcCompilerOption.SpvcCompilerOptionHlslShaderModel,
                     50);
                 Spvc.compiler_options_set_bool(options,
-                    spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_FLATTEN_MATRIX_VERTEX_INPUT_SEMANTICS, Spvc.SPVC_TRUE);
+                    SpvcCompilerOption.SpvcCompilerOptionHlslFlattenMatrixVertexInputSemantics, Spvc.SpvcTrue);
                  break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(backend), backend, null);
@@ -155,7 +154,7 @@ public static class Compiler
         if (constants != null)
         {
             nuint numConstants;
-            spvc_specialization_constant* sConstants;
+            SpvcSpecializationConstant* sConstants;
             Spvc.compiler_get_specialization_constants(compl, &sConstants, &numConstants);
 
             for (int i = 0; i < constants.Length; i++)
@@ -164,9 +163,9 @@ public static class Compiler
 
                 for (int c = 0; c < (int) numConstants; c++)
                 {
-                    if (sConstants[c].constant_id == constant.ID)
+                    if (sConstants[c].ConstantId == constant.ID)
                     {
-                        spvc_constant_s* sConst = Spvc.compiler_get_constant_handle(compl, sConstants[c].id);
+                        SpvcConstantS* sConst = Spvc.compiler_get_constant_handle(compl, sConstants[c].Id);
 
                         ulong value = constant.Value;
 
@@ -204,7 +203,7 @@ public static class Compiler
         Spvc.compiler_build_combined_image_samplers(compl);
 
         nuint numSamplers;
-        spvc_combined_image_sampler* samplers;
+        SpvcCombinedImageSampler* samplers;
         Spvc.compiler_get_combined_image_samplers(compl, &samplers, &numSamplers);
 
         // build_combined_image_samplers removes the binding from the combined sampler. Fortunately, it does retain
@@ -216,16 +215,16 @@ public static class Compiler
             // HLSL requires that for combined samplers to work, the Texture2D and SamplerState must be at the same
             // register index. Therefore, either index will work here. I just use the image id.
             uint decoration =
-                Spvc.compiler_get_decoration(compl, samplers[i].image_id, SpvDecoration_.SpvDecorationBinding);
+                Spvc.compiler_get_decoration(compl, samplers[i].ImageId, SpvDecoration.SpvDecorationBinding);
 
-            Spvc.compiler_set_decoration(compl, samplers[i].combined_id, SpvDecoration_.SpvDecorationBinding,
+            Spvc.compiler_set_decoration(compl, samplers[i].CombinedId, SpvDecoration.SpvDecorationBinding,
                 decoration);
         }
 
         sbyte* compiledResult;
         spirvResult = Spvc.compiler_compile(compl, &compiledResult);
 
-        if (spirvResult != spvc_result.SPVC_SUCCESS)
+        if (spirvResult != SpvcResult.SpvcSuccess)
         {
             string error = ConvertToString(Spvc.context_get_last_error_string(context));
             Spvc.context_destroy(context);
@@ -246,6 +245,8 @@ public static class Compiler
     /// <param name="language">The language to transpile to.</param>
     /// <param name="stage">The shader stage.</param>
     /// <param name="spirv">The Spir-V bytecode to transpile.</param>
+    /// <param name="entryPoint">The shader's entry point function name.</param>
+    /// <param name="constants">Any specialization constants to use. This value can be null.</param>
     /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
     public static unsafe CompilerResult FromSpirv(Language language, ShaderStage stage, byte[] spirv, string entryPoint,
