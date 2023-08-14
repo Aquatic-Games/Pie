@@ -489,7 +489,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     public override void ResizeSwapchain(Size newSize)
     {
         _context.Flush();
-        _context.OMSetRenderTargets(1, (ID3D11RenderTargetView*) null, (ID3D11DepthStencilView*) null);
+        _context.OMSetRenderTargets(0, (ID3D11RenderTargetView*) null, (ID3D11DepthStencilView*) null);
         _colorTargetView.Dispose();
         _colorTexture.Dispose();
 
@@ -499,8 +499,10 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             _depthStencilTexture.Dispose();
         }
 
-        _swapChain.ResizeBuffers(0, (uint) newSize.Width, (uint) newSize.Height, Silk.NET.DXGI.Format.FormatUnknown, 0);
-        _colorTexture = _swapChain.GetBuffer<ID3D11Texture2D>(0);
+        if (!Succeeded(_swapChain.ResizeBuffers(0, (uint) newSize.Width, (uint) newSize.Height, Silk.NET.DXGI.Format.FormatUnknown, (uint) SwapChainFlag.AllowTearing | (uint) SwapChainFlag.AllowModeSwitch)))
+            throw new PieException("Failed to resize swapchain buffers.");
+        if (!Succeeded(_swapChain.GetBuffer(0, out _colorTexture)))
+            throw new PieException("Failed to get swapchain buffer.");
         if (!Succeeded(_device.CreateRenderTargetView(_colorTexture, null, ref _colorTargetView)))
             throw new PieException("Failed to create swapchain color target.");
         CreateDepthStencilView(newSize);
