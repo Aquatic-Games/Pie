@@ -29,10 +29,14 @@ public unsafe class Face : IDisposable
     internal Face(FT_Face* face, byte* data, int initialSize, FaceFlags flags)
     {
         _face = face;
+        _faceData = data;
+        
         Characters = new CharacterCollection(_face, flags);
         Size = initialSize;
+        
         Family = Marshal.PtrToStringAnsi((IntPtr) face->FamilyName);
         Style = Marshal.PtrToStringAnsi((IntPtr) face->StyleName);
+        
         Flags = flags;
     }
     
