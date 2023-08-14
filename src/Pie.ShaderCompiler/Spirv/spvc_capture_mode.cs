@@ -1,10 +1,9 @@
-namespace Pie.ShaderCompiler.Spirv
+namespace Pie.ShaderCompiler.Spirv;
+
+[NativeTypeName("unsigned int")]
+internal enum SpvcCaptureMode : uint
 {
-    [NativeTypeName("unsigned int")]
-    public enum spvc_capture_mode : uint
-    {
-        SPVC_CAPTURE_MODE_COPY = 0,
-        SPVC_CAPTURE_MODE_TAKE_OWNERSHIP = 1,
-        SPVC_CAPTURE_MODE_INT_MAX = 0x7fffffff,
-    }
+    SpvcCaptureModeCopy = 0,
+    SpvcCaptureModeTakeOwnership = 1,
+    SpvcCaptureModeIntMax = 0x7fffffff,
 }

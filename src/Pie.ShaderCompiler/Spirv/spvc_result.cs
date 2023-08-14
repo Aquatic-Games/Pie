@@ -1,12 +1,11 @@
-namespace Pie.ShaderCompiler.Spirv
+namespace Pie.ShaderCompiler.Spirv;
+
+internal enum SpvcResult
 {
-    public enum spvc_result
-    {
-        SPVC_SUCCESS = 0,
-        SPVC_ERROR_INVALID_SPIRV = -1,
-        SPVC_ERROR_UNSUPPORTED_SPIRV = -2,
-        SPVC_ERROR_OUT_OF_MEMORY = -3,
-        SPVC_ERROR_INVALID_ARGUMENT = -4,
-        SPVC_ERROR_INT_MAX = 0x7fffffff,
-    }
+    SpvcSuccess = 0,
+    SpvcErrorInvalidSpirv = -1,
+    SpvcErrorUnsupportedSpirv = -2,
+    SpvcErrorOutOfMemory = -3,
+    SpvcErrorInvalidArgument = -4,
+    SpvcErrorIntMax = 0x7fffffff,
 }

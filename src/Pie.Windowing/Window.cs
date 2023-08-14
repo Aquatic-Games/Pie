@@ -9,6 +9,9 @@ using Pie.SDL;
 
 namespace Pie.Windowing;
 
+/// <summary>
+/// Represents a window that can be rendered to.
+/// </summary>
 public sealed unsafe class Window : IDisposable
 {
     private void* _window;
@@ -82,6 +85,10 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// Get or set the window <see cref="Pie.Windowing.FullscreenMode"/>.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public FullscreenMode FullscreenMode
     {
         get
@@ -109,6 +116,10 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// Get or set the window <see cref="Pie.Windowing.CursorMode"/>.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public CursorMode CursorMode
     {
         get
@@ -152,18 +163,28 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// If true, the window should able to be resized.
+    /// </summary>
     public bool Resizable
     {
         get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Resizable) == SdlWindowFlags.Resizable;
         set => Sdl.SetWindowResizable(_window, value);
     }
 
+    /// <summary>
+    /// If true, the window should not have a border.
+    /// </summary>
+    /// <remarks>This is <b>not</b> the same as <see cref="Pie.Windowing.FullscreenMode.BorderlessFullscreen"/>.</remarks>
     public bool Borderless
     {
         get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Borderless) == SdlWindowFlags.Borderless;
         set => Sdl.SetWindowBordered(_window, !value);
     }
 
+    /// <summary>
+    /// Get/set the window visibility. Making the window invisible should also remove it from the taskbar.
+    /// </summary>
     public bool Visible
     {
         get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Shown) == SdlWindowFlags.Shown;
@@ -176,6 +197,10 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// If true, the window should be the window manager's currently focused window, and the window is ready to accept
+    /// input from the user.
+    /// </summary>
     public bool Focused => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.InputFocus) == SdlWindowFlags.InputFocus;
 
     internal Window(WindowBuilder builder)
@@ -426,16 +451,36 @@ public sealed unsafe class Window : IDisposable
         _api = builder.WindowApi;
     }
 
+    /// <summary>
+    /// Focus the window if it is not focused, bringing it to the front if necessary.
+    /// </summary>
     public void Focus() => Sdl.RaiseWindow(_window);
 
+    /// <summary>
+    /// Centers the window on the primary monitor.
+    /// </summary>
     public void Center() => Sdl.SetWindowPosition(_window, (int) Sdl.WindowposCentered, (int) Sdl.WindowposCentered);
 
+    /// <summary>
+    /// Maximises the window, restoring it if necessary.
+    /// </summary>
     public void Maximize() => Sdl.MaximizeWindow(_window);
 
+    /// <summary>
+    /// Minimises the window.
+    /// </summary>
     public void Minimize() => Sdl.MinimizeWindow(_window);
 
+    /// <summary>
+    /// Restores the window to its initial state, before it was minimised.
+    /// </summary>
     public void Restore() => Sdl.RestoreWindow(_window);
 
+    /// <summary>
+    /// Creates a <see cref="GraphicsDevice"/> from this window.
+    /// </summary>
+    /// <param name="options">The <see cref="GraphicsDeviceOptions"/> to use on creation, if any.</param>
+    /// <returns>The created <see cref="GraphicsDevice"/>.</returns>
     public GraphicsDevice CreateGraphicsDevice(GraphicsDeviceOptions? options = null)
     {
         int width, height;
@@ -467,6 +512,11 @@ public sealed unsafe class Window : IDisposable
         }
     }
 
+    /// <summary>
+    /// Poll the next window event, if there are any remaining.
+    /// </summary>
+    /// <param name="event">The polled window event.</param>
+    /// <returns>True if an event was processed, false otherwise.</returns>
     public bool PollEvent(out IWindowEvent @event)
     {
         SdlEvent sdlEvent;
@@ -560,6 +610,11 @@ public sealed unsafe class Window : IDisposable
         return true;
     }
 
+    /// <summary>
+    /// Polls all window events and returns them as an array.
+    /// </summary>
+    /// <returns>The returned events.</returns>
+    /// <remarks>This method is rather inefficient. You should look at using <see cref="PollEvent"/> in a loop instead.</remarks>
     public IWindowEvent[] PollEvents()
     {
         List<IWindowEvent> events = new List<IWindowEvent>();
@@ -569,6 +624,9 @@ public sealed unsafe class Window : IDisposable
         return events.ToArray();
     }
 
+    /// <summary>
+    /// Dispose of this window.
+    /// </summary>
     public void Dispose()
     {
         if (_glContext != null)

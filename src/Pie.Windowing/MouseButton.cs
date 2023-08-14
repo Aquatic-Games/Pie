@@ -1,5 +1,8 @@
 namespace Pie.Windowing;
 
+/// <summary>
+/// Represents a button that is available on a mouse device.
+/// </summary>
 public enum MouseButton
 {
     Unknown,

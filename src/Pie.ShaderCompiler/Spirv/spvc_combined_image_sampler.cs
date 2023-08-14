@@ -1,14 +1,13 @@
-namespace Pie.ShaderCompiler.Spirv
+namespace Pie.ShaderCompiler.Spirv;
+
+internal struct SpvcCombinedImageSampler
 {
-    public partial struct spvc_combined_image_sampler
-    {
-        [NativeTypeName("spvc_variable_id")]
-        public uint combined_id;
+    [NativeTypeName("spvc_variable_id")]
+    public uint CombinedId;
 
-        [NativeTypeName("spvc_variable_id")]
-        public uint image_id;
+    [NativeTypeName("spvc_variable_id")]
+    public uint ImageId;
 
-        [NativeTypeName("spvc_variable_id")]
-        public uint sampler_id;
-    }
+    [NativeTypeName("spvc_variable_id")]
+    public uint SamplerId;
 }

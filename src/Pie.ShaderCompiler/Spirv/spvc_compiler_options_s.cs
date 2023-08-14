@@ -1,6 +1,5 @@
-namespace Pie.ShaderCompiler.Spirv
+namespace Pie.ShaderCompiler.Spirv;
+
+internal struct SpvcCompilerOptionsS
 {
-    public partial struct spvc_compiler_options_s
-    {
-    }
 }

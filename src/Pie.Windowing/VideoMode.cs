@@ -2,16 +2,40 @@ using System.Drawing;
 
 namespace Pie.Windowing;
 
+/// <summary>
+/// Contains information about a monitor's current video mode.
+/// </summary>
 public struct VideoMode
 {
+    /// <summary>
+    /// The size/resolution, in pixels, of this <see cref="VideoMode"/>.
+    /// </summary>
     public readonly Size Size;
 
+    /// <summary>
+    /// The refresh rate, in hz, of this <see cref="VideoMode"/>.
+    /// </summary>
     public readonly int RefreshRate;
 
+    /// <summary>
+    /// The accurate aspect ratio of this <see cref="VideoMode"/>. This value is, as the name implies, completely accurate,
+    /// however may make certain resolutions (such as 1366x768) appear to have the incorrect aspect ratio to the end user.
+    /// </summary>
     public readonly Size AccurateAspectRatio;
 
+    /// <summary>
+    /// The aspect ratio of this <see cref="VideoMode"/>. This value is a best guess, working within a certain tolerance.
+    /// While not as accurate, its results may be more like what an end user may expect. For example, it labels
+    /// 1366x768 as 16:9, even though the actual ratio is very slightly different.
+    /// </summary>
     public readonly Size AspectRatio;
 
+    /// <summary>
+    /// Create a new <see cref="VideoMode"/> from the given size and optional refresh rate.
+    /// </summary>
+    /// <param name="size">The size/resolution, in pixels, of this video mode.</param>
+    /// <param name="refreshRate">The refresh rate, if any.</param>
+    /// <remarks><see cref="AspectRatio"/> and <see cref="AccurateAspectRatio"/> will automatically be calculated.</remarks>
     public VideoMode(Size size, int refreshRate = -1)
     {
         Size = size;
@@ -21,6 +45,7 @@ public struct VideoMode
         AspectRatio = CalculateAspectRatio(size);
     }
 
+    /// <inheritdoc /> 
     public override string ToString()
     {
         return Size.Width + "x" + Size.Height + "@" + RefreshRate + "Hz";

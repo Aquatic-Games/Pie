@@ -1,11 +1,10 @@
-namespace Pie.ShaderCompiler.Spirv
-{
-    public partial struct spvc_specialization_constant
-    {
-        [NativeTypeName("spvc_constant_id")]
-        public uint id;
+namespace Pie.ShaderCompiler.Spirv;
 
-        [NativeTypeName("unsigned int")]
-        public uint constant_id;
-    }
+internal struct SpvcSpecializationConstant
+{
+    [NativeTypeName("spvc_constant_id")]
+    public uint Id;
+
+    [NativeTypeName("unsigned int")]
+    public uint ConstantId;
 }

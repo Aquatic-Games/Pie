@@ -3,14 +3,32 @@ using Pie.SDL;
 
 namespace Pie.Windowing;
 
+/// <summary>
+/// Contains information about monitors connected to the system.
+/// </summary>
 public struct Monitor
 {
+    /// <summary>
+    /// The bounds of the monitor, in pixels.
+    /// </summary>
     public readonly Rectangle Bounds;
 
+    /// <summary>
+    /// The <see cref="VideoMode"/> of the monitor.
+    /// </summary>
     public readonly VideoMode CurrentMode;
 
+    /// <summary>
+    /// All <see cref="VideoMode"/>s supported by the monitor.
+    /// </summary>
     public readonly VideoMode[] SupportedModes;
 
+    /// <summary>
+    /// Create a new monitor. Yes. One will just suddenly appear on your desk.
+    /// </summary>
+    /// <param name="bounds">The bounds of the monitor, in pixels.</param>
+    /// <param name="currentMode">The <see cref="VideoMode"/> of the monitor.</param>
+    /// <param name="supportedModes">All <see cref="VideoMode"/>s supported by the monitor.</param>
     public Monitor(Rectangle bounds, VideoMode currentMode, VideoMode[] supportedModes)
     {
         Bounds = bounds;
@@ -60,7 +78,13 @@ public struct Monitor
         }
     }
 
+    /// <summary>
+    /// Contains all monitors currently connected to the system.
+    /// </summary>
     public static readonly Monitor[] ConnectedMonitors;
 
+    /// <summary>
+    /// The primary monitor connected to the system.
+    /// </summary>
     public static Monitor PrimaryMonitor => ConnectedMonitors[0];
 }
