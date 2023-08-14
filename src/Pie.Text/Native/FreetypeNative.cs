@@ -15,7 +15,7 @@ namespace Pie.Text.Native;
 
 public static unsafe class FreetypeNative
 {
-    public const string LibraryName = "libfreetype";
+    public const string LibraryName = "freetype";
     private const CallingConvention Convention = System.Runtime.InteropServices.CallingConvention.Cdecl;
 
     public const int FaceFlagScalable = 1 << 0;

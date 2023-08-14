@@ -7,6 +7,7 @@ namespace Pie.Text;
 public unsafe class Face : IDisposable
 {
     private FT_Face* _face;
+    private byte* _faceData;
     private int _size;
 
     public int Size
@@ -25,7 +26,7 @@ public unsafe class Face : IDisposable
     public readonly CharacterCollection Characters;
     public readonly FaceFlags Flags;
 
-    internal Face(FT_Face* face, int initialSize, FaceFlags flags)
+    internal Face(FT_Face* face, byte* data, int initialSize, FaceFlags flags)
     {
         _face = face;
         Characters = new CharacterCollection(_face, flags);
@@ -38,5 +39,7 @@ public unsafe class Face : IDisposable
     public void Dispose()
     {
         FreetypeNative.FT_Done_Face(_face);
+        if (_faceData != null)
+            NativeMemory.Free(_faceData);
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Pie.Text.Native;
 using static Pie.Text.Native.FreetypeNative;
@@ -21,15 +23,22 @@ public class FreeType : IDisposable
         FT_Face* face;
         fixed (byte* bytes = Encoding.ASCII.GetBytes(path))
             FT_New_Face(_library, (sbyte*) bytes, new FT_Long(0), out face);
-        return new Face(face, initialSize, flags);
+        return new Face(face, null, initialSize, flags);
     }
 
     public unsafe Face CreateFace(byte[] data, int initialSize, FaceFlags flags = FaceFlags.Antialiased | FaceFlags.RgbaConvert)
     {
+        // The small footnote in freetype says:
+        // "You must not deallocate the memory before calling FT_Done_Face."
+        // Finally knowing this... (uugghhh this has caused years of pain)
+        // Allocate & copy the data into a separate buffer which is kept alive while the face is alive.
+        byte* pData = (byte*) NativeMemory.Alloc((nuint) data.Length);
+        fixed (byte* dPtr = data)
+            Unsafe.CopyBlock(pData, dPtr, (uint) data.Length);
+        
         FT_Face* face;
-        fixed (byte* d = data)
-            FT_New_Memory_Face(_library, d, new FT_Long(data.Length), new FT_Long(0), out face);
-        return new Face(face, initialSize, flags);
+        FT_New_Memory_Face(_library, pData, new FT_Long(data.Length), new FT_Long(0), out face);
+        return new Face(face, pData, initialSize, flags);
     }
 
     public void Dispose()
