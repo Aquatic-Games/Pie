@@ -5,6 +5,9 @@ namespace Pie.DebugLayer;
 
 internal sealed unsafe class DebugTexture : Texture
 {
+    private int _width;
+    private int _height;
+    
     public Texture Texture;
     
     public override bool IsDisposed { get; protected set; }
@@ -13,6 +16,9 @@ internal sealed unsafe class DebugTexture : Texture
 
     public DebugTexture(TextureDescription description, void* data)
     {
+        _width = description.Width;
+        _height = description.Height;
+        
         Validity validity = description.Validity;
         if (!validity.IsValid)
             PieLog.Log(LogType.Critical, validity.Message);
@@ -58,7 +64,7 @@ internal sealed unsafe class DebugTexture : Texture
         
         if (arrayIndex >= Description.ArraySize)
             PieLog.Log(LogType.Critical, "Array index was out of range.");
-        
+
         Device.UpdateTexture(Texture, mipLevel, arrayIndex, x, y, z, width, height, depth, data);
     }
     

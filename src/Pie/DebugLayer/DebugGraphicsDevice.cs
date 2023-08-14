@@ -326,8 +326,8 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         if (!_shaderSet)
             PieLog.Log(LogType.Critical, "Attempted to draw, however no shader has been set.");
         
-        if (!_vertexBufferSet)
-            PieLog.Log(LogType.Critical, "Attempted to draw, however no vertex buffer has been set.");
+        //if (!_vertexBufferSet)
+        //    PieLog.Log(LogType.Critical, "Attempted to draw, however no vertex buffer has been set.");
         
         Device.Draw(vertexCount);
     }
@@ -337,8 +337,8 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         if (!_shaderSet)
             PieLog.Log(LogType.Critical, "Attempted to draw, however no shader has been set.");
         
-        if (!_vertexBufferSet)
-            PieLog.Log(LogType.Critical, "Attempted to draw, however no vertex buffer has been set.");
+        //if (!_vertexBufferSet)
+        //    PieLog.Log(LogType.Critical, "Attempted to draw, however no vertex buffer has been set.");
         
         //if (startVertex >= vertexCount)
         //    PieLog.Log(LogType.Critical, $"The vertex count was {vertexCount}, but the start vertex was {startVertex}.");
