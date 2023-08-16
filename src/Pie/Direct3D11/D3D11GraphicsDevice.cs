@@ -89,7 +89,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         AdapterDesc desc;
         adapter.GetDesc(&desc);
         
-        Adapter = new GraphicsAdapter(Marshal.PtrToStringAnsi((IntPtr) desc.Description));
+        Adapter = new GraphicsAdapter(new string(desc.Description));
 
         if (!Succeeded(D3D11.CreateDeviceAndSwapChain(new ComPtr<IDXGIAdapter>((IDXGIAdapter*) null), D3DDriverType.Hardware, 0,
                 (uint) flags, &level, 1, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref _device, null,
