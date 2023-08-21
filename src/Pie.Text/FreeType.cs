@@ -17,16 +17,16 @@ public class FreeType : IDisposable
             throw new Exception("Could not initialize freetype.");
     }
 
-    public unsafe Face CreateFace(string path, int initialSize, FaceFlags flags = FaceFlags.Antialiased | FaceFlags.RgbaConvert)
+    public unsafe Face CreateFace(string path, FaceFlags flags = FaceFlags.Antialiased | FaceFlags.RgbaConvert)
     {
         //return CreateFace(File.ReadAllBytes(path), initialSize);
         FT_Face* face;
         fixed (byte* bytes = Encoding.ASCII.GetBytes(path))
             FT_New_Face(_library, (sbyte*) bytes, new FT_Long(0), out face);
-        return new Face(face, null, initialSize, flags);
+        return new Face(face, null, flags);
     }
 
-    public unsafe Face CreateFace(byte[] data, int initialSize, FaceFlags flags = FaceFlags.Antialiased | FaceFlags.RgbaConvert)
+    public unsafe Face CreateFace(byte[] data, FaceFlags flags = FaceFlags.Antialiased | FaceFlags.RgbaConvert)
     {
         // The small footnote in freetype says:
         // "You must not deallocate the memory before calling FT_Done_Face."
@@ -38,7 +38,7 @@ public class FreeType : IDisposable
         
         FT_Face* face;
         FT_New_Memory_Face(_library, pData, new FT_Long(data.Length), new FT_Long(0), out face);
-        return new Face(face, pData, initialSize, flags);
+        return new Face(face, pData, flags);
     }
 
     public void Dispose()
