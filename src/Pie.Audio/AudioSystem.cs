@@ -122,6 +122,12 @@ public unsafe class AudioSystem : IDisposable
         Mixr.ReadBufferStereoF32(_system, buffer, length);
     }
 
+    public void ReadBufferStereoF32(Span<float> buffer)
+    {
+        fixed (float* buf = buffer)
+            Mixr.ReadBufferStereoF32(_system, buf, (nuint) buffer.Length);
+    }
+
     public void ReadBufferStereoF32(ref float[] buffer)
     {
         fixed (float* buf = buffer)
