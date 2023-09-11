@@ -161,6 +161,12 @@ public static unsafe class Sdl
     [DllImport(SdlName, EntryPoint = "SDL_PollEvent")]
     public static extern bool PollEvent(SdlEvent* @event);
 
+    [DllImport(SdlName, EntryPoint = "SDL_WaitEvent")]
+    public static extern bool WaitEvent(SdlEvent* @event);
+
+    [DllImport(SdlName, EntryPoint = "SDL_WaitEventTimeout")]
+    public static extern bool WaitEventTimeout(SdlEvent* @event, int timeout);
+
     [DllImport(SdlName, EntryPoint = "SDL_CreateRGBSurfaceWithFormatFrom")]
     public static extern void* CreateRGBSurfaceWithFormatFrom(void* pixels, int width, int height, int depth, int pitch,
         uint format); // returning void* cause I don't use anything stored inside SDL_Surface so why bother writing it

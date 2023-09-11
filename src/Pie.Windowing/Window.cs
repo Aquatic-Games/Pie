@@ -524,6 +524,66 @@ public sealed unsafe class Window : IDisposable
         if (!Sdl.PollEvent(&sdlEvent))
             return false;
 
+        if (!HandleSdlEvent(ref sdlEvent, out @event))
+            return PollEvent(out @event);
+
+        return true;
+    }
+
+    public bool WaitEvent(out IWindowEvent @event)
+    {
+        SdlEvent sdlEvent;
+        @event = null;
+        if (!Sdl.WaitEvent(&sdlEvent))
+            return false;
+
+        if (!HandleSdlEvent(ref sdlEvent, out @event))
+            return WaitEvent(out @event);
+        
+        return true;
+    }
+
+    public bool WaitEvent(out IWindowEvent @event, int timeout)
+    {
+        SdlEvent sdlEvent;
+        @event = null;
+        if (!Sdl.WaitEventTimeout(&sdlEvent, timeout))
+            return false;
+
+        if (!HandleSdlEvent(ref sdlEvent, out @event))
+            return WaitEvent(out @event, timeout);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Polls all window events and returns them as an array.
+    /// </summary>
+    /// <returns>The returned events.</returns>
+    /// <remarks>This method is rather inefficient. You should look at using <see cref="PollEvent"/> in a loop instead.</remarks>
+    public IWindowEvent[] PollEvents()
+    {
+        List<IWindowEvent> events = new List<IWindowEvent>();
+        while (PollEvent(out IWindowEvent evnt))
+            events.Add(evnt);
+
+        return events.ToArray();
+    }
+
+    /// <summary>
+    /// Dispose of this window.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_glContext != null)
+            Sdl.GLDeleteContext(_glContext);
+        
+        Sdl.DestroyWindow(_window);
+        Sdl.Quit();
+    }
+
+    private bool HandleSdlEvent(ref SdlEvent sdlEvent, out IWindowEvent @event)
+    {
         switch ((SdlEventType) sdlEvent.Type)
         {
             case SdlEventType.Quit:
@@ -537,7 +597,8 @@ public sealed unsafe class Window : IDisposable
                         break;
                     default:
                         // Filter out unrecognized events.
-                        return PollEvent(out @event);
+                        @event = null;
+                        return false;
                 }
 
                 break;
@@ -604,35 +665,10 @@ public sealed unsafe class Window : IDisposable
                 // Again, filter out unrecognized events.
                 // This literally ignores that they ever exist so that PollEvent *always* returns an event that Pie
                 // can understand.
-                return PollEvent(out @event);
+                @event = null;
+                return false;
         }
 
         return true;
-    }
-
-    /// <summary>
-    /// Polls all window events and returns them as an array.
-    /// </summary>
-    /// <returns>The returned events.</returns>
-    /// <remarks>This method is rather inefficient. You should look at using <see cref="PollEvent"/> in a loop instead.</remarks>
-    public IWindowEvent[] PollEvents()
-    {
-        List<IWindowEvent> events = new List<IWindowEvent>();
-        while (PollEvent(out IWindowEvent evnt))
-            events.Add(evnt);
-
-        return events.ToArray();
-    }
-
-    /// <summary>
-    /// Dispose of this window.
-    /// </summary>
-    public void Dispose()
-    {
-        if (_glContext != null)
-            Sdl.GLDeleteContext(_glContext);
-        
-        Sdl.DestroyWindow(_window);
-        Sdl.Quit();
     }
 }
