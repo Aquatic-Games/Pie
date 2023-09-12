@@ -46,7 +46,8 @@ public unsafe struct Vorbis : IAudioStream
     
     public ulong GetBuffer(ref byte[] buf)
     {
-        throw new System.NotImplementedException();
+        fixed (byte* b = buf)
+            return (ulong) Mixr.StreamGetBuffer(_stream, b, (nuint) buf.Length);
     }
 
     public byte[] GetPcm()
@@ -62,6 +63,21 @@ public unsafe struct Vorbis : IAudioStream
         return data;
     }
     
+    public void Seek(double position)
+    {
+        Mixr.StreamSeek(_stream, position);
+    }
+
+    public void SeekSamples(ulong position)
+    {
+        Mixr.StreamSeekSamples(_stream, (nuint) position);
+    }
+
+    public void Restart()
+    {
+        Mixr.StreamRestart(_stream);
+    }
+
     public void Dispose()
     {
         Mixr.StreamFree(_stream);

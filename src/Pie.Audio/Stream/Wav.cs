@@ -62,6 +62,21 @@ public unsafe struct Wav : IAudioStream
         return data;
     }
     
+    public void Seek(double position)
+    {
+        Mixr.StreamSeek(_stream, position);
+    }
+
+    public void SeekSamples(ulong position)
+    {
+        Mixr.StreamSeekSamples(_stream, (nuint) position);
+    }
+
+    public void Restart()
+    {
+        Mixr.StreamRestart(_stream);
+    }
+
     public void Dispose()
     {
         Mixr.StreamFree(_stream);

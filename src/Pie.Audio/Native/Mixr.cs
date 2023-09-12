@@ -75,6 +75,18 @@ public static unsafe class Mixr
     [DllImport(MixrName, EntryPoint = "mxStreamGetFormat")]
     public static extern void StreamGetFormat(void* stream, AudioFormat* format);
 
+    [DllImport(MixrName, EntryPoint = "mxStreamGetBuffer")]
+    public static extern nuint StreamGetBuffer(void* stream, byte* buffer, nuint length);
+
     [DllImport(MixrName, EntryPoint = "mxStreamGetPcm")]
     public static extern void StreamGetPcm(void* stream, void* data, nuint* length);
+
+    [DllImport(MixrName, EntryPoint = "mxStreamSeek")]
+    public static extern void StreamSeek(void* stream, double position);
+    
+    [DllImport(MixrName, EntryPoint = "mxStreamSeekSamples")]
+    public static extern void StreamSeekSamples(void* stream, nuint position);
+
+    [DllImport(MixrName, EntryPoint = "mxStreamRestart")]
+    public static extern void StreamRestart(void* stream);
 }

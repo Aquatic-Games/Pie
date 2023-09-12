@@ -2,33 +2,41 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Pie.Audio;
-using StbVorbisSharp;
+using Pie.Audio.Stream;
 
 namespace Common;
 
 public class VorbisPlayer : IDisposable
 {
     private AudioDevice _device;
+    
     private Vorbis _vorbis;
+    private AudioFormat _format;
+
+    private byte[] _buffer;
+    
     private AudioBuffer[] _buffers;
     private int _currentBuffer;
 
     private ushort _voice;
+
+    private object _lock = new object();
     
     public VorbisPlayer(AudioDevice device, string path)
     {
         _device = device;
         
-        _vorbis = Vorbis.FromMemory(File.ReadAllBytes(path));
+        _vorbis = Vorbis.FromFile(path);
+        _format = _vorbis.Format;
+
+        _buffer = new byte[_format.SampleRate * _format.DataType.Bytes()];
 
         _buffers = new AudioBuffer[2];
-            
-        AudioFormat format = new AudioFormat(DataType.I16, (uint) _vorbis.SampleRate, (byte) _vorbis.Channels);
 
         for (int i = 0; i < _buffers.Length; i++)
         {
-            _vorbis.SubmitBuffer();
-            _buffers[i] = _device.CreateBuffer(new BufferDescription(format), _vorbis.SongBuffer);
+            _vorbis.GetBuffer(ref _buffer);
+            _buffers[i] = _device.CreateBuffer(new BufferDescription(_format), _buffer);
         }
         
         _device.BufferFinished += DeviceOnBufferFinished;
@@ -47,18 +55,23 @@ public class VorbisPlayer : IDisposable
         // take too long to process. Running this in a separate thread ensures this cannot happen.
         Task.Run(() =>
         {
-            _vorbis.SubmitBuffer();
-            if (_vorbis.Decoded * _vorbis.Channels < _vorbis.SongBuffer.Length)
-                _vorbis.Restart();
+            lock (_lock)
+            {
+                ulong decoded = _vorbis.GetBuffer(ref _buffer);
+                if (decoded < _format.SampleRate)
+                {
+                    _vorbis.Restart();
+                    _device.UpdateBuffer(_buffers[_currentBuffer], _format, _buffer[..((int) decoded * _format.DataType.Bytes())]);
+                }
+                else
+                    _device.UpdateBuffer(_buffers[_currentBuffer], _format, _buffer);
+                
+                _device.QueueBuffer(_buffers[_currentBuffer], voice);
 
-            _device.UpdateBuffer(_buffers[_currentBuffer],
-                new AudioFormat(DataType.I16, (uint) _vorbis.SampleRate, (byte) _vorbis.Channels),
-                _vorbis.SongBuffer[..(_vorbis.Decoded * _vorbis.Channels)]);
-            _device.QueueBuffer(_buffers[_currentBuffer], voice);
-
-            _currentBuffer++;
-            if (_currentBuffer >= _buffers.Length)
-                _currentBuffer = 0;
+                _currentBuffer++;
+                if (_currentBuffer >= _buffers.Length)
+                    _currentBuffer = 0;
+            }
         });
     }
 

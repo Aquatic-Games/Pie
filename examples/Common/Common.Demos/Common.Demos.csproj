@@ -13,10 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="StbVorbisSharp" Version="1.22.4" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Shaders/**/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
