@@ -25,7 +25,7 @@ public sealed class Font : IDisposable
             _fontReferences++;
         }
 
-        _face = _freeType.CreateFace(path, 0);
+        _face = _freeType.CreateFace(path);
         _characterDict = new Dictionary<uint, Dictionary<char, (Character, Texture)>>();
     }
 
@@ -42,9 +42,8 @@ public sealed class Font : IDisposable
             if (!dict.TryGetValue(c, out (Character character, Texture texture) character))
             {
                 SampleApplication.Log(LogType.Debug, $"Creating character '{c}' at size {size}.");
-                _face.Size = (int) size;
-
-                character.character = _face.Characters[c];
+                
+                character.character = _face.GetCharacter(c, size);
                 if (character.character.Width > 0 && character.character.Height > 0)
                 {
                     Size texSize = new Size(character.character.Width, character.character.Height);
