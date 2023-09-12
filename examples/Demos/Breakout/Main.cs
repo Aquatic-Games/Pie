@@ -18,7 +18,7 @@ public class Main : SampleApplication
 
     public AudioBuffer Hit;
 
-    private VorbisPlayer _vorbis;
+    private StreamPlayer _stream;
     
     private SpriteRenderer _spriteRenderer;
 
@@ -47,8 +47,8 @@ public class Main : SampleApplication
         using Wav hit = Wav.FromFile("Content/Audio/hit.wav");
         Hit = AudioDevice.CreateBuffer(new BufferDescription(hit.Format), hit.GetPcm());
 
-        _vorbis = new VorbisPlayer(AudioDevice, "Content/Audio/excite.ogg");
-        _vorbis.Play(0, new PlayProperties());
+        _stream = new StreamPlayer(AudioDevice, "Content/Audio/excite.ogg");
+        _stream.Play(0, new PlayProperties());
 
         _ball = new Ball(_texture)
         {

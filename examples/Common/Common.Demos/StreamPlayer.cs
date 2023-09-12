@@ -1,16 +1,15 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Pie.Audio;
 using Pie.Audio.Stream;
 
 namespace Common;
 
-public class VorbisPlayer : IDisposable
+public class StreamPlayer : IDisposable
 {
     private AudioDevice _device;
     
-    private Vorbis _vorbis;
+    private Stream _stream;
     private AudioFormat _format;
 
     private byte[] _buffer;
@@ -22,12 +21,12 @@ public class VorbisPlayer : IDisposable
 
     private object _lock = new object();
     
-    public VorbisPlayer(AudioDevice device, string path)
+    public StreamPlayer(AudioDevice device, string path)
     {
         _device = device;
         
-        _vorbis = Vorbis.FromFile(path);
-        _format = _vorbis.Format;
+        _stream = Stream.FromFile(path);
+        _format = _stream.Format;
 
         _buffer = new byte[_format.SampleRate * _format.DataType.Bytes()];
 
@@ -35,7 +34,7 @@ public class VorbisPlayer : IDisposable
 
         for (int i = 0; i < _buffers.Length; i++)
         {
-            _vorbis.GetBuffer(ref _buffer);
+            _stream.GetBuffer(ref _buffer);
             _buffers[i] = _device.CreateBuffer(new BufferDescription(_format), _buffer);
         }
         
@@ -57,10 +56,10 @@ public class VorbisPlayer : IDisposable
         {
             lock (_lock)
             {
-                ulong decoded = _vorbis.GetBuffer(ref _buffer);
+                ulong decoded = _stream.GetBuffer(ref _buffer);
                 if (decoded < _format.SampleRate)
                 {
-                    _vorbis.Restart();
+                    _stream.Restart();
                     _device.UpdateBuffer(_buffers[_currentBuffer], _format, _buffer[..((int) decoded * _format.DataType.Bytes())]);
                 }
                 else
@@ -98,6 +97,6 @@ public class VorbisPlayer : IDisposable
         foreach (AudioBuffer buffer in _buffers)
             _device.DestroyBuffer(buffer);
         
-        _vorbis.Dispose();
+        _stream.Dispose();
     }
 }
