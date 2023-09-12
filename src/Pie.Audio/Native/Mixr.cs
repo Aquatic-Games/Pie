@@ -2,71 +2,79 @@ using System.Runtime.InteropServices;
 
 namespace Pie.Audio.Native;
 
-public static unsafe partial class Mixr
+public static unsafe class Mixr
 {
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxCreateSystem", ExactSpelling = true)]
-    public static extern void* CreateSystem([NativeTypeName("uint32_t")] uint sample_rate, [NativeTypeName("uint16_t")] ushort voices);
+    public const string MixrName = "mixr";
+    
+    [DllImport(MixrName, EntryPoint = "mxCreateSystem")]
+    public static extern void* CreateSystem(uint sample_rate, ushort voices);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxDestroySystem", ExactSpelling = true)]
+    [DllImport(MixrName, EntryPoint = "mxDestroySystem")]
     public static extern void DestroySystem(void* system);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxCreateBuffer", ExactSpelling = true)]
-    public static extern MixrResult CreateBuffer(void* system, BufferDescription description, [NativeTypeName("const void *")] void* data, [NativeTypeName("uintptr_t")] nuint length, AudioBuffer* buffer);
+    [DllImport(MixrName, EntryPoint = "mxCreateBuffer")]
+    public static extern MixrResult CreateBuffer(void* system, BufferDescription description, void* data, nuint length, AudioBuffer* buffer);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxDestroyBuffer", ExactSpelling = true)]
+    [DllImport(MixrName, EntryPoint = "mxDestroyBuffer")]
     public static extern MixrResult DestroyBuffer(void* system, AudioBuffer buffer);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxUpdateBuffer", ExactSpelling = true)]
-    public static extern MixrResult UpdateBuffer(void* system, AudioBuffer buffer, AudioFormat format, [NativeTypeName("const void *")] void* data, [NativeTypeName("uintptr_t")] nuint length);
+    [DllImport(MixrName, EntryPoint = "mxUpdateBuffer")]
+    public static extern MixrResult UpdateBuffer(void* system, AudioBuffer buffer, AudioFormat format, void* data, nuint length);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxPlayBuffer", ExactSpelling = true)]
-    public static extern MixrResult PlayBuffer(void* system, AudioBuffer buffer, [NativeTypeName("uint16_t")] ushort voice, PlayProperties properties);
+    [DllImport(MixrName, EntryPoint = "mxPlayBuffer")]
+    public static extern MixrResult PlayBuffer(void* system, AudioBuffer buffer, ushort voice, PlayProperties properties);
     
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxQueueBuffer", ExactSpelling = true)]
-    public static extern MixrResult QueueBuffer(void* system, AudioBuffer buffer, [NativeTypeName("uint16_t")] ushort voice);
+    [DllImport(MixrName, EntryPoint = "mxQueueBuffer")]
+    public static extern MixrResult QueueBuffer(void* system, AudioBuffer buffer, ushort voice);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxGetPlayProperties", ExactSpelling = true)]
-    public static extern MixrResult GetPlayProperties(void* system, [NativeTypeName("uint16_t")] ushort voice, PlayProperties* properties);
+    [DllImport(MixrName, EntryPoint = "mxGetPlayProperties")]
+    public static extern MixrResult GetPlayProperties(void* system, ushort voice, PlayProperties* properties);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxSetPlayProperties", ExactSpelling = true)]
-    public static extern MixrResult SetPlayProperties(void* system, [NativeTypeName("uint16_t")] ushort voice, PlayProperties properties);
+    [DllImport(MixrName, EntryPoint = "mxSetPlayProperties")]
+    public static extern MixrResult SetPlayProperties(void* system, ushort voice, PlayProperties properties);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxGetVoiceState", ExactSpelling = true)]
-    public static extern MixrResult GetVoiceState(void* system, [NativeTypeName("uint16_t")] ushort voice, PlayState* state);
+    [DllImport(MixrName, EntryPoint = "mxGetVoiceState")]
+    public static extern MixrResult GetVoiceState(void* system, ushort voice, PlayState* state);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxSetVoiceState", ExactSpelling = true)]
-    public static extern MixrResult SetVoiceState(void* system, [NativeTypeName("uint16_t")] ushort voice, PlayState state);
+    [DllImport(MixrName, EntryPoint = "mxSetVoiceState")]
+    public static extern MixrResult SetVoiceState(void* system, ushort voice, PlayState state);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxGetPositionSamples", ExactSpelling = true)]
-    public static extern MixrResult GetPositionSamples(void* system, [NativeTypeName("uint16_t")] ushort voice, [NativeTypeName("uintptr_t *")] nuint* position);
+    [DllImport(MixrName, EntryPoint = "mxGetPositionSamples")]
+    public static extern MixrResult GetPositionSamples(void* system, ushort voice, nuint* position);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxSetPositionSamples", ExactSpelling = true)]
-    public static extern MixrResult SetPositionSamples(void* system, [NativeTypeName("uint16_t")] ushort voice, [NativeTypeName("uintptr_t")] nuint position);
+    [DllImport(MixrName, EntryPoint = "mxSetPositionSamples")]
+    public static extern MixrResult SetPositionSamples(void* system, ushort voice, nuint position);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxGetPosition", ExactSpelling = true)]
-    public static extern MixrResult GetPosition(void* system, [NativeTypeName("uint16_t")] ushort voice, double* position);
+    [DllImport(MixrName, EntryPoint = "mxGetPosition")]
+    public static extern MixrResult GetPosition(void* system, ushort voice, double* position);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxSetPosition", ExactSpelling = true)]
-    public static extern MixrResult SetPosition(void* system, [NativeTypeName("uint16_t")] ushort voice, double position);
+    [DllImport(MixrName, EntryPoint = "mxSetPosition")]
+    public static extern MixrResult SetPosition(void* system, ushort voice, double position);
     
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxSetBufferFinishedCallback", ExactSpelling = true)]
+    [DllImport(MixrName, EntryPoint = "mxSetBufferFinishedCallback")]
     public static extern void SetBufferFinishedCallback(void* system, delegate*<AudioBuffer, ushort, void> callback);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxReadBufferStereoF32", ExactSpelling = true)]
-    public static extern void ReadBufferStereoF32(void* system, float* buffer, [NativeTypeName("uintptr_t")] nuint length);
+    [DllImport(MixrName, EntryPoint = "mxReadBufferStereoF32")]
+    public static extern void ReadBufferStereoF32(void* system, float* buffer, nuint length);
     
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxGetNumVoices", ExactSpelling = true)]
+    [DllImport(MixrName, EntryPoint = "mxGetNumVoices")]
     public static extern ushort GetNumVoices(void* system);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxStreamLoadWav", ExactSpelling = true)]
-    public static extern MixrResult StreamLoadWav([NativeTypeName("const char *")] sbyte* path, void** stream);
+    [DllImport(MixrName, EntryPoint = "mxStreamLoadFile")]
+    public static extern MixrResult StreamLoadFile(sbyte* path, void** stream);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxStreamFree", ExactSpelling = true)]
+    [DllImport(MixrName, EntryPoint = "mxStreamLoadWavFile")]
+    public static extern MixrResult StreamLoadWavFile(sbyte* path, void** stream);
+    
+    [DllImport(MixrName, EntryPoint = "mxStreamLoadVorbisFile")]
+    public static extern MixrResult StreamLoadVorbisFile(sbyte* path, void** stream);
+
+    [DllImport(MixrName, EntryPoint = "mxStreamFree")]
     public static extern void StreamFree(void* stream);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxStreamGetFormat", ExactSpelling = true)]
+    [DllImport(MixrName, EntryPoint = "mxStreamGetFormat")]
     public static extern void StreamGetFormat(void* stream, AudioFormat* format);
 
-    [DllImport("mixr", CallingConvention = CallingConvention.Cdecl, EntryPoint = "mxStreamGetPcm", ExactSpelling = true)]
-    public static extern void StreamGetPcm(void* stream, void* data, [NativeTypeName("uintptr_t *")] nuint* length);
+    [DllImport(MixrName, EntryPoint = "mxStreamGetPcm")]
+    public static extern void StreamGetPcm(void* stream, void* data, nuint* length);
 }

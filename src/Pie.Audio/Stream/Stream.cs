@@ -3,23 +3,23 @@ using Pie.Audio.Native;
 
 namespace Pie.Audio.Stream;
 
-public unsafe struct Wav : IAudioStream
+public unsafe struct Stream : IAudioStream
 {
     private void* _stream;
 
-    public Wav(void* stream)
+    public Stream(void* stream)
     {
         _stream = stream;
     }
 
-    public static Wav FromFile(string path)
+    public static Stream FromFile(string path)
     {
         void* stream;
         
         fixed (byte* ptr = Encoding.ASCII.GetBytes(path))
-            Mixr.StreamLoadWavFile((sbyte*) ptr, &stream);
+            Mixr.StreamLoadFile((sbyte*) ptr, &stream);
 
-        return new Wav(stream);
+        return new Stream(stream);
     }
 
     public AudioFormat Format
