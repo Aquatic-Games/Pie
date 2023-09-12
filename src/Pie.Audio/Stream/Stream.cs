@@ -46,7 +46,8 @@ public unsafe struct Stream : IAudioStream
     
     public ulong GetBuffer(ref byte[] buf)
     {
-        throw new System.NotImplementedException();
+        fixed (byte* b = buf)
+            return (ulong) Mixr.StreamGetBuffer(_stream, b, (nuint) buf.Length);
     }
 
     public byte[] GetPcm()
