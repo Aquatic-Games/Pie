@@ -557,17 +557,14 @@ public sealed unsafe class Window : IDisposable
     }
 
     /// <summary>
-    /// Polls all window events and returns them as an array.
+    /// Polls events and returns it as an IEnumerable. This method simply calls <see cref="PollEvent"/> under the hood,
+    /// but is a more "C# friendly" way of doing things.
     /// </summary>
-    /// <returns>The returned events.</returns>
-    /// <remarks>This method is rather inefficient. You should look at using <see cref="PollEvent"/> in a loop instead.</remarks>
-    public IWindowEvent[] PollEvents()
+    /// <returns>An <see cref="IEnumerable{T}"/> of events.</returns>
+    public IEnumerable<IWindowEvent> PollEvents()
     {
-        List<IWindowEvent> events = new List<IWindowEvent>();
-        while (PollEvent(out IWindowEvent evnt))
-            events.Add(evnt);
-
-        return events.ToArray();
+        while (PollEvent(out IWindowEvent winEvent))
+            yield return winEvent;
     }
 
     /// <summary>
