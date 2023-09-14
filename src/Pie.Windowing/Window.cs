@@ -223,6 +223,10 @@ public sealed unsafe class Window : IDisposable
             flags |= SdlWindowFlags.Borderless;
         if (builder.WindowHidden)
             flags |= SdlWindowFlags.Hidden;
+        if (builder.WindowMaximized)
+            flags |= SdlWindowFlags.Maximized;
+        if (builder.WindowMinimized)
+            flags |= SdlWindowFlags.Minimized;
 
         flags |= builder.WindowFullscreenMode switch
         {

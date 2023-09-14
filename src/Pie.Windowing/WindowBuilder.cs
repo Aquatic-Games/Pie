@@ -39,6 +39,16 @@ public class WindowBuilder
     public bool WindowHidden;
 
     /// <summary>
+    /// If true, the window will be maximized once built.
+    /// </summary>
+    public bool WindowMaximized;
+
+    /// <summary>
+    /// If true, the window will be minimized once built.
+    /// </summary>
+    public bool WindowMinimized;
+
+    /// <summary>
     /// The window icon it should use. This should be an RGBA formatted bitmap. If null, the default window manager icon
     /// is used.
     /// </summary>
@@ -70,6 +80,8 @@ public class WindowBuilder
         WindowResizable = false;
         WindowBorderless = false;
         WindowHidden = false;
+        WindowMaximized = false;
+        WindowMinimized = false;
         WindowIcon = null;
         DeviceOptions = new GraphicsDeviceOptions(false);
         WindowApi = GraphicsDevice.GetBestApiForPlatform();
@@ -132,6 +144,26 @@ public class WindowBuilder
     public WindowBuilder Hidden()
     {
         WindowHidden = true;
+
+        return this;
+    }
+
+    /// <summary>
+    /// If true, the window will be maximized once built.
+    /// </summary>
+    public WindowBuilder Maximized()
+    {
+        WindowMaximized = true;
+
+        return this;
+    }
+    
+    /// <summary>
+    /// If true, the window will be minimized once built.
+    /// </summary>
+    public WindowBuilder Minimized()
+    {
+        WindowMinimized = true;
 
         return this;
     }
