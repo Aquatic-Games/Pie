@@ -140,7 +140,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             _scissor = value;
 
             Silk.NET.Maths.Box2D<int> scissor =
-                new Silk.NET.Maths.Box2D<int>(value.X, value.Y, value.Width, value.Height);
+                new Silk.NET.Maths.Box2D<int>(value.X, value.Y, value.X + value.Width, value.Y + value.Height);
             _context.RSSetScissorRects(1, scissor);
         }
     }
