@@ -35,11 +35,30 @@ public abstract class SampleApplication : IDisposable
 
     public void Run()
     {
+        Log(LogType.Debug, "Checking for \"DEMO_FORCE_API\" environment variable...");
+        string forceApi = Environment.GetEnvironmentVariable("DEMO_FORCE_API");
+
+        GraphicsApi api;
+        if (forceApi == null)
+            api = GraphicsDevice.GetBestApiForPlatform();
+        else
+        {
+            Log(LogType.Debug, $"Attempting to use API \"{forceApi}\".");
+            if (!Enum.TryParse(forceApi, true, out api))
+            {
+                Log(LogType.Debug, "Attempt failed. Reverting to default API.");
+                api = GraphicsDevice.GetBestApiForPlatform();
+            }
+        }
+        
+        Log(LogType.Info, $"Using {api.ToFriendlyString()} graphics API.");
+        
         Log(LogType.Debug, "Creating window and device.");
         Window = new WindowBuilder()
             .Size(_size.Width, _size.Height)
             .Title(_title)
             .Resizable()
+            .Api(api)
             .GraphicsDeviceOptions(new GraphicsDeviceOptions() { Debug = true })
             .Build(out GraphicsDevice);
         
