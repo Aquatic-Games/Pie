@@ -70,6 +70,8 @@ void main()
 
     private GraphicsBuffer _transformBuffer;
 
+    private DepthStencilState _depthStencilState;
+
     protected override void Initialize()
     {
         _vertexBuffer = GraphicsDevice.CreateBuffer(BufferType.VertexBuffer, _vertices);
@@ -104,6 +106,8 @@ void main()
         _samplerState = GraphicsDevice.CreateSamplerState(SamplerStateDescription.LinearRepeat);
 
         _transformBuffer = GraphicsDevice.CreateBuffer(BufferType.UniformBuffer, Matrix4x4.Identity, true);
+
+        _depthStencilState = GraphicsDevice.CreateDepthStencilState(DepthStencilStateDescription.Disabled);
     }
 
     private double _time;
@@ -122,6 +126,7 @@ void main()
         GraphicsDevice.SetUniformBuffer(0, _transformBuffer);
         GraphicsDevice.SetTexture(1, _texture1, _samplerState);
         GraphicsDevice.SetTexture(2, _texture2, _samplerState);
+        GraphicsDevice.SetDepthStencilState(_depthStencilState);
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
         GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _inputLayout);
         GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UInt);
