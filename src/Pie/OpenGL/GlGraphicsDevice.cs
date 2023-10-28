@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -19,8 +20,9 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     
     // The poor, lone vao that powers the entire GL graphics device.
     private uint _vao;
+
+    private Dictionary<(uint vbo, uint ebo, InputLayout layout), uint> _vaos;
     
-    private InputLayout _currentLayout;
     private RasterizerState _currentRState;
     private BlendState _currentBState;
     private DepthStencilState _currentDStencilState;
@@ -29,7 +31,10 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     private DrawElementsType _currentEType;
     private uint _currentShader;
 
-    private GraphicsBuffer _currentVBuffer;
+    private GlInputLayout _currentInputLayout;
+    private uint _currentStride;
+    private GlGraphicsBuffer _currentVertexBuffer;
+    private GlGraphicsBuffer _currentIndexBuffer;
     
     private int _eTypeSize;
     private bool _primitiveTypeInitialized;
@@ -52,6 +57,8 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         {
             Size = winSize
         };
+
+        _vaos = new Dictionary<(uint vbo, uint ebo, InputLayout layout), uint>();
 
         Gl.GetInteger(GetPName.DrawFramebufferBinding, out _defaultFramebufferId);
 
@@ -122,7 +129,6 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     private void InvalidateCaches()
     {
-        _currentLayout = null;
         _currentRState = null;
         _currentBState = null;
         PieMetrics.DrawCalls = 0;
@@ -337,19 +343,17 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
     {
         GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
-        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, glBuf.Handle); 
-        if (_currentLayout == null || !_currentLayout.Equals(layout) || _currentVBuffer != buffer)
-        {
-            ((GlInputLayout) layout).Set(slot, stride);
-            _currentLayout = layout;
-            _currentVBuffer = buffer;
-        }
+
+        _currentVertexBuffer = glBuf;
+        _currentInputLayout = (GlInputLayout) layout;
+        _currentStride = stride;
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
     {
         GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
-        Gl.BindBuffer(GLEnum.ElementArrayBuffer, glBuf.Handle);
+
+        _currentIndexBuffer = glBuf;
 
         switch (type)
         {
@@ -368,7 +372,6 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
     {
-        //Gl.UniformBlockBinding(GLShader.BoundHandle, slot, slot);
         Gl.BindBufferBase(BufferTargetARB.UniformBuffer, bindingSlot, ((GlGraphicsBuffer) buffer).Handle);
     }
 
@@ -378,7 +381,6 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         {
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, (uint) _defaultFramebufferId);
             _framebufferSet = false;
-            //Gl.DrawBuffer(DrawBufferMode.Front);
             return;
         }
 
@@ -403,6 +405,22 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     public override void DrawIndexed(uint indexCount)
     {
+        if (!_vaos.TryGetValue((_currentVertexBuffer.Handle, _currentIndexBuffer.Handle, _currentInputLayout),
+                out uint vao))
+        {
+            vao = Gl.GenVertexArray();
+            Gl.BindVertexArray(vao);
+            
+            Gl.BindBuffer(BufferTargetARB.ArrayBuffer, _currentVertexBuffer.Handle);
+            Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _currentIndexBuffer.Handle);
+
+            _currentInputLayout.Set(0, _currentStride);
+            
+            _vaos.Add((_currentVertexBuffer.Handle, _currentIndexBuffer.Handle, _currentInputLayout), vao);
+        }
+        
+        Gl.BindVertexArray(vao);
+        
         Gl.DrawElements(_glType, indexCount, _currentEType, null);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3;
