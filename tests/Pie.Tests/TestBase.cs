@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Numerics;
 using Pie.Audio;
 using Pie.Windowing;
 using Pie.Windowing.Events;
@@ -13,6 +15,8 @@ namespace Pie.Tests;
 
 public abstract class TestBase : IDisposable
 {
+    private HashSet<Key> _keysDown;
+    
     public Window Window;
     public GraphicsDevice GraphicsDevice;
 
@@ -35,17 +39,10 @@ public abstract class TestBase : IDisposable
         
         PieLog.DebugLog += DebugLog;
 
-        //ImageResult result = ImageResult.FromMemory(File.ReadAllBytes("/home/skye/Pictures/pie_1f967.png"), ColorComponents.RedGreenBlueAlpha);
-       // Icon icon = new Icon((uint) result.Width, (uint) result.Height, result.Data);
-
        Window = new WindowBuilder()
             .Size(1280, 720)
-            //.FullscreenMode(FullscreenMode.ExclusiveFullscreen)
-            .Title("A test with SDL!")
-            //.Icon(icon)
+            .Title("Pie Tests")
             .Resizable()
-            //.Hidden()
-            //.Borderless()
             .Api(api)
             .GraphicsDeviceOptions(new GraphicsDeviceOptions(true))
             .Build(out GraphicsDevice);
@@ -53,88 +50,46 @@ public abstract class TestBase : IDisposable
         Initialize();
 
         bool wantsClose = false;
-        
-        uint numFrames = 0;
-        double currentTime = 0.0;
+        _keysDown = new HashSet<Key>();
 
         Stopwatch sw = Stopwatch.StartNew();
         while (!wantsClose)
         {
-            while (Window.PollEvent(out IWindowEvent evnt))
+            MouseDelta = Vector2.Zero;
+            
+            while (Window.PollEvent(out IWindowEvent winEvent))
             {
-                switch (evnt.EventType)
+                switch (winEvent)
                 {
-                    case WindowEventType.Quit:
+                    case QuitEvent:
                         wantsClose = true;
                         break;
-                    case WindowEventType.Resize:
-                        ResizeEvent resizeEvent = (ResizeEvent) evnt;
-                        ResizeWindow(new Size(resizeEvent.Width, resizeEvent.Height));
+                    
+                    case ResizeEvent resize:
+                        ResizeWindow(new Size(resize.Width, resize.Height));
                         break;
-                    case WindowEventType.KeyDown:
-                    case WindowEventType.KeyUp:
-                    case WindowEventType.KeyRepeat:
-                        KeyEvent ke = (KeyEvent) evnt;
-                        Console.WriteLine(ke.EventType + ": " + ke.Key + "(" + ke.Scancode + ")");
-
-                        if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.Enter)
-                            MessageBox.Show(MessageBox.MessageBoxType.Warning, "Trolled", "You just got do the trolled");
-                        
-                        if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.Space)
-                            Window.Minimize();
-                        
-                        if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.Escape)
-                            wantsClose = true;
-
-                        if (ke.EventType == WindowEventType.KeyDown && ke.Key == Key.F11)
+                    
+                    case KeyEvent key:
+                        switch (key.EventType)
                         {
-                            FullscreenMode currentMode = Window.FullscreenMode;
-                            //Window.Size = new Size(1920, 1080);
-                            Console.WriteLine(currentMode);
-                            Window.FullscreenMode = currentMode != FullscreenMode.Windowed
-                                ? FullscreenMode.Windowed
-                                : FullscreenMode.BorderlessFullscreen;
+                            case WindowEventType.KeyDown:
+                                _keysDown.Add(key.Key);
+                                break;
+                            case WindowEventType.KeyUp:
+                                _keysDown.Remove(key.Key);
+                                break;
                         }
-                        break;
-                    case WindowEventType.TextInput:
-                        TextInputEvent text = (TextInputEvent) evnt;
-                        
-                        Console.WriteLine(text.Text);
+
                         break;
                     
-                    case WindowEventType.MouseMove:
-                        MouseMoveEvent moveEvent = (MouseMoveEvent) evnt;
-                        Console.WriteLine(
-                            $"Mouse X: {moveEvent.MouseX}, Y: {moveEvent.MouseY}, Delta X: {moveEvent.DeltaX}, Delta Y: {moveEvent.DeltaY}");
-                        break;
-                    
-                    case WindowEventType.MouseButtonDown:
-                    case WindowEventType.MouseButtonUp:
-                        MouseButtonEvent buttonEvent = (MouseButtonEvent) evnt;
-                        
-                        Console.WriteLine($"{buttonEvent.EventType}: {buttonEvent.Button}");
-                        break;
-                    
-                    case WindowEventType.MouseScroll:
-                        MouseScrollEvent scrollEvent = (MouseScrollEvent) evnt;
-                        
-                        Console.WriteLine($"Scroll X: {scrollEvent.X}, Y: {scrollEvent.Y}");
+                    case MouseMoveEvent move:
+                        MouseDelta += new Vector2(move.DeltaX, move.DeltaY);
                         break;
                 }
             }
-
-            numFrames++;
+            
             
             double dt = sw.Elapsed.TotalSeconds;
-            currentTime += dt;
-
-            if (currentTime >= 1.0)
-            {
-                currentTime -= 1.0;
-                
-                Console.WriteLine(numFrames);
-                numFrames = 0;
-            }
 
             Update(dt);
             Draw(dt);
@@ -144,6 +99,10 @@ public abstract class TestBase : IDisposable
             GraphicsDevice.Present(1);
         }
     }
+
+    public Vector2 MouseDelta;
+    
+    public bool IsKeyDown(Key key) => _keysDown.Contains(key);
 
     protected virtual void ResizeWindow(Size size)
     {

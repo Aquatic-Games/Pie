@@ -21,7 +21,7 @@ public class Camera
 
     public Vector3 Up => Vector3.Transform(Vector3.UnitY, Rotation);
 
-    public Vector3 Right => Vector3.Transform(Vector3.UnitZ, Rotation);
+    public Vector3 Right => Vector3.Transform(Vector3.UnitX, Rotation);
 
     public Matrix4x4 Projection => Matrix4x4.CreatePerspectiveFieldOfView(Fov, AspectRatio, NearPlane, FarPlane);
 
