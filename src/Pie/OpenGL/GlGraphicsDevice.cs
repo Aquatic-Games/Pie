@@ -15,8 +15,6 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     internal static GL Gl;
     internal static bool Debug;
     internal static bool IsES;
-
-    private Dictionary<(uint vbo, uint ebo, InputLayout layout), uint> _vaos;
     
     private RasterizerState _currentRState;
     private BlendState _currentBState;
@@ -50,8 +48,6 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         {
             Size = winSize
         };
-
-        _vaos = new Dictionary<(uint vbo, uint ebo, InputLayout layout), uint>();
 
         Gl.GetInteger(GetPName.DrawFramebufferBinding, out _defaultFramebufferId);
 
@@ -471,29 +467,12 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     public override void Dispose()
     {
-        foreach ((_, uint vao) in _vaos)
-            Gl.DeleteVertexArray(vao);
+        
     }
 
     private void BindBuffersWithVao()
     {
-        if (!_vaos.TryGetValue((_currentVertexBuffer.Handle, _currentIndexBuffer.Handle, _currentInputLayout),
-                out uint vao))
-        {
-            vao = Gl.GenVertexArray();
-            Gl.BindVertexArray(vao);
-            
-            //Gl.BindBuffer(BufferTargetARB.ArrayBuffer, _currentVertexBuffer.Handle);
-
-            Gl.BindVertexBuffer(0, _currentVertexBuffer.Handle, 0, _currentStride);
-            Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _currentIndexBuffer.Handle);
-
-            _currentInputLayout.Set(0, _currentStride);
-            
-            _vaos.Add((_currentVertexBuffer.Handle, _currentIndexBuffer.Handle, _currentInputLayout), vao);
-        }
         
-        Gl.BindVertexArray(vao);
     }
 
     private void DebugCallback(GLEnum source, GLEnum type, int id, GLEnum severity, int length, nint message, nint userParam)
