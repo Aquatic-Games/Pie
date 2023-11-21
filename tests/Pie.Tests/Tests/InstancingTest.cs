@@ -148,8 +148,9 @@ public class InstancingTest : TestBase
         GraphicsDevice.SetDepthStencilState(_depthStencilState);
         GraphicsDevice.SetRasterizerState(_rasterizerState);
         
-        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _inputLayout);
-        GraphicsDevice.SetVertexBuffer(1, _matricesBuffer, 64, _inputLayout);
+        GraphicsDevice.SetInputLayout(_inputLayout);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes);
+        GraphicsDevice.SetVertexBuffer(1, _matricesBuffer, 64);
         GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UShort);
         
         GraphicsDevice.SetUniformBuffer(0, _cameraBuffer);

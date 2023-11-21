@@ -251,27 +251,25 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         Device.SetPrimitiveType(type);
     }
 
-    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
+    public override void SetInputLayout(InputLayout layout)
+    {
+        if (layout.IsDisposed)
+            PieLog.Log(LogType.Critical, "Attempted to set a disposed input layout!");
+        
+        Device.SetInputLayout(((DebugInputLayout) layout).InputLayout);
+    }
+
+    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride)
     {
         if (buffer.IsDisposed)
             PieLog.Log(LogType.Critical, "Attempted to set a disposed buffer!");
-
-        if (layout.IsDisposed)
-            PieLog.Log(LogType.Critical, "Attempted to set a disposed input layout!");
 
         DebugGraphicsBuffer dBuffer = (DebugGraphicsBuffer) buffer;
         if (dBuffer.BufferType != BufferType.VertexBuffer)
             PieLog.Log(LogType.Critical, $"Expected VertexBuffer, buffer is an {dBuffer.BufferType} instead.");
 
-        DebugInputLayout dLayout = (DebugInputLayout) layout;
-        if (!dLayout.HasProducedStrideWarning && stride != dLayout.CalculatedStride)
-        {
-            dLayout.HasProducedStrideWarning = true;
-            PieLog.Log(LogType.Warning, $"Potential invalid usage: Input layout stride was {stride}, but a stride of {dLayout.CalculatedStride} was expected.");
-        }
-
         _vertexBufferSet = true;
-        Device.SetVertexBuffer(slot, dBuffer.Buffer, stride, dLayout.InputLayout);
+        Device.SetVertexBuffer(slot, dBuffer.Buffer, stride);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)

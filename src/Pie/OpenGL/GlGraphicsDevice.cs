@@ -329,12 +329,16 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         };
     }
 
-    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
+    public override void SetInputLayout(InputLayout layout)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride)
     {
         GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
 
         _currentVertexBuffer = glBuf;
-        _currentInputLayout = (GlInputLayout) layout;
         _currentStride = stride;
     }
 

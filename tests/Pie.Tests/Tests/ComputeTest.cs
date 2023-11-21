@@ -113,8 +113,9 @@ PSOutput PixelShader(in VSOutput input)
         GraphicsDevice.SetRasterizerState(_rasterizerState);
         GraphicsDevice.SetDepthStencilState(_depthStencilState);
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
-        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _layout);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes);
         GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UInt);
+        GraphicsDevice.SetInputLayout(_layout);
         GraphicsDevice.DrawIndexed(6);
     }
 }

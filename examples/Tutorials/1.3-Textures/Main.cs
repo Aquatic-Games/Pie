@@ -62,6 +62,8 @@ void main()
     private Texture _texture1;
     private Texture _texture2;
     private SamplerState _samplerState;
+    
+    private DepthStencilState _depthStencilState;
 
     protected override void Initialize()
     {
@@ -95,17 +97,22 @@ void main()
         GraphicsDevice.GenerateMipmaps(_texture2);
 
         _samplerState = GraphicsDevice.CreateSamplerState(SamplerStateDescription.LinearRepeat);
+        
+        _depthStencilState = GraphicsDevice.CreateDepthStencilState(DepthStencilStateDescription.Disabled);
     }
 
     protected override void Draw(double dt)
     {
         GraphicsDevice.ClearColorBuffer(0.2f, 0.3f, 0.3f, 1.0f);
+        GraphicsDevice.ClearDepthStencilBuffer(ClearFlags.Depth | ClearFlags.Stencil, 1, 0);
         
         GraphicsDevice.SetShader(_shader);
         GraphicsDevice.SetTexture(0, _texture1, _samplerState);
         GraphicsDevice.SetTexture(1, _texture2, _samplerState);
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
-        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _inputLayout);
+        GraphicsDevice.SetDepthStencilState(_depthStencilState);
+        GraphicsDevice.SetInputLayout(_inputLayout);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes);
         GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UInt);
         GraphicsDevice.DrawIndexed((uint) _indices.Length);
     }
@@ -116,6 +123,7 @@ void main()
         _indexBuffer.Dispose();
         _shader.Dispose();
         _inputLayout.Dispose();
+        _depthStencilState.Dispose();
         
         base.Dispose();
     }

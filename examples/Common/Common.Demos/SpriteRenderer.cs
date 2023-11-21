@@ -106,7 +106,8 @@ public class SpriteRenderer : IDisposable
         Device.SetDepthStencilState(_depthStencilState);
         Device.SetRasterizerState(_rasterizerState);
         Device.SetBlendState(_blendState);
-        Device.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _inputLayout);
+        Device.SetInputLayout(_inputLayout);
+        Device.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes);
         Device.SetIndexBuffer(_indexBuffer, IndexType.UInt);
         Device.DrawIndexed(6);
     }

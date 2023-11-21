@@ -88,7 +88,8 @@ public class MapTest : TestBase
 
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
 
-        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionColor.SizeInBytes, _layout);
+        GraphicsDevice.SetInputLayout(_layout);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionColor.SizeInBytes);
         GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UShort);
         GraphicsDevice.SetShader(_shader);
         GraphicsDevice.SetRasterizerState(_rasterizerState);

@@ -171,7 +171,8 @@ void main()
         GraphicsDevice.SetTexture(2, _texture2, _samplerState);
         GraphicsDevice.SetDepthStencilState(_depthStencilState);
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
-        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes, _inputLayout);
+        GraphicsDevice.SetInputLayout(_inputLayout);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionTexture.SizeInBytes);
         GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UInt);
 
         for (int i = 0; i < _cubePos.Length; i++)

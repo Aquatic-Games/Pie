@@ -69,6 +69,8 @@ void main()
     private GraphicsBuffer _indexBuffer;
     private Shader _shader;
     private InputLayout _inputLayout;
+    
+    private DepthStencilState _depthStencilState;
 
     protected override void Initialize()
     {
@@ -88,8 +90,10 @@ void main()
         // we uploaded earlier into our vertex array.
         _inputLayout = GraphicsDevice.CreateInputLayout(
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex), // aPosition
-            new InputLayoutDescription(Format.R32G32B32_Float, 12, 0, InputType.PerVertex) // aColor
+            new InputLayoutDescription(Format.R32G32B32A32_Float, 12, 0, InputType.PerVertex) // aColor
         );
+        
+        _depthStencilState = GraphicsDevice.CreateDepthStencilState(DepthStencilStateDescription.Disabled);
     }
 
     protected override void Draw(double dt)
@@ -99,7 +103,9 @@ void main()
         // Set all our values and draw!
         GraphicsDevice.SetShader(_shader);
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
-        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionColor.SizeInBytes, _inputLayout);
+        GraphicsDevice.SetDepthStencilState(_depthStencilState);
+        GraphicsDevice.SetInputLayout(_inputLayout);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionColor.SizeInBytes);
         GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UInt);
         GraphicsDevice.DrawIndexed((uint) _indices.Length);
     }
@@ -111,6 +117,7 @@ void main()
         _indexBuffer.Dispose();
         _shader.Dispose();
         _inputLayout.Dispose();
+        _depthStencilState.Dispose();
         
         base.Dispose();
     }

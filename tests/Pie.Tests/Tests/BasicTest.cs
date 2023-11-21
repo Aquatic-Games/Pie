@@ -90,8 +90,9 @@ public class BasicTest : TestBase
         // TODO: Not setting primitive type in Direct3D (iirc) results in it using points instead.
         GraphicsDevice.SetPrimitiveType(PrimitiveType.TriangleList);
         
-        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionColor.SizeInBytes, _layout);
+        GraphicsDevice.SetVertexBuffer(0, _vertexBuffer, VertexPositionColor.SizeInBytes);
         GraphicsDevice.SetIndexBuffer(_indexBuffer, IndexType.UShort);
+        GraphicsDevice.SetInputLayout(_layout);
         GraphicsDevice.SetShader(_shader);
         GraphicsDevice.SetRasterizerState(_rasterizerState);
         GraphicsDevice.SetDepthStencilState(_depthStencilState);

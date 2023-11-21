@@ -350,6 +350,12 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="type">The primitive type to draw with.</param>
     public abstract void SetPrimitiveType(PrimitiveType type);
+
+    /// <summary>
+    /// Sets the input layout what will be used on next draw.
+    /// </summary>
+    /// <param name="layout">The input layout to use.</param>
+    public abstract void SetInputLayout(InputLayout layout);
     
     /// <summary>
     /// Set the vertex buffer that will be used on next draw.
@@ -357,8 +363,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="slot">The input slot.</param>
     /// <param name="buffer">The buffer to use.</param>
     /// <param name="stride">The stride, in bytes, for the input layout.</param>
-    /// <param name="layout">The input layout that this vertex buffer will use.</param>
-    public abstract void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout);
+    public abstract void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride);
 
     /// <summary>
     /// Set the index buffer that will be used on next draw.

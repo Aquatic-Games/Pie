@@ -213,6 +213,10 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     {
     }
 
+    public override void SetInputLayout(InputLayout layout)
+    {
+    }
+
     public override void SetTexture(uint bindingSlot, Texture texture, SamplerState samplerState)
     {
     }
@@ -221,7 +225,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
+    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride)
     {
     }
 

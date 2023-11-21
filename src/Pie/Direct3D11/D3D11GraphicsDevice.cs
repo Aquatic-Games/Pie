@@ -382,15 +382,13 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         _context.IASetPrimitiveTopology(topology);
     }
 
-    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride, InputLayout layout)
+    public override void SetInputLayout(InputLayout layout)
     {
-        //if (layout != _currentLayout)
-        //{
-        //    _currentLayout = layout;
-            D3D11InputLayout lt = (D3D11InputLayout) layout;
-            _context.IASetInputLayout(lt.Layout);
-        //}
+        _context.IASetInputLayout(((D3D11InputLayout) layout).Layout);
+    }
 
+    public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride)
+    {
         _context.IASetVertexBuffers(slot, 1, ref ((D3D11GraphicsBuffer) buffer).Buffer, stride, 0);
     }
 
