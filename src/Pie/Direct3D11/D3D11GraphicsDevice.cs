@@ -34,13 +34,6 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     private ComPtr<ID3D11Texture2D> _depthStencilTexture;
     private ComPtr<ID3D11RenderTargetView> _colorTargetView;
     private ComPtr<ID3D11DepthStencilView> _depthStencilTargetView;
-    
-    private InputLayout _currentLayout;
-    private RasterizerState _currentRState;
-    private BlendState _currentBState;
-    private DepthStencilState _currentDStencilState;
-    private PrimitiveType _currentPType;
-    private bool _primitiveTypeInitialized;
 
     private D3D11Framebuffer _currentFramebuffer;
 
@@ -174,14 +167,6 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             cf |= (uint) ClearFlag.Stencil;
 
         _context.ClearDepthStencilView(_currentFramebuffer?.DepthStencil ?? _depthStencilTargetView, cf, depth, stencil);
-    }
-
-    private void InvalidateCache()
-    {
-        _currentLayout = null;
-        _currentRState = null;
-        _currentBState = null;
-        _currentDStencilState = null;
     }
 
     public override GraphicsBuffer CreateBuffer<T>(BufferType bufferType, T[] data, bool dynamic = false)
@@ -337,34 +322,21 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void SetRasterizerState(RasterizerState state)
     {
-        //if (state == _currentRState)
-        //    return;
-        _currentRState = state;
         _context.RSSetState(((D3D11RasterizerState) state).State);
     }
 
     public override void SetBlendState(BlendState state)
     {
-        //if (state == _currentBState)
-        //    return;
-        _currentBState = state;
         _context.OMSetBlendState(((D3D11BlendState) state).State, null, uint.MaxValue);
     }
 
     public override void SetDepthStencilState(DepthStencilState state, int stencilRef)
     {
-        //if (state == _currentDStencilState)
-        //    return;
-        _currentDStencilState = state;
         _context.OMSetDepthStencilState(((D3D11DepthStencilState) state).State, (uint) stencilRef);
     }
 
     public override void SetPrimitiveType(PrimitiveType type)
     {
-        //if (_primitiveTypeInitialized && type == _currentPType)
-        //    return;
-        _primitiveTypeInitialized = true;
-        _currentPType = type;
         D3DPrimitiveTopology topology = type switch
         {
             PrimitiveType.TriangleList => D3DPrimitiveTopology.D3DPrimitiveTopologyTrianglelist,
