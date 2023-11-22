@@ -180,7 +180,6 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         return GlTexture.CreateTexture(description, data);
     }
 
-
     public override Shader CreateShader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
         return new GlShader(attachments, constants);
@@ -188,11 +187,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
     {
-        uint vao = Gl.GenVertexArray();
-        GlInputLayout layout = new GlInputLayout(descriptions, vao);
-        layout.Set(0, 0);
-
-        return layout;
+        return new GlInputLayout(descriptions);
     }
 
     public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)
@@ -482,7 +477,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     private void BindBuffersWithVao()
     {
-        Gl.BindVertexArray(_currentInputLayout.Vao);
+        Gl.BindVertexArray(_currentInputLayout.VertexArray);
 
         for (uint i = 0; i < _currentVertexBuffers.Length; i++)
         {

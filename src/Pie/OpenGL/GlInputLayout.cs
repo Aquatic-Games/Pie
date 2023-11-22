@@ -8,18 +8,30 @@ internal sealed class GlInputLayout : InputLayout
 {
     private readonly InputLayoutDescription[] _descriptions;
 
-    public readonly uint Vao;
+    public readonly uint VertexArray;
 
-    public GlInputLayout(InputLayoutDescription[] descriptions, uint vao)
+    public GlInputLayout(InputLayoutDescription[] descriptions)
     {
         _descriptions = descriptions;
 
-        Vao = vao;
+        VertexArray = Gl.GenVertexArray();
+        
+        uint lastSlot = uint.MaxValue;
+        foreach (InputLayoutDescription desc in descriptions)
+        {
+            // This isn't great, if someone defines slots in weird orders this will call Set multiple times
+            // But you really shouldn't do that, so I'm not overly bothered...
+            if (desc.Slot == lastSlot)
+                continue;
+            lastSlot = desc.Slot;
+            
+            Set(desc.Slot);
+        }
     }
 
-    public unsafe void Set(uint slot, uint stride)
+    public unsafe void Set(uint slot)
     {
-        Gl.BindVertexArray(Vao);
+        Gl.BindVertexArray(VertexArray);
         
         uint location = 0;
         foreach (InputLayoutDescription description in _descriptions)
@@ -29,10 +41,7 @@ internal sealed class GlInputLayout : InputLayout
                 location++;
                 continue;
             }
-
-            //uint location = (uint) Gl.GetAttribLocation(handle, description.Name);
-            //if (location == uint.MaxValue)
-            //    continue;
+            
             Gl.EnableVertexAttribArray(location);
             
             switch (description.Format)
@@ -165,7 +174,7 @@ internal sealed class GlInputLayout : InputLayout
                     throw new ArgumentOutOfRangeException();
             }
             
-            Gl.VertexBindingDivisor(location, (uint) description.InputType);
+            Gl.VertexBindingDivisor(slot, (uint) description.InputType);
             Gl.VertexAttribBinding(location, slot);
             
             location++;
@@ -181,6 +190,7 @@ internal sealed class GlInputLayout : InputLayout
         if (IsDisposed)
             return;
         IsDisposed = true;
-        // There is nothing to actually dispose.
+        
+        Gl.DeleteVertexArray(VertexArray);
     }
 }
