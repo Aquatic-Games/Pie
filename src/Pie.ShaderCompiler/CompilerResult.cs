@@ -1,5 +1,3 @@
-using Spirzza.Interop.Shaderc;
-
 namespace Pie.ShaderCompiler;
 
 /// <summary>
