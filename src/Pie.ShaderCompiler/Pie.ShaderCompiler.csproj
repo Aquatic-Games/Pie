@@ -14,6 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Silk.NET.SPIRV.Cross" Version="2.19.0" />
+      <PackageReference Include="Silk.NET.SPIRV.Cross.Native" Version="2.19.0" />
       <PackageReference Include="Spirzza.Interop.Shaderc" Version="0.0.1" />
     </ItemGroup>
 

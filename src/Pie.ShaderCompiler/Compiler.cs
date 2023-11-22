@@ -1,9 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Silk.NET.SPIRV;
+using Silk.NET.SPIRV.Cross;
 using Spirzza.Interop.Shaderc;
-using Pie.ShaderCompiler.Spirv;
 using static Spirzza.Interop.Shaderc.Shaderc;
+
+using Spvc = Silk.NET.SPIRV.Cross.Cross;
+using SpvcCompiler = Silk.NET.SPIRV.Cross.Compiler;
+using SpvcSpecializationConstant = Silk.NET.SPIRV.Cross.SpecializationConstant;
 
 namespace Pie.ShaderCompiler;
 
@@ -12,6 +17,13 @@ namespace Pie.ShaderCompiler;
 /// </summary>
 public static class Compiler
 {
+    private static Spvc _spvc;
+
+    static Compiler()
+    {
+        _spvc = Spvc.GetApi();
+    }
+    
     /// <summary>
     /// Compile GLSL/HLSL code to Spir-V.
     /// </summary>
@@ -58,8 +70,8 @@ public static class Compiler
         if (shaderc_result_get_compilation_status(result) !=
             shaderc_compilation_status.shaderc_compilation_status_success)
         {
-            string error = ConvertToString(shaderc_result_get_error_message(result));
-            
+            string error = Marshal.PtrToStringAnsi((IntPtr) shaderc_result_get_error_message(result));
+
             shaderc_result_release(result);
             shaderc_compiler_release(compiler);
 
@@ -85,77 +97,71 @@ public static class Compiler
         return (sbyte[]) (Array) Encoding.ASCII.GetBytes(text);
     }
 
-    private static unsafe string ConvertToString(sbyte* text)
-    {
-        return Marshal.PtrToStringAnsi((IntPtr) text);
-    }
-
     private static unsafe CompilerResult SpirvToShaderCode(Language language, ShaderStage stage, byte* result,
         byte* entryPoint, nuint length, SpecializationConstant[] constants)
     {
-        SpvcContextS* context;
-        Spvc.context_create(&context);
+        Context* context;
+        _spvc.ContextCreate(&context);
 
-        SpvcParsedIrS* ir;
-        SpvcResult spirvResult = Spvc.context_parse_spirv(context, (uint*) result, length / (nuint) sizeof(uint), &ir);
-        if (spirvResult != SpvcResult.SpvcSuccess)
+        ParsedIr* ir;
+        Result spirvResult = _spvc.ContextParseSpirv(context, (uint*) result, length / (nuint) sizeof(uint), &ir);
+        if (spirvResult != Result.Success)
         {
-            string error = ConvertToString(Spvc.context_get_last_error_string(context));
-            Spvc.context_destroy(context);
+            string error = _spvc.ContextGetLastErrorStringS(context);
+            _spvc.ContextDestroy(context);
 
             return new CompilerResult(null, false, error);
         }
 
-        SpvcBackend backend = language switch
+        Backend backend = language switch
         {
-            Language.GLSL => SpvcBackend.SpvcBackendGlsl,
-            Language.HLSL => SpvcBackend.SpvcBackendHlsl,
-            Language.ESSL => SpvcBackend.SpvcBackendGlsl,
+            Language.GLSL => Backend.Glsl,
+            Language.HLSL => Backend.Hlsl,
+            Language.ESSL => Backend.Glsl,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
         };
         
-        SpvcCompilerS* compl;
-        Spvc.context_create_compiler(context, backend, ir, SpvcCaptureMode.SpvcCaptureModeCopy, &compl);
+        SpvcCompiler* compl;
+        _spvc.ContextCreateCompiler(context, backend, ir, CaptureMode.Copy, &compl);
 
-        SpvExecutionModel model = stage switch
+        ExecutionModel model = stage switch
         {
-            ShaderStage.Vertex => SpvExecutionModel.SpvExecutionModelVertex,
-            ShaderStage.Fragment => SpvExecutionModel.SpvExecutionModelFragment,
-            ShaderStage.Geometry => SpvExecutionModel.SpvExecutionModelGeometry,
-            ShaderStage.Compute => SpvExecutionModel.SpvExecutionModelGlCompute,
+            ShaderStage.Vertex => ExecutionModel.Vertex,
+            ShaderStage.Fragment => ExecutionModel.Fragment,
+            ShaderStage.Geometry => ExecutionModel.Geometry,
+            ShaderStage.Compute => ExecutionModel.GLCompute,
             _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
 
-        Spvc.compiler_set_entry_point(compl, (sbyte*) entryPoint, model);
+        _spvc.CompilerSetEntryPoint(compl, entryPoint, model);
 
-        SpvcCompilerOptionsS* options;
-        Spvc.compiler_create_compiler_options(compl, &options);
+        CompilerOptions* options;
+        _spvc.CompilerCreateCompilerOptions(compl, &options);
         switch (language)
         {
             case Language.GLSL:
-                Spvc.compiler_options_set_uint(options, SpvcCompilerOption.SpvcCompilerOptionGlslVersion, 430);
-                Spvc.compiler_options_set_bool(options, SpvcCompilerOption.SpvcCompilerOptionGlslEs, Spvc.SpvcFalse);
+                _spvc.CompilerOptionsSetUint(options, CompilerOption.GlslVersion, 430);
+                _spvc.CompilerOptionsSetBool(options, CompilerOption.GlslES, 0);
                 break;
             case Language.ESSL:
-                Spvc.compiler_options_set_uint(options, SpvcCompilerOption.SpvcCompilerOptionGlslVersion, 300);
-                Spvc.compiler_options_set_bool(options, SpvcCompilerOption.SpvcCompilerOptionGlslEs, Spvc.SpvcTrue);
+                _spvc.CompilerOptionsSetUint(options, CompilerOption.GlslVersion, 300);
+                _spvc.CompilerOptionsSetBool(options, CompilerOption.GlslES, 1);
                 break;
             case Language.HLSL:
-                Spvc.compiler_options_set_uint(options, SpvcCompilerOption.SpvcCompilerOptionHlslShaderModel,
+                _spvc.CompilerOptionsSetUint(options, CompilerOption.HlslShaderModel,
                     50);
-                Spvc.compiler_options_set_bool(options,
-                    SpvcCompilerOption.SpvcCompilerOptionHlslFlattenMatrixVertexInputSemantics, Spvc.SpvcTrue);
+                _spvc.CompilerOptionsSetBool(options, CompilerOption.HlslFlattenMatrixVertexInputSemantics, 1);
                  break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(backend), backend, null);
         }
-        Spvc.compiler_install_compiler_options(compl, options);
+        _spvc.CompilerInstallCompilerOptions(compl, options);
 
         if (constants != null)
         {
             nuint numConstants;
             SpvcSpecializationConstant* sConstants;
-            Spvc.compiler_get_specialization_constants(compl, &sConstants, &numConstants);
+            _spvc.CompilerGetSpecializationConstants(compl, &sConstants, &numConstants);
 
             for (int i = 0; i < constants.Length; i++)
             {
@@ -165,20 +171,20 @@ public static class Compiler
                 {
                     if (sConstants[c].ConstantId == constant.ID)
                     {
-                        SpvcConstantS* sConst = Spvc.compiler_get_constant_handle(compl, sConstants[c].Id);
+                        Constant* sConst = _spvc.CompilerGetConstantHandle(compl, sConstants[c].Id);
 
                         ulong value = constant.Value;
 
                         switch (constant.Type)
                         {
                             case ConstantType.U32:
-                                Spvc.constant_set_scalar_u32(sConst, 0, 0, *(uint*) &value);
+                                _spvc.ConstantSetScalarU32(sConst, 0, 0, *(uint*) &value);
                                 break;
                             case ConstantType.I32:
-                                Spvc.constant_set_scalar_i32(sConst, 0, 0, *(int*) &value);
+                                _spvc.ConstantSetScalarI32(sConst, 0, 0, *(int*) &value);
                                 break;
                             case ConstantType.F32:
-                                Spvc.constant_set_scalar_fp32(sConst, 0, 0, *(float*) &value);
+                                _spvc.ConstantSetScalarFp32(sConst, 0, 0, *(float*) &value);
                                 break;
                             //case ConstantType.U64:
                             //    Spvc.constant_set_scalar_u64(sConst, 0, 0, value);
@@ -187,7 +193,7 @@ public static class Compiler
                             //    Spvc.constant_set_scalar_i64(sConst, 0, 0, *(long*) &value);
                             //    break;
                             case ConstantType.F64:
-                                Spvc.constant_set_scalar_fp64(sConst, 0, 0, *(double*) &value);
+                                _spvc.ConstantSetScalarFp64(sConst, 0, 0, *(double*) &value);
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
@@ -198,13 +204,13 @@ public static class Compiler
         }
 
         uint id;
-        Spvc.compiler_build_dummy_sampler_for_combined_images(compl, &id);
+        _spvc.CompilerBuildDummySamplerForCombinedImages(compl, &id);
 
-        Spvc.compiler_build_combined_image_samplers(compl);
+        _spvc.CompilerBuildCombinedImageSamplers(compl);
 
         nuint numSamplers;
-        SpvcCombinedImageSampler* samplers;
-        Spvc.compiler_get_combined_image_samplers(compl, &samplers, &numSamplers);
+        CombinedImageSampler* samplers;
+        _spvc.CompilerGetCombinedImageSamplers(compl, &samplers, &numSamplers);
 
         // build_combined_image_samplers removes the binding from the combined sampler. Fortunately, it does retain
         // the binding in the image id and the sampler id. And fortunately fortunately, it allows us to set the
@@ -215,26 +221,25 @@ public static class Compiler
             // HLSL requires that for combined samplers to work, the Texture2D and SamplerState must be at the same
             // register index. Therefore, either index will work here. I just use the image id.
             uint decoration =
-                Spvc.compiler_get_decoration(compl, samplers[i].ImageId, SpvDecoration.SpvDecorationBinding);
+                _spvc.CompilerGetDecoration(compl, samplers[i].ImageId, Decoration.Binding);
 
-            Spvc.compiler_set_decoration(compl, samplers[i].CombinedId, SpvDecoration.SpvDecorationBinding,
-                decoration);
+            _spvc.CompilerSetDecoration(compl, samplers[i].CombinedId, Decoration.Binding, decoration);
         }
 
-        sbyte* compiledResult;
-        spirvResult = Spvc.compiler_compile(compl, &compiledResult);
+        byte* compiledResult;
+        spirvResult = _spvc.CompilerCompile(compl, &compiledResult);
 
-        if (spirvResult != SpvcResult.SpvcSuccess)
+        if (spirvResult != Result.Success)
         {
-            string error = ConvertToString(Spvc.context_get_last_error_string(context));
-            Spvc.context_destroy(context);
+            string error = _spvc.ContextGetLastErrorStringS(context);
+            _spvc.ContextDestroy(context);
 
             return new CompilerResult(null, false, error);
         }
         
-        byte[] compiled = Encoding.UTF8.GetBytes(ConvertToString(compiledResult));
+        byte[] compiled = Encoding.UTF8.GetBytes(Marshal.PtrToStringAnsi((IntPtr) compiledResult));
         
-        Spvc.context_destroy(context);
+        _spvc.ContextDestroy(context);
 
         return new CompilerResult(compiled, true, string.Empty);
     }
