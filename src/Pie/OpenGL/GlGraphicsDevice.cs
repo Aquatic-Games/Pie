@@ -25,8 +25,8 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     private uint _currentShader;
 
     private GlInputLayout _currentInputLayout;
-    private uint _currentStride;
-    private GlGraphicsBuffer _currentVertexBuffer;
+    
+    private (GlGraphicsBuffer buffer, uint stride)[] _currentVertexBuffers;
     private GlGraphicsBuffer _currentIndexBuffer;
     
     private int _eTypeSize;
@@ -54,6 +54,9 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         Viewport = new Rectangle(Point.Empty, winSize);
 
         Adapter = new GraphicsAdapter(Gl.GetStringS(StringName.Renderer));
+
+        // TODO: Get the value from opengl rather than a set value.
+        _currentVertexBuffers = new (GlGraphicsBuffer, uint)[16];
         
         if (Debug)
         {
@@ -185,7 +188,11 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
     {
-        return new GlInputLayout(descriptions);
+        uint vao = Gl.GenVertexArray();
+        GlInputLayout layout = new GlInputLayout(descriptions, vao);
+        layout.Set(0, 0);
+
+        return layout;
     }
 
     public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)
@@ -331,15 +338,14 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     public override void SetInputLayout(InputLayout layout)
     {
-        throw new NotImplementedException();
+        _currentInputLayout = (GlInputLayout) layout;
     }
 
     public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride)
     {
         GlGraphicsBuffer glBuf = (GlGraphicsBuffer) buffer;
 
-        _currentVertexBuffer = glBuf;
-        _currentStride = stride;
+        _currentVertexBuffers[slot] = (glBuf, stride);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
@@ -476,7 +482,19 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     private void BindBuffersWithVao()
     {
+        Gl.BindVertexArray(_currentInputLayout.Vao);
+
+        for (uint i = 0; i < _currentVertexBuffers.Length; i++)
+        {
+            if (_currentVertexBuffers[i].buffer == null)
+                continue;
+            
+            ref (GlGraphicsBuffer buffer, uint stride) buf = ref _currentVertexBuffers[i];
+            
+            Gl.BindVertexBuffer(i, buf.buffer.Handle, 0, buf.stride);
+        }
         
+        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _currentIndexBuffer.Handle);
     }
 
     private void DebugCallback(GLEnum source, GLEnum type, int id, GLEnum severity, int length, nint message, nint userParam)
