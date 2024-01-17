@@ -1,5 +1,4 @@
 ﻿using System;
-using Silk.NET.OpenGL;
 using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;

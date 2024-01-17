@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using Silk.NET.Core.Native;
-using Silk.NET.Direct3D11;
-using static Pie.Direct3D11.D3D11GraphicsDevice;
 using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;

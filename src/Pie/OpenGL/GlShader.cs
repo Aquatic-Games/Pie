@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
 using Pie.ShaderCompiler;
-using Silk.NET.OpenGL;
 using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;

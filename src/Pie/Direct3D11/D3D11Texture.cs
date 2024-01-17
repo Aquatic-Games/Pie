@@ -1,8 +1,4 @@
 ﻿using System;
-using Silk.NET.Core.Native;
-using Silk.NET.Direct3D11;
-using Silk.NET.DXGI;
-using static Pie.Direct3D11.D3D11GraphicsDevice;
 using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
