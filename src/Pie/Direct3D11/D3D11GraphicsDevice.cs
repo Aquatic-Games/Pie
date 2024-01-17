@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Pie.ShaderCompiler;
+using SharpGen.Runtime;
+using Vortice.Direct3D;
 using Color = System.Drawing.Color;
 using Size = System.Drawing.Size;
 using Vortice.Direct3D11;
@@ -39,11 +41,11 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             PieLog.Log(LogType.Warning, "Debug has been enabled however no SDK layers have been found. Direct3D debug has therefore been disabled.");
         }
 
-        D3DFeatureLevel level = D3DFeatureLevel.Level110;
+        FeatureLevel[] levels = new [] { FeatureLevel.Level_11_0 };
 
-        CreateDeviceFlag flags = CreateDeviceFlag.BgraSupport | CreateDeviceFlag.Singlethreaded;
+        DeviceCreationFlags flags = DeviceCreationFlags.BgraSupport | DeviceCreationFlags.Singlethreaded;
         if (debug)
-            flags |= CreateDeviceFlag.Debug;
+            flags |= DeviceCreationFlags.Debug;
 
         _colorFormat = options.ColorBufferFormat.ToDxgiFormat(false);
         _depthFormat = options.DepthStencilBufferFormat?.ToDxgiFormat(false);
@@ -53,27 +55,29 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             Flags = SwapChainFlags.AllowTearing | SwapChainFlags.AllowModeSwitch,
             BufferCount = 2,
             BufferDescription = new ModeDescription(winSize.Width, winSize.Height, format: _colorFormat),
-            BufferUsage = DXGI.UsageRenderTargetOutput,
+            BufferUsage = Usage.RenderTargetOutput,
             OutputWindow = hwnd,
-            SampleDesc = new SampleDesc(1, 0),
+            SampleDescription = new SampleDescription(1, 0),
             SwapEffect = SwapEffect.FlipDiscard,
             Windowed = true
         };
         
-        Adapter = new GraphicsAdapter(new string(desc.Description));
+        // TODO: Adapter.
+        //Adapter = new GraphicsAdapter(new string(desc.Description));
 
-        if (!Succeeded(D3D11.CreateDeviceAndSwapChain(new ComPtr<IDXGIAdapter>((IDXGIAdapter*) null), D3DDriverType.Hardware, 0,
-                (uint) flags, &level, 1, D3D11.SdkVersion, &swapChainDescription, ref _swapChain, ref _device, null,
-                ref _context)))
+        Result result;
+        
+        if ((result = D3D11CreateDeviceAndSwapChain(null, DriverType.Hardware, flags, levels, swapChainDescription,
+                out _swapChain, out _device, out _, out _context)).Failure)
         {
-            throw new PieException("Failed to create device or swapchain.");
+            throw new PieException("Failed to create D3D11 device: " + result.Description);
         }
 
-        if (!Succeeded(_swapChain.GetBuffer(0, out _colorTexture)))
-            throw new PieException("Failed to get the back color buffer.");
+        if ((result = _swapChain!.GetBuffer(0, out _colorTexture)).Failure)
+            throw new PieException("Failed to get the back color buffer. " + result.Description);
 
-        if (!Succeeded(_device.CreateRenderTargetView(_colorTexture, null, ref _colorTargetView)))
-            throw new PieException("Failed to create swapchain color target.");
+        _colorTargetView = _device!.CreateRenderTargetView(_colorTexture, null);
+
         CreateDepthStencilView(winSize);
         
         Viewport = new Rectangle(Point.Empty, winSize);
@@ -82,7 +86,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             Size = winSize
         };
 
-        _context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
+        _context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
     }
 
     public override GraphicsApi Api => GraphicsApi.D3D11;
@@ -96,8 +100,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         set
         {
             _viewport = value;
-            Silk.NET.Direct3D11.Viewport viewport = new Viewport(value.X, value.Y, value.Width, value.Height, 0f, 1f);
-            _context.RSSetViewports(1, viewport);
+            _context.RSSetViewport(_viewport.X, _viewport.Y, _viewport.Width, _viewport.Height);
         }
     }
 
@@ -109,10 +112,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         set
         {
             _scissor = value;
-
-            Silk.NET.Maths.Box2D<int> scissor =
-                new Silk.NET.Maths.Box2D<int>(value.X, value.Y, value.X + value.Width, value.Y + value.Height);
-            _context.RSSetScissorRects(1, scissor);
+            _context.RSSetScissorRect(_scissor.X, _scissor.Y, _scissor.Width, _scissor.Height);
         }
     }
 
@@ -123,7 +123,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void ClearColorBuffer(float r, float g, float b, float a)
     {
-        float* color = stackalloc float[4] { r, g, b, a };
+        Color4 color = new Color4(r, g, b, a);
         
         if (_currentFramebuffer != null)
         {
