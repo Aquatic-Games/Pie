@@ -14,13 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Silk.NET.Shaderc" Version="2.19.0" />
-      <PackageReference Include="Silk.NET.Shaderc.Native" Version="2.19.0" />
-      <PackageReference Include="Silk.NET.SPIRV.Cross" Version="2.19.0" />
-      <PackageReference Include="Silk.NET.SPIRV.Cross.Native" Version="2.19.0" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Content Include="spirv-cross-c-shared.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Pack>true</Pack>
