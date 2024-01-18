@@ -23,7 +23,6 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     private ID3D11Device _device;
     private ID3D11DeviceContext _context;
     
-    private IDXGIFactory2 _dxgiFactory;
     private IDXGISwapChain _swapChain;
     private ID3D11Texture2D _colorTexture;
     private ID3D11Texture2D _depthStencilTexture;
@@ -476,7 +475,6 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         _swapChain.Dispose();
         _device.Dispose();
         _context.Dispose();
-        _dxgiFactory.Dispose();
     }
 
     private void CreateDepthStencilView(Size size)

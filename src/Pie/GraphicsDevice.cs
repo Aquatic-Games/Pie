@@ -4,7 +4,7 @@ using System.Numerics;
 using Pie.DebugLayer;
 using Pie.Direct3D11;
 using Pie.Null;
-using Pie.OpenGL;
+//using Pie.OpenGL;
 using Pie.ShaderCompiler;
 
 namespace Pie;
@@ -462,7 +462,7 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     public abstract void Dispose();
 
-    /// <summary>
+    /*/// <summary>
     /// Create an OpenGL 3.3 graphics device.
     /// </summary>
     /// <param name="context">The GL context.</param>
@@ -478,7 +478,7 @@ public abstract class GraphicsDevice : IDisposable
             return new DebugGraphicsDevice(device);
         
         return device;
-    }
+    }*/
 
     /// <summary>
     /// Create a Direct3D 11 graphics device.

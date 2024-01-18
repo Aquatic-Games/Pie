@@ -1,4 +1,5 @@
 using System;
+using OpenTK.Graphics.OpenGL4;
 using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
@@ -11,8 +12,8 @@ internal sealed class GlBlendState : BlendState
     private BlendingFactor _dst;
     private BlendingFactor _srcAlpha;
     private BlendingFactor _dstAlpha;
-    private BlendEquationModeEXT _rgbEq;
-    private BlendEquationModeEXT _alphaEq;
+    private BlendEquationMode _rgbEq;
+    private BlendEquationMode _alphaEq;
 
     private bool _red, _green, _blue, _alpha;
     
