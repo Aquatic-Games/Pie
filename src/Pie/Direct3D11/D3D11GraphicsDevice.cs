@@ -137,12 +137,12 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
     {
         //_context.RSSetViewport(Viewport.X, Viewport.Y, Viewport.Width, Viewport.Height);
-        uint cf = 0;
+        DepthStencilClearFlags cf = 0;
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
-            cf |= (uint) ClearFlag.Depth;
+            cf |= DepthStencilClearFlags.Depth;
 
         if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
-            cf |= (uint) ClearFlag.Stencil;
+            cf |= DepthStencilClearFlags.Stencil;
 
         _context.ClearDepthStencilView(_currentFramebuffer?.DepthStencil ?? _depthStencilTargetView, cf, depth, stencil);
     }
@@ -294,8 +294,8 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     public override void SetTexture(uint bindingSlot, Texture texture, SamplerState state)
     {
         D3D11Texture tex = (D3D11Texture) texture;
-        _context.PSSetShaderResources(bindingSlot, 1, ref tex.View);
-        _context.PSSetSamplers(bindingSlot, 1, ref ((D3D11SamplerState) state).State);
+        _context.PSSetShaderResource((int) bindingSlot, tex.View);
+        _context.PSSetSampler((int) bindingSlot, ((D3D11SamplerState) state).State);
     }
 
     public override void SetRasterizerState(RasterizerState state)
@@ -310,22 +310,22 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void SetDepthStencilState(DepthStencilState state, int stencilRef)
     {
-        _context.OMSetDepthStencilState(((D3D11DepthStencilState) state).State, (uint) stencilRef);
+        _context.OMSetDepthStencilState(((D3D11DepthStencilState) state).State, stencilRef);
     }
 
     public override void SetPrimitiveType(PrimitiveType type)
     {
-        D3DPrimitiveTopology topology = type switch
+        PrimitiveTopology topology = type switch
         {
-            PrimitiveType.TriangleList => D3DPrimitiveTopology.D3DPrimitiveTopologyTrianglelist,
-            PrimitiveType.TriangleStrip => D3DPrimitiveTopology.D3DPrimitiveTopologyTrianglestrip,
-            PrimitiveType.LineList => D3DPrimitiveTopology.D3DPrimitiveTopologyLinelist,
-            PrimitiveType.LineStrip => D3DPrimitiveTopology.D3DPrimitiveTopologyLinestrip,
-            PrimitiveType.PointList => D3DPrimitiveTopology.D3DPrimitiveTopologyPointlist,
-            PrimitiveType.TriangleListAdjacency => D3DPrimitiveTopology.D3DPrimitiveTopologyTrianglelistAdj,
-            PrimitiveType.TriangleStripAdjacency => D3DPrimitiveTopology.D3DPrimitiveTopologyTrianglestripAdj,
-            PrimitiveType.LineListAdjacency => D3DPrimitiveTopology.D3DPrimitiveTopologyLinelistAdj,
-            PrimitiveType.LineStripAdjacency => D3DPrimitiveTopology.D3DPrimitiveTopologyLinestripAdj,
+            PrimitiveType.TriangleList => PrimitiveTopology.TriangleList,
+            PrimitiveType.TriangleStrip => PrimitiveTopology.TriangleStrip,
+            PrimitiveType.LineList => PrimitiveTopology.LineList,
+            PrimitiveType.LineStrip => PrimitiveTopology.LineStrip,
+            PrimitiveType.PointList => PrimitiveTopology.PointList,
+            PrimitiveType.TriangleListAdjacency => PrimitiveTopology.TriangleListAdjacency,
+            PrimitiveType.TriangleStripAdjacency => PrimitiveTopology.TriangleStripAdjacency,
+            PrimitiveType.LineListAdjacency => PrimitiveTopology.LineListAdjacency,
+            PrimitiveType.LineStripAdjacency => PrimitiveTopology.LineStripAdjacency,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
         
@@ -339,15 +339,15 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void SetVertexBuffer(uint slot, GraphicsBuffer buffer, uint stride)
     {
-        _context.IASetVertexBuffers(slot, 1, ref ((D3D11GraphicsBuffer) buffer).Buffer, stride, 0);
+        _context.IASetVertexBuffer((int) slot, ((D3D11GraphicsBuffer) buffer).Buffer, (int) stride, 0);
     }
 
     public override void SetIndexBuffer(GraphicsBuffer buffer, IndexType type)
     {
-        Silk.NET.DXGI.Format fmt = type switch
+        Vortice.DXGI.Format fmt = type switch
         {
-            IndexType.UShort => Silk.NET.DXGI.Format.FormatR16Uint,
-            IndexType.UInt => Silk.NET.DXGI.Format.FormatR32Uint,
+            IndexType.UShort => Vortice.DXGI.Format.R16_UInt,
+            IndexType.UInt => Vortice.DXGI.Format.R32_UInt,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
         
@@ -357,78 +357,77 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
     {
         D3D11GraphicsBuffer buf = (D3D11GraphicsBuffer) buffer;
-        _context.VSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
-        _context.PSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
-        _context.GSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
-        _context.CSSetConstantBuffers(bindingSlot, 1, ref buf.Buffer);
+        _context.VSSetConstantBuffer((int) bindingSlot, buf.Buffer);
+        _context.PSSetConstantBuffer((int) bindingSlot, buf.Buffer);
+        _context.GSSetConstantBuffer((int) bindingSlot, buf.Buffer);
+        _context.CSSetConstantBuffer((int) bindingSlot, buf.Buffer);
     }
 
     public override void SetFramebuffer(Framebuffer framebuffer)
     {
         _currentFramebuffer = (D3D11Framebuffer) framebuffer;
         if (framebuffer == null)
-            _context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
+            _context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
         else
         {
-            _context.OMSetRenderTargets((uint) _currentFramebuffer.Targets.Length, ref _currentFramebuffer.Targets[0],
-                _currentFramebuffer.DepthStencil);
+            _context.OMSetRenderTargets(_currentFramebuffer.Targets, _currentFramebuffer.DepthStencil);
         }
 
     }
 
     public override void Draw(uint vertexCount)
     {
-        _context.Draw(vertexCount, 0);
+        _context.Draw((int) vertexCount, 0);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += vertexCount / 3;
     }
 
     public override void Draw(uint vertexCount, int startVertex)
     {
-        _context.Draw(vertexCount, (uint) startVertex);
+        _context.Draw((int) vertexCount, startVertex);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += vertexCount/ 3;
     }
 
     public override void DrawIndexed(uint indexCount)
     {
-        _context.DrawIndexed(indexCount, 0, 0);
+        _context.DrawIndexed((int) indexCount, 0, 0);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3;
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex)
     {
-        _context.DrawIndexed(indexCount, (uint) startIndex, 0);
+        _context.DrawIndexed((int) indexCount, startIndex, 0);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount/ 3;
     }
 
     public override void DrawIndexed(uint indexCount, int startIndex, int baseVertex)
     {
-        _context.DrawIndexed(indexCount, (uint) startIndex, baseVertex);
+        _context.DrawIndexed((int) indexCount, startIndex, baseVertex);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount/ 3;
     }
 
     public override void DrawIndexedInstanced(uint indexCount, uint instanceCount)
     {
-        _context.DrawIndexedInstanced( indexCount, instanceCount, 0, 0, 0);
+        _context.DrawIndexedInstanced((int) indexCount, (int) instanceCount, 0, 0, 0);
         PieMetrics.TriCount += indexCount / 3 * instanceCount;
         PieMetrics.DrawCalls++;
     }
 
     public override void Present(int swapInterval)
     {
-        uint flags = 0;
+        PresentFlags flags = PresentFlags.None;
 
         if (swapInterval == 0)
-            flags |= DXGI.PresentAllowTearing;
-        _swapChain.Present((uint) swapInterval, flags);
+            flags |= PresentFlags.AllowTearing;
+        _swapChain.Present(swapInterval, flags);
         // ?????? This only seems to happen on AMD but after presentation the render targets go off to floaty land
         // I'm sure usually this is resolved by setting render targets at the start of a frame (like what Easel does)
         // but Pie has no way of knowing when the start of a frame is, so just do it at the end of presentation.
-        _context.OMSetRenderTargets(1, ref _colorTargetView, _depthStencilTargetView);
+        _context.OMSetRenderTargets(_colorTargetView, _depthStencilTargetView);
         
         PieMetrics.DrawCalls = 0;
         PieMetrics.TriCount = 0;
@@ -437,7 +436,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
     public override void ResizeSwapchain(Size newSize)
     {
         _context.Flush();
-        _context.OMSetRenderTargets(0, (ID3D11RenderTargetView*) null, (ID3D11DepthStencilView*) null);
+        _context.UnsetRenderTargets();
         _colorTargetView.Dispose();
         _colorTexture.Dispose();
 
@@ -447,12 +446,10 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             _depthStencilTexture.Dispose();
         }
 
-        if (!Succeeded(_swapChain.ResizeBuffers(0, (uint) newSize.Width, (uint) newSize.Height, Silk.NET.DXGI.Format.FormatUnknown, (uint) SwapChainFlag.AllowTearing | (uint) SwapChainFlag.AllowModeSwitch)))
-            throw new PieException("Failed to resize swapchain buffers.");
-        if (!Succeeded(_swapChain.GetBuffer(0, out _colorTexture)))
-            throw new PieException("Failed to get swapchain buffer.");
-        if (!Succeeded(_device.CreateRenderTargetView(_colorTexture, null, ref _colorTargetView)))
-            throw new PieException("Failed to create swapchain color target.");
+        _swapChain.ResizeBuffers(0, newSize.Width, newSize.Height, Vortice.DXGI.Format.Unknown,
+            SwapChainFlags.AllowTearing | SwapChainFlags.AllowModeSwitch);
+        _colorTexture = _swapChain.GetBuffer<ID3D11Texture2D>(0);
+        _colorTargetView = _device.CreateRenderTargetView(_colorTexture);
         CreateDepthStencilView(newSize);
 
         Swapchain.Size = newSize;
@@ -465,7 +462,7 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
 
     public override void Dispatch(uint groupCountX, uint groupCountY, uint groupCountZ)
     {
-        _context.Dispatch(groupCountX, groupCountY, groupCountZ);
+        _context.Dispatch((int) groupCountX, (int) groupCountY, (int) groupCountZ);
     }
 
     public override void Flush()
@@ -487,30 +484,27 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         if (_depthFormat == null)
             return;
         
-        Texture2DDesc texDesc = new Texture2DDesc()
+        Texture2DDescription texDesc = new Texture2DDescription()
         {
             Format = _depthFormat.Value,
-            Width = (uint) size.Width,
-            Height = (uint) size.Height,
+            Width = size.Width,
+            Height = size.Height,
             ArraySize = 1,
             MipLevels = 1,
-            BindFlags = (uint) BindFlag.DepthStencil,
-            CPUAccessFlags = (uint) CpuAccessFlag.None,
-            MiscFlags = (uint) ResourceMiscFlag.None,
-            SampleDesc = new SampleDesc(1, 0),
-            Usage = Usage.Default
+            BindFlags = BindFlags.DepthStencil,
+            CPUAccessFlags = CpuAccessFlags.None,
+            MiscFlags = ResourceOptionFlags.None,
+            SampleDescription = new SampleDescription(1, 0),
+            Usage = ResourceUsage.Default
         };
 
-        DepthStencilViewDesc viewDesc = new DepthStencilViewDesc()
+        DepthStencilViewDescription viewDesc = new DepthStencilViewDescription()
         {
             Format = texDesc.Format,
-            ViewDimension = DsvDimension.Texture2D
+            ViewDimension = DepthStencilViewDimension.Texture2D
         };
 
-        if (!Succeeded(_device.CreateTexture2D(&texDesc, null, ref _depthStencilTexture)))
-            throw new PieException("Failed to create swapchain depth texture.");
-
-        if (!Succeeded(_device.CreateDepthStencilView(_depthStencilTexture, &viewDesc, ref _depthStencilTargetView)))
-            throw new PieException("Failed to create swapchain depth view.");
+        _depthStencilTexture = _device.CreateTexture2D(texDesc);
+        _depthStencilTargetView = _device.CreateDepthStencilView(_depthStencilTexture, viewDesc);
     }
 }
