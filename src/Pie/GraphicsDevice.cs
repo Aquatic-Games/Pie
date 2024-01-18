@@ -304,13 +304,13 @@ public abstract class GraphicsDevice : IDisposable
     /// <param name="resource">The resource to map.</param>
     /// <param name="mode">The CPU access mode of this resource.</param>
     /// <returns>The mapped resource's data.</returns>
-    public abstract MappedSubresource MapResource(GraphicsResource resource, MapMode mode);
+    public abstract MappedSubresource MapResource(MappableResource resource, MapMode mode);
 
     /// <summary>
     /// Unmapped the given mapped resource.
     /// </summary>
     /// <param name="resource">The resource to unmap.</param>
-    public abstract void UnmapResource(GraphicsResource resource);
+    public abstract void UnmapResource(MappableResource resource);
 
     /// <summary>
     /// Set the shader that will be used on next draw.

@@ -269,14 +269,4 @@ internal sealed unsafe class D3D11Texture : Texture
         Texture.Dispose();
         View.Dispose();
     }
-
-    internal override MappedSubresource Map(MapMode mode)
-    {
-        throw new NotImplementedException();
-    }
-
-    internal override void Unmap()
-    {
-        throw new NotImplementedException();
-    }
 }

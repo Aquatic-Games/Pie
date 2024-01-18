@@ -255,12 +255,12 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         ((GlTexture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data);
     }
 
-    public override MappedSubresource MapResource(GraphicsResource resource, MapMode mode)
+    public override MappedSubresource MapResource(MappableResource resource, MapMode mode)
     {
         return resource.Map(mode);
     }
 
-    public override void UnmapResource(GraphicsResource resource)
+    public override void UnmapResource(MappableResource resource)
     {
         resource.Unmap();
     }

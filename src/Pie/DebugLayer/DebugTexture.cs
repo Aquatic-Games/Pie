@@ -75,14 +75,4 @@ internal sealed unsafe class DebugTexture : Texture
         
         PieLog.Log(LogType.Debug, "Texture disposed.");
     }
-
-    internal override MappedSubresource Map(MapMode mode)
-    {
-        throw new NotImplementedException();
-    }
-
-    internal override void Unmap()
-    {
-        throw new NotImplementedException();
-    }
 }

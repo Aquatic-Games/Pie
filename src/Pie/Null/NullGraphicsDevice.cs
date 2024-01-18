@@ -171,7 +171,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override unsafe MappedSubresource MapResource(GraphicsResource resource, MapMode mode)
+    public override unsafe MappedSubresource MapResource(MappableResource resource, MapMode mode)
     {
         return new MappedSubresource((IntPtr) ((NullGraphicsBuffer) resource).Data);
     }
@@ -229,7 +229,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override void UnmapResource(GraphicsResource resource)
+    public override void UnmapResource(MappableResource resource)
     {
     }
 

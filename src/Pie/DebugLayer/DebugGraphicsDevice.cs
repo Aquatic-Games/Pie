@@ -195,12 +195,12 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         ((DebugTexture) texture).Update(mipLevel, arrayIndex, x, y, z, width, height, depth, data);
     }
 
-    public override MappedSubresource MapResource(GraphicsResource resource, MapMode mode)
+    public override MappedSubresource MapResource(MappableResource resource, MapMode mode)
     {
         return resource.Map(mode);
     }
 
-    public override void UnmapResource(GraphicsResource resource)
+    public override void UnmapResource(MappableResource resource)
     {
         resource.Unmap();
     }

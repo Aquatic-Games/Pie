@@ -1,6 +1,6 @@
 namespace Pie;
 
-public abstract class GraphicsResource
+public abstract class MappableResource
 {
     internal abstract MappedSubresource Map(MapMode mode);
 

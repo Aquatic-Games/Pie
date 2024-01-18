@@ -276,12 +276,12 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         ((D3D11Texture) texture).Update(x, y, z, width, height, depth, mipLevel, arrayIndex, data);
     }
 
-    public override MappedSubresource MapResource(GraphicsResource resource, MapMode mode)
+    public override MappedSubresource MapResource(MappableResource resource, MapMode mode)
     {
         return resource.Map(mode);
     }
 
-    public override void UnmapResource(GraphicsResource resource)
+    public override void UnmapResource(MappableResource resource)
     {
         resource.Unmap();
     }
