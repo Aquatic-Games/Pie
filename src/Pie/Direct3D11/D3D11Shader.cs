@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Pie.ShaderCompiler;
-using static Pie.Direct3D11.DxUtils;
+using Vortice.Direct3D;
+using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
 
 internal sealed unsafe class D3D11Shader : Shader
 {
-    private ComPtr<ID3D11DeviceContext> _context;
-    private Dictionary<ShaderStage, ComPtr<ID3D11DeviceChild>> _shaders;
+    private ID3D11DeviceContext _context;
+    private ShaderObject[] _shaders;
     
     public override bool IsDisposed { get; protected set; }
 
-    public D3D11Shader(ComPtr<ID3D11Device> device, ComPtr<ID3D11DeviceContext> context, ShaderAttachment[] attachments, SpecializationConstant[] constants)
+    public D3D11Shader(ID3D11Device device, ID3D11DeviceContext context, ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
         _context = context;
-        _shaders = new Dictionary<ShaderStage, ComPtr<ID3D11DeviceChild>>();
+        _shaders = new ShaderObject[attachments.Length];
         
         for (int i = 0; i < attachments.Length; i++)
         {
@@ -33,32 +34,24 @@ internal sealed unsafe class D3D11Shader : Shader
             switch (attachment.Stage)
             {
                 case ShaderStage.Vertex:
-                    ComPtr<ID3D10Blob> vShaderBlob = CompileShader(hlsl, "main", "vs_5_0");
-                    ComPtr<ID3D11VertexShader> vShader = null;
-                    device.CreateVertexShader(vShaderBlob.GetBufferPointer(), vShaderBlob.GetBufferSize(),
-                        ref Unsafe.NullRef<ID3D11ClassLinkage>(), ref vShader);
-                    _shaders.Add(ShaderStage.Vertex, ComPtr.Downcast<ID3D11VertexShader, ID3D11DeviceChild>(vShader));
+                    Blob vShaderBlob = CompileShader(hlsl, "main", "vs_5_0");
+                    ID3D11VertexShader vShader = device.CreateVertexShader(vShaderBlob);
+                    _shaders[i] = new ShaderObject(ShaderStage.Vertex, vShader);
                     break;
                 case ShaderStage.Fragment:
-                    ComPtr<ID3D10Blob> pShaderBlob = CompileShader(hlsl, "main", "ps_5_0");
-                    ComPtr<ID3D11PixelShader> pShader = null;
-                    device.CreatePixelShader(pShaderBlob.GetBufferPointer(), pShaderBlob.GetBufferSize(),
-                        ref Unsafe.NullRef<ID3D11ClassLinkage>(), ref pShader);
-                    _shaders.Add(ShaderStage.Fragment, ComPtr.Downcast<ID3D11PixelShader, ID3D11DeviceChild>(pShader));
+                    Blob pShaderBlob = CompileShader(hlsl, "main", "ps_5_0");
+                    ID3D11PixelShader pShader = device.CreatePixelShader(pShaderBlob);
+                    _shaders[i] = new ShaderObject(ShaderStage.Pixel, pShader);
                     break;
                 case ShaderStage.Geometry:
-                    ComPtr<ID3D10Blob> gShaderBlob = CompileShader(hlsl, "main", "gs_5_0");
-                    ComPtr<ID3D11GeometryShader> gShader = null;
-                    device.CreateGeometryShader(gShaderBlob.GetBufferPointer(), gShaderBlob.GetBufferSize(),
-                        ref Unsafe.NullRef<ID3D11ClassLinkage>(), ref gShader);
-                    _shaders.Add(ShaderStage.Geometry, ComPtr.Downcast<ID3D11GeometryShader, ID3D11DeviceChild>(gShader));
+                    Blob gShaderBlob = CompileShader(hlsl, "main", "gs_5_0");
+                    ID3D11GeometryShader gShader = device.CreateGeometryShader(gShaderBlob);
+                    _shaders[i] = new ShaderObject(ShaderStage.Geometry, gShader);
                     break;
                 case ShaderStage.Compute:
-                    ComPtr<ID3D10Blob> cShaderBlob = CompileShader(hlsl, "main", "vs_5_0");
-                    ComPtr<ID3D11ComputeShader> cShader = null;
-                    device.CreateComputeShader(cShaderBlob.GetBufferPointer(), cShaderBlob.GetBufferSize(),
-                        ref Unsafe.NullRef<ID3D11ClassLinkage>(), ref cShader);
-                    _shaders.Add(ShaderStage.Compute, ComPtr.Downcast<ID3D11ComputeShader, ID3D11DeviceChild>(cShader));
+                    Blob cShaderBlob = CompileShader(hlsl, "main", "cs_5_0");
+                    ID3D11ComputeShader cShader = device.CreateComputeShader(cShaderBlob);
+                    _shaders[i] = new ShaderObject(ShaderStage.Vertex, cShader);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -71,27 +64,27 @@ internal sealed unsafe class D3D11Shader : Shader
         if (IsDisposed)
             return;
         IsDisposed = true;
-        foreach ((_, ComPtr<ID3D11DeviceChild> child) in _shaders)
-            child.Dispose();
+        foreach (ShaderObject obj in _shaders)
+            obj.Shader.Dispose();
     }
 
     public void Use()
     {
-        foreach ((ShaderStage stage, ComPtr<ID3D11DeviceChild> child) in _shaders)
+        foreach (ShaderObject obj in _shaders)
         {
-            switch (stage)
+            switch (obj.Stage)
             {
                 case ShaderStage.Vertex:
-                    _context.VSSetShader(child.QueryInterface<ID3D11VertexShader>(), null, 0);
+                    _context.VSSetShader((ID3D11VertexShader) obj.Shader);
                     break;
                 case ShaderStage.Fragment:
-                    _context.PSSetShader(child.QueryInterface<ID3D11PixelShader>(), null, 0);
+                    _context.PSSetShader((ID3D11PixelShader) obj.Shader);
                     break;
                 case ShaderStage.Geometry:
-                    _context.GSSetShader(child.QueryInterface<ID3D11GeometryShader>(), null, 0);
+                    _context.GSSetShader((ID3D11GeometryShader) obj.Shader);
                     break;
                 case ShaderStage.Compute:
-                    _context.CSSetShader(child.QueryInterface<ID3D11ComputeShader>(), null, 0);
+                    _context.CSSetShader((ID3D11ComputeShader) obj.Shader);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -99,12 +92,9 @@ internal sealed unsafe class D3D11Shader : Shader
         }
     }
 
-    internal static ComPtr<ID3D10Blob> CompileShader(byte[] code, string entryPoint, string profile)
+    internal static Blob CompileShader(byte[] code, string entryPoint, string profile)
     {
-        ComPtr<ID3D10Blob> compiledBlob = null;
-        ComPtr<ID3D10Blob> errorBlob = null;
-        
-        fixed (byte* cPtr = code)
+        /*fixed (byte* cPtr = code)
         {
             if (!Succeeded(D3DCompiler.Compile(cPtr, (nuint) code.Length, (byte*) null, null,
                     ref Unsafe.NullRef<ID3DInclude>(), entryPoint, profile, 0, 0, ref compiledBlob, ref errorBlob)))
@@ -112,8 +102,26 @@ internal sealed unsafe class D3D11Shader : Shader
                 throw new PieException(
                     $"Failed to compile shader! {Marshal.PtrToStringAnsi((IntPtr) errorBlob.GetBufferPointer())}");
             }
+        }*/
+
+        if (Vortice.D3DCompiler.Compiler
+            .Compile(code, entryPoint, "main", profile, out Blob compiledBlob, out Blob errorBlob).Failure)
+        {
+            throw new PieException("Failed to compile shader: " + errorBlob.AsString());
         }
 
         return compiledBlob;
+    }
+
+    private struct ShaderObject
+    {
+        public ShaderStage Stage;
+        public ID3D11DeviceChild Shader;
+
+        public ShaderObject(ShaderStage stage, ID3D11DeviceChild shader)
+        {
+            Stage = stage;
+            Shader = shader;
+        }
     }
 }

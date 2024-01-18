@@ -1,36 +1,33 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using static Pie.Direct3D11.DxUtils;
+using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
 
 internal sealed unsafe class D3D11InputLayout : InputLayout
 {
-    public readonly ComPtr<ID3D11InputLayout> Layout;
+    public readonly ID3D11InputLayout Layout;
 
-    public D3D11InputLayout(ComPtr<ID3D11Device> device, InputLayoutDescription[] descriptions)
+    public D3D11InputLayout(ID3D11Device device, InputLayoutDescription[] descriptions)
     {
-        GCHandle handle = GCHandle.Alloc(Encoding.UTF8.GetBytes("TEXCOORD"), GCHandleType.Pinned);
-        IntPtr addr = handle.AddrOfPinnedObject();
-        
-        InputElementDesc[] iedesc = new InputElementDesc[descriptions.Length];
+        InputElementDescription[] iedesc = new InputElementDescription[descriptions.Length];
         for (int i = 0; i < iedesc.Length; i++)
         {
-            ref InputElementDesc d = ref iedesc[i];
+            ref InputElementDescription d = ref iedesc[i];
             ref InputLayoutDescription desc = ref descriptions[i];
 
-            Silk.NET.DXGI.Format fmt = desc.Format.ToDxgiFormat(false);
+            Vortice.DXGI.Format fmt = desc.Format.ToDxgiFormat(false);
             
-            d = new InputElementDesc()
+            d = new InputElementDescription()
             {
-                SemanticName = (byte*) addr,
-                SemanticIndex = (uint) i,
-                AlignedByteOffset = desc.Offset,
+                SemanticName = "TEXCOORD",
+                SemanticIndex = i,
+                AlignedByteOffset = (int) desc.Offset,
                 Format = fmt,
-                InputSlot = desc.Slot,
-                InputSlotClass = (InputClassification) desc.InputType,
-                InstanceDataStepRate = (uint) desc.InputType
+                Slot = (int) desc.Slot,
+                Classification = (InputClassification) desc.InputType,
+                InstanceDataStepRate = (int) desc.InputType
             };
         }
 
