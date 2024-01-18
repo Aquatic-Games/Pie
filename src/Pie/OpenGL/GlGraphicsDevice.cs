@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using OpenTK.Graphics.OpenGL4;
 using Pie.ShaderCompiler;
 
 namespace Pie.OpenGL;
