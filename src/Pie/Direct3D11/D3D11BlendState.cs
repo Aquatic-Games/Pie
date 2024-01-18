@@ -1,6 +1,5 @@
 using System;
 using Vortice.Direct3D11;
-using static Pie.Direct3D11.DxUtils;
 
 namespace Pie.Direct3D11;
 
