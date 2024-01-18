@@ -81,15 +81,15 @@ internal sealed class GlBlendState : BlendState
         };
     }
 
-    private static BlendEquationModeEXT GetEquationFromOp(BlendOperation operation)
+    private static BlendEquationMode GetEquationFromOp(BlendOperation operation)
     {
         return operation switch
         {
-            BlendOperation.Add => BlendEquationModeEXT.FuncAdd,
-            BlendOperation.Subtract => BlendEquationModeEXT.FuncSubtract,
-            BlendOperation.ReverseSubtract => BlendEquationModeEXT.FuncReverseSubtract,
-            BlendOperation.Min => BlendEquationModeEXT.Min,
-            BlendOperation.Max => BlendEquationModeEXT.Max,
+            BlendOperation.Add => BlendEquationMode.FuncAdd,
+            BlendOperation.Subtract => BlendEquationMode.FuncSubtract,
+            BlendOperation.ReverseSubtract => BlendEquationMode.FuncReverseSubtract,
+            BlendOperation.Min => BlendEquationMode.Min,
+            BlendOperation.Max => BlendEquationMode.Max,
             _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
         };
     }

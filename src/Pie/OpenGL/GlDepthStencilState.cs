@@ -1,5 +1,5 @@
 using System;
-using static Pie.OpenGL.GlGraphicsDevice;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Pie.OpenGL;
 
@@ -8,14 +8,14 @@ internal sealed class GlDepthStencilState : DepthStencilState
     private DepthStencilStateDescription _description;
     private DepthFunction _depthFunction;
 
-    private Silk.NET.OpenGL.StencilOp _frontStencilPass;
-    private Silk.NET.OpenGL.StencilOp _frontStencilFail;
-    private Silk.NET.OpenGL.StencilOp _frontDepthFail;
+    private OpenTK.Graphics.OpenGL4.StencilOp _frontStencilPass;
+    private OpenTK.Graphics.OpenGL4.StencilOp _frontStencilFail;
+    private OpenTK.Graphics.OpenGL4.StencilOp _frontDepthFail;
     private StencilFunction _frontFunc;
     
-    private Silk.NET.OpenGL.StencilOp _backStencilPass;
-    private Silk.NET.OpenGL.StencilOp _backStencilFail;
-    private Silk.NET.OpenGL.StencilOp _backDepthFail;
+    private OpenTK.Graphics.OpenGL4.StencilOp _backStencilPass;
+    private OpenTK.Graphics.OpenGL4.StencilOp _backStencilFail;
+    private OpenTK.Graphics.OpenGL4.StencilOp _backDepthFail;
     private StencilFunction _backFunc;
 
     public GlDepthStencilState(DepthStencilStateDescription description)
@@ -39,24 +39,24 @@ internal sealed class GlDepthStencilState : DepthStencilState
     {
         if (_description.DepthEnabled)
         {
-            Gl.Enable(EnableCap.DepthTest);
-            Gl.DepthMask(_description.DepthMask);
-            Gl.DepthFunc(_depthFunction);
+            GL.Enable(EnableCap.DepthTest);
+            GL.DepthMask(_description.DepthMask);
+            GL.DepthFunc(_depthFunction);
         }
         else
-            Gl.Disable(EnableCap.DepthTest);
+            GL.Disable(EnableCap.DepthTest);
 
         if (_description.StencilEnabled)
         {
-            Gl.Enable(EnableCap.StencilTest);
-            Gl.StencilOpSeparate(TriangleFace.Front, _frontStencilFail, _frontDepthFail, _frontStencilPass);
-            Gl.StencilOpSeparate(TriangleFace.Back, _backStencilFail, _backDepthFail, _backStencilPass);
-            Gl.StencilMask(_description.StencilWriteMask);
-            Gl.StencilFuncSeparate(TriangleFace.Front, _frontFunc, stencilRef, _description.StencilReadMask);
-            Gl.StencilFuncSeparate(TriangleFace.Back, _backFunc, stencilRef, _description.StencilReadMask);
+            GL.Enable(EnableCap.StencilTest);
+            GL.StencilOpSeparate(OpenTK.Graphics.OpenGL4.StencilFace.Front, _frontStencilFail, _frontDepthFail, _frontStencilPass);
+            GL.StencilOpSeparate(OpenTK.Graphics.OpenGL4.StencilFace.Back, _backStencilFail, _backDepthFail, _backStencilPass);
+            GL.StencilMask(_description.StencilWriteMask);
+            GL.StencilFuncSeparate(OpenTK.Graphics.OpenGL4.StencilFace.Front, _frontFunc, stencilRef, _description.StencilReadMask);
+            GL.StencilFuncSeparate(OpenTK.Graphics.OpenGL4.StencilFace.Back, _backFunc, stencilRef, _description.StencilReadMask);
         }
         else
-            Gl.Disable(EnableCap.StencilTest);
+            GL.Disable(EnableCap.StencilTest);
     }
 
     public override bool IsDisposed { get; protected set; }
@@ -69,34 +69,35 @@ internal sealed class GlDepthStencilState : DepthStencilState
         // There is nothing to dispose.
     }
 
-    private Silk.NET.OpenGL.StencilOp StencilOpToOp(StencilOp op)
+    private OpenTK.Graphics.OpenGL4.StencilOp StencilOpToOp(StencilOp op)
     {
         return op switch
         {
-            StencilOp.Keep => Silk.NET.OpenGL.StencilOp.Keep,
-            StencilOp.Zero => Silk.NET.OpenGL.StencilOp.Zero,
-            StencilOp.Replace => Silk.NET.OpenGL.StencilOp.Replace,
-            StencilOp.Increment => Silk.NET.OpenGL.StencilOp.Incr,
-            StencilOp.IncrementWrap => Silk.NET.OpenGL.StencilOp.IncrWrap,
-            StencilOp.Decrement => Silk.NET.OpenGL.StencilOp.Decr,
-            StencilOp.DecrementWrap => Silk.NET.OpenGL.StencilOp.DecrWrap,
-            StencilOp.Invert => Silk.NET.OpenGL.StencilOp.Invert,
+            StencilOp.Keep => OpenTK.Graphics.OpenGL4.StencilOp.Keep,
+            StencilOp.Zero => OpenTK.Graphics.OpenGL4.StencilOp.Zero,
+            StencilOp.Replace => OpenTK.Graphics.OpenGL4.StencilOp.Replace,
+            StencilOp.Increment => OpenTK.Graphics.OpenGL4.StencilOp.Incr,
+            StencilOp.IncrementWrap => OpenTK.Graphics.OpenGL4.StencilOp.IncrWrap,
+            StencilOp.Decrement => OpenTK.Graphics.OpenGL4.StencilOp.Decr,
+            StencilOp.DecrementWrap => OpenTK.Graphics.OpenGL4.StencilOp.DecrWrap,
+            StencilOp.Invert => OpenTK.Graphics.OpenGL4.StencilOp.Invert,
             _ => throw new ArgumentOutOfRangeException(nameof(op), op, null)
         };
     }
 
-    private GLEnum FuncToEnum(ComparisonFunc func)
+    private OpenTK.Graphics.OpenGL4.All FuncToEnum(ComparisonFunc func)
     {
         return func switch
         {
-            ComparisonFunc.Never => GLEnum.Never,
-            ComparisonFunc.Less => GLEnum.Less,
-            ComparisonFunc.Equal => GLEnum.Equal,
-            ComparisonFunc.LessEqual => GLEnum.Lequal,
-            ComparisonFunc.Greater => GLEnum.Greater,
-            ComparisonFunc.NotEqual => GLEnum.Notequal,
-            ComparisonFunc.GreaterEqual => GLEnum.Gequal,
-            ComparisonFunc.Always => GLEnum.Always,
+            ComparisonFunc.Never => All.Never,
+            ComparisonFunc.Less => All.Less,
+            ComparisonFunc.Equal => All.Equal,
+            ComparisonFunc.LessEqual => All.Lequal,
+            ComparisonFunc.Greater => All.Greater,
+            ComparisonFunc.NotEqual => All.Notequal,
+            ComparisonFunc.GreaterEqual => All.Gequal,
+            ComparisonFunc.Always => All.Always,
+            _ => throw new ArgumentOutOfRangeException(nameof(func), func, null)
         };
     }
 }
