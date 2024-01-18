@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Text;
+using Vortice.Direct3D;
 using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
@@ -33,18 +33,12 @@ internal sealed unsafe class D3D11InputLayout : InputLayout
 
         Descriptions = descriptions;
 
-        ComPtr<ID3D10Blob> dummyBlob = GenerateDummyShader(descriptions);
-        if (!Succeeded(device.CreateInputLayout(in iedesc[0], (uint) iedesc.Length, dummyBlob.GetBufferPointer(),
-                dummyBlob.GetBufferSize(), ref Layout)))
-        {
-            throw new PieException("Failed to create input layout.");
-        }
+        Blob dummyBlob = GenerateDummyShader(descriptions);
+        Layout = device.CreateInputLayout(iedesc, dummyBlob);
         dummyBlob.Dispose();
-        
-        handle.Free();
     }
 
-    private ComPtr<ID3D10Blob> GenerateDummyShader(InputLayoutDescription[] descriptions)
+    private Blob GenerateDummyShader(InputLayoutDescription[] descriptions)
     {
         StringBuilder dummyShader = new StringBuilder();
         dummyShader.AppendLine("struct DummyInput {");
