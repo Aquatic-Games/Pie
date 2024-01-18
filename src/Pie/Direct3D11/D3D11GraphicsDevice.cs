@@ -60,9 +60,6 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             SwapEffect = SwapEffect.FlipDiscard,
             Windowed = true
         };
-        
-        // TODO: Adapter.
-        //Adapter = new GraphicsAdapter(new string(desc.Description));
 
         Result result;
         
@@ -72,6 +69,11 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
             throw new PieException("Failed to create D3D11 device: " + result.Description);
         }
 
+        IDXGIDevice dxgiDevice = _device!.QueryInterface<IDXGIDevice>();
+        IDXGIAdapter adapter = dxgiDevice.GetAdapter();
+
+        Adapter = new GraphicsAdapter(adapter.Description.Description);
+        
         if ((result = _swapChain!.GetBuffer(0, out _colorTexture)).Failure)
             throw new PieException("Failed to get the back color buffer. " + result.Description);
 

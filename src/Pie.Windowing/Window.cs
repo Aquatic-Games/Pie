@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
-//using Pie.OpenGL;
+using Pie.OpenGL;
 using Pie.Windowing.Events;
 using Pie.SDL;
 
@@ -496,11 +496,11 @@ public sealed unsafe class Window : IDisposable
         {
             case GraphicsApi.OpenGL:
             case GraphicsApi.OpenGLES:
-                /*return GraphicsDevice.CreateOpenGL(new PieGlContext(Sdl.GLGetProcAddress, i =>
+                return GraphicsDevice.CreateOpenGL(new PieGlContext(Sdl.GLGetProcAddress, i =>
                 {
                     Sdl.GLSetSwapInterval(i);
                     Sdl.GLSwapWindow(_window);
-                }), size, _api == GraphicsApi.OpenGLES, options ?? new GraphicsDeviceOptions());*/
+                }), size, _api == GraphicsApi.OpenGLES, options ?? new GraphicsDeviceOptions());
             
             case GraphicsApi.D3D11:
                 SdlSysWmInfo info = new SdlSysWmInfo();
