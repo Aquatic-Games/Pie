@@ -1,5 +1,5 @@
 using System;
-using static Pie.OpenGL.GlGraphicsDevice;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Pie.OpenGL;
 
@@ -52,22 +52,22 @@ internal sealed class GlRasterizerState : RasterizerState
     public void Set()
     {
         if (!_cullFaceEnabled)
-            Gl.Disable(EnableCap.CullFace);
+            GL.Disable(EnableCap.CullFace);
         else
         {
-            Gl.Enable(EnableCap.CullFace);
-            Gl.CullFace(_cullFaceMode);
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(_cullFaceMode);
         }
         
-        Gl.FrontFace(_frontFace);
+        GL.FrontFace(_frontFace);
 
         if (!IsES)
-            Gl.PolygonMode(TriangleFace.FrontAndBack, _mode);
+            GL.PolygonMode(TriangleFace.FrontAndBack, _mode);
         
         if (_scissor)
-            Gl.Enable(EnableCap.ScissorTest);
+            GL.Enable(EnableCap.ScissorTest);
         else
-            Gl.Disable(EnableCap.ScissorTest);
+            GL.Disable(EnableCap.ScissorTest);
     }
     
     public override void Dispose()
