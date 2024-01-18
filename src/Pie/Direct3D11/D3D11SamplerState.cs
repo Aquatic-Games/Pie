@@ -1,13 +1,14 @@
 using System;
-using static Pie.Direct3D11.DxUtils;
+using Vortice.Direct3D11;
+using Vortice.Mathematics;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11SamplerState : SamplerState
+internal sealed class D3D11SamplerState : SamplerState
 {
-    public ComPtr<ID3D11SamplerState> State;
+    public ID3D11SamplerState State;
     
-    public D3D11SamplerState(ComPtr<ID3D11Device> device, SamplerStateDescription description)
+    public D3D11SamplerState(ID3D11Device device, SamplerStateDescription description)
     {
         Description = description;
         
@@ -25,26 +26,21 @@ internal sealed unsafe class D3D11SamplerState : SamplerState
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        SamplerDesc desc = new SamplerDesc()
+        SamplerDescription desc = new SamplerDescription()
         {
             Filter = filter,
             AddressU = GetAddressModeFromTextureAddress(description.AddressU),
             AddressV = GetAddressModeFromTextureAddress(description.AddressV),
             AddressW = GetAddressModeFromTextureAddress(description.AddressW),
             MipLODBias = 0,
-            MaxAnisotropy = (uint) description.MaxAnisotropy,
-            ComparisonFunc = Silk.NET.Direct3D11.ComparisonFunc.LessEqual,
+            MaxAnisotropy = description.MaxAnisotropy,
+            ComparisonFunc = Vortice.Direct3D11.ComparisonFunction.LessEqual,
             MinLOD = description.MinLOD,
-            MaxLOD = description.MaxLOD
+            MaxLOD = description.MaxLOD,
+            BorderColor = new Color4(description.BorderColor.R, description.BorderColor.G, description.BorderColor.B, description.BorderColor.A)
         };
 
-        desc.BorderColor[0] = description.BorderColor.R / 255f;
-        desc.BorderColor[1] = description.BorderColor.G / 255f;
-        desc.BorderColor[2] = description.BorderColor.B / 255f;
-        desc.BorderColor[3] = description.BorderColor.A / 255f;
-
-        if (!Succeeded(device.CreateSamplerState(&desc, ref State)))
-            throw new PieException("Failed to create sampler state.");
+        State = device.CreateSamplerState(desc);
     }
     
     public override bool IsDisposed { get; protected set; }

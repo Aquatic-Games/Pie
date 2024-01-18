@@ -5,7 +5,7 @@ using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11InputLayout : InputLayout
+internal sealed class D3D11InputLayout : InputLayout
 {
     public readonly ID3D11InputLayout Layout;
 

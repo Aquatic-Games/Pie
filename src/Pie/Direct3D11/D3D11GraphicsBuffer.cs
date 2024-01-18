@@ -5,7 +5,7 @@ using Vortice.Mathematics;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11GraphicsBuffer : GraphicsBuffer
+internal sealed class D3D11GraphicsBuffer : GraphicsBuffer
 {
     private ID3D11DeviceContext _context;
     private BufferType _type;
@@ -15,7 +15,7 @@ internal sealed unsafe class D3D11GraphicsBuffer : GraphicsBuffer
 
     public ID3D11Buffer Buffer;
 
-    public D3D11GraphicsBuffer(ID3D11Device device, ID3D11DeviceContext context, BufferType type, uint sizeInBytes, void* data, bool dynamic)
+    public unsafe D3D11GraphicsBuffer(ID3D11Device device, ID3D11DeviceContext context, BufferType type, uint sizeInBytes, void* data, bool dynamic)
     {
         _context = context;
         

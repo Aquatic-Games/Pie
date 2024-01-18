@@ -3,7 +3,7 @@ using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11RasterizerState : RasterizerState
+internal sealed class D3D11RasterizerState : RasterizerState
 {
     public ID3D11RasterizerState State;
     

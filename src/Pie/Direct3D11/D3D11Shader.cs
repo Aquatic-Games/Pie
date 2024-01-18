@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Pie.ShaderCompiler;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11Shader : Shader
+internal sealed class D3D11Shader : Shader
 {
     private ID3D11DeviceContext _context;
     private ShaderObject[] _shaders;

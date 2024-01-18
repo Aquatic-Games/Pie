@@ -3,7 +3,7 @@ using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11DepthStencilState : DepthStencilState
+internal sealed class D3D11DepthStencilState : DepthStencilState
 {
     public ID3D11DepthStencilState State;
     
