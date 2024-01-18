@@ -1,18 +1,17 @@
 using System;
-using Silk.NET.OpenGL;
-using static Pie.OpenGL.GlGraphicsDevice;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Pie.OpenGL;
 
 internal sealed class GlSamplerState : SamplerState
 {
-    public readonly uint Handle;
+    public readonly int Handle;
 
     public unsafe GlSamplerState(SamplerStateDescription description)
     {
         Description = description;
         
-        Handle = Gl.GenSampler();
+        Handle = GL.GenSampler();
 
         TextureMinFilter minFilter;
         TextureMagFilter magFilter;
@@ -60,26 +59,26 @@ internal sealed class GlSamplerState : SamplerState
                 throw new ArgumentOutOfRangeException();
         }
         
-        Gl.SamplerParameter(Handle, SamplerParameterI.MinFilter, (int) minFilter);
-        Gl.SamplerParameter(Handle, SamplerParameterI.MagFilter, (int) magFilter);
-        Gl.SamplerParameter(Handle, SamplerParameterI.WrapS, (int) GetWrapModeFromTextureAddress(description.AddressU));
-        Gl.SamplerParameter(Handle, SamplerParameterI.WrapT, (int) GetWrapModeFromTextureAddress(description.AddressV));
-        Gl.SamplerParameter(Handle, SamplerParameterI.WrapR, (int) GetWrapModeFromTextureAddress(description.AddressW));
-        Gl.SamplerParameter(Handle, SamplerParameterF.LodBias, 0);
+        GL.SamplerParameter(Handle, SamplerParameterName.TextureMinFilter, (int) minFilter);
+        GL.SamplerParameter(Handle, SamplerParameterName.TextureMagFilter, (int) magFilter);
+        GL.SamplerParameter(Handle, SamplerParameterName.TextureWrapS, (int) GetWrapModeFromTextureAddress(description.AddressU));
+        GL.SamplerParameter(Handle, SamplerParameterName.TextureWrapT, (int) GetWrapModeFromTextureAddress(description.AddressV));
+        GL.SamplerParameter(Handle, SamplerParameterName.TextureWrapR, (int) GetWrapModeFromTextureAddress(description.AddressW));
+        GL.SamplerParameter(Handle, SamplerParameterName.TextureLodBias, 0);
         // OpenGL doesn't have a specific anisotropic filter mode, so to make it behave like DirectX we just ignore the
         // given anisotropy if we're not using anisotropic filtering.
         if (description.Filter == TextureFilter.Anisotropic)
-            Gl.SamplerParameter(Handle, SamplerParameterF.MaxAnisotropy, description.MaxAnisotropy);
-        Gl.SamplerParameter(Handle, SamplerParameterI.CompareFunc, (int) DepthFunction.Lequal);
+            GL.SamplerParameter(Handle, SamplerParameterName.TextureMaxAnisotropyExt, description.MaxAnisotropy);
+        GL.SamplerParameter(Handle, SamplerParameterName.TextureCompareFunc, (int) DepthFunction.Lequal);
         float[] bColor =
         {
             description.BorderColor.R / 255f, description.BorderColor.G / 255f, description.BorderColor.B / 255f,
             description.BorderColor.A / 255f
         };
         fixed (float* border = bColor)
-            Gl.SamplerParameter(Handle, SamplerParameterF.BorderColor, border);
-        Gl.SamplerParameter(Handle, SamplerParameterF.MinLod, description.MinLOD);
-        Gl.SamplerParameter(Handle, SamplerParameterF.MaxLod, description.MaxLOD);
+            GL.SamplerParameter(Handle, SamplerParameterName.TextureBorderColor, border);
+        GL.SamplerParameter(Handle,SamplerParameterName.TextureMinLod, description.MinLOD);
+        GL.SamplerParameter(Handle, SamplerParameterName.TextureMaxLod, description.MaxLOD);
     }
     
     public override bool IsDisposed { get; protected set; }
@@ -89,7 +88,7 @@ internal sealed class GlSamplerState : SamplerState
         if (IsDisposed)
             return;
         IsDisposed = true;
-        Gl.DeleteSampler(Handle);
+        GL.DeleteSampler(Handle);
     }
 
     private static TextureWrapMode GetWrapModeFromTextureAddress(TextureAddress address)

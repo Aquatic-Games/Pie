@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using Silk.NET.Core.Native;
-using Silk.NET.Direct3D11;
-using static Pie.Direct3D11.D3D11GraphicsDevice;
-using static Pie.Direct3D11.DxUtils;
+using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11Framebuffer : Framebuffer
+internal sealed class D3D11Framebuffer : Framebuffer
 {
-    public ComPtr<ID3D11RenderTargetView>[] Targets;
-    public ComPtr<ID3D11DepthStencilView> DepthStencil;
+    public ID3D11RenderTargetView[] Targets;
+    public ID3D11DepthStencilView DepthStencil;
 
-    public D3D11Framebuffer(ComPtr<ID3D11Device> device, FramebufferAttachment[] attachments)
+    public D3D11Framebuffer(ID3D11Device device, FramebufferAttachment[] attachments)
     {
         int depthCount = 0;
 
-        List<ComPtr<ID3D11RenderTargetView>> targets = new List<ComPtr<ID3D11RenderTargetView>>();
+        List<ID3D11RenderTargetView> targets = new List<ID3D11RenderTargetView>();
         foreach (FramebufferAttachment attachment in attachments)
         {
-            Silk.NET.DXGI.Format fmt = attachment.Texture.Description.Format.ToDxgiFormat(false);
+            Vortice.DXGI.Format fmt = attachment.Texture.Description.Format.ToDxgiFormat(false);
+            ID3D11Resource texture = ((D3D11Texture) attachment.Texture).Texture;
 
             switch (attachment.Texture.Description.Format)
             {
@@ -31,37 +28,31 @@ internal sealed unsafe class D3D11Framebuffer : Framebuffer
                     if (depthCount > 1)
                         throw new PieException("Framebuffer cannot have more than one depth stencil attachment.");
 
-                    DepthStencilViewDesc depthDesc = new DepthStencilViewDesc()
+                    DepthStencilViewDescription depthDesc = new DepthStencilViewDescription()
                     {
-                        ViewDimension = DsvDimension.Texture2D,
+                        ViewDimension = DepthStencilViewDimension.Texture2D,
                         Format = fmt,
-                        Texture2D = new Tex2DDsv()
+                        Texture2D = new Texture2DDepthStencilView()
                         {
                             MipSlice = 0
                         }
                     };
 
-                    if (!Succeeded(device.CreateDepthStencilView(((D3D11Texture) attachment.Texture).Texture,
-                            &depthDesc, ref DepthStencil)))
-                        throw new PieException("Failed to create depth stencil view.");
+                    device.CreateDepthStencilView(texture, depthDesc);
                     break;
                 default:
-
-                    RenderTargetViewDesc viewDesc = new RenderTargetViewDesc()
+                    RenderTargetViewDescription viewDesc = new RenderTargetViewDescription()
                     {
-                        ViewDimension = RtvDimension.Texture2D,
+                        ViewDimension = RenderTargetViewDimension.Texture2D,
                         Format = fmt,
-                        Texture2D = new Tex2DRtv()
+                        Texture2D = new Texture2DRenderTargetView()
                         {
                             MipSlice = 0
                         }
                     };
 
-                    ComPtr<ID3D11RenderTargetView> targetView = null;
-                    device.CreateRenderTargetView(((D3D11Texture) attachment.Texture).Texture, &viewDesc,
-                        ref targetView);
-
-                    targets.Add(targetView);
+                    ID3D11RenderTargetView view = device.CreateRenderTargetView(texture, viewDesc);
+                    targets.Add(view);
                     break;
             }
         }
@@ -80,10 +71,9 @@ internal sealed unsafe class D3D11Framebuffer : Framebuffer
 
         IsDisposed = true;
         
-        foreach (ComPtr<ID3D11RenderTargetView> view in Targets)
+        foreach (ID3D11RenderTargetView view in Targets)
             view.Dispose();
         
-        if (DepthStencil.Handle != null)
-            DepthStencil.Dispose();
+        DepthStencil?.Dispose();
     }
 }

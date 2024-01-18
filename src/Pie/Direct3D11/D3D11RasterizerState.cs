@@ -1,20 +1,17 @@
 ﻿using System;
-using Silk.NET.Core.Native;
-using Silk.NET.Direct3D11;
-using static Pie.Direct3D11.D3D11GraphicsDevice;
-using static Pie.Direct3D11.DxUtils;
+using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11RasterizerState : RasterizerState
+internal sealed class D3D11RasterizerState : RasterizerState
 {
-    public ComPtr<ID3D11RasterizerState> State;
+    public ID3D11RasterizerState State;
     
     public override bool IsDisposed { get; protected set; }
 
     public override RasterizerStateDescription Description { get; }
 
-    public D3D11RasterizerState(ComPtr<ID3D11Device> device, RasterizerStateDescription description)
+    public D3D11RasterizerState(ID3D11Device device, RasterizerStateDescription description)
     {
         Description = description;
 
@@ -26,14 +23,14 @@ internal sealed unsafe class D3D11RasterizerState : RasterizerState
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        Silk.NET.Direct3D11.FillMode fm = description.FillMode switch
+        Vortice.Direct3D11.FillMode fm = description.FillMode switch
         {
-            FillMode.Solid => Silk.NET.Direct3D11.FillMode.Solid,
-            FillMode.Wireframe => Silk.NET.Direct3D11.FillMode.Wireframe,
+            FillMode.Solid => Vortice.Direct3D11.FillMode.Solid,
+            FillMode.Wireframe => Vortice.Direct3D11.FillMode.Wireframe,
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        RasterizerDesc desc = new RasterizerDesc()
+        RasterizerDescription desc = new RasterizerDescription()
         {
             CullMode = cullMode,
             FrontCounterClockwise = description.CullDirection == CullDirection.CounterClockwise,
@@ -41,8 +38,7 @@ internal sealed unsafe class D3D11RasterizerState : RasterizerState
             ScissorEnable = description.ScissorTest
         };
 
-        if (!Succeeded(device.CreateRasterizerState(&desc, ref State)))
-            throw new PieException("Failed to create rasterizer state.");
+        State = device.CreateRasterizerState(desc);
     }
 
     public override void Dispose()

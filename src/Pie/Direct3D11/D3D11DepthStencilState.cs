@@ -1,20 +1,17 @@
 using System;
-using Silk.NET.Core.Native;
-using Silk.NET.Direct3D11;
-using static Pie.Direct3D11.D3D11GraphicsDevice;
-using static Pie.Direct3D11.DxUtils;
+using Vortice.Direct3D11;
 
 namespace Pie.Direct3D11;
 
-internal sealed unsafe class D3D11DepthStencilState : DepthStencilState
+internal sealed class D3D11DepthStencilState : DepthStencilState
 {
-    public ComPtr<ID3D11DepthStencilState> State;
+    public ID3D11DepthStencilState State;
     
-    public D3D11DepthStencilState(ComPtr<ID3D11Device> device, DepthStencilStateDescription description)
+    public D3D11DepthStencilState(ID3D11Device device, DepthStencilStateDescription description)
     {
         Description = description;
 
-        DepthStencilDesc desc = new DepthStencilDesc();
+        DepthStencilDescription desc = new DepthStencilDescription();
         desc.DepthEnable = description.DepthEnabled;
         desc.DepthWriteMask = description.DepthMask ? DepthWriteMask.All : DepthWriteMask.Zero;
         desc.DepthFunc = ComparisonFuncToFunction(description.DepthComparison);
@@ -33,8 +30,7 @@ internal sealed unsafe class D3D11DepthStencilState : DepthStencilState
         desc.BackFace.StencilPassOp = StencilOpToOperation(description.StencilFrontFace.DepthStencilPassOp);
         desc.BackFace.StencilDepthFailOp = StencilOpToOperation(description.StencilFrontFace.DepthFailOp);
 
-        if (!Succeeded(device.CreateDepthStencilState(&desc, ref State)))
-            throw new PieException("Failed to create depth stencil state.");
+        State = device.CreateDepthStencilState(desc);
     }
 
     public override bool IsDisposed { get; protected set; }
@@ -49,34 +45,34 @@ internal sealed unsafe class D3D11DepthStencilState : DepthStencilState
         State.Dispose();
     }
 
-    public Silk.NET.Direct3D11.ComparisonFunc ComparisonFuncToFunction(ComparisonFunc func)
+    public ComparisonFunction ComparisonFuncToFunction(ComparisonFunc func)
     {
         return func switch
         {
-            ComparisonFunc.Never => Silk.NET.Direct3D11.ComparisonFunc.Never,
-            ComparisonFunc.Less => Silk.NET.Direct3D11.ComparisonFunc.Less,
-            ComparisonFunc.Equal => Silk.NET.Direct3D11.ComparisonFunc.Equal,
-            ComparisonFunc.LessEqual => Silk.NET.Direct3D11.ComparisonFunc.LessEqual,
-            ComparisonFunc.Greater => Silk.NET.Direct3D11.ComparisonFunc.Greater,
-            ComparisonFunc.NotEqual => Silk.NET.Direct3D11.ComparisonFunc.NotEqual,
-            ComparisonFunc.GreaterEqual => Silk.NET.Direct3D11.ComparisonFunc.GreaterEqual,
-            ComparisonFunc.Always => Silk.NET.Direct3D11.ComparisonFunc.Always,
+            ComparisonFunc.Never => ComparisonFunction.Never,
+            ComparisonFunc.Less => ComparisonFunction.Less,
+            ComparisonFunc.Equal => ComparisonFunction.Equal,
+            ComparisonFunc.LessEqual => ComparisonFunction.LessEqual,
+            ComparisonFunc.Greater => ComparisonFunction.Greater,
+            ComparisonFunc.NotEqual => ComparisonFunction.NotEqual,
+            ComparisonFunc.GreaterEqual => ComparisonFunction.GreaterEqual,
+            ComparisonFunc.Always => ComparisonFunction.Always,
             _ => throw new ArgumentOutOfRangeException(nameof(func), func, null)
         };
     }
     
-    private Silk.NET.Direct3D11.StencilOp StencilOpToOperation(StencilOp op)
+    private StencilOperation StencilOpToOperation(StencilOp op)
     {
         return op switch
         {
-            StencilOp.Keep => Silk.NET.Direct3D11.StencilOp.Keep,
-            StencilOp.Zero => Silk.NET.Direct3D11.StencilOp.Zero,
-            StencilOp.Replace => Silk.NET.Direct3D11.StencilOp.Replace,
-            StencilOp.Increment => Silk.NET.Direct3D11.StencilOp.IncrSat,
-            StencilOp.IncrementWrap => Silk.NET.Direct3D11.StencilOp.Incr,
-            StencilOp.Decrement => Silk.NET.Direct3D11.StencilOp.DecrSat,
-            StencilOp.DecrementWrap => Silk.NET.Direct3D11.StencilOp.Decr,
-            StencilOp.Invert => Silk.NET.Direct3D11.StencilOp.Invert,
+            StencilOp.Keep => StencilOperation.Keep,
+            StencilOp.Zero => StencilOperation.Zero,
+            StencilOp.Replace => StencilOperation.Replace,
+            StencilOp.Increment => StencilOperation.IncrementSaturate,
+            StencilOp.IncrementWrap => StencilOperation.Increment,
+            StencilOp.Decrement => StencilOperation.DecrementSaturate,
+            StencilOp.DecrementWrap => StencilOperation.Decrement,
+            StencilOp.Invert => StencilOperation.Invert,
             _ => throw new ArgumentOutOfRangeException(nameof(op), op, null)
         };
     }

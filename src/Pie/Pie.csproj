@@ -14,13 +14,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Silk.NET.Direct3D.Compilers" Version="2.19.0" />
-      <PackageReference Include="Silk.NET.Direct3D11" Version="2.19.0" />
-      <PackageReference Include="Silk.NET.OpenGL" Version="2.19.0" />
+      <ProjectReference Include="..\Pie.ShaderCompiler\Pie.ShaderCompiler.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Pie.ShaderCompiler\Pie.ShaderCompiler.csproj" />
+      <!--<PackageReference Include="OpenTK.Graphics" Version="4.8.2" />-->
+      <PackageReference Include="OpenTK.Graphics" Version="4.8.2" />
+      <PackageReference Include="Vortice.D3DCompiler" Version="3.2.0" />
+      <PackageReference Include="Vortice.Direct3D11" Version="3.2.0" />
+      <!--<PackageReference Include="Vortice.DXGI" Version="3.3.4" />-->
     </ItemGroup>
 
 </Project>

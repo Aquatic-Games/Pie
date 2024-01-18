@@ -4,7 +4,6 @@ using System.Text;
 using Silk.NET.Shaderc;
 using Silk.NET.SPIRV;
 using Silk.NET.SPIRV.Cross;
-
 using Spvc = Silk.NET.SPIRV.Cross.Cross;
 using SpvcCompiler = Silk.NET.SPIRV.Cross.Compiler;
 using SpvcSpecializationConstant = Silk.NET.SPIRV.Cross.SpecializationConstant;

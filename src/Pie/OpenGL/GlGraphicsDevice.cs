@@ -1,28 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using OpenTK.Graphics.OpenGL4;
 using Pie.ShaderCompiler;
-using Silk.NET.OpenGL;
 
 namespace Pie.OpenGL;
 
 internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 {
-    private PieGlContext _context;
-    internal static GL Gl;
+    private PieGLBindings _bindings;
     internal static bool Debug;
     internal static bool IsES;
     
     private RasterizerState _currentRState;
     private BlendState _currentBState;
     private DepthStencilState _currentDStencilState;
-    private Silk.NET.OpenGL.PrimitiveType _glType;
+    private OpenTK.Graphics.OpenGL4.PrimitiveType _glType;
     private PrimitiveType _currentPType;
     private DrawElementsType _currentEType;
-    private uint _currentShader;
+    private int _currentShader;
 
     private GlInputLayout _currentInputLayout;
     
@@ -37,10 +35,12 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     
     public GlGraphicsDevice(bool es, PieGlContext context, Size winSize, GraphicsDeviceOptions options)
     {
-        _context = context;
-        Gl = GL.GetApi(context.GetProcFunc);
+        _bindings = new PieGLBindings(context);
+        
         Debug = options.Debug;
         IsES = es;
+        
+        GL.LoadBindings(_bindings);
 
         Api = IsES ? GraphicsApi.OpenGLES : GraphicsApi.OpenGL;
         
@@ -49,23 +49,23 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
             Size = winSize
         };
 
-        Gl.GetInteger(GetPName.DrawFramebufferBinding, out _defaultFramebufferId);
+        GL.GetInteger(GetPName.DrawFramebufferBinding, out _defaultFramebufferId);
 
         Viewport = new Rectangle(Point.Empty, winSize);
 
-        Adapter = new GraphicsAdapter(Gl.GetStringS(StringName.Renderer));
+        Adapter = new GraphicsAdapter(GL.GetString(StringName.Renderer));
 
         // TODO: Get the value from opengl rather than a set value.
         _currentVertexBuffers = new (GlGraphicsBuffer, uint)[16];
         
         if (Debug)
         {
-            Gl.Enable(EnableCap.DebugOutput);
-            Gl.Enable(EnableCap.DebugOutputSynchronous);
-            Gl.DebugMessageCallback(DebugCallback, null);
+            GL.Enable(EnableCap.DebugOutput);
+            GL.Enable(EnableCap.DebugOutputSynchronous);
+            GL.DebugMessageCallback(DebugCallback, IntPtr.Zero);
         }
 
-        //SpirvSupported = Gl.IsExtensionPresent("ARB_gl_spirv");
+        //SpirvSupported = GL.IsExtensionPresent("ARB_gl_spirv");
     }
     
     public override GraphicsApi Api { get; }
@@ -78,7 +78,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         get => _viewport;
         set
         {
-            Gl.Viewport(value.X, _framebufferSet ? value.Y : Swapchain.Size.Height - (value.Y + value.Height), (uint) value.Width, (uint) value.Height);
+            GL.Viewport(value.X, _framebufferSet ? value.Y : Swapchain.Size.Height - (value.Y + value.Height), value.Width, value.Height);
             _viewport = value;
         }
     }
@@ -90,7 +90,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         get => _scissor;
         set
         {
-            Gl.Scissor(value.X, Swapchain.Size.Height - (value.Y + value.Height), (uint) value.Width, (uint) value.Height);
+            GL.Scissor(value.X, Swapchain.Size.Height - (value.Y + value.Height), value.Width, value.Height);
             _scissor = value;
         }
     }
@@ -102,21 +102,21 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     public override void ClearColorBuffer(float r, float g, float b, float a)
     {
-        Gl.ClearColor(r, g, b, a);
-        Gl.Clear(ClearBufferMask.ColorBufferBit);
+        GL.ClearColor(r, g, b, a);
+        GL.Clear(ClearBufferMask.ColorBufferBit);
     }
 
     public override void ClearDepthStencilBuffer(ClearFlags flags, float depth, byte stencil)
     {
-        uint mask = 0;
+        ClearBufferMask mask = ClearBufferMask.None;
         if ((flags & ClearFlags.Depth) == ClearFlags.Depth)
-            mask |= (uint) ClearBufferMask.DepthBufferBit;
+            mask |= ClearBufferMask.DepthBufferBit;
         if ((flags & ClearFlags.Stencil) == ClearFlags.Stencil)
-            mask |= (uint) ClearBufferMask.StencilBufferBit;
+            mask |= ClearBufferMask.StencilBufferBit;
         
-        Gl.ClearDepth(depth);
-        Gl.ClearStencil(stencil);
-        Gl.Clear(mask);
+        GL.ClearDepth(depth);
+        GL.ClearStencil(stencil);
+        GL.Clear(mask);
     }
 
     private void InvalidateCaches()
@@ -270,7 +270,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         GlShader glShader = (GlShader) shader;
         if (glShader.Handle == _currentShader)
             return;
-        Gl.UseProgram(glShader.Handle);
+        GL.UseProgram(glShader.Handle);
         _currentShader = glShader.Handle;
     }
 
@@ -281,9 +281,9 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         //    return;
         //_boundTexture = (int) glTex.Handle;
         //_bindingSlot = (int) bindingSlot;
-        Gl.ActiveTexture(TextureUnit.Texture0 + (int) bindingSlot);
-        Gl.BindTexture(glTex.Target, glTex.Handle);
-        Gl.BindSampler(bindingSlot, ((GlSamplerState) state).Handle);
+        GL.ActiveTexture(TextureUnit.Texture0 + (int) bindingSlot);
+        GL.BindTexture(glTex.Target, glTex.Handle);
+        GL.BindSampler((int) bindingSlot, ((GlSamplerState) state).Handle);
     }
 
     public override void SetRasterizerState(RasterizerState state)
@@ -318,15 +318,15 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         _currentPType = type;
         _glType = type switch
         {
-            PrimitiveType.TriangleList => Silk.NET.OpenGL.PrimitiveType.Triangles,
-            PrimitiveType.TriangleStrip => Silk.NET.OpenGL.PrimitiveType.TriangleStrip,
-            PrimitiveType.LineList => Silk.NET.OpenGL.PrimitiveType.Lines,
-            PrimitiveType.LineStrip => Silk.NET.OpenGL.PrimitiveType.LineStrip,
-            PrimitiveType.PointList => Silk.NET.OpenGL.PrimitiveType.Points,
-            PrimitiveType.TriangleListAdjacency => Silk.NET.OpenGL.PrimitiveType.TrianglesAdjacency,
-            PrimitiveType.TriangleStripAdjacency => Silk.NET.OpenGL.PrimitiveType.TriangleStripAdjacency,
-            PrimitiveType.LineListAdjacency => Silk.NET.OpenGL.PrimitiveType.LinesAdjacency,
-            PrimitiveType.LineStripAdjacency => Silk.NET.OpenGL.PrimitiveType.LineStripAdjacency,
+            PrimitiveType.TriangleList => OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles,
+            PrimitiveType.TriangleStrip => OpenTK.Graphics.OpenGL4.PrimitiveType.TriangleStrip,
+            PrimitiveType.LineList => OpenTK.Graphics.OpenGL4.PrimitiveType.Lines,
+            PrimitiveType.LineStrip => OpenTK.Graphics.OpenGL4.PrimitiveType.LineStrip,
+            PrimitiveType.PointList => OpenTK.Graphics.OpenGL4.PrimitiveType.Points,
+            PrimitiveType.TriangleListAdjacency => OpenTK.Graphics.OpenGL4.PrimitiveType.TrianglesAdjacency,
+            PrimitiveType.TriangleStripAdjacency => OpenTK.Graphics.OpenGL4.PrimitiveType.TriangleStripAdjacency,
+            PrimitiveType.LineListAdjacency => OpenTK.Graphics.OpenGL4.PrimitiveType.LinesAdjacency,
+            PrimitiveType.LineStripAdjacency => OpenTK.Graphics.OpenGL4.PrimitiveType.LineStripAdjacency,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }
@@ -366,20 +366,20 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     public override void SetUniformBuffer(uint bindingSlot, GraphicsBuffer buffer)
     {
-        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, bindingSlot, ((GlGraphicsBuffer) buffer).Handle);
+        GL.BindBufferBase(BufferRangeTarget.UniformBuffer, (int) bindingSlot, ((GlGraphicsBuffer) buffer).Handle);
     }
 
     public override void SetFramebuffer(Framebuffer framebuffer)
     {
         if (framebuffer == null)
         {
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, (uint) _defaultFramebufferId);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, (uint) _defaultFramebufferId);
             _framebufferSet = false;
             return;
         }
 
         GlFramebuffer fb = (GlFramebuffer) framebuffer;
-        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, fb.Handle);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, fb.Handle);
         _framebufferSet = true;
     }
 
@@ -387,7 +387,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     {
         BindBuffersWithVao();
         
-        Gl.DrawArrays(_glType, 0, vertexCount);
+        GL.DrawArrays(_glType, 0, (int) vertexCount);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += vertexCount / 3;
     }
@@ -396,7 +396,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     {
         BindBuffersWithVao();
         
-        Gl.DrawArrays(_glType, startVertex, vertexCount);
+        GL.DrawArrays(_glType, startVertex, (int) vertexCount);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += vertexCount / 3;
     }
@@ -405,7 +405,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     {
         BindBuffersWithVao();
         
-        Gl.DrawElements(_glType, indexCount, _currentEType, null);
+        GL.DrawElements(_glType, (int) indexCount, _currentEType, 0);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3;
     }
@@ -414,7 +414,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     {
         BindBuffersWithVao();
         
-        Gl.DrawElements(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize));
+        GL.DrawElements(_glType, (int) indexCount, _currentEType, startIndex * _eTypeSize);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3;
     }
@@ -423,7 +423,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     {
         BindBuffersWithVao();
         
-        Gl.DrawElementsBaseVertex(_glType, indexCount, _currentEType, (void*) (startIndex * _eTypeSize), baseVertex);
+        GL.DrawElementsBaseVertex(_glType, (int) indexCount, _currentEType, (IntPtr) (startIndex * _eTypeSize), baseVertex);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3;
     }
@@ -432,14 +432,14 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     {
         BindBuffersWithVao();
         
-        Gl.DrawElementsInstanced(_glType, indexCount, _currentEType, null, instanceCount);
+        GL.DrawElementsInstanced(_glType, (int) indexCount, _currentEType, IntPtr.Zero, (int) instanceCount);
         PieMetrics.DrawCalls++;
         PieMetrics.TriCount += indexCount / 3 * instanceCount;
     }
 
     public override void Present(int swapInterval)
     {
-        _context.Present(swapInterval);
+        _bindings.Context.Present(swapInterval);
         InvalidateCaches();
     }
 
@@ -456,18 +456,18 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     public override void GenerateMipmaps(Texture texture)
     {
         GlTexture tex = (GlTexture) texture;
-        Gl.BindTexture(tex.Target, tex.Handle);
-        Gl.GenerateMipmap(tex.Target);
+        GL.BindTexture(tex.Target, tex.Handle);
+        GL.GenerateMipmap((GenerateMipmapTarget) tex.Target);
     }
 
     public override void Dispatch(uint groupCountX, uint groupCountY, uint groupCountZ)
     {
-        Gl.DispatchCompute(groupCountX, groupCountY, groupCountZ);
+        GL.DispatchCompute(groupCountX, groupCountY, groupCountZ);
     }
 
     public override void Flush()
     {
-        Gl.Flush();
+        GL.Flush();
     }
 
     public override void Dispose()
@@ -477,26 +477,25 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 
     private void BindBuffersWithVao()
     {
-        Gl.BindVertexArray(_currentInputLayout.VertexArray);
+        GL.BindVertexArray(_currentInputLayout.VertexArray);
 
-        for (uint i = 0; i < _currentVertexBuffers.Length; i++)
+        for (int i = 0; i < _currentVertexBuffers.Length; i++)
         {
             if (_currentVertexBuffers[i].buffer == null)
                 continue;
             
             ref (GlGraphicsBuffer buffer, uint stride) buf = ref _currentVertexBuffers[i];
             
-            Gl.BindVertexBuffer(i, buf.buffer.Handle, 0, buf.stride);
+            GL.BindVertexBuffer(i, buf.buffer.Handle, IntPtr.Zero, (int) buf.stride);
         }
         
-        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _currentIndexBuffer.Handle);
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, _currentIndexBuffer.Handle);
     }
 
-    private void DebugCallback(GLEnum source, GLEnum type, int id, GLEnum severity, int length, nint message, nint userParam)
+    private void DebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, nint message, nint userParam)
     {
         string msg = Marshal.PtrToStringAnsi(message);
-        DebugType debugType = (DebugType) type;
-        LogType logType = debugType switch
+        LogType logType = type switch
         {
             DebugType.DontCare => LogType.Verbose,
             DebugType.DebugTypeError => LogType.Critical,

@@ -1,6 +1,5 @@
 using System;
-using Silk.NET.OpenGL;
-using static Pie.OpenGL.GlGraphicsDevice;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Pie.OpenGL;
 
@@ -8,12 +7,12 @@ internal sealed class GlBlendState : BlendState
 {
     private BlendStateDescription _description;
     
-    private BlendingFactor _src;
-    private BlendingFactor _dst;
-    private BlendingFactor _srcAlpha;
-    private BlendingFactor _dstAlpha;
-    private BlendEquationModeEXT _rgbEq;
-    private BlendEquationModeEXT _alphaEq;
+    private BlendingFactorSrc _src;
+    private BlendingFactorDest _dst;
+    private BlendingFactorSrc _srcAlpha;
+    private BlendingFactorDest _dstAlpha;
+    private BlendEquationMode _rgbEq;
+    private BlendEquationMode _alphaEq;
 
     private bool _red, _green, _blue, _alpha;
     
@@ -21,11 +20,11 @@ internal sealed class GlBlendState : BlendState
     {
         _description = description;
         
-        _src = GetBlendingFactorFromBlendType(description.Source);
-        _dst = GetBlendingFactorFromBlendType(description.Destination);
+        _src = (BlendingFactorSrc) GetBlendingFactorFromBlendType(description.Source);
+        _dst = (BlendingFactorDest) GetBlendingFactorFromBlendType(description.Destination);
 
-        _srcAlpha = GetBlendingFactorFromBlendType(description.SourceAlpha);
-        _dstAlpha = GetBlendingFactorFromBlendType(description.DestinationAlpha);
+        _srcAlpha = (BlendingFactorSrc) GetBlendingFactorFromBlendType(description.SourceAlpha);
+        _dstAlpha = (BlendingFactorDest) GetBlendingFactorFromBlendType(description.DestinationAlpha);
 
         _rgbEq = GetEquationFromOp(description.BlendOperation);
         _alphaEq = GetEquationFromOp(description.AlphaBlendOperation);
@@ -42,17 +41,17 @@ internal sealed class GlBlendState : BlendState
 
     public void Set()
     {
-        Gl.ColorMask(_red, _green, _blue, _alpha);
+        GL.ColorMask(_red, _green, _blue, _alpha);
         
         if (!_description.Enabled)
         {
-            Gl.Disable(EnableCap.Blend);
+            GL.Disable(EnableCap.Blend);
             return;
         }
         
-        Gl.Enable(EnableCap.Blend);
-        Gl.BlendFuncSeparate(_src, _dst, _srcAlpha, _dstAlpha);
-        Gl.BlendEquationSeparate(_rgbEq, _alphaEq);
+        GL.Enable(EnableCap.Blend);
+        GL.BlendFuncSeparate(_src, _dst, _srcAlpha, _dstAlpha);
+        GL.BlendEquationSeparate(_rgbEq, _alphaEq);
     }
     
     public override void Dispose()
@@ -81,15 +80,15 @@ internal sealed class GlBlendState : BlendState
         };
     }
 
-    private static BlendEquationModeEXT GetEquationFromOp(BlendOperation operation)
+    private static BlendEquationMode GetEquationFromOp(BlendOperation operation)
     {
         return operation switch
         {
-            BlendOperation.Add => BlendEquationModeEXT.FuncAdd,
-            BlendOperation.Subtract => BlendEquationModeEXT.FuncSubtract,
-            BlendOperation.ReverseSubtract => BlendEquationModeEXT.FuncReverseSubtract,
-            BlendOperation.Min => BlendEquationModeEXT.Min,
-            BlendOperation.Max => BlendEquationModeEXT.Max,
+            BlendOperation.Add => BlendEquationMode.FuncAdd,
+            BlendOperation.Subtract => BlendEquationMode.FuncSubtract,
+            BlendOperation.ReverseSubtract => BlendEquationMode.FuncReverseSubtract,
+            BlendOperation.Min => BlendEquationMode.Min,
+            BlendOperation.Max => BlendEquationMode.Max,
             _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
         };
     }

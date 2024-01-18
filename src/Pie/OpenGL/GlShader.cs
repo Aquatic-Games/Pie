@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Numerics;
 using System.Text;
+using OpenTK.Graphics.OpenGL4;
 using Pie.ShaderCompiler;
-using Silk.NET.OpenGL;
-using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
@@ -12,13 +9,13 @@ internal sealed class GlShader : Shader
 {
     public override bool IsDisposed { get; protected set; }
 
-    public uint Handle;
+    public int Handle;
 
     public unsafe GlShader(ShaderAttachment[] attachments, SpecializationConstant[] constants)
     {
-        Handle = Gl.CreateProgram();
+        Handle = GL.CreateProgram();
 
-        uint* shaders = stackalloc uint[attachments.Length];
+        int* shaders = stackalloc int[attachments.Length];
         
         for (int i = 0; i < attachments.Length; i++)
         {
@@ -33,45 +30,44 @@ internal sealed class GlShader : Shader
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            uint shader = Gl.CreateShader(type);
+            int shader = GL.CreateShader(type);
             shaders[i] = shader;
 
             CompilerResult result = Compiler.FromSpirv(Language.GLSL, attachment.Stage, attachment.Spirv,
                 attachment.EntryPoint, constants);
             byte[] res = result.Result;
             
-            fixed (byte* rPtr = res)
-                Gl.ShaderSource(shader, 1, rPtr, res.Length);
+            GL.ShaderSource(shader, Encoding.UTF8.GetString(res));
             
-            Gl.CompileShader(shader);
+            GL.CompileShader(shader);
 
-            Gl.GetShader(shader, ShaderParameterName.CompileStatus, out int compStatus);
-            if (compStatus != (int) GLEnum.True)
+            GL.GetShader(shader, ShaderParameter.CompileStatus, out int compStatus);
+            if (compStatus != (int) All.True)
             {
                 throw new PieException($"OpenGL: Failed to compile {attachment.Stage} shader! " +
-                                       Gl.GetShaderInfoLog(shader));
+                                       GL.GetShaderInfoLog(shader));
             }
             
-            Gl.AttachShader(Handle, shader);
+            GL.AttachShader(Handle, shader);
         }
         
-        Gl.LinkProgram(Handle);
+        GL.LinkProgram(Handle);
 
-        Gl.GetProgram(Handle, ProgramPropertyARB.LinkStatus, out int linkStatus);
-        if (linkStatus != (int) GLEnum.True)
-            throw new PieException("OpenGL: Failed to link program! " + Gl.GetProgramInfoLog(Handle));
+        GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out int linkStatus);
+        if (linkStatus != (int) All.True)
+            throw new PieException("OpenGL: Failed to link program! " + GL.GetProgramInfoLog(Handle));
 
         for (int i = 0; i < attachments.Length; i++)
         {
-            uint shader = shaders[i];
+            int shader = shaders[i];
             
-            Gl.DetachShader(Handle, shader);
-            Gl.DeleteShader(shader);
+            GL.DetachShader(Handle, shader);
+            GL.DeleteShader(shader);
         }
     }
 
     public override void Dispose()
     {
-        Gl.DeleteProgram(Handle);
+        GL.DeleteProgram(Handle);
     }
 }

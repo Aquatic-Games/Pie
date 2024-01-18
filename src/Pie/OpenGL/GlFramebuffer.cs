@@ -1,38 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using Silk.NET.OpenGL;
-using static Pie.OpenGL.GlGraphicsDevice;
+using System.Runtime.CompilerServices;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Pie.OpenGL;
 
 internal class GlFramebuffer : Framebuffer
 {
-    public uint Handle;
+    public int Handle;
 
     // TODO: More options in FramebufferAttachment for both GL and D3D11.
     public unsafe GlFramebuffer(FramebufferAttachment[] attachments)
     {
-        Handle = Gl.GenFramebuffer();
-        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, Handle);
+        Handle = GL.GenFramebuffer();
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, Handle);
 
         int colorNum = 0;
-        List<GLEnum> colAttachments = new List<GLEnum>();
+        List<OpenTK.Graphics.OpenGL4.FramebufferAttachment> colAttachments = new List<OpenTK.Graphics.OpenGL4.FramebufferAttachment>();
         foreach (FramebufferAttachment attachment in attachments)
         {
-            Silk.NET.OpenGL.FramebufferAttachment glAttachment;
+            OpenTK.Graphics.OpenGL4.FramebufferAttachment glAttachment;
             switch (attachment.Texture.Description.Format)
             {
                 case Format.D32_Float:
                 case Format.D16_UNorm:
-                    glAttachment = Silk.NET.OpenGL.FramebufferAttachment.DepthAttachment;
+                    glAttachment = OpenTK.Graphics.OpenGL4.FramebufferAttachment.DepthAttachment;
                     break;
                 case Format.D24_UNorm_S8_UInt:
-                    glAttachment = Silk.NET.OpenGL.FramebufferAttachment.DepthStencilAttachment;
+                    glAttachment = OpenTK.Graphics.OpenGL4.FramebufferAttachment.DepthStencilAttachment;
                     break;
                 default:
-                    glAttachment = Silk.NET.OpenGL.FramebufferAttachment.ColorAttachment0 + colorNum;
-                    colAttachments.Add((GLEnum) glAttachment);
+                    glAttachment = OpenTK.Graphics.OpenGL4.FramebufferAttachment.ColorAttachment0 + colorNum;
+                    colAttachments.Add(glAttachment);
                     colorNum++;
                     break;
             }
@@ -40,29 +39,32 @@ internal class GlFramebuffer : Framebuffer
             GlTexture tex = (GlTexture) attachment.Texture;
             if (tex.IsRenderbuffer)
             {
-                Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, glAttachment, RenderbufferTarget.Renderbuffer,
+                GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, glAttachment, RenderbufferTarget.Renderbuffer,
                     tex.Handle);
             }
             else
             {
-                Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, glAttachment, TextureTarget.Texture2D, tex.Handle, 0);
+                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, glAttachment, TextureTarget.Texture2D, tex.Handle, 0);
             }
         }
 
-        GLEnum[] drawBuffers = colAttachments.ToArray();
-        fixed (GLEnum* e = drawBuffers)
-            Gl.DrawBuffers((uint) drawBuffers.Length, e);
-
-        if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != GLEnum.FramebufferComplete)
-            throw new PieException($"OpenGL: Framebuffer is not complete: {Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer)}");
+        OpenTK.Graphics.OpenGL4.FramebufferAttachment[] drawBuffers = colAttachments.ToArray();
         
-        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        // I really,  r e a l l y  hate this, but it's the most efficient way I can think of to reinterpret cast the array
+        // Could maybe use Unsafe.As<>() here, but it didn't feel right.
+        fixed (OpenTK.Graphics.OpenGL4.FramebufferAttachment* bufs = drawBuffers)
+            GL.DrawBuffers(drawBuffers.Length, (DrawBuffersEnum*) bufs);
+
+        if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+            throw new PieException($"OpenGL: Framebuffer is not complete: {GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer)}");
+        
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
     
     public override bool IsDisposed { get; protected set; }
     public override Size Size { get; set; }
     public override void Dispose()
     {
-        Gl.DeleteFramebuffer(Handle);
+        GL.DeleteFramebuffer(Handle);
     }
 }
