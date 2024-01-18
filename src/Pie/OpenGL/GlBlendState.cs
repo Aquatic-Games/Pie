@@ -1,6 +1,5 @@
 using System;
 using OpenTK.Graphics.OpenGL4;
-using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
@@ -8,10 +7,10 @@ internal sealed class GlBlendState : BlendState
 {
     private BlendStateDescription _description;
     
-    private BlendingFactor _src;
-    private BlendingFactor _dst;
-    private BlendingFactor _srcAlpha;
-    private BlendingFactor _dstAlpha;
+    private BlendingFactorSrc _src;
+    private BlendingFactorDest _dst;
+    private BlendingFactorSrc _srcAlpha;
+    private BlendingFactorDest _dstAlpha;
     private BlendEquationMode _rgbEq;
     private BlendEquationMode _alphaEq;
 
@@ -21,11 +20,11 @@ internal sealed class GlBlendState : BlendState
     {
         _description = description;
         
-        _src = GetBlendingFactorFromBlendType(description.Source);
-        _dst = GetBlendingFactorFromBlendType(description.Destination);
+        _src = (BlendingFactorSrc) GetBlendingFactorFromBlendType(description.Source);
+        _dst = (BlendingFactorDest) GetBlendingFactorFromBlendType(description.Destination);
 
-        _srcAlpha = GetBlendingFactorFromBlendType(description.SourceAlpha);
-        _dstAlpha = GetBlendingFactorFromBlendType(description.DestinationAlpha);
+        _srcAlpha = (BlendingFactorSrc) GetBlendingFactorFromBlendType(description.SourceAlpha);
+        _dstAlpha = (BlendingFactorDest) GetBlendingFactorFromBlendType(description.DestinationAlpha);
 
         _rgbEq = GetEquationFromOp(description.BlendOperation);
         _alphaEq = GetEquationFromOp(description.AlphaBlendOperation);
@@ -42,17 +41,17 @@ internal sealed class GlBlendState : BlendState
 
     public void Set()
     {
-        Gl.ColorMask(_red, _green, _blue, _alpha);
+        GL.ColorMask(_red, _green, _blue, _alpha);
         
         if (!_description.Enabled)
         {
-            Gl.Disable(EnableCap.Blend);
+            GL.Disable(EnableCap.Blend);
             return;
         }
         
-        Gl.Enable(EnableCap.Blend);
-        Gl.BlendFuncSeparate(_src, _dst, _srcAlpha, _dstAlpha);
-        Gl.BlendEquationSeparate(_rgbEq, _alphaEq);
+        GL.Enable(EnableCap.Blend);
+        GL.BlendFuncSeparate(_src, _dst, _srcAlpha, _dstAlpha);
+        GL.BlendEquationSeparate(_rgbEq, _alphaEq);
     }
     
     public override void Dispose()
