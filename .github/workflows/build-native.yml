@@ -15,7 +15,7 @@ jobs:
           submodules: 'recursive'
       - name: Run build script
         shell: bash
-        run: ./scripts/BuildNative.sh . build/ native-libs/
+        run: ./scripts/BuildNative.sh lib/ build/ native-libs/
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-build
