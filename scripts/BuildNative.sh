@@ -35,11 +35,11 @@ popd || exit 1
 pushd "${shaderc_build_location}" || exit 1
 
 echo "Creating ${SHADERC_NAME} build files."
-# Ideally would append "|| exit 1" at the end, but this command encounters an error on windows which causes it to fail
-cmake "${shaderc_location}" -DCMAKE_BUILD_TYPE=Release -DSHADERC_SKIP_INSTALL=1 -DSHADERC_SKIP_TESTS=1 -DSHADERC_SKIP_EXAMPLES=1 -DSHADERC_SKIP_COPYRIGHT_CHECK=1
+cmake "${shaderc_location}" -DCMAKE_BUILD_TYPE=Release -DSHADERC_SKIP_INSTALL=1 -DSHADERC_SKIP_TESTS=1 -DSHADERC_SKIP_EXAMPLES=1 -DSHADERC_SKIP_COPYRIGHT_CHECK=1 || exit 1
 
 echo "Building ${SHADERC_NAME}"
-cmake --build . --config Release || exit 1
+# Ideally would append "|| exit 1" at the end, but this command encounters an error on windows which causes it to fail
+cmake --build . --config Release
 
 echo "${SHADERC_NAME} build successful!"
 
