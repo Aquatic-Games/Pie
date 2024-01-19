@@ -1,15 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Silk.NET.Shaderc;
 using Silk.NET.SPIRV;
 using Silk.NET.SPIRV.Cross;
+using Pie.Shaderc.Native;
+using static Pie.Shaderc.ShadercNative;
+
 using Spvc = Silk.NET.SPIRV.Cross.Cross;
 using SpvcCompiler = Silk.NET.SPIRV.Cross.Compiler;
 using SpvcSpecializationConstant = Silk.NET.SPIRV.Cross.SpecializationConstant;
-
-using ShadercCompiler = Silk.NET.Shaderc.Compiler;
-using SourceLanguage = Silk.NET.Shaderc.SourceLanguage;
 
 namespace Pie.ShaderCompiler;
 
@@ -18,12 +17,10 @@ namespace Pie.ShaderCompiler;
 /// </summary>
 public static class Compiler
 {
-    private static Shaderc _shaderc;
     private static Spvc _spvc;
 
     static Compiler()
     {
-        _shaderc = Shaderc.GetApi();
         _spvc = Spvc.GetApi();
     }
     
@@ -38,7 +35,7 @@ public static class Compiler
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
     public static unsafe CompilerResult ToSpirv(ShaderStage stage, Language language, byte[] source, string entryPoint)
     {
-        ShadercCompiler* compiler = _shaderc.CompilerInitialize();
+        shaderc_* compiler = _shaderc.CompilerInitialize();
         CompileOptions* options = _shaderc.CompileOptionsInitialize();
         CompilationResult* result;
 

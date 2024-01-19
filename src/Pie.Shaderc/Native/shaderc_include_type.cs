@@ -1,4 +1,4 @@
-namespace Pie.Shaderc;
+namespace Pie.Shaderc.Native;
 
 public enum shaderc_include_type
 {

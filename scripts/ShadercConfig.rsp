@@ -12,7 +12,7 @@ env.h
 status.h
 
 --namespace
-Pie.Shaderc
+Pie.Shaderc.Native
 
 --output
 ../src/Pie.Shaderc/Native

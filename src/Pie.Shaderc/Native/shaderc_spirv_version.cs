@@ -1,4 +1,4 @@
-namespace Pie.Shaderc;
+namespace Pie.Shaderc.Native;
 
 [NativeTypeName("int")]
 public enum shaderc_spirv_version : uint

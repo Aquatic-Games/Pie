@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Pie.Shaderc;
+namespace Pie.Shaderc.Native;
 
 public static unsafe partial class ShadercNative
 {

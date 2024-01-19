@@ -14,23 +14,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="spirv-cross-c-shared.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-            <PackagePath>runtimes/win-x64/native/</PackagePath>
-        </Content>
-        <Content Include="libspirv-cross-c-shared.so">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-            <PackagePath>runtimes/linux-x64/native/</PackagePath>
-        </Content>
+      <PackageReference Include="Silk.NET.SPIRV.Cross" Version="2.20.0" />
+      <PackageReference Include="Silk.NET.SPIRV.Cross.Native" Version="2.20.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Silk.NET.Shaderc" Version="2.20.0" />
-      <PackageReference Include="Silk.NET.Shaderc.Native" Version="2.20.0" />
-      <PackageReference Include="Silk.NET.SPIRV.Cross" Version="2.20.0" />
-      <PackageReference Include="Silk.NET.SPIRV.Cross.Native" Version="2.20.0" />
+      <ProjectReference Include="..\Pie.Shaderc\Pie.Shaderc.csproj" />
     </ItemGroup>
 
 </Project>

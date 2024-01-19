@@ -1,4 +1,4 @@
-namespace Pie.Shaderc;
+namespace Pie.Shaderc.Native;
 
 public unsafe partial struct shaderc_include_result
 {
