@@ -4,7 +4,7 @@ using System.Text;
 using Silk.NET.SPIRV;
 using Silk.NET.SPIRV.Cross;
 using Pie.Shaderc.Native;
-using static Pie.Shaderc.ShadercNative;
+using static Pie.Shaderc.Native.ShadercNative;
 
 using Spvc = Silk.NET.SPIRV.Cross.Cross;
 using SpvcCompiler = Silk.NET.SPIRV.Cross.Compiler;
@@ -35,28 +35,27 @@ public static class Compiler
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
     public static unsafe CompilerResult ToSpirv(ShaderStage stage, Language language, byte[] source, string entryPoint)
     {
-        shaderc_* compiler = _shaderc.CompilerInitialize();
-        CompileOptions* options = _shaderc.CompileOptionsInitialize();
-        CompilationResult* result;
+        shaderc_compiler* compiler = shaderc_compiler_initialize();
+        shaderc_compile_options* options = shaderc_compile_options_initialize();
+        shaderc_compilation_result* result;
 
-        SourceLanguage sourceLanguage = language switch
+        shaderc_source_language sourceLanguage = language switch
         {
-            Language.GLSL => SourceLanguage.Glsl,
-            Language.HLSL => SourceLanguage.Hlsl,
-            Language.ESSL => SourceLanguage.Glsl,
+            Language.GLSL => shaderc_source_language.shaderc_source_language_glsl,
+            Language.HLSL => shaderc_source_language.shaderc_source_language_hlsl,
+            Language.ESSL => shaderc_source_language.shaderc_source_language_glsl,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
         };
-
-        _shaderc.CompileOptionsSetSourceLanguage(options, sourceLanguage);
         
-        _shaderc.CompileOptionsSetAutoCombinedImageSampler(options, true);
+        shaderc_compile_options_set_source_language(options, sourceLanguage);
+        shaderc_compile_options_set_auto_combined_image_sampler(options, 1);
 
-        ShaderKind kind = stage switch
+        shaderc_shader_kind kind = stage switch
         {
-            ShaderStage.Vertex => ShaderKind.VertexShader,
-            ShaderStage.Fragment => ShaderKind.FragmentShader,
-            ShaderStage.Geometry => ShaderKind.GeometryShader,
-            ShaderStage.Compute => ShaderKind.ComputeShader,
+            ShaderStage.Vertex => shaderc_shader_kind.shaderc_vertex_shader,
+            ShaderStage.Fragment => shaderc_shader_kind.shaderc_fragment_shader,
+            ShaderStage.Geometry => shaderc_shader_kind.shaderc_geometry_shader,
+            ShaderStage.Compute => shaderc_shader_kind.shaderc_compute_shader,
             _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
 
@@ -64,29 +63,31 @@ public static class Compiler
         fixed (byte* fn = GetFromString("main"))
         fixed (byte* entpt = GetFromString(entryPoint))
         {
-            result = _shaderc.CompileIntoSpv(compiler, src, (nuint) source.Length, kind, fn, entpt, options);
+            result = shaderc_compile_into_spv(compiler, (sbyte*) src, (nuint) source.Length, kind, (sbyte*) fn,
+                (sbyte*) entpt, options);
         }
 
-        if (_shaderc.ResultGetCompilationStatus(result) != CompilationStatus.Success)
+        if (shaderc_result_get_compilation_status(result) != shaderc_compilation_status.shaderc_compilation_status_success)
         {
-            string error = _shaderc.ResultGetErrorMessageS(result);
-
-            _shaderc.ResultRelease(result);
-            _shaderc.CompilerRelease(compiler);
+            sbyte* errorPtr = shaderc_result_get_error_message(result);
+            string error = new string(errorPtr);
+            
+            shaderc_result_release(result);
+            shaderc_compiler_release(compiler);
 
             return new CompilerResult(null, false, $"Failed to convert {stage.ToString().ToLower()} shader: " + error);
         }
-
-        byte* bytes = _shaderc.ResultGetBytes(result);
-        nuint length = _shaderc.ResultGetLength(result);
+        
+        sbyte* bytes = shaderc_result_get_bytes(result);
+        nuint length = shaderc_result_get_length(result);
         
         byte[] compiled = new byte[length];
         
         fixed (byte* cmpPtr = compiled)
             Unsafe.CopyBlock(cmpPtr, bytes, (uint) length);
-
-        _shaderc.ResultRelease(result);
-        _shaderc.CompilerRelease(compiler);
+        
+        shaderc_result_release(result);
+        shaderc_compiler_release(compiler);
 
         return new CompilerResult(compiled, true, string.Empty);
     }
