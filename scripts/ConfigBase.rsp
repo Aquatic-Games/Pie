@@ -1,0 +1,8 @@
+﻿--config
+default-codegen
+multi-file
+
+generate-aggressive-inlining
+generate-macro-bindings
+generate-helper-types
+generate-file-scoped-namespaces
