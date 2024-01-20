@@ -15,4 +15,4 @@ then
   exit 1
 fi
 
-#dotnet nuget push Nuget/*.nupkg -k "$2" -s https://api.nuget.org/v3/index.json
+dotnet nuget push Nuget/*.nupkg -k "$2" -s https://api.nuget.org/v3/index.json
