@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -20,8 +20,8 @@
     <ItemGroup>
       <!--<PackageReference Include="OpenTK.Graphics" Version="4.8.2" />-->
       <PackageReference Include="OpenTK.Graphics" Version="4.8.2" />
-      <PackageReference Include="Vortice.D3DCompiler" Version="3.2.0" />
-      <PackageReference Include="Vortice.Direct3D11" Version="3.2.0" />
+      <PackageReference Include="Vortice.D3DCompiler" Version="3.3.4" />
+      <PackageReference Include="Vortice.Direct3D11" Version="3.3.4" />
       <!--<PackageReference Include="Vortice.DXGI" Version="3.3.4" />-->
     </ItemGroup>
 
