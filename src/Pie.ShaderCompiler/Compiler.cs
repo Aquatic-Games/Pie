@@ -94,7 +94,7 @@ public static class Compiler
 
     private static byte[] GetFromString(string text)
     {
-        return (byte[]) Encoding.ASCII.GetBytes(text);
+        return Encoding.ASCII.GetBytes(text);
     }
 
     private static unsafe CompilerResult SpirvToShaderCode(Language language, ShaderStage stage, byte* result,
