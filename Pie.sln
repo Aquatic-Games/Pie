@@ -53,6 +53,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlappyBird", "examples\Demo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Shaderc", "src\Pie.Shaderc\Pie.Shaderc.csproj", "{3BBD544C-D1D2-43A4-8F0F-78442FFD7A34}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pie.Spirv.Cross", "src\Pie.Spirv.Cross\Pie.Spirv.Cross.csproj", "{926FE07B-8F60-4913-A929-919439D4B15F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +149,10 @@ Global
 		{3BBD544C-D1D2-43A4-8F0F-78442FFD7A34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BBD544C-D1D2-43A4-8F0F-78442FFD7A34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BBD544C-D1D2-43A4-8F0F-78442FFD7A34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{926FE07B-8F60-4913-A929-919439D4B15F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{926FE07B-8F60-4913-A929-919439D4B15F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{926FE07B-8F60-4913-A929-919439D4B15F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{926FE07B-8F60-4913-A929-919439D4B15F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CD9A57D9-9183-4ED3-9343-B1D8D2C0B4F6} = {83033F56-9C4E-4F3F-8E53-F8CAB900BDE3}

@@ -1,0 +1,15 @@
+﻿@ConfigBase.rsp
+
+--include-directory
+../lib/SPIRV-Cross
+
+--file-directory
+../lib/SPIRV-Cross
+
+--file
+spirv.h
+spirv_cross_c.h
+
+--namespace Pie.Spirv.Cross.Native
+
+--output
