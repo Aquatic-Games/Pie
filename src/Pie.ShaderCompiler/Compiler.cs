@@ -1,13 +1,13 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
 using Silk.NET.SPIRV;
 using Silk.NET.SPIRV.Cross;
-using Pie.Shaderc.Native;
-using static Pie.Shaderc.Native.ShadercNative;
-
+using Pie.Shaderc;
+using CompilerOptions = Pie.Shaderc.CompilerOptions;
+using SourceLanguage = Pie.Shaderc.SourceLanguage;
 using Spvc = Silk.NET.SPIRV.Cross.Cross;
 using SpvcCompiler = Silk.NET.SPIRV.Cross.Compiler;
+using SpvcCompilerOptions = Silk.NET.SPIRV.Cross.CompilerOptions;
 using SpvcSpecializationConstant = Silk.NET.SPIRV.Cross.SpecializationConstant;
 
 namespace Pie.ShaderCompiler;
@@ -33,68 +33,43 @@ public static class Compiler
     /// <param name="entryPoint">The entry point of the shader. Usually "main" for GLSL.</param>
     /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
-    public static unsafe CompilerResult ToSpirv(ShaderStage stage, Language language, byte[] source, string entryPoint)
+    public static CompilerResult ToSpirv(ShaderStage stage, Language language, byte[] source, string entryPoint)
     {
-        shaderc_compiler* compiler = shaderc_compiler_initialize();
-        shaderc_compile_options* options = shaderc_compile_options_initialize();
-        shaderc_compilation_result* result;
+        using ShadercCompiler compiler = new ShadercCompiler();
+        using CompilerOptions options = new CompilerOptions();
 
-        shaderc_source_language sourceLanguage = language switch
+        SourceLanguage sourceLanguage = language switch
         {
-            Language.GLSL => shaderc_source_language.shaderc_source_language_glsl,
-            Language.HLSL => shaderc_source_language.shaderc_source_language_hlsl,
-            Language.ESSL => shaderc_source_language.shaderc_source_language_glsl,
+            Language.GLSL => SourceLanguage.GLSL,
+            Language.HLSL => SourceLanguage.HLSL,
+            Language.ESSL => SourceLanguage.GLSL,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
         };
         
-        shaderc_compile_options_set_source_language(options, sourceLanguage);
-        shaderc_compile_options_set_auto_combined_image_sampler(options, 1);
+        options.SetSourceLanguage(sourceLanguage);
+        options.SetAutoCombinedImageSampler(true);
 
-        shaderc_shader_kind kind = stage switch
+        ShaderKind kind = stage switch
         {
-            ShaderStage.Vertex => shaderc_shader_kind.shaderc_vertex_shader,
-            ShaderStage.Fragment => shaderc_shader_kind.shaderc_fragment_shader,
-            ShaderStage.Geometry => shaderc_shader_kind.shaderc_geometry_shader,
-            ShaderStage.Compute => shaderc_shader_kind.shaderc_compute_shader,
+            ShaderStage.Vertex => ShaderKind.VertexShader,
+            ShaderStage.Fragment => ShaderKind.FragmentShader,
+            ShaderStage.Geometry => ShaderKind.GeometryShader,
+            ShaderStage.Compute => ShaderKind.ComputeShader,
             _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
 
-        fixed (byte* src = source)
-        fixed (byte* fn = GetFromString("main"))
-        fixed (byte* entpt = GetFromString(entryPoint))
-        {
-            result = shaderc_compile_into_spv(compiler, (sbyte*) src, (nuint) source.Length, kind, (sbyte*) fn,
-                (sbyte*) entpt, options);
-        }
+        using CompilationResult result = compiler.CompileIntoSpirv(source, kind, "main", entryPoint, options);
 
-        if (shaderc_result_get_compilation_status(result) != shaderc_compilation_status.shaderc_compilation_status_success)
+        if (result.Status != CompilationStatus.Success)
         {
-            sbyte* errorPtr = shaderc_result_get_error_message(result);
-            string error = new string(errorPtr);
-            
-            shaderc_result_release(result);
-            shaderc_compiler_release(compiler);
+            string error = result.ErrorMessage;
 
             return new CompilerResult(null, false, $"Failed to convert {stage.ToString().ToLower()} shader: " + error);
         }
-        
-        sbyte* bytes = shaderc_result_get_bytes(result);
-        nuint length = shaderc_result_get_length(result);
-        
-        byte[] compiled = new byte[length];
-        
-        fixed (byte* cmpPtr = compiled)
-            Unsafe.CopyBlock(cmpPtr, bytes, (uint) length);
-        
-        shaderc_result_release(result);
-        shaderc_compiler_release(compiler);
+
+        byte[] compiled = result.Bytes;
 
         return new CompilerResult(compiled, true, string.Empty);
-    }
-
-    private static byte[] GetFromString(string text)
-    {
-        return Encoding.ASCII.GetBytes(text);
     }
 
     private static unsafe CompilerResult SpirvToShaderCode(Language language, ShaderStage stage, byte* result,
@@ -135,7 +110,7 @@ public static class Compiler
 
         _spvc.CompilerSetEntryPoint(compl, entryPoint, model);
 
-        CompilerOptions* options;
+        SpvcCompilerOptions* options;
         _spvc.CompilerCreateCompilerOptions(compl, &options);
         switch (language)
         {
