@@ -10,6 +10,14 @@
 spirv.h
 spirv_cross_c.h
 
---namespace Pie.Spirv.Cross.Native
+--namespace
+Pie.Spirv.Cross.Native
 
 --output
+../src/Pie.Spirv.Cross/Native
+
+--methodClassName
+SpirvNative
+
+--libraryPath
+PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU
