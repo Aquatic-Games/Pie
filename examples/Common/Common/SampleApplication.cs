@@ -17,6 +17,9 @@ public abstract class SampleApplication : IDisposable
     public Window Window;
     public GraphicsDevice GraphicsDevice;
     public AudioDevice AudioDevice;
+
+    private int _numFrames;
+    private double _fpsDelta;
     
     protected SampleApplication(Size size, string title)
     {
@@ -117,7 +120,16 @@ public abstract class SampleApplication : IDisposable
 
             double delta = sw.Elapsed.TotalSeconds;
             sw.Restart();
-            
+
+            _fpsDelta += delta;
+            _numFrames++;
+            if (_fpsDelta >= 1.0)
+            {
+                _fpsDelta -= 1.0;
+                Window.Title = _title + $" | {GraphicsDevice.Api} - {_numFrames} FPS";
+                _numFrames = 0;
+            }
+
             Update(delta);
             Draw(delta);
             
