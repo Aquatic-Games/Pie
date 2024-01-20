@@ -20,4 +20,4 @@ Pie.Spirv.Cross.Native
 SpirvNative
 
 --libraryPath
-PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU
+spirv-cross-c-shared

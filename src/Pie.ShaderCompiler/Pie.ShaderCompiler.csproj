@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
@@ -14,12 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Silk.NET.SPIRV.Cross" Version="2.20.0" />
-      <PackageReference Include="Silk.NET.SPIRV.Cross.Native" Version="2.20.0" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Pie.Shaderc\Pie.Shaderc.csproj" />
+      <ProjectReference Include="..\Pie.Spirv.Cross\Pie.Spirv.Cross.csproj" />
     </ItemGroup>
 
 </Project>

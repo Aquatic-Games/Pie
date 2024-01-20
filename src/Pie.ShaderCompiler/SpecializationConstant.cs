@@ -1,3 +1,5 @@
+using System;
+
 namespace Pie.ShaderCompiler;
 
 public struct SpecializationConstant

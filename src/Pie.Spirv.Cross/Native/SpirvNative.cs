@@ -25,572 +25,572 @@ public static unsafe partial class SpirvNative
     [NativeTypeName("#define SPV_REVISION 1")]
     public const int SPV_REVISION = 1;
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_get_version([NativeTypeName("unsigned int *")] uint* major, [NativeTypeName("unsigned int *")] uint* minor, [NativeTypeName("unsigned int *")] uint* patch);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_get_commit_revision_and_timestamp();
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_msl_vertex_attribute_init(spvc_msl_vertex_attribute* attr);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_msl_shader_interface_var_init(spvc_msl_shader_interface_var* var);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_msl_shader_input_init([NativeTypeName("spvc_msl_shader_input *")] spvc_msl_shader_interface_var* input);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_msl_shader_interface_var_init_2(spvc_msl_shader_interface_var_2* var);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_msl_resource_binding_init(spvc_msl_resource_binding* binding);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_msl_get_aux_buffer_struct_version();
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_msl_constexpr_sampler_init(spvc_msl_constexpr_sampler* sampler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_msl_sampler_ycbcr_conversion_init(spvc_msl_sampler_ycbcr_conversion* conv);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_hlsl_resource_binding_init(spvc_hlsl_resource_binding* binding);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_context_create([NativeTypeName("spvc_context *")] spvc_context_s** context);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_context_destroy([NativeTypeName("spvc_context")] spvc_context_s* context);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_context_release_allocations([NativeTypeName("spvc_context")] spvc_context_s* context);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_context_get_last_error_string([NativeTypeName("spvc_context")] spvc_context_s* context);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_context_set_error_callback([NativeTypeName("spvc_context")] spvc_context_s* context, [NativeTypeName("spvc_error_callback")] delegate* unmanaged[Cdecl]<void*, sbyte*, void> cb, void* userdata);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_context_parse_spirv([NativeTypeName("spvc_context")] spvc_context_s* context, [NativeTypeName("const SpvId *")] uint* spirv, [NativeTypeName("size_t")] nuint word_count, [NativeTypeName("spvc_parsed_ir *")] spvc_parsed_ir_s** parsed_ir);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_context_create_compiler([NativeTypeName("spvc_context")] spvc_context_s* context, spvc_backend backend, [NativeTypeName("spvc_parsed_ir")] spvc_parsed_ir_s* parsed_ir, spvc_capture_mode mode, [NativeTypeName("spvc_compiler *")] spvc_compiler_s** compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_compiler_get_current_id_bound([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_create_compiler_options([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_compiler_options *")] spvc_compiler_options_s** options);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_options_set_bool([NativeTypeName("spvc_compiler_options")] spvc_compiler_options_s* options, spvc_compiler_option option, [NativeTypeName("spvc_bool")] byte value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_options_set_uint([NativeTypeName("spvc_compiler_options")] spvc_compiler_options_s* options, spvc_compiler_option option, [NativeTypeName("unsigned int")] uint value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_install_compiler_options([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_compiler_options")] spvc_compiler_options_s* options);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_compile([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char **")] sbyte** source);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_add_header_line([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char *")] sbyte* line);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_require_extension([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char *")] sbyte* ext);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("size_t")]
     public static extern nuint spvc_compiler_get_num_required_extensions([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_compiler_get_required_extension([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("size_t")] nuint index);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_flatten_buffer_block([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_variable_is_depth_or_compare([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_mask_stage_output_by_location([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint location, [NativeTypeName("unsigned int")] uint component);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_mask_stage_output_by_builtin([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvBuiltIn")] SpvBuiltIn_ builtin);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_hlsl_set_root_constants_layout([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_hlsl_root_constants *")] spvc_hlsl_root_constants* constant_info, [NativeTypeName("size_t")] nuint count);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_hlsl_add_vertex_attribute_remap([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_hlsl_vertex_attribute_remap *")] spvc_hlsl_vertex_attribute_remap* remap, [NativeTypeName("size_t")] nuint remaps);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_variable_id")]
     public static extern uint spvc_compiler_hlsl_remap_num_workgroups_builtin([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_hlsl_set_resource_binding_flags([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_hlsl_binding_flags")] uint flags);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_hlsl_add_resource_binding([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_hlsl_resource_binding *")] spvc_hlsl_resource_binding* binding);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_hlsl_is_resource_used([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvExecutionModel")] SpvExecutionModel_ model, [NativeTypeName("unsigned int")] uint set, [NativeTypeName("unsigned int")] uint binding);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_is_rasterization_disabled([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_needs_aux_buffer([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_needs_swizzle_buffer([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_needs_buffer_size_buffer([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_needs_output_buffer([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_needs_patch_output_buffer([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_needs_input_threadgroup_mem([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_add_vertex_attribute([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_msl_vertex_attribute *")] spvc_msl_vertex_attribute* attrs);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_add_resource_binding([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_msl_resource_binding *")] spvc_msl_resource_binding* binding);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_add_shader_input([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_msl_shader_interface_var *")] spvc_msl_shader_interface_var* input);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_add_shader_input_2([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_msl_shader_interface_var_2 *")] spvc_msl_shader_interface_var_2* input);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_add_shader_output([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_msl_shader_interface_var *")] spvc_msl_shader_interface_var* output);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_add_shader_output_2([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_msl_shader_interface_var_2 *")] spvc_msl_shader_interface_var_2* output);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_add_discrete_descriptor_set([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint desc_set);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_set_argument_buffer_device_address_space([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint desc_set, [NativeTypeName("spvc_bool")] byte device_address);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_is_vertex_attribute_used([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint location);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_is_shader_input_used([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint location);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_is_shader_output_used([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint location);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_msl_is_resource_used([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvExecutionModel")] SpvExecutionModel_ model, [NativeTypeName("unsigned int")] uint set, [NativeTypeName("unsigned int")] uint binding);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_remap_constexpr_sampler([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id, [NativeTypeName("const spvc_msl_constexpr_sampler *")] spvc_msl_constexpr_sampler* sampler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_remap_constexpr_sampler_by_binding([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint desc_set, [NativeTypeName("unsigned int")] uint binding, [NativeTypeName("const spvc_msl_constexpr_sampler *")] spvc_msl_constexpr_sampler* sampler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_remap_constexpr_sampler_ycbcr([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id, [NativeTypeName("const spvc_msl_constexpr_sampler *")] spvc_msl_constexpr_sampler* sampler, [NativeTypeName("const spvc_msl_sampler_ycbcr_conversion *")] spvc_msl_sampler_ycbcr_conversion* conv);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_remap_constexpr_sampler_by_binding_ycbcr([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint desc_set, [NativeTypeName("unsigned int")] uint binding, [NativeTypeName("const spvc_msl_constexpr_sampler *")] spvc_msl_constexpr_sampler* sampler, [NativeTypeName("const spvc_msl_sampler_ycbcr_conversion *")] spvc_msl_sampler_ycbcr_conversion* conv);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_set_fragment_output_components([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint location, [NativeTypeName("unsigned int")] uint components);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_compiler_msl_get_automatic_resource_binding([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_compiler_msl_get_automatic_resource_binding_secondary([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_add_dynamic_buffer([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint desc_set, [NativeTypeName("unsigned int")] uint binding, [NativeTypeName("unsigned int")] uint index);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_add_inline_uniform_block([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("unsigned int")] uint desc_set, [NativeTypeName("unsigned int")] uint binding);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_msl_set_combined_sampler_suffix([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char *")] sbyte* suffix);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_compiler_msl_get_combined_sampler_suffix([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_active_interface_variables([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_set *")] spvc_set_s** set);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_set_enabled_interface_variables([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_set")] spvc_set_s* set);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_create_shader_resources([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_resources *")] spvc_resources_s** resources);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_create_shader_resources_for_active_variables([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_resources *")] spvc_resources_s** resources, [NativeTypeName("spvc_set")] spvc_set_s* active);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_resources_get_resource_list_for_type([NativeTypeName("spvc_resources")] spvc_resources_s* resources, spvc_resource_type type, [NativeTypeName("const spvc_reflected_resource **")] spvc_reflected_resource** resource_list, [NativeTypeName("size_t *")] nuint* resource_size);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_resources_get_builtin_resource_list_for_type([NativeTypeName("spvc_resources")] spvc_resources_s* resources, spvc_builtin_resource_type type, [NativeTypeName("const spvc_reflected_builtin_resource **")] spvc_reflected_builtin_resource** resource_list, [NativeTypeName("size_t *")] nuint* resource_size);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_set_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvId")] uint id, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration, [NativeTypeName("unsigned int")] uint argument);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_set_decoration_string([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvId")] uint id, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration, [NativeTypeName("const char *")] sbyte* argument);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_set_name([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvId")] uint id, [NativeTypeName("const char *")] sbyte* argument);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_set_member_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type_id")] uint id, [NativeTypeName("unsigned int")] uint member_index, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration, [NativeTypeName("unsigned int")] uint argument);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_set_member_decoration_string([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type_id")] uint id, [NativeTypeName("unsigned int")] uint member_index, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration, [NativeTypeName("const char *")] sbyte* argument);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_set_member_name([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type_id")] uint id, [NativeTypeName("unsigned int")] uint member_index, [NativeTypeName("const char *")] sbyte* argument);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_unset_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvId")] uint id, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_unset_member_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type_id")] uint id, [NativeTypeName("unsigned int")] uint member_index, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_has_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvId")] uint id, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_has_member_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type_id")] uint id, [NativeTypeName("unsigned int")] uint member_index, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_compiler_get_name([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvId")] uint id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_compiler_get_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvId")] uint id, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_compiler_get_decoration_string([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvId")] uint id, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_compiler_get_member_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type_id")] uint id, [NativeTypeName("unsigned int")] uint member_index, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_compiler_get_member_decoration_string([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type_id")] uint id, [NativeTypeName("unsigned int")] uint member_index, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_compiler_get_member_name([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type_id")] uint id, [NativeTypeName("unsigned int")] uint member_index);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_entry_points([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_entry_point **")] spvc_entry_point** entry_points, [NativeTypeName("size_t *")] nuint* num_entry_points);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_set_entry_point([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char *")] sbyte* name, [NativeTypeName("SpvExecutionModel")] SpvExecutionModel_ model);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_rename_entry_point([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char *")] sbyte* old_name, [NativeTypeName("const char *")] sbyte* new_name, [NativeTypeName("SpvExecutionModel")] SpvExecutionModel_ model);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_compiler_get_cleansed_entry_point_name([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char *")] sbyte* name, [NativeTypeName("SpvExecutionModel")] SpvExecutionModel_ model);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_set_execution_mode([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvExecutionMode")] SpvExecutionMode_ mode);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_unset_execution_mode([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvExecutionMode")] SpvExecutionMode_ mode);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_set_execution_mode_with_arguments([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvExecutionMode")] SpvExecutionMode_ mode, [NativeTypeName("unsigned int")] uint arg0, [NativeTypeName("unsigned int")] uint arg1, [NativeTypeName("unsigned int")] uint arg2);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_execution_modes([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const SpvExecutionMode **")] SpvExecutionMode_** modes, [NativeTypeName("size_t *")] nuint* num_modes);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_compiler_get_execution_mode_argument([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvExecutionMode")] SpvExecutionMode_ mode);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_compiler_get_execution_mode_argument_by_index([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvExecutionMode")] SpvExecutionMode_ mode, [NativeTypeName("unsigned int")] uint index);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("SpvExecutionModel")]
     public static extern SpvExecutionModel_ spvc_compiler_get_execution_model([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_compiler_update_active_builtins([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_has_active_builtin([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("SpvBuiltIn")] SpvBuiltIn_ builtin, [NativeTypeName("SpvStorageClass")] SpvStorageClass_ storage);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_type")]
     public static extern spvc_type_s* spvc_compiler_get_type_handle([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type_id")] uint id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_type_id")]
     public static extern uint spvc_type_get_base_type_id([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_basetype spvc_type_get_basetype([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_type_get_bit_width([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_type_get_vector_size([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_type_get_columns([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_type_get_num_array_dimensions([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_type_array_dimension_is_literal([NativeTypeName("spvc_type")] spvc_type_s* type, [NativeTypeName("unsigned int")] uint dimension);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("SpvId")]
     public static extern uint spvc_type_get_array_dimension([NativeTypeName("spvc_type")] spvc_type_s* type, [NativeTypeName("unsigned int")] uint dimension);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_type_get_num_member_types([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_type_id")]
     public static extern uint spvc_type_get_member_type([NativeTypeName("spvc_type")] spvc_type_s* type, [NativeTypeName("unsigned int")] uint index);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("SpvStorageClass")]
     public static extern SpvStorageClass_ spvc_type_get_storage_class([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_type_id")]
     public static extern uint spvc_type_get_image_sampled_type([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("SpvDim")]
     public static extern SpvDim_ spvc_type_get_image_dimension([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_type_get_image_is_depth([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_type_get_image_arrayed([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_type_get_image_multisampled([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_type_get_image_is_storage([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("SpvImageFormat")]
     public static extern SpvImageFormat_ spvc_type_get_image_storage_format([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("SpvAccessQualifier")]
     public static extern SpvAccessQualifier_ spvc_type_get_image_access_qualifier([NativeTypeName("spvc_type")] spvc_type_s* type);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_declared_struct_size([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type")] spvc_type_s* struct_type, [NativeTypeName("size_t *")] nuint* size);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_declared_struct_size_runtime_array([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type")] spvc_type_s* struct_type, [NativeTypeName("size_t")] nuint array_size, [NativeTypeName("size_t *")] nuint* size);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_declared_struct_member_size([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type")] spvc_type_s* type, [NativeTypeName("unsigned int")] uint index, [NativeTypeName("size_t *")] nuint* size);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_type_struct_member_offset([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type")] spvc_type_s* type, [NativeTypeName("unsigned int")] uint index, [NativeTypeName("unsigned int *")] uint* offset);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_type_struct_member_array_stride([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type")] spvc_type_s* type, [NativeTypeName("unsigned int")] uint index, [NativeTypeName("unsigned int *")] uint* stride);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_type_struct_member_matrix_stride([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_type")] spvc_type_s* type, [NativeTypeName("unsigned int")] uint index, [NativeTypeName("unsigned int *")] uint* stride);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_build_dummy_sampler_for_combined_images([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id *")] uint* id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_build_combined_image_samplers([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_combined_image_samplers([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_combined_image_sampler **")] spvc_combined_image_sampler** samplers, [NativeTypeName("size_t *")] nuint* num_samplers);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_specialization_constants([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const spvc_specialization_constant **")] spvc_specialization_constant** constants, [NativeTypeName("size_t *")] nuint* num_constants);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_constant")]
     public static extern spvc_constant_s* spvc_compiler_get_constant_handle([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_constant_id")] uint id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_constant_id")]
     public static extern uint spvc_compiler_get_work_group_size_specialization_constants([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, spvc_specialization_constant* x, spvc_specialization_constant* y, spvc_specialization_constant* z);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_active_buffer_ranges([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id, [NativeTypeName("const spvc_buffer_range **")] spvc_buffer_range** ranges, [NativeTypeName("size_t *")] nuint* num_ranges);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern float spvc_constant_get_scalar_fp16([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern float spvc_constant_get_scalar_fp32([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern double spvc_constant_get_scalar_fp64([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_constant_get_scalar_u32([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern int spvc_constant_get_scalar_i32([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_constant_get_scalar_u16([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern int spvc_constant_get_scalar_i16([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned int")]
     public static extern uint spvc_constant_get_scalar_u8([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern int spvc_constant_get_scalar_i8([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_get_subconstants([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("const spvc_constant_id **")] uint** constituents, [NativeTypeName("size_t *")] nuint* count);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("unsigned long long")]
     public static extern ulong spvc_constant_get_scalar_u64([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("long long")]
     public static extern long spvc_constant_get_scalar_i64([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_type_id")]
     public static extern uint spvc_constant_get_type([NativeTypeName("spvc_constant")] spvc_constant_s* constant);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_fp16([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, [NativeTypeName("unsigned short")] ushort value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_fp32([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, float value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_fp64([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, double value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_u32([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, [NativeTypeName("unsigned int")] uint value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_i32([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, int value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_u64([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, [NativeTypeName("unsigned long long")] ulong value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_i64([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, [NativeTypeName("long long")] long value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_u16([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, [NativeTypeName("unsigned short")] ushort value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_i16([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, short value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_u8([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, [NativeTypeName("unsigned char")] byte value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void spvc_constant_set_scalar_i8([NativeTypeName("spvc_constant")] spvc_constant_s* constant, [NativeTypeName("unsigned int")] uint column, [NativeTypeName("unsigned int")] uint row, [NativeTypeName("signed char")] sbyte value);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_get_binary_offset_for_decoration([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id, [NativeTypeName("SpvDecoration")] SpvDecoration_ decoration, [NativeTypeName("unsigned int *")] uint* word_offset);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_buffer_is_hlsl_counter_buffer([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("spvc_bool")]
     public static extern byte spvc_compiler_buffer_get_hlsl_counter_buffer([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id, [NativeTypeName("spvc_variable_id *")] uint* counter_id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_declared_capabilities([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const SpvCapability **")] SpvCapability_** capabilities, [NativeTypeName("size_t *")] nuint* num_capabilities);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_declared_extensions([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("const char ***")] sbyte*** extensions, [NativeTypeName("size_t *")] nuint* num_extensions);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     [return: NativeTypeName("const char *")]
     public static extern sbyte* spvc_compiler_get_remapped_declared_block_name([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id);
 
-    [DllImport("PLEASE REPLACE THIS WITH THE DLL NAME I BEG YOU", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    [DllImport("spirv-cross-c-shared", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern spvc_result spvc_compiler_get_buffer_block_decorations([NativeTypeName("spvc_compiler")] spvc_compiler_s* compiler, [NativeTypeName("spvc_variable_id")] uint id, [NativeTypeName("const SpvDecoration **")] SpvDecoration_** decorations, [NativeTypeName("size_t *")] nuint* num_decorations);
 
     [NativeTypeName("#define SPVC_C_API_VERSION_MAJOR 0")]
