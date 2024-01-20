@@ -1,4 +1,5 @@
 - name: Introduction
   href: introduction.md
 - name: Getting Started
-  href: getting-started.md
+  href: getting-started/toc.yml
+  expanded: true
