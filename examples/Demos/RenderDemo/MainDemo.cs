@@ -8,14 +8,17 @@ namespace RenderDemo;
 
 public class MainDemo : SampleApplication
 {
-    public Font Font;
     public SpriteRenderer SpriteRenderer;
+    public Renderer Renderer;
+    
+    public Font Font;
 
     protected override void Initialize()
     {
         base.Initialize();
 
         SpriteRenderer = new SpriteRenderer(GraphicsDevice, Window.FramebufferSize);
+        Renderer = new Renderer(GraphicsDevice);
 
         Font = new Font("Content/Roboto-Regular.ttf");
     }
@@ -27,7 +30,16 @@ public class MainDemo : SampleApplication
         GraphicsDevice.ClearColorBuffer(Color.Black);
         GraphicsDevice.ClearDepthStencilBuffer(ClearFlags.Depth, 1.0f, 0);
         
-        Font.Draw(SpriteRenderer, 20, "Test text", Vector2.Zero);
+        Font.Draw(SpriteRenderer, 12,
+            $"""
+             Pie Render Demo
+             API: {GraphicsDevice.Api}
+             FPS: {Fps} dt: {(dt * 1000):0.00}
+             Draws: {PieMetrics.DrawCalls}
+             Tris: {PieMetrics.TriCount}
+             Buffers: (v: {PieMetrics.VertexBufferCount}, i: {PieMetrics.IndexBufferCount}, u: {PieMetrics.UniformBufferCount})
+             """,
+            Vector2.Zero);
     }
 
     protected override void Resize(Size size)

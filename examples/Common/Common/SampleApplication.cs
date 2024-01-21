@@ -20,6 +20,9 @@ public abstract class SampleApplication : IDisposable
 
     private int _numFrames;
     private double _fpsDelta;
+
+    private int _fps;
+    public int Fps => _fps;
     
     protected SampleApplication(Size size, string title)
     {
@@ -130,7 +133,8 @@ public abstract class SampleApplication : IDisposable
             if (_fpsDelta >= 1.0)
             {
                 _fpsDelta -= 1.0;
-                Window.Title = _title + $" | {GraphicsDevice.Api} - {_numFrames} FPS";
+                _fps = _numFrames;
+                Window.Title = _title + $" | {GraphicsDevice.Api} - {_fps} FPS";
                 _numFrames = 0;
             }
 

@@ -13,9 +13,23 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="glTF2Loader" Version="1.1.4-alpha" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Content Include="Content\**\*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="Shaders/**/*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ClCompile Include="Shaders\Renderer.hlsl" />
     </ItemGroup>
 
 </Project>
