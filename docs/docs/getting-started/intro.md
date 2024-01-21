@@ -2,6 +2,9 @@
 This is a quick and simple getting started tutorial, showing you how to get Pie set up, and the very basics of graphics
 programming.
 
+This tutorial does assume you know the basics of C# as well as your IDE
+of choice. This tutorial assumes you are a beginner at graphics programming, rather than programming as a whole.
+
 In this tutorial, you will learn how to:
 * Install Pie
 * Create a Window and Graphics Device
