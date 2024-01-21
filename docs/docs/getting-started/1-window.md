@@ -21,7 +21,7 @@ WindowBuilder builder = new WindowBuilder();
 This creates a window builder with a default set of parameters. If you want, you can just leave it like this. The
 default parameters always create a 1280x720 window with a default title.
 
-For this part of the tutorial, we're not going to add anything else yet. We'll do that a bit later.
+For this part of the tutorial, we're not going to add anything else yet. We'll do that in the next tutorial.
 
 Okay, now add the following to your code:
 
@@ -56,12 +56,12 @@ To resolve this, we must set up an **event loop**.
 ### The event loop
 The event loop is a simple loop that essentially asks the window "has anything happened since I last checked?". The
 event loop has 2 main goals:
-* It tells the OS that the window is not just sitting there.
+* It tells the OS that the window is alive and is not just sitting there.
 * It allows you to get events involving the window, such as when the close button is pressed.
 
-Let's create one!
+Let's create an event loop!
 
-First, if you created a while loop, remove it, then add the following:
+First, if you created a loop already, remove it, then add the following:
 
 ```csharp
 bool shouldClose = false;
@@ -82,7 +82,7 @@ There are two ways to poll for events:
 * Using a `while` loop
 
 The `foreach` loop is easier to read, but the `while` loop does not allocate an enumerator. As such, we recommend that
-everyone uses the `while` way, and we will be doing it that way in this tutorial.
+everyone uses the `while` loop version, and we will be doing it that way in this tutorial.
 
 Add the following to your code:
 
@@ -98,5 +98,81 @@ cause issues with the OS. However, the close button does not work. Let's fix tha
 
 #### IWindowEvent
 The [IWindowEvent](xref:Pie.Windowing.Events.IWindowEvent) interface is the base for a bunch of different event types.
-For the purposes of this tutorial, we're only interested in two of them, for which we will get into the second one later.
+Each event will be one of [these event types](xref:Pie.Windowing.Events).
+For the purposes of this tutorial, we're only interested in two of them, for which we will get into the second one in
+the next tutorial.
 
+#### Handling events
+There are two recommended ways to handle events. The [IWindowEvent](xref:Pie.Windowing.Events.IWindowEvent) interface
+contains a [WindowEventType](xref:Pie.Windowing.Events.WindowEventType), which is an enum containing all possible events.
+So, you could compare this in a `switch` statement, and handle a case for each value.
+
+However, C# has a recent feature which makes this even easier, which we will be using in this tutorial.
+
+Add the following to your code:
+
+```csharp
+switch (winEvent)
+{
+    case QuitEvent:
+        break;
+}
+```
+
+Here, we are comparing the type itself. It isn't much, but it makes our code much easier and nicer to read.
+
+Finally, add the following inside your `QuitEvent` case:
+
+```csharp
+shouldClose = true;
+```
+
+And that's it! Run your code and behold!
+
+<img src="../../images/gs/winresult.png" width="600" alt="winresult">
+
+A window! It's a bit boring, but the main thing is that it remains open, is responsive, and closes when you click the
+close button. Awesome!
+
+### Cleaning up
+Finally, it's good practice to clean up everything after we are done with it. As windows implement
+[IDisposable](xref:System.IDisposable), we should remember to call `Dispose` once we are done with it.
+
+**Outside of your loops**, add the following:
+
+```csharp
+window.Dispose();
+```
+
+While this is not *strictly* needed for this program, it's good practice to do, and so we'd like to encourage doing this
+from the start.
+
+And that's it for this tutorial! In the next tutorial, we'll be creating a Graphics Device, and using that to clear and
+present to the screen. We'll also look at how to handle resizing, and adding some parameters to our window builder.
+
+#### Something not quite right?
+Compare your code with the final result:
+
+```csharp
+using Pie.Windowing;
+using Pie.Windowing.Events;
+
+WindowBuilder builder = new WindowBuilder();
+Window window = builder.Build();
+
+bool shouldClose = false;
+while (!shouldClose)
+{
+    while (window.PollEvent(out IWindowEvent winEvent))
+    {
+        switch (winEvent)
+        {
+            case QuitEvent:
+                shouldClose = true;
+                break;
+        }
+    }
+}
+
+window.Dispose();
+```
