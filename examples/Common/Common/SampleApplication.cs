@@ -36,6 +36,8 @@ public abstract class SampleApplication : IDisposable
 
     protected virtual void Draw(double dt) { }
 
+    protected virtual void Resize(Size size) { }
+
     public void Run()
     {
         Log(LogType.Debug, "Checking for \"DEMO_FORCE_API\" environment variable...");
@@ -88,9 +90,11 @@ public abstract class SampleApplication : IDisposable
                         _wantsClose = true;
                         break;
                     case ResizeEvent resize:
-                        Log(LogType.Warning, $"New size {resize.Width}x{resize.Height}");
-                        GraphicsDevice.ResizeSwapchain(new Size(resize.Width, resize.Height));
+                        Log(LogType.Info, $"New size {resize.Width}x{resize.Height}");
+                        Size size = new Size(resize.Width, resize.Height);
+                        GraphicsDevice.ResizeSwapchain(size);
                         GraphicsDevice.Viewport = new Rectangle(0, 0, resize.Width, resize.Height);
+                        Resize(size);
                         break;
                     
                     case KeyEvent key:

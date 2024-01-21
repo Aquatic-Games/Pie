@@ -112,6 +112,11 @@ public class SpriteRenderer : IDisposable
         Device.DrawIndexed(6);
     }
 
+    public void Resize(Size size)
+    {
+        _projModel.Projection = Matrix4x4.CreateOrthographicOffCenter(0, size.Width, size.Height, 0, -1, 1);
+    }
+
     private struct ProjModel
     {
         public Matrix4x4 Projection;
