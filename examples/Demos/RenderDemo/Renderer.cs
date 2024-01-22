@@ -17,6 +17,11 @@ public class Renderer : IDisposable
     private GraphicsBuffer _cameraInfoBuffer;
     private GraphicsBuffer _drawInfoBuffer;
 
+    private DepthStencilState _depthStencilState;
+    private RasterizerState _rasterizerState;
+    private BlendState _blendState;
+    private SamplerState _samplerState;
+
     public Renderer(GraphicsDevice device)
     {
         _device = device;
@@ -39,6 +44,11 @@ public class Renderer : IDisposable
         // Draw info buffer is just a single matrix.
         _cameraInfoBuffer = device.CreateBuffer(BufferType.UniformBuffer, 128u, true);
         _drawInfoBuffer = device.CreateBuffer(BufferType.UniformBuffer, 64u, true);
+
+        _depthStencilState = device.CreateDepthStencilState(DepthStencilStateDescription.LessEqual);
+        _rasterizerState = device.CreateRasterizerState(RasterizerStateDescription.CullNone);
+        _blendState = device.CreateBlendState(BlendStateDescription.Disabled);
+        _samplerState = device.CreateSamplerState(SamplerStateDescription.AnisotropicClamp);
     }
 
     public void PrepareForDrawing(in CameraInfo info)
@@ -50,6 +60,10 @@ public class Renderer : IDisposable
         _device.SetInputLayout(_layout);
         _device.SetUniformBuffer(0, _cameraInfoBuffer);
         _device.SetUniformBuffer(1, _drawInfoBuffer);
+        
+        _device.SetDepthStencilState(_depthStencilState);
+        _device.SetRasterizerState(_rasterizerState);
+        _device.SetBlendState(_blendState);
     }
 
     public void Draw(Mesh mesh, in Matrix4x4 world)
@@ -59,7 +73,7 @@ public class Renderer : IDisposable
         _device.SetVertexBuffer(0, mesh.VertexBuffer, VertexPositionTextureNormal.SizeInBytes);
         _device.SetIndexBuffer(mesh.IndexBuffer, IndexType.UInt);
         
-        _device.Draw(mesh.NumIndices);
+        _device.DrawIndexed(mesh.NumIndices);
     }
     
     public void Dispose()
@@ -75,5 +89,11 @@ public class Renderer : IDisposable
     {
         public Matrix4x4 Projection;
         public Matrix4x4 View;
+
+        public CameraInfo(Matrix4x4 projection, Matrix4x4 view)
+        {
+            Projection = projection;
+            View = view;
+        }
     }
 }

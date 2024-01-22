@@ -28,8 +28,4 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup>
-      <ClCompile Include="Shaders\Renderer.hlsl" />
-    </ItemGroup>
-
 </Project>
