@@ -3,16 +3,17 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using OpenTK.Graphics.OpenGL4;
 using Pie.ShaderCompiler;
+using Silk.NET.OpenGL;
 
 namespace Pie.OpenGL;
 
 internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
 {
-    private PieGLBindings _bindings;
     internal static bool Debug;
     internal static bool IsES;
+
+    private GL _gl;
     
     private RasterizerState _currentRState;
     private BlendState _currentBState;
@@ -35,12 +36,10 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
     
     public GlGraphicsDevice(bool es, PieGlContext context, Size winSize, GraphicsDeviceOptions options)
     {
-        _bindings = new PieGLBindings(context);
-        
         Debug = options.Debug;
         IsES = es;
-        
-        GL.LoadBindings(_bindings);
+
+        _gl = GL.GetApi(context.GetProcFunc);
 
         Api = IsES ? GraphicsApi.OpenGLES : GraphicsApi.OpenGL;
         
