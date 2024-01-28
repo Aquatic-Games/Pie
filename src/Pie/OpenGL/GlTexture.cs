@@ -1,11 +1,13 @@
 using System;
-using OpenTK.Graphics.OpenGL4;
+using System.Drawing;
+using Silk.NET.OpenGL;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
 internal sealed class GlTexture : Texture
 {
-    public int Handle;
+    public uint Handle;
     public bool IsRenderbuffer;
     public TextureTarget Target;
 
@@ -14,7 +16,7 @@ internal sealed class GlTexture : Texture
     private PixelType _pixelType;
     private bool _compressed;
 
-    public GlTexture(int handle, PixelFormat fmt, InternalFormat iFmt, PixelType pixelType, bool compressed, TextureDescription description, bool isRenderbuffer, TextureTarget target)
+    public unsafe GlTexture(uint handle, PixelFormat fmt, InternalFormat iFmt, PixelType pixelType, bool compressed, TextureDescription description, bool isRenderbuffer, TextureTarget target)
     {
         Handle = handle;
         _fmt = fmt;
@@ -30,7 +32,7 @@ internal sealed class GlTexture : Texture
 
     public static unsafe Texture CreateTexture(TextureDescription description, void* data)
     {
-        if (GlGraphicsDevice.IsES && description.TextureType == TextureType.Texture1D)
+        if (IsES && description.TextureType == TextureType.Texture1D)
             throw new NotSupportedException("OpenGL ES does not support 1D textures.");
         
         bool isRenderbuffer = (description.Usage & TextureUsage.Framebuffer) == TextureUsage.Framebuffer &&
@@ -64,8 +66,8 @@ internal sealed class GlTexture : Texture
                 type = PixelType.UnsignedByte;
                 break;
             case Format.R8G8_UNorm:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg8;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG8;
                 type = PixelType.UnsignedByte;
                 break;
             case Format.R16G16B16A16_Float:
@@ -85,7 +87,7 @@ internal sealed class GlTexture : Texture
                 break;
             case Format.R16G16B16A16_SNorm:
                 fmt = PixelFormat.Rgba;
-                iFmt = (InternalFormat) All.Rgba16Snorm;
+                iFmt = InternalFormat.Rgba16SNorm;
                 type = PixelType.Byte;
                 break;
             case Format.R16G16B16A16_SInt:
@@ -99,18 +101,18 @@ internal sealed class GlTexture : Texture
                 type = PixelType.UnsignedByte;
                 break;
             case Format.R32G32_SInt:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg32i;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG32i;
                 type = PixelType.Int;
                 break;
             case Format.R32G32_UInt:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg32ui;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG32ui;
                 type = PixelType.UnsignedInt;
                 break;
             case Format.R32G32_Float:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg32f;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG32f;
                 type = PixelType.Float;
                 break;
             case Format.R32G32B32_SInt:
@@ -125,7 +127,7 @@ internal sealed class GlTexture : Texture
                 break;
             case Format.R32G32B32_Float:
                 fmt = PixelFormat.Rgb;
-                iFmt = (InternalFormat) All.Rgb32f;
+                iFmt = InternalFormat.Rgb32f;
                 type = PixelType.Float;
                 break;
             case Format.R32G32B32A32_SInt:
@@ -140,7 +142,7 @@ internal sealed class GlTexture : Texture
                 break;
             case Format.R8_SNorm:
                 fmt = PixelFormat.Red;
-                iFmt = InternalFormat.R8Snorm;
+                iFmt = InternalFormat.R8SNorm;
                 type = PixelType.Byte;
                 break;
             case Format.R8_SInt:
@@ -154,23 +156,23 @@ internal sealed class GlTexture : Texture
                 type = PixelType.UnsignedByte;
                 break;
             case Format.R8G8_SNorm:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg8Snorm;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG8SNorm;
                 type = PixelType.Byte;
                 break;
             case Format.R8G8_SInt:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg8i;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG8i;
                 type = PixelType.Byte;
                 break;
             case Format.R8G8_UInt:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg8ui;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG8ui;
                 type = PixelType.UnsignedByte;
                 break;
             case Format.R8G8B8A8_SNorm:
                 fmt = PixelFormat.Rgb;
-                iFmt = InternalFormat.Rgba8Snorm;
+                iFmt = InternalFormat.Rgba8SNorm;
                 type = PixelType.Byte;
                 break;
             case Format.R8G8B8A8_SInt:
@@ -190,7 +192,7 @@ internal sealed class GlTexture : Texture
                 break;
             case Format.R16_SNorm:
                 fmt = PixelFormat.Red;
-                iFmt = InternalFormat.R16Snorm;
+                iFmt = InternalFormat.R16SNorm;
                 type = PixelType.Short;
                 break;
             case Format.R16_SInt:
@@ -209,28 +211,28 @@ internal sealed class GlTexture : Texture
                 type = PixelType.Float;
                 break;
             case Format.R16G16_UNorm:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg16;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16;
                 type = PixelType.UnsignedShort;
                 break;
             case Format.R16G16_SNorm:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg16Snorm;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16SNorm;
                 type = PixelType.Short;
                 break;
             case Format.R16G16_SInt:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg16i;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16i;
                 type = PixelType.Short;
                 break;
             case Format.R16G16_UInt:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg16ui;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16ui;
                 type = PixelType.UnsignedShort;
                 break;
             case Format.R16G16_Float:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.Rg16f;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.RG16f;
                 type = PixelType.Float;
                 break;
             case Format.R32_SInt:
@@ -270,37 +272,37 @@ internal sealed class GlTexture : Texture
                 break;
             case Format.BC1_UNorm:
                 fmt = PixelFormat.Rgba;
-                iFmt = InternalFormat.CompressedRgbaS3tcDxt1Ext;
+                iFmt = InternalFormat.CompressedRgbaS3TCDxt1Ext;
                 type = PixelType.UnsignedByte;
                 compressed = true;
                 break;
             case Format.BC1_UNorm_SRgb:
                 fmt = PixelFormat.Rgba;
-                iFmt = InternalFormat.CompressedSrgbS3tcDxt1Ext;
+                iFmt = InternalFormat.CompressedSrgbS3TCDxt1Ext;
                 type = PixelType.UnsignedByte;
                 compressed = true;
                 break;
             case Format.BC2_UNorm:
                 fmt = PixelFormat.Rgba;
-                iFmt = InternalFormat.CompressedRgbaS3tcDxt3Ext;
+                iFmt = InternalFormat.CompressedRgbaS3TCDxt3Ext;
                 type = PixelType.UnsignedByte;
                 compressed = true;
                 break;
             case Format.BC2_UNorm_SRgb:
                 fmt = PixelFormat.Rgba;
-                iFmt = InternalFormat.CompressedSrgbAlphaS3tcDxt3Ext;
+                iFmt = InternalFormat.CompressedSrgbAlphaS3TCDxt3Ext;
                 type = PixelType.UnsignedByte;
                 compressed = true;
                 break;
             case Format.BC3_UNorm:
                 fmt = PixelFormat.Rgba;
-                iFmt = InternalFormat.CompressedRgbaS3tcDxt5Ext;
+                iFmt = InternalFormat.CompressedRgbaS3TCDxt5Ext;
                 type = PixelType.UnsignedByte;
                 compressed = true;
                 break;
             case Format.BC3_UNorm_SRgb:
                 fmt = PixelFormat.Rgba;
-                iFmt = InternalFormat.CompressedSrgbAlphaS3tcDxt5Ext;
+                iFmt = InternalFormat.CompressedSrgbAlphaS3TCDxt5Ext;
                 type = PixelType.UnsignedByte;
                 compressed = true;
                 break;
@@ -317,14 +319,14 @@ internal sealed class GlTexture : Texture
                 compressed = true;
                 break;
             case Format.BC5_UNorm:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.CompressedRgRgtc2;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.CompressedRGRgtc2;
                 type = PixelType.UnsignedByte;
                 compressed = true;
                 break;
             case Format.BC5_SNorm:
-                fmt = PixelFormat.Rg;
-                iFmt = InternalFormat.CompressedSignedRgRgtc2;
+                fmt = PixelFormat.RG;
+                iFmt = InternalFormat.CompressedSignedRGRgtc2;
                 type = PixelType.UnsignedByte;
                 compressed = true;
                 break;
@@ -358,18 +360,18 @@ internal sealed class GlTexture : Texture
 
         TextureTarget target = TextureTarget.Texture2D;
         
-        int handle;
+        uint handle;
         if (isRenderbuffer)
         {
-            handle = GL.GenRenderbuffer();
-            if (GlGraphicsDevice.Debug)
+            handle = Gl.GenRenderbuffer();
+            if (Debug)
                 PieLog.Log(LogType.Info, "Texture will be created as a Renderbuffer.");
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, handle);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, (RenderbufferStorage) iFmt, description.Width, description.Height);
+            Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, handle);
+            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, iFmt, (uint) description.Width, (uint) description.Height);
         }
         else
         {
-            handle = GL.GenTexture();
+            handle = Gl.GenTexture();
             
             target = description.TextureType switch
             {
@@ -380,7 +382,7 @@ internal sealed class GlTexture : Texture
                 _ => throw new ArgumentOutOfRangeException()
             };
         
-            GL.BindTexture(target, handle);
+            Gl.BindTexture(target, handle);
             PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
 
             // Calculate the number of mip levels if the description's value is 0.
@@ -389,28 +391,28 @@ internal sealed class GlTexture : Texture
                 : description.MipLevels;
 
             // Allocate the texture based on the target and number of mip levels.
-            AllocateTexture(target, mipLevels, (SizedInternalFormat) iFmt, description);
+            AllocateTexture(target, (uint) mipLevels, (SizedInternalFormat) iFmt, description);
 
             if (data != null)
             {
                 // The current offset in bytes to look at the data.
-                int currentOffset = 0;
+                uint currentOffset = 0;
 
                 for (int a = 0; a < description.ArraySize * (description.TextureType == TextureType.Cubemap ? 6 : 1); a++)
                 {
-                    int width = description.Width;
+                    uint width = (uint) description.Width;
                     // While width must always have a width >= 1, height and depth may not always. If the height or depth
                     // are 0, this will cause the size calculation to fail, so we must set it to 1 here.
-                    int height = PieUtils.Max(description.Height, 1);
-                    int depth = PieUtils.Max(description.Depth, 1);
+                    uint height = (uint) PieUtils.Max(description.Height, 1);
+                    uint depth = (uint) PieUtils.Max(description.Depth, 1);
 
                     // The loop must run at least once, even if the mip levels are 0.
                     for (int i = 0; i < PieUtils.Max(1, description.MipLevels); i++)
                     {
-                        int currSize = (int) (width * height * depth * (bpp / 8f));
+                        uint currSize = (uint) (width * height * depth * (bpp / 8f));
 
                         UpdateSubTexture(target, i, a, 0, 0, 0, width, height, depth, compressed, iFmt, fmt, currSize,
-                            type, (IntPtr) ((byte*) data + currentOffset));
+                            type, (byte*) data + currentOffset);
 
                         currentOffset += currSize;
 
@@ -430,7 +432,7 @@ internal sealed class GlTexture : Texture
             }
 
             if (description.MipLevels != 0)
-                GL.TexParameter(target, TextureParameterName.TextureMaxLevel, description.MipLevels - 1);
+                Gl.TexParameter(target, TextureParameterName.TextureMaxLevel, description.MipLevels - 1);
         }
 
         return new GlTexture(handle, fmt, iFmt, type, compressed, description, isRenderbuffer, target);
@@ -441,15 +443,15 @@ internal sealed class GlTexture : Texture
 
     public unsafe void Update(int x, int y, int z, int width, int height, int depth, int mipLevel, int arrayIndex, void* data)
     {
-        GL.BindTexture(Target, Handle);
+        Gl.BindTexture(Target, Handle);
 
         TextureDescription description = Description;
         PieUtils.CalculatePitch(description.Format, description.Width, out int bpp);
-        int size = (int) (PieUtils.Max(description.Width, 1) * PieUtils.Max(description.Height, 1) *
+        uint size = (uint) (PieUtils.Max(description.Width, 1) * PieUtils.Max(description.Height, 1) *
                             PieUtils.Max(description.Depth, 1) * (bpp / 8f));
 
-        UpdateSubTexture(Target, mipLevel, arrayIndex, x, y, z, width, height, depth, _compressed, _iFmt, _fmt, size,
-            _pixelType, (IntPtr) data);
+        UpdateSubTexture(Target, mipLevel, arrayIndex, x, y, z, (uint) width, (uint) height, (uint) depth,
+            _compressed, _iFmt, _fmt, size, _pixelType, data);
     }
 
     public override void Dispose()
@@ -458,34 +460,34 @@ internal sealed class GlTexture : Texture
             return;
         IsDisposed = true;
         if (IsRenderbuffer)
-            GL.DeleteRenderbuffer(Handle);
+            Gl.DeleteRenderbuffer(Handle);
         else
-            GL.DeleteTexture(Handle);
+            Gl.DeleteTexture(Handle);
     }
 
-    private static void AllocateTexture(TextureTarget target, int mipLevels, SizedInternalFormat format, in TextureDescription description)
+    private static void AllocateTexture(TextureTarget target, uint mipLevels, SizedInternalFormat format, in TextureDescription description)
     {
         switch (target)
         {
             case TextureTarget.Texture1D:
-                GL.TexStorage1D((TextureTarget1d) target, mipLevels, format, description.Width);
+                Gl.TexStorage1D(target, mipLevels, format, (uint) description.Width);
                 break;
             case TextureTarget.Texture2D:
-                GL.TexStorage2D((TextureTarget2d) target, mipLevels, format, description.Width, description.Height);
+                Gl.TexStorage2D(target, mipLevels, format, (uint) description.Width, (uint) description.Height);
                 break;
             case TextureTarget.Texture3D:
-                GL.TexStorage3D((TextureTarget3d) target, mipLevels, format, description.Width, description.Height,
-                    description.Depth);
+                Gl.TexStorage3D(target, mipLevels, format, (uint) description.Width, (uint) description.Height,
+                    (uint) description.Depth);
                 break;
             case TextureTarget.Texture1DArray:
-                GL.TexStorage2D((TextureTarget2d) target, mipLevels, format, description.Width, description.ArraySize);
+                Gl.TexStorage2D(target, mipLevels, format, (uint) description.Width, (uint) description.ArraySize);
                 break;
             case TextureTarget.Texture2DArray:
-                GL.TexStorage3D((TextureTarget3d) target, mipLevels, format, description.Width, description.Height,
-                    description.ArraySize);
+                Gl.TexStorage3D(target, mipLevels, format, (uint) description.Width, (uint) description.Height,
+                    (uint) description.ArraySize);
                 break;
             case TextureTarget.TextureCubeMap:
-                GL.TexStorage2D((TextureTarget2d) target, mipLevels, format, description.Width, description.Height);
+                Gl.TexStorage2D(target, mipLevels, format, (uint) description.Width, (uint) description.Height);
                 break;
             
             default:
@@ -493,9 +495,9 @@ internal sealed class GlTexture : Texture
         }
     }
 
-    private static void UpdateSubTexture(TextureTarget target, int level, int arrayIndex, int x, int y, int z,
-        int width, int height, int depth, bool isCompressed, InternalFormat glIFormat, PixelFormat glFormat,
-        int size, PixelType type, IntPtr data)
+    private static unsafe void UpdateSubTexture(TextureTarget target, int level, int arrayIndex, int x, int y, int z,
+        uint width, uint height, uint depth, bool isCompressed, InternalFormat glIFormat, PixelFormat glFormat,
+        uint size, PixelType type, void* data)
     {
         if (isCompressed && size < 16)
             return;
@@ -504,44 +506,44 @@ internal sealed class GlTexture : Texture
         {
             case TextureTarget.Texture1D:
                 if (isCompressed)
-                    GL.CompressedTexSubImage1D(target, level, x, width, (PixelFormat) glIFormat, size, data);
+                    Gl.CompressedTexSubImage1D(target, level, x, width, glIFormat, size, data);
                 else
-                    GL.TexSubImage1D(target, level, x, width, glFormat, type, data);
+                    Gl.TexSubImage1D(target, level, x, width, glFormat, type, data);
                 break;
             case TextureTarget.Texture2D:
                 if (isCompressed)
-                    GL.CompressedTexSubImage2D(target, level, x, y, width, height, (PixelFormat) glIFormat, size, data);
+                    Gl.CompressedTexSubImage2D(target, level, x, y, width, height, glIFormat, size, data);
                 else
-                    GL.TexSubImage2D(target, level, x, y, width, height, glFormat, type, data);
+                    Gl.TexSubImage2D(target, level, x, y, width, height, glFormat, type, data);
                 break;
             case TextureTarget.Texture3D:
                 if (isCompressed)
-                    GL.CompressedTexSubImage3D(target, level, x, y, z, width, height, depth, (PixelFormat) glIFormat, size, data);
+                    Gl.CompressedTexSubImage3D(target, level, x, y, z, width, height, depth, glIFormat, size, data);
                 else
-                    GL.TexSubImage3D(target, level, x, y, z, width, height, depth, glFormat, type, data);
+                    Gl.TexSubImage3D(target, level, x, y, z, width, height, depth, glFormat, type, data);
                 break;
             case TextureTarget.Texture1DArray:
                 if (isCompressed)
-                    GL.CompressedTexSubImage2D(target, level, x, arrayIndex, width, 1, (PixelFormat) glIFormat, size, data);
+                    Gl.CompressedTexSubImage2D(target, level, x, arrayIndex, width, 1, glIFormat, size, data);
                 else
-                    GL.TexSubImage2D(target, level, x, arrayIndex, width, 1, glFormat, type, data);
+                    Gl.TexSubImage2D(target, level, x, arrayIndex, width, 1, glFormat, type, data);
                 break;
             case TextureTarget.Texture2DArray:
                 if (isCompressed)
                 {
-                    GL.CompressedTexSubImage3D(target, level, x, y, arrayIndex, width, height, 1, (PixelFormat) glIFormat, size,
+                    Gl.CompressedTexSubImage3D(target, level, x, y, arrayIndex, width, height, 1, glIFormat, size,
                         data);
                 }
                 else
-                    GL.TexSubImage3D(target, level, x, y, arrayIndex, width, height, 1, glFormat, type, data);
+                    Gl.TexSubImage3D(target, level, x, y, arrayIndex, width, height, 1, glFormat, type, data);
                 break;
             case TextureTarget.TextureCubeMap:
                 TextureTarget cubemapTarget = TextureTarget.TextureCubeMapPositiveX + arrayIndex;
 
                 if (isCompressed)
-                    GL.CompressedTexSubImage2D(cubemapTarget, level, x, y, width, height, (PixelFormat) glIFormat, size, data);
+                    Gl.CompressedTexSubImage2D(cubemapTarget, level, x, y, width, height, glIFormat, size, data);
                 else
-                    GL.TexSubImage2D(cubemapTarget, level, x, y, width, height, glFormat, type, data);
+                    Gl.TexSubImage2D(cubemapTarget, level, x, y, width, height, glFormat, type, data);
                 break;
         }
     }

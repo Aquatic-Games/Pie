@@ -1,5 +1,6 @@
 using System;
 using Silk.NET.OpenGL;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
@@ -35,28 +36,28 @@ internal sealed class GlDepthStencilState : DepthStencilState
         _backFunc = (StencilFunction) FuncToEnum(description.StencilBackFace.StencilFunc);
     }
 
-    public void Set(GL gl, int stencilRef)
+    public void Set(int stencilRef)
     {
         if (_description.DepthEnabled)
         {
-            gl.Enable(EnableCap.DepthTest);
-            gl.DepthMask(_description.DepthMask);
-            gl.DepthFunc(_depthFunction);
+            Gl.Enable(EnableCap.DepthTest);
+            Gl.DepthMask(_description.DepthMask);
+            Gl.DepthFunc(_depthFunction);
         }
         else
-            gl.Disable(EnableCap.DepthTest);
+            Gl.Disable(EnableCap.DepthTest);
 
         if (_description.StencilEnabled)
         {
-            gl.Enable(EnableCap.StencilTest);
-            gl.StencilOpSeparate(TriangleFace.Front, _frontStencilFail, _frontDepthFail, _frontStencilPass);
-            gl.StencilOpSeparate(TriangleFace.Back, _backStencilFail, _backDepthFail, _backStencilPass);
-            gl.StencilMask(_description.StencilWriteMask);
-            gl.StencilFuncSeparate(TriangleFace.Front, _frontFunc, stencilRef, _description.StencilReadMask);
-            gl.StencilFuncSeparate(TriangleFace.Back, _backFunc, stencilRef, _description.StencilReadMask);
+            Gl.Enable(EnableCap.StencilTest);
+            Gl.StencilOpSeparate(TriangleFace.Front, _frontStencilFail, _frontDepthFail, _frontStencilPass);
+            Gl.StencilOpSeparate(TriangleFace.Back, _backStencilFail, _backDepthFail, _backStencilPass);
+            Gl.StencilMask(_description.StencilWriteMask);
+            Gl.StencilFuncSeparate(TriangleFace.Front, _frontFunc, stencilRef, _description.StencilReadMask);
+            Gl.StencilFuncSeparate(TriangleFace.Back, _backFunc, stencilRef, _description.StencilReadMask);
         }
         else
-            gl.Disable(EnableCap.StencilTest);
+            Gl.Disable(EnableCap.StencilTest);
     }
 
     public override bool IsDisposed { get; protected set; }
@@ -97,7 +98,6 @@ internal sealed class GlDepthStencilState : DepthStencilState
             ComparisonFunc.NotEqual => GLEnum.Notequal,
             ComparisonFunc.GreaterEqual => GLEnum.Gequal,
             ComparisonFunc.Always => GLEnum.Always,
-            _ => throw new ArgumentOutOfRangeException(nameof(func), func, null)
         };
     }
 }

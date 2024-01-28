@@ -1,5 +1,6 @@
 using System;
 using Silk.NET.OpenGL;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
@@ -39,19 +40,19 @@ internal sealed class GlBlendState : BlendState
 
     public override BlendStateDescription Description => _description;
 
-    public void Set(GL gl)
+    public void Set()
     {
-        gl.ColorMask(_red, _green, _blue, _alpha);
+        Gl.ColorMask(_red, _green, _blue, _alpha);
         
         if (!_description.Enabled)
         {
-            gl.Disable(EnableCap.Blend);
+            Gl.Disable(EnableCap.Blend);
             return;
         }
         
-        gl.Enable(EnableCap.Blend);
-        gl.BlendFuncSeparate(_src, _dst, _srcAlpha, _dstAlpha);
-        gl.BlendEquationSeparate(_rgbEq, _alphaEq);
+        Gl.Enable(EnableCap.Blend);
+        Gl.BlendFuncSeparate(_src, _dst, _srcAlpha, _dstAlpha);
+        Gl.BlendEquationSeparate(_rgbEq, _alphaEq);
     }
     
     public override void Dispose()
