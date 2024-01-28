@@ -1,17 +1,17 @@
 using System;
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
 
 namespace Pie.OpenGL;
 
 internal static class GlUtils
 {
-    internal static BufferAccessMask ToGlMapMode(this MapMode mode)
+    internal static MapBufferAccessMask ToGlMapMode(this MapMode mode)
     {
         return mode switch
         {
-            MapMode.Read => BufferAccessMask.MapReadBit,
-            MapMode.Write => BufferAccessMask.MapWriteBit,
-            MapMode.ReadWrite => BufferAccessMask.MapReadBit | BufferAccessMask.MapWriteBit,
+            MapMode.Read => MapBufferAccessMask.ReadBit,
+            MapMode.Write => MapBufferAccessMask.WriteBit,
+            MapMode.ReadWrite => MapBufferAccessMask.ReadBit | MapBufferAccessMask.WriteBit,
             _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
         };
     }

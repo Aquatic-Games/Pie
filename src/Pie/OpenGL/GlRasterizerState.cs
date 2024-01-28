@@ -1,12 +1,13 @@
 using System;
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
 internal sealed class GlRasterizerState : RasterizerState
 {
     private bool _cullFaceEnabled;
-    private CullFaceMode _cullFaceMode;
+    private TriangleFace _cullFaceMode;
     private FrontFaceDirection _frontFace;
     private PolygonMode _mode;
     private bool _scissor;
@@ -22,15 +23,15 @@ internal sealed class GlRasterizerState : RasterizerState
             _cullFaceEnabled = true;
             _cullFaceMode = description.CullFace switch
             {
-                CullFace.Front => CullFaceMode.Front,
-                CullFace.Back => CullFaceMode.Back,
+                CullFace.Front => TriangleFace.Front,
+                CullFace.Back => TriangleFace.Back,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
 
         _frontFace = description.CullDirection switch
         {
-            CullDirection.Clockwise => FrontFaceDirection.Cw,
+            CullDirection.Clockwise => FrontFaceDirection.CW,
             CullDirection.CounterClockwise => FrontFaceDirection.Ccw,
             _ => throw new ArgumentOutOfRangeException()
         };
@@ -52,22 +53,22 @@ internal sealed class GlRasterizerState : RasterizerState
     public void Set()
     {
         if (!_cullFaceEnabled)
-            GL.Disable(EnableCap.CullFace);
+            Gl.Disable(EnableCap.CullFace);
         else
         {
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(_cullFaceMode);
+            Gl.Enable(EnableCap.CullFace);
+            Gl.CullFace(_cullFaceMode);
         }
         
-        GL.FrontFace(_frontFace);
+        Gl.FrontFace(_frontFace);
 
-        if (!GlGraphicsDevice.IsES)
-            GL.PolygonMode(MaterialFace.FrontAndBack, _mode);
+        if (!IsES)
+            Gl.PolygonMode(TriangleFace.FrontAndBack, _mode);
         
         if (_scissor)
-            GL.Enable(EnableCap.ScissorTest);
+            Gl.Enable(EnableCap.ScissorTest);
         else
-            GL.Disable(EnableCap.ScissorTest);
+            Gl.Disable(EnableCap.ScissorTest);
     }
     
     public override void Dispose()

@@ -1,5 +1,6 @@
 ﻿using System;
-using OpenTK.Graphics.OpenGL4;
+using Silk.NET.OpenGL;
+using static Pie.OpenGL.GlGraphicsDevice;
 
 namespace Pie.OpenGL;
 
@@ -7,8 +8,8 @@ internal sealed class GlGraphicsBuffer : GraphicsBuffer
 {
     public override bool IsDisposed { get; protected set; }
 
-    public readonly int Handle;
-    public readonly BufferTarget Target;
+    public readonly uint Handle;
+    public readonly BufferTargetARB Target;
     public readonly uint SizeInBytes;
 
     public unsafe GlGraphicsBuffer(BufferType type, uint sizeInBytes, void* data, bool dynamic)
@@ -18,36 +19,36 @@ internal sealed class GlGraphicsBuffer : GraphicsBuffer
         switch (type)
         {
             case BufferType.VertexBuffer:
-                Target = BufferTarget.ArrayBuffer;
+                Target = BufferTargetARB.ArrayBuffer;
                 PieMetrics.VertexBufferCount++;
                 break;
             case BufferType.IndexBuffer:
-                Target = BufferTarget.ElementArrayBuffer;
+                Target = BufferTargetARB.ElementArrayBuffer;
                 PieMetrics.IndexBufferCount++;
                 break;
             case BufferType.UniformBuffer:
-                Target = BufferTarget.UniformBuffer;
+                Target = BufferTargetARB.UniformBuffer;
                 PieMetrics.UniformBufferCount++;
                 break;
             case BufferType.ShaderStorageBuffer:
-                Target = BufferTarget.ShaderStorageBuffer;
+                Target = BufferTargetARB.ShaderStorageBuffer;
                 // TODO: Shader storage buffer count?
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
 
-        BufferUsageHint usage = dynamic ? BufferUsageHint.DynamicDraw : BufferUsageHint.StaticDraw;
+        BufferUsageARB usage = dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw;
 
-        Handle = GL.GenBuffer();
-        GL.BindBuffer(Target, Handle);
-        GL.BufferData(Target, (int) sizeInBytes, (IntPtr) data, usage);
+        Handle = Gl.GenBuffer();
+        Gl.BindBuffer(Target, Handle);
+        Gl.BufferData(Target, sizeInBytes, data, usage);
     }
 
     public unsafe void Update(uint offsetInBytes, uint sizeInBytes, void* data)
     {
-        GL.BindBuffer(Target, Handle);
-        GL.BufferSubData(Target, (IntPtr) offsetInBytes, (int) sizeInBytes, (IntPtr) data);
+        Gl.BindBuffer(Target, Handle);
+        Gl.BufferSubData(Target, (nint) offsetInBytes, (nuint) sizeInBytes, data);
     }
 
     public override void Dispose()
@@ -55,16 +56,16 @@ internal sealed class GlGraphicsBuffer : GraphicsBuffer
         if (IsDisposed)
             return;
         IsDisposed = true;
-        GL.DeleteBuffer(Handle);
+        Gl.DeleteBuffer(Handle);
         switch (Target)
         {
-            case BufferTarget.ArrayBuffer:
+            case BufferTargetARB.ArrayBuffer:
                 PieMetrics.VertexBufferCount--;
                 break;
-            case BufferTarget.ElementArrayBuffer:
+            case BufferTargetARB.ElementArrayBuffer:
                 PieMetrics.IndexBufferCount--;
                 break;
-            case BufferTarget.UniformBuffer:
+            case BufferTargetARB.UniformBuffer:
                 PieMetrics.UniformBufferCount--;
                 break;
         }
@@ -72,14 +73,14 @@ internal sealed class GlGraphicsBuffer : GraphicsBuffer
 
     internal override unsafe MappedSubresource Map(MapMode mode)
     {
-        GL.BindBuffer(Target, Handle);
-        IntPtr mapped = GL.MapBufferRange(Target, IntPtr.Zero, (int) SizeInBytes, (BufferAccessMask) mode.ToGlMapMode());
+        Gl.BindBuffer(Target, Handle);
+        void* mapped = Gl.MapBufferRange(Target, 0, SizeInBytes, mode.ToGlMapMode());
 
-        return new MappedSubresource(mapped);
+        return new MappedSubresource((IntPtr) mapped);
     }
 
     internal override void Unmap()
     {
-        GL.UnmapBuffer(Target);
+        Gl.UnmapBuffer(Target);
     }
 }
