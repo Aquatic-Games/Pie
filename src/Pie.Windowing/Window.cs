@@ -534,6 +534,22 @@ public sealed unsafe class Window : IDisposable
         return true;
     }
 
+    public bool PollEvent()
+    {
+        return Sdl.PollEvent(null);
+    }
+    
+    /// <summary>
+    /// Polls events and returns it as an IEnumerable. This method simply calls <see cref="PollEvent"/> under the hood,
+    /// but is a more "C# friendly" way of doing things.
+    /// </summary>
+    /// <returns>An <see cref="IEnumerable{T}"/> of events.</returns>
+    public IEnumerable<IWindowEvent> PollEvents()
+    {
+        while (PollEvent(out IWindowEvent winEvent))
+            yield return winEvent;
+    }
+
     public bool WaitEvent(out IWindowEvent @event)
     {
         SdlEvent sdlEvent;
@@ -560,15 +576,14 @@ public sealed unsafe class Window : IDisposable
         return true;
     }
 
-    /// <summary>
-    /// Polls events and returns it as an IEnumerable. This method simply calls <see cref="PollEvent"/> under the hood,
-    /// but is a more "C# friendly" way of doing things.
-    /// </summary>
-    /// <returns>An <see cref="IEnumerable{T}"/> of events.</returns>
-    public IEnumerable<IWindowEvent> PollEvents()
+    public bool WaitEvent()
     {
-        while (PollEvent(out IWindowEvent winEvent))
-            yield return winEvent;
+        return Sdl.WaitEvent(null);
+    }
+
+    public bool WaitEvent(int timeout)
+    {
+        return Sdl.WaitEventTimeout(null, timeout);
     }
 
     /// <summary>
