@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using TerraFX.Interop.DirectX;
+using TerraFX.Interop.Windows;
 using static TerraFX.Interop.DirectX.D3D11_MAP;
 using static TerraFX.Interop.DirectX.DXGI_FORMAT;
 
@@ -10,7 +11,7 @@ namespace Pie.Direct3D11;
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
 internal static class DxUtils
 {
-    internal static DXGI_FORMAT ToDxgiFormat(this Format format, bool shaderResource)
+    public static DXGI_FORMAT ToDxgiFormat(this Format format, bool shaderResource)
     {
         return format switch
         {
@@ -77,7 +78,7 @@ internal static class DxUtils
         };
     }
 
-    internal static D3D11_MAP ToDx11MapMode(this MapMode mode)
+    public static D3D11_MAP ToDx11MapMode(this MapMode mode)
     {
         return mode switch
         {
@@ -89,6 +90,11 @@ internal static class DxUtils
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static uint CalcSubresource(uint mipSlice, uint arraySlice, uint mipLevels) =>
+    public static uint CalcSubresource(uint mipSlice, uint arraySlice, uint mipLevels) =>
         mipSlice + (arraySlice * mipLevels);
+
+    public static bool Failed(HRESULT hresult)
+    {
+        return hresult.FAILED;
+    }
 }
