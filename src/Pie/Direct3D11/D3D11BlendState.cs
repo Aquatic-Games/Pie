@@ -12,7 +12,7 @@ internal sealed unsafe class D3D11BlendState : BlendState
 {
     public override bool IsDisposed { get; protected set; }
 
-    public ID3D11BlendState* State;
+    public readonly ID3D11BlendState* State;
     
     public D3D11BlendState(ID3D11Device* device, BlendStateDescription description)
     {
