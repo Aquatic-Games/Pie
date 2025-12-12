@@ -1,8 +1,6 @@
 using System.Drawing;
 using System.Numerics;
-using Common;
 using Pie;
-using Pie.Audio;
 
 namespace Breakout;
 
@@ -33,7 +31,7 @@ public class Brick : Entity
             _ball.HasHit = true;
             _ball.Score += 10;
             _hasHit = true;
-            main.AudioDevice.PlayBuffer(main.Hit, Utils.GetFreeChannel(main.AudioDevice), new PlayProperties(speed: 0.4));
+            //main.AudioDevice.PlayBuffer(main.Hit, Utils.GetFreeChannel(main.AudioDevice), new PlayProperties(speed: 0.4));
             NumHits--;
             if (NumHits <= 0)
                 ShouldDestroy = true;

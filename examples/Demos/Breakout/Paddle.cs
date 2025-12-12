@@ -1,9 +1,7 @@
-using System;
 using System.Drawing;
 using System.Numerics;
 using Common;
 using Pie;
-using Pie.Audio;
 
 namespace Breakout;
 
@@ -35,7 +33,7 @@ public class Paddle : Entity
         if (CollisionRect.IntersectsWith(_ball.CollisionRect))
         {
             _ball.Velocity.Y *= -1;
-            main.AudioDevice.PlayBuffer(main.Hit, Utils.GetFreeChannel(main.AudioDevice), new PlayProperties());
+            //main.AudioDevice.PlayBuffer(main.Hit, Utils.GetFreeChannel(main.AudioDevice), new PlayProperties());
         }
     }
 

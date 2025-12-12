@@ -3,8 +3,6 @@ using System.Drawing;
 using System.Numerics;
 using Common;
 using Pie;
-using Pie.Audio;
-using Pie.Audio.Stream;
 using Pie.Windowing;
 
 namespace Breakout;
@@ -16,9 +14,9 @@ public class Main : SampleApplication
 
     public bool IsPlaying;
 
-    public AudioBuffer Hit;
+    //public AudioBuffer Hit;
 
-    private StreamPlayer _stream;
+    //private StreamPlayer _stream;
     
     private SpriteRenderer _spriteRenderer;
 
@@ -44,11 +42,11 @@ public class Main : SampleApplication
 
         _texture = Utils.CreateTexture2D(GraphicsDevice, new Bitmap(new byte[] { 255, 255, 255, 255 }, new Size(1, 1)));
 
-        using Wav hit = Wav.FromFile("Content/Audio/hit.wav");
-        Hit = AudioDevice.CreateBuffer(new BufferDescription(hit.Format), hit.GetPcm());
+        //using Wav hit = Wav.FromFile("Content/Audio/hit.wav");
+        //Hit = AudioDevice.CreateBuffer(new BufferDescription(hit.Format), hit.GetPcm());
 
-        _stream = new StreamPlayer(AudioDevice, "Content/Audio/excite.ogg");
-        _stream.Play(0, new PlayProperties());
+        //_stream = new StreamPlayer(AudioDevice, "Content/Audio/excite.ogg");
+        //_stream.Play(0, new PlayProperties());
 
         _ball = new Ball(_texture)
         {

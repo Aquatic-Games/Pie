@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Drawing;
 using Pie;
-using Pie.Audio;
 using Pie.Windowing;
 using Pie.Windowing.Events;
 
@@ -16,7 +15,7 @@ public abstract class SampleApplication : IDisposable
 
     public Window Window;
     public GraphicsDevice GraphicsDevice;
-    public AudioDevice AudioDevice;
+    //public AudioDevice AudioDevice;
 
     private int _numFrames;
     private double _fpsDelta;
@@ -70,8 +69,8 @@ public abstract class SampleApplication : IDisposable
             .GraphicsDeviceOptions(new GraphicsDeviceOptions() { Debug = true })
             .Build(out GraphicsDevice);
         
-        Log(LogType.Debug, "Creating audio device.");
-        AudioDevice = new AudioDevice(48000, 16);
+        //Log(LogType.Debug, "Creating audio device.");
+        //AudioDevice = new AudioDevice(48000, 16);
         
         Log(LogType.Debug, "Initializing application.");
         Initialize();

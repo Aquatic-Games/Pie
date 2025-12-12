@@ -1,9 +1,4 @@
-using System;
-using System.IO;
-using System.Reflection;
-using System.Resources;
 using Pie;
-using Pie.Audio;
 
 namespace Common;
 
@@ -19,7 +14,7 @@ public static class Utils
         return device.CreateTexture(description, bitmap.Data);
     }
 
-    public static ushort GetFreeChannel(AudioSystem system)
+    /*public static ushort GetFreeChannel(AudioSystem system)
     {
         for (ushort c = 0; c < system.NumVoices; c++)
         {
@@ -28,5 +23,5 @@ public static class Utils
         }
 
         return 0;
-    }
+    }*/
 }

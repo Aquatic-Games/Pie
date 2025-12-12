@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using Pie.Audio;
 using Pie.Audio.Stream;
 
@@ -66,7 +66,7 @@ public unsafe class AudioTest : TestBase
             Console.WriteLine($"AudioBuffer {buffer.Handle} finished on channel {channel}");
             system.SetChannelProperties(channel, new ChannelProperties(looping: true));
         };
-        */
+    
 
         _device = new AudioDevice(48000, 256);
         
@@ -82,7 +82,7 @@ public unsafe class AudioTest : TestBase
         {
             Console.WriteLine($"AudioBuffer {buffer.Handle} finished on channel {channel}");
             system.SetChannelProperties(channel, new ChannelProperties(looping: true));
-        };*/
+        };
     }
 
     protected override void Update(double dt)
@@ -96,7 +96,7 @@ public unsafe class AudioTest : TestBase
     {
         //mxAdvanceBuffer(_system, (float*) arg1, (nuint) arg2 / 4);
         _system.AdvanceBuffer((float*) arg1, (nuint) arg2 / 4);
-    }*/
+    }
 
     public override void Dispose()
     {
@@ -104,4 +104,4 @@ public unsafe class AudioTest : TestBase
         
         base.Dispose();
     }
-}
+}*/

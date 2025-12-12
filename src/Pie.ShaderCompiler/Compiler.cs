@@ -1,18 +1,33 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Pie.Shaderc;
+using Silk.NET.Shaderc;
+using Silk.NET.SPIRV;
+using Silk.NET.SPIRV.Cross;
 
-using Pie.Spirv.Cross.Native;
-using static Pie.Spirv.Cross.Native.SpirvNative;
+using ShadercCompiler = Silk.NET.Shaderc.Compiler;
+using SourceLanguage = Silk.NET.Shaderc.SourceLanguage;
+using SpirvCompiler = Silk.NET.SPIRV.Cross.Compiler;
+using SpvSpecializationConstant = Silk.NET.SPIRV.Cross.SpecializationConstant;
+using PieSpecializationConstant = Pie.ShaderCompiler.SpecializationConstant;
 
 namespace Pie.ShaderCompiler;
 
 /// <summary>
 /// Provides cross-platform API-independent shader compilation functions.
 /// </summary>
-public static class Compiler
+public static unsafe class Compiler
 {
+    private static readonly Shaderc _shaderc;
+    private static readonly Cross _spirv;
+
+    static Compiler()
+    {
+        _shaderc = Shaderc.GetApi();
+        _spirv = Cross.GetApi();
+    }
+    
     /// <summary>
     /// Compile GLSL/HLSL code to Spir-V.
     /// </summary>
@@ -24,19 +39,19 @@ public static class Compiler
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
     public static CompilerResult ToSpirv(ShaderStage stage, Language language, byte[] source, string entryPoint)
     {
-        using ShadercCompiler compiler = new ShadercCompiler();
-        using CompilerOptions options = new CompilerOptions();
+        ShadercCompiler* compiler = _shaderc.CompilerInitialize();
+        CompileOptions* options = _shaderc.CompileOptionsInitialize();
 
         SourceLanguage sourceLanguage = language switch
         {
-            Language.GLSL => SourceLanguage.GLSL,
-            Language.HLSL => SourceLanguage.HLSL,
-            Language.ESSL => SourceLanguage.GLSL,
+            Language.GLSL => SourceLanguage.Glsl,
+            Language.HLSL => SourceLanguage.Hlsl,
+            Language.ESSL => SourceLanguage.Glsl,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
         };
         
-        options.SetSourceLanguage(sourceLanguage);
-        options.SetAutoCombinedImageSampler(true);
+        _shaderc.CompileOptionsSetSourceLanguage(options, sourceLanguage);
+        _shaderc.CompileOptionsSetAutoCombinedImageSampler(options, true);
 
         ShaderKind kind = stage switch
         {
@@ -46,112 +61,125 @@ public static class Compiler
             ShaderStage.Compute => ShaderKind.ComputeShader,
             _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
-
-        using CompilationResult result = compiler.CompileIntoSpirv(source, kind, "main", entryPoint, options);
-
-        if (result.Status != CompilationStatus.Success)
+        
+        CompilationResult* result;
+        fixed (byte* pSource = source)
         {
-            string error = result.ErrorMessage;
-
-            return new CompilerResult(null, false, $"Failed to convert {stage.ToString().ToLower()} shader: " + error);
+            result = _shaderc.CompileIntoSpv(compiler, pSource, (nuint) source.Length, kind, "main", entryPoint,
+                options);
         }
 
-        byte[] compiled = result.Bytes;
+        try
+        {
+            if (_shaderc.ResultGetCompilationStatus(result) != CompilationStatus.Success)
+            {
+                string error = _shaderc.ResultGetErrorMessageS(result);
+                return new CompilerResult(null, false,
+                    $"Failed to convert {stage.ToString().ToLower()} shader: " + error);
+            }
 
-        return new CompilerResult(compiled, true, string.Empty);
+            byte* pCompiled = _shaderc.ResultGetBytes(result);
+            nuint length = _shaderc.ResultGetLength(result);
+            byte[] compiled = new byte[length];
+            fixed (byte* pMangedCompiled = compiled)
+                Unsafe.CopyBlock(pMangedCompiled, pCompiled, (uint) length);
+
+            return new CompilerResult(compiled, true, string.Empty);
+        }
+        finally
+        {
+            _shaderc.ResultRelease(result);
+            _shaderc.CompileOptionsRelease(options);
+            _shaderc.CompilerRelease(compiler);
+        }
     }
 
-    private static unsafe CompilerResult SpirvToShaderCode(Language language, ShaderStage stage, byte* result,
-        byte* entryPoint, nuint length, SpecializationConstant[] constants)
+    private static CompilerResult SpirvToShaderCode(Language language, ShaderStage stage, byte* result,
+        byte* entryPoint, nuint length, PieSpecializationConstant[] constants)
     {
-        spvc_context_s* context;
-        spvc_context_create(&context);
+        Context* context;
+        _spirv.ContextCreate(&context);
 
-        spvc_parsed_ir_s* ir;
-        spvc_result spirvResult = spvc_context_parse_spirv(context, (uint*) result, length / sizeof(uint), &ir);
-        if (spirvResult != spvc_result.SPVC_SUCCESS)
+        ParsedIr* ir;
+        Result spirvResult = _spirv.ContextParseSpirv(context, (uint*) result, length / sizeof(uint), &ir);
+        if (spirvResult != Result.Success)
         {
-            sbyte* errorPtr = spvc_context_get_last_error_string(context);
-            string error = new string(errorPtr);
-            
-            spvc_context_destroy(context);
-
+            string error = _spirv.ContextGetLastErrorStringS(context);
+            _spirv.ContextDestroy(context);
             return new CompilerResult(null, false, error);
         }
 
-        spvc_backend backend = language switch
+        Backend backend = language switch
         {
-            Language.GLSL => spvc_backend.SPVC_BACKEND_GLSL,
-            Language.HLSL => spvc_backend.SPVC_BACKEND_HLSL,
-            Language.ESSL => spvc_backend.SPVC_BACKEND_GLSL,
+            Language.GLSL => Backend.Glsl,
+            Language.HLSL => Backend.Hlsl,
+            Language.ESSL => Backend.Glsl,
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
         };
         
-        spvc_compiler_s* compl;
-        spvc_context_create_compiler(context, backend, ir, spvc_capture_mode.SPVC_CAPTURE_MODE_COPY, &compl);
+        SpirvCompiler* compl;
+        _spirv.ContextCreateCompiler(context, backend, ir, CaptureMode.Copy, &compl);
 
-        SpvExecutionModel_ model = stage switch
+        ExecutionModel model = stage switch
         {
-            ShaderStage.Vertex => SpvExecutionModel_.SpvExecutionModelVertex,
-            ShaderStage.Fragment => SpvExecutionModel_.SpvExecutionModelFragment,
-            ShaderStage.Geometry => SpvExecutionModel_.SpvExecutionModelGeometry,
-            ShaderStage.Compute => SpvExecutionModel_.SpvExecutionModelGLCompute,
+            ShaderStage.Vertex => ExecutionModel.Vertex,
+            ShaderStage.Fragment => ExecutionModel.Fragment,
+            ShaderStage.Geometry => ExecutionModel.Geometry,
+            ShaderStage.Compute => ExecutionModel.GLCompute,
             _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, null)
         };
         
-        spvc_compiler_set_entry_point(compl, (sbyte*) entryPoint, model);
+        _spirv.CompilerSetEntryPoint(compl, entryPoint, model);
         
-        spvc_compiler_options_s* options;
-        spvc_compiler_create_compiler_options(compl, &options);
+        CompilerOptions* options;
+        _spirv.CompilerCreateCompilerOptions(compl, &options);
         switch (language)
         {
             case Language.GLSL:
-                spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 430);
-                spvc_compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, 0);
+                _spirv.CompilerOptionsSetUint(options, CompilerOption.GlslVersion, 430);
+                _spirv.CompilerOptionsSetBool(options, CompilerOption.GlslES, 0);
                 break;
             case Language.ESSL:
-                spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 300);
-                spvc_compiler_options_set_bool(options, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, 1);
+                _spirv.CompilerOptionsSetUint(options, CompilerOption.GlslVersion, 300);
+                _spirv.CompilerOptionsSetBool(options, CompilerOption.GlslES, 1);
                 break;
             case Language.HLSL:
-                spvc_compiler_options_set_uint(options, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_SHADER_MODEL,
-                    50);
-                spvc_compiler_options_set_bool(options,
-                    spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_FLATTEN_MATRIX_VERTEX_INPUT_SEMANTICS, 1);
+                _spirv.CompilerOptionsSetUint(options, CompilerOption.HlslShaderModel, 50);
+                _spirv.CompilerOptionsSetBool(options, CompilerOption.HlslFlattenMatrixVertexInputSemantics, 1);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(backend), backend, null);
         }
-        spvc_compiler_install_compiler_options(compl, options);
+        _spirv.CompilerInstallCompilerOptions(compl, options);
 
         if (constants != null)
         {
             nuint numConstants;
-            spvc_specialization_constant* sConstants;
-            spvc_compiler_get_specialization_constants(compl, &sConstants, &numConstants);
+            SpvSpecializationConstant* sConstants;
+           _spirv.CompilerGetSpecializationConstants(compl, &sConstants, &numConstants);
 
             for (int i = 0; i < constants.Length; i++)
             {
-                ref SpecializationConstant constant = ref constants[i];
+                ref PieSpecializationConstant constant = ref constants[i];
 
                 for (int c = 0; c < (int) numConstants; c++)
                 {
-                    if (sConstants[c].constant_id == constant.ID)
+                    if (sConstants[c].ConstantId == constant.ID)
                     {
-                        spvc_constant_s* sConst = spvc_compiler_get_constant_handle(compl, sConstants[c].id);
+                        Constant* sConst = _spirv.CompilerGetConstantHandle(compl, sConstants[c].Id);
 
                         ulong value = constant.Value;
 
                         switch (constant.Type)
                         {
                             case ConstantType.U32:
-                                spvc_constant_set_scalar_u32(sConst, 0, 0, *(uint*) &value);
+                                _spirv.ConstantSetScalarU32(sConst, 0, 0, *(uint*) &value);
                                 break;
                             case ConstantType.I32:
-                                spvc_constant_set_scalar_i32(sConst, 0, 0, *(int*) &value);
+                                _spirv.ConstantSetScalarI32(sConst, 0, 0, *(int*) &value);
                                 break;
                             case ConstantType.F32:
-                                spvc_constant_set_scalar_fp32(sConst, 0, 0, *(float*) &value);
+                                _spirv.ConstantSetScalarFp32(sConst, 0, 0, *(float*) &value);
                                 break;
                             //case ConstantType.U64:
                             //    Spvc.constant_set_scalar_u64(sConst, 0, 0, value);
@@ -160,7 +188,7 @@ public static class Compiler
                             //    Spvc.constant_set_scalar_i64(sConst, 0, 0, *(long*) &value);
                             //    break;
                             case ConstantType.F64:
-                                spvc_constant_set_scalar_fp64(sConst, 0, 0, *(double*) &value);
+                                _spirv.ConstantSetScalarFp64(sConst, 0, 0, *(double*) &value);
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
@@ -171,13 +199,12 @@ public static class Compiler
         }
 
         uint id;
-        spvc_compiler_build_dummy_sampler_for_combined_images(compl, &id);
-        
-        spvc_compiler_build_combined_image_samplers(compl);
+        _spirv.CompilerBuildDummySamplerForCombinedImages(compl, &id);
+        _spirv.CompilerBuildCombinedImageSamplers(compl);
 
         nuint numSamplers;
-        spvc_combined_image_sampler* samplers;
-        spvc_compiler_get_combined_image_samplers(compl, &samplers, &numSamplers);
+        CombinedImageSampler* samplers;
+        _spirv.CompilerGetCombinedImageSamplers(compl, &samplers, &numSamplers);
 
         // build_combined_image_samplers removes the binding from the combined sampler. Fortunately, it does retain
         // the binding in the image id and the sampler id. And fortunately fortunately, it allows us to set the
@@ -187,29 +214,22 @@ public static class Compiler
         {
             // HLSL requires that for combined samplers to work, the Texture2D and SamplerState must be at the same
             // register index. Therefore, either index will work here. I just use the image id.
-            uint decoration =
-                spvc_compiler_get_decoration(compl, samplers[i].image_id, SpvDecoration_.SpvDecorationBinding);
-            
-            spvc_compiler_set_decoration(compl, samplers[i].combined_id, SpvDecoration_.SpvDecorationBinding, decoration);
+            uint decoration = _spirv.CompilerGetDecoration(compl, samplers[i].ImageId, Decoration.Binding);
+            _spirv.CompilerSetDecoration(compl, samplers[i].CombinedId, Decoration.Binding, decoration);
         }
 
-        sbyte* compiledResult;
-        spirvResult = spvc_compiler_compile(compl, &compiledResult);
+        byte* compiledResult;
+        spirvResult = _spirv.CompilerCompile(compl, &compiledResult);
 
-        if (spirvResult != spvc_result.SPVC_SUCCESS)
+        if (spirvResult != Result.Success)
         {
-            sbyte* errorPtr = spvc_context_get_last_error_string(context);
-            string error = new string(errorPtr);
-            
-            spvc_context_destroy(context);
-
+            string error = _spirv.ContextGetLastErrorStringS(context);
+            _spirv.ContextDestroy(context);
             return new CompilerResult(null, false, error);
         }
         
         byte[] compiled = Encoding.UTF8.GetBytes(Marshal.PtrToStringAnsi((IntPtr) compiledResult));
-        
-        spvc_context_destroy(context);
-
+        _spirv.ContextDestroy(context);
         return new CompilerResult(compiled, true, string.Empty);
     }
 
@@ -224,7 +244,7 @@ public static class Compiler
     /// <returns>The <see cref="CompilerResult"/> of this compilation.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if an unsupported <paramref name="language"/> is used.</exception>
     public static unsafe CompilerResult FromSpirv(Language language, ShaderStage stage, byte[] spirv, string entryPoint,
-        SpecializationConstant[] constants)
+        PieSpecializationConstant[] constants)
     {
         CompilerResult result;
 
