@@ -1,3 +1,5 @@
+using Silk.NET.SDL;
+
 namespace Pie.Windowing;
 
 /// <summary>
@@ -5,6 +7,13 @@ namespace Pie.Windowing;
 /// </summary>
 public static class SdlHelper
 {
+    public static readonly Sdl SDL;
+
+    static SdlHelper()
+    {
+        SDL = Sdl.GetApi();
+    }
+    
     /// <summary>
     /// Convert an SDL keycode to Pie <see cref="Key"/>.
     /// </summary>

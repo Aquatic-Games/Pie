@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Text;
 using Pie.OpenGL;
 using Pie.Windowing.Events;
-using Pie.SDL;
+using Silk.NET.SDL;
+using MouseButtonEvent = Pie.Windowing.Events.MouseButtonEvent;
+using Point = System.Drawing.Point;
+using QuitEvent = Pie.Windowing.Events.QuitEvent;
+using TextInputEvent = Pie.Windowing.Events.TextInputEvent;
+using SdlWindow = Silk.NET.SDL.Window;
+using static Pie.Windowing.SdlHelper;
 
 namespace Pie.Windowing;
 
@@ -14,8 +18,7 @@ namespace Pie.Windowing;
 /// </summary>
 public sealed unsafe class Window : IDisposable
 {
-    private void* _window;
-    
+    private SdlWindow* _window;
     private void* _glContext;
 
     private GraphicsApi _api;
@@ -33,11 +36,11 @@ public sealed unsafe class Window : IDisposable
         get
         {
             int width, height;
-            Sdl.GetWindowSize(_window, &width, &height);
+            SDL.GetWindowSize(_window, &width, &height);
             return new Size(width, height);
         }
 
-        set => Sdl.SetWindowSize(_window, value.Width, value.Height);
+        set => SDL.SetWindowSize(_window, value.Width, value.Height);
     }
 
     /// <summary>
@@ -49,7 +52,7 @@ public sealed unsafe class Window : IDisposable
         get
         {
             int width, height;
-            Sdl.GetWindowSizeInPixels(_window, &width, &height);
+            SDL.GetWindowSizeInPixels(_window, &width, &height);
             return new Size(width, height);
         }
     }
@@ -62,10 +65,10 @@ public sealed unsafe class Window : IDisposable
         get
         {
             int x, y;
-            Sdl.GetWindowPosition(_window, &x, &y);
+            SDL.GetWindowPosition(_window, &x, &y);
             return new Point(x, y);
         }
-        set => Sdl.SetWindowPosition(_window, value.X, value.Y);
+        set => SDL.SetWindowPosition(_window, value.X, value.Y);
     }
 
     /// <summary>
@@ -73,16 +76,8 @@ public sealed unsafe class Window : IDisposable
     /// </summary>
     public string Title
     {
-        get
-        {
-            sbyte* title = Sdl.GetWindowTitle(_window);
-            return Marshal.PtrToStringAnsi((IntPtr) title);
-        }
-        set
-        {
-            fixed (byte* title = Encoding.UTF8.GetBytes(value))
-                Sdl.SetWindowTitle(_window, (sbyte*) title);
-        }
+        get => SDL.GetWindowTitleS(_window);
+        set => SDL.SetWindowTitle(_window, value);
     }
 
     /// <summary>
@@ -93,26 +88,26 @@ public sealed unsafe class Window : IDisposable
     {
         get
         {
-            SdlWindowFlags flags = Sdl.GetWindowFlags(_window);
+            WindowFlags flags = (WindowFlags) SDL.GetWindowFlags(_window);
 
-            if ((flags & SdlWindowFlags.FullscreenDesktop) == SdlWindowFlags.FullscreenDesktop)
+            if ((flags & WindowFlags.FullscreenDesktop) == WindowFlags.FullscreenDesktop)
                 return FullscreenMode.BorderlessFullscreen;
-            if ((flags & SdlWindowFlags.Fullscreen) == SdlWindowFlags.Fullscreen)
+            if ((flags & WindowFlags.Fullscreen) == WindowFlags.Fullscreen)
                 return FullscreenMode.ExclusiveFullscreen;
 
             return FullscreenMode.Windowed;
         }
         set
         {
-            SdlWindowFlags flags = value switch
+            WindowFlags flags = value switch
             {
                 FullscreenMode.Windowed => 0,
-                FullscreenMode.ExclusiveFullscreen => SdlWindowFlags.Fullscreen,
-                FullscreenMode.BorderlessFullscreen => SdlWindowFlags.FullscreenDesktop,
+                FullscreenMode.ExclusiveFullscreen => WindowFlags.Fullscreen,
+                FullscreenMode.BorderlessFullscreen => WindowFlags.FullscreenDesktop,
                 _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
             };
             
-            Sdl.SetWindowFullscreen(_window, flags);
+            SDL.SetWindowFullscreen(_window, (uint) flags);
         }
     }
 
@@ -124,9 +119,9 @@ public sealed unsafe class Window : IDisposable
     {
         get
         {
-            bool visible = Sdl.ShowCursor(Sdl.Query) == Sdl.Enable;
-            bool grabbed = Sdl.GetWindowGrab(_window);
-            bool relative = Sdl.GetRelativeMouseMode();
+            bool visible = SDL.ShowCursor(-1) == Sdl.Enable;
+            bool grabbed = SDL.GetWindowGrab(_window) == SdlBool.True;
+            bool relative = SDL.GetRelativeMouseMode() == SdlBool.True;
 
             if (!grabbed && !relative)
                 return visible ? CursorMode.Visible : CursorMode.Hidden;
@@ -138,24 +133,24 @@ public sealed unsafe class Window : IDisposable
             switch (value)
             {
                 case CursorMode.Visible:
-                    Sdl.SetRelativeMouseMode(false);
-                    Sdl.SetWindowGrab(_window, false);
-                    Sdl.ShowCursor(Sdl.Enable);
+                    SDL.SetRelativeMouseMode(SdlBool.False);
+                    SDL.SetWindowGrab(_window, SdlBool.False);
+                    SDL.ShowCursor(Sdl.Enable);
                     break;
                 case CursorMode.Hidden:
-                    Sdl.SetRelativeMouseMode(false);
-                    Sdl.SetWindowGrab(_window, false);
-                    Sdl.ShowCursor(Sdl.Disable);
+                    SDL.SetRelativeMouseMode(SdlBool.False);
+                    SDL.SetWindowGrab(_window, SdlBool.False);
+                    SDL.ShowCursor(Sdl.Disable);
                     break;
                 case CursorMode.Grabbed:
-                    Sdl.SetRelativeMouseMode(false);
-                    Sdl.SetWindowGrab(_window, true);
-                    Sdl.ShowCursor(Sdl.Enable);
+                    SDL.SetRelativeMouseMode(SdlBool.False);
+                    SDL.SetWindowGrab(_window, SdlBool.True);
+                    SDL.ShowCursor(Sdl.Enable);
                     break;
                 case CursorMode.Locked:
-                    Sdl.SetRelativeMouseMode(true);
-                    Sdl.SetWindowGrab(_window, true);
-                    Sdl.ShowCursor(Sdl.Disable);
+                    SDL.SetRelativeMouseMode(SdlBool.True);
+                    SDL.SetWindowGrab(_window, SdlBool.True);
+                    SDL.ShowCursor(Sdl.Disable);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(value), value, null);
@@ -168,8 +163,8 @@ public sealed unsafe class Window : IDisposable
     /// </summary>
     public bool Resizable
     {
-        get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Resizable) == SdlWindowFlags.Resizable;
-        set => Sdl.SetWindowResizable(_window, value);
+        get => ((WindowFlags) SDL.GetWindowFlags(_window) & WindowFlags.Resizable) == WindowFlags.Resizable;
+        set => SDL.SetWindowResizable(_window, value ? SdlBool.True : SdlBool.False);
     }
 
     /// <summary>
@@ -178,8 +173,8 @@ public sealed unsafe class Window : IDisposable
     /// <remarks>This is <b>not</b> the same as <see cref="Pie.Windowing.FullscreenMode.BorderlessFullscreen"/>.</remarks>
     public bool Borderless
     {
-        get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Borderless) == SdlWindowFlags.Borderless;
-        set => Sdl.SetWindowBordered(_window, !value);
+        get => ((WindowFlags) SDL.GetWindowFlags(_window) & WindowFlags.Borderless) == WindowFlags.Borderless;
+        set => SDL.SetWindowBordered(_window, !value ? SdlBool.True : SdlBool.False);
     }
 
     /// <summary>
@@ -187,13 +182,13 @@ public sealed unsafe class Window : IDisposable
     /// </summary>
     public bool Visible
     {
-        get => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.Shown) == SdlWindowFlags.Shown;
+        get => ((WindowFlags) SDL.GetWindowFlags(_window) & WindowFlags.Shown) == WindowFlags.Shown;
         set
         {
             if (value)
-                Sdl.ShowWindow(_window);
+                SDL.ShowWindow(_window);
             else
-                Sdl.HideWindow(_window);
+                SDL.HideWindow(_window);
         }
     }
 
@@ -201,38 +196,38 @@ public sealed unsafe class Window : IDisposable
     /// If true, the window should be the window manager's currently focused window, and the window is ready to accept
     /// input from the user.
     /// </summary>
-    public bool Focused => (Sdl.GetWindowFlags(_window) & SdlWindowFlags.InputFocus) == SdlWindowFlags.InputFocus;
+    public bool Focused => ((WindowFlags) SDL.GetWindowFlags(_window) & WindowFlags.InputFocus) == WindowFlags.InputFocus;
 
     internal Window(WindowBuilder builder)
     {
-        if (Sdl.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
-            throw new PieException($"SDL failed to initialize: {Sdl.GetErrorS()}");
+        if (SDL.Init(Sdl.InitVideo | Sdl.InitEvents) < 0)
+            throw new PieException($"SDL failed to initialize: {SDL.GetErrorS()}");
         
         // TODO: Disable/make optional.
         // I simply disable this cause I find it annoying during development.
         // I *would* use wayland but it no worky on my 1060 for whatever reason and I am not bothered enough to fix.
-        Sdl.SetHint("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
+        SDL.SetHint("SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR", "0");
 
-        Point position = builder.WindowPosition ?? new Point((int) Sdl.WindowposCentered, (int) Sdl.WindowposCentered);
+        Point position = builder.WindowPosition ?? new Point(Sdl.WindowposCentered, Sdl.WindowposCentered);
 
-        SdlWindowFlags flags = SdlWindowFlags.None;
+        WindowFlags flags = WindowFlags.None;
 
         if (builder.WindowResizable)
-            flags |= SdlWindowFlags.Resizable;
+            flags |= WindowFlags.Resizable;
         if (builder.WindowBorderless)
-            flags |= SdlWindowFlags.Borderless;
+            flags |= WindowFlags.Borderless;
         if (builder.WindowHidden)
-            flags |= SdlWindowFlags.Hidden;
+            flags |= WindowFlags.Hidden;
         if (builder.WindowMaximized)
-            flags |= SdlWindowFlags.Maximized;
+            flags |= WindowFlags.Maximized;
         if (builder.WindowMinimized)
-            flags |= SdlWindowFlags.Minimized;
+            flags |= WindowFlags.Minimized;
 
         flags |= builder.WindowFullscreenMode switch
         {
-            FullscreenMode.Windowed => SdlWindowFlags.None,
-            FullscreenMode.ExclusiveFullscreen => SdlWindowFlags.Fullscreen,
-            FullscreenMode.BorderlessFullscreen => SdlWindowFlags.FullscreenDesktop,
+            FullscreenMode.Windowed => WindowFlags.None,
+            FullscreenMode.ExclusiveFullscreen => WindowFlags.Fullscreen,
+            FullscreenMode.BorderlessFullscreen => WindowFlags.FullscreenDesktop,
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -240,11 +235,11 @@ public sealed unsafe class Window : IDisposable
         {
             case GraphicsApi.OpenGL:
             case GraphicsApi.OpenGLES:
-                flags |= SdlWindowFlags.OpenGL;
-                Sdl.GLSetAttribute(SdlGlAttr.ContextMajorVersion, 4);
-                Sdl.GLSetAttribute(SdlGlAttr.ContextMinorVersion, 3);
-                Sdl.GLSetAttribute(SdlGlAttr.ContextProfileMask,
-                    builder.WindowApi == GraphicsApi.OpenGLES ? (int) SdlGlProfile.ES : (int) SdlGlProfile.Core);
+                flags |= WindowFlags.Opengl;
+                SDL.GLSetAttribute(GLattr.ContextMajorVersion, 4);
+                SDL.GLSetAttribute(GLattr.ContextMinorVersion, 3);
+                SDL.GLSetAttribute(GLattr.ContextProfileMask,
+                    builder.WindowApi == GraphicsApi.OpenGLES ? (int) GLprofile.ES : (int) GLprofile.Core);
 
                 (int r, int g, int b, int a, bool srgb, bool fp) bits;
                 
@@ -395,16 +390,16 @@ public sealed unsafe class Window : IDisposable
                         throw new NotSupportedException("The given format cannot be used as a depth format.");
                 }
 
-                Sdl.GLSetAttribute(SdlGlAttr.RedSize, bits.r);
-                Sdl.GLSetAttribute(SdlGlAttr.GreenSize, bits.g);
-                Sdl.GLSetAttribute(SdlGlAttr.BlueSize, bits.b);
-                Sdl.GLSetAttribute(SdlGlAttr.AlphaSize, bits.a);
+                SDL.GLSetAttribute(GLattr.RedSize, bits.r);
+                SDL.GLSetAttribute(GLattr.GreenSize, bits.g);
+                SDL.GLSetAttribute(GLattr.BlueSize, bits.b);
+                SDL.GLSetAttribute(GLattr.AlphaSize, bits.a);
 
-                Sdl.GLSetAttribute(SdlGlAttr.DepthSize, depthBits.depth);
-                Sdl.GLSetAttribute(SdlGlAttr.StencilSize, depthBits.stencil);
+                SDL.GLSetAttribute(GLattr.DepthSize, depthBits.depth);
+                SDL.GLSetAttribute(GLattr.StencilSize, depthBits.stencil);
                 
-                Sdl.GLSetAttribute(SdlGlAttr.FramebufferSrgbCapable, bits.srgb ? 1 : 0);
-                Sdl.GLSetAttribute(SdlGlAttr.FloatBuffers, bits.fp ? 1 : 0);
+                SDL.GLSetAttribute(GLattr.FramebufferSrgbCapable, bits.srgb ? 1 : 0);
+                SDL.GLSetAttribute(GLattr.Floatbuffers, bits.fp ? 1 : 0);
                 
                 break;
             case GraphicsApi.D3D11:
@@ -414,42 +409,39 @@ public sealed unsafe class Window : IDisposable
                 throw new ArgumentOutOfRangeException();
         }
 
-        fixed (byte* title = Encoding.UTF8.GetBytes(builder.WindowTitle))
-        {
-            _window = Sdl.CreateWindow((sbyte*) title, position.X, position.Y, builder.WindowSize.Width,
-                builder.WindowSize.Height, (uint) flags);
-        }
+        _window = SDL.CreateWindow(builder.WindowTitle, position.X, position.Y, builder.WindowSize.Width,
+            builder.WindowSize.Height, (uint) flags);
 
         if (_window == null)
         {
-            Sdl.Quit();
-            throw new PieException($"Window failed to create. {Sdl.GetErrorS()}");
+            SDL.Quit();
+            throw new PieException($"Window failed to create. {SDL.GetErrorS()}");
         }
 
         if (builder.WindowIcon != null)
         {
             Icon icon = builder.WindowIcon.Value;
-            void* surface;
+            Surface* surface;
             fixed (void* ptr = icon.Data)
             {
                 // ABGR ?????
                 // The hell endianness has SDL been compiled in?
-                surface = Sdl.CreateRGBSurfaceWithFormatFrom(ptr, (int) icon.Width, (int) icon.Height, 0,
-                    (int) icon.Width * 4, (uint) SdlPixelFormat.ABGR8888);
+                surface = SDL.CreateRGBSurfaceWithFormatFrom(ptr, (int) icon.Width, (int) icon.Height, 0,
+                    (int) icon.Width * 4, (uint) PixelFormatEnum.Abgr8888);
             }
 
-            Sdl.SetWindowIcon(_window, surface);
+            SDL.SetWindowIcon(_window, surface);
         }
 
         if (builder.WindowApi is GraphicsApi.OpenGL or GraphicsApi.OpenGLES)
         {
-            _glContext = Sdl.GLCreateContext(_window);
+            _glContext = SDL.GLCreateContext(_window);
             if (_glContext == null)
-                throw new PieException($"Failed to create GL context. {Sdl.GetErrorS()}");
+                throw new PieException($"Failed to create GL context. {SDL.GetErrorS()}");
 
             // Juuust make sure the context is current, even though it should already be.
-            if (Sdl.GLMakeCurrent(_window, _glContext) < 0)
-                throw new PieException($"Failed to make GL context current. {Sdl.GetErrorS()}");
+            if (SDL.GLMakeCurrent(_window, _glContext) < 0)
+                throw new PieException($"Failed to make GL context current. {SDL.GetErrorS()}");
         }
 
         _api = builder.WindowApi;
@@ -458,27 +450,27 @@ public sealed unsafe class Window : IDisposable
     /// <summary>
     /// Focus the window if it is not focused, bringing it to the front if necessary.
     /// </summary>
-    public void Focus() => Sdl.RaiseWindow(_window);
+    public void Focus() => SDL.RaiseWindow(_window);
 
     /// <summary>
     /// Centers the window on the primary monitor.
     /// </summary>
-    public void Center() => Sdl.SetWindowPosition(_window, (int) Sdl.WindowposCentered, (int) Sdl.WindowposCentered);
+    public void Center() => SDL.SetWindowPosition(_window, Sdl.WindowposCentered, Sdl.WindowposCentered);
 
     /// <summary>
     /// Maximises the window, restoring it if necessary.
     /// </summary>
-    public void Maximize() => Sdl.MaximizeWindow(_window);
+    public void Maximize() => SDL.MaximizeWindow(_window);
 
     /// <summary>
     /// Minimises the window.
     /// </summary>
-    public void Minimize() => Sdl.MinimizeWindow(_window);
+    public void Minimize() => SDL.MinimizeWindow(_window);
 
     /// <summary>
     /// Restores the window to its initial state, before it was minimised.
     /// </summary>
-    public void Restore() => Sdl.RestoreWindow(_window);
+    public void Restore() => SDL.RestoreWindow(_window);
 
     /// <summary>
     /// Creates a <see cref="GraphicsDevice"/> from this window.
@@ -489,24 +481,23 @@ public sealed unsafe class Window : IDisposable
     {
         int width, height;
         
-        Sdl.GetWindowSizeInPixels(_window, &width, &height);
+        SDL.GetWindowSizeInPixels(_window, &width, &height);
         Size size = new Size(width, height);
         
         switch (_api)
         {
             case GraphicsApi.OpenGL:
             case GraphicsApi.OpenGLES:
-                return GraphicsDevice.CreateOpenGL(new PieGlContext(Sdl.GLGetProcAddress, i =>
+                return GraphicsDevice.CreateOpenGL(new PieGlContext(s => (nint) SDL.GLGetProcAddress(s), i =>
                 {
-                    Sdl.GLSetSwapInterval(i);
-                    Sdl.GLSwapWindow(_window);
+                    SDL.GLSetSwapInterval(i);
+                    SDL.GLSwapWindow(_window);
                 }), size, _api == GraphicsApi.OpenGLES, options ?? new GraphicsDeviceOptions());
             
             case GraphicsApi.D3D11:
-                SdlSysWmInfo info = new SdlSysWmInfo();
-                Sdl.GetWindowWMInfo(_window, &info);
-                return GraphicsDevice.CreateD3D11(info.Info.Win.Window, size,
-                    options ?? new GraphicsDeviceOptions());
+                SysWMInfo info = new SysWMInfo();
+                SDL.GetWindowWMInfo(_window, &info);
+                return GraphicsDevice.CreateD3D11(info.Info.Win.Hwnd, size, options ?? new GraphicsDeviceOptions());
             
             case GraphicsApi.Null:
                 return GraphicsDevice.CreateNull(size, options ?? new GraphicsDeviceOptions());
@@ -523,9 +514,9 @@ public sealed unsafe class Window : IDisposable
     /// <returns>True if an event was processed, false otherwise.</returns>
     public bool PollEvent(out IWindowEvent @event)
     {
-        SdlEvent sdlEvent;
+        Event sdlEvent;
         @event = null;
-        if (!Sdl.PollEvent(&sdlEvent))
+        if (SDL.PollEvent(&sdlEvent) == 0)
             return false;
 
         if (!HandleSdlEvent(ref sdlEvent, out @event))
@@ -536,7 +527,7 @@ public sealed unsafe class Window : IDisposable
 
     public bool PollEvent()
     {
-        return Sdl.PollEvent(null);
+        return SDL.PollEvent(null) != 0;
     }
     
     /// <summary>
@@ -552,9 +543,9 @@ public sealed unsafe class Window : IDisposable
 
     public bool WaitEvent(out IWindowEvent @event)
     {
-        SdlEvent sdlEvent;
+        Event sdlEvent;
         @event = null;
-        if (!Sdl.WaitEvent(&sdlEvent))
+        if (SDL.WaitEvent(&sdlEvent) == 0)
             return false;
 
         if (!HandleSdlEvent(ref sdlEvent, out @event))
@@ -565,9 +556,9 @@ public sealed unsafe class Window : IDisposable
 
     public bool WaitEvent(out IWindowEvent @event, int timeout)
     {
-        SdlEvent sdlEvent;
+        Event sdlEvent;
         @event = null;
-        if (!Sdl.WaitEventTimeout(&sdlEvent, timeout))
+        if (SDL.WaitEventTimeout(&sdlEvent, timeout) == 0)
             return false;
 
         if (!HandleSdlEvent(ref sdlEvent, out @event))
@@ -578,12 +569,12 @@ public sealed unsafe class Window : IDisposable
 
     public bool WaitEvent()
     {
-        return Sdl.WaitEvent(null);
+        return SDL.WaitEvent(null) != 0;
     }
 
     public bool WaitEvent(int timeout)
     {
-        return Sdl.WaitEventTimeout(null, timeout);
+        return SDL.WaitEventTimeout(null, timeout) != 0;
     }
 
     /// <summary>
@@ -592,23 +583,24 @@ public sealed unsafe class Window : IDisposable
     public void Dispose()
     {
         if (_glContext != null)
-            Sdl.GLDeleteContext(_glContext);
+            SDL.GLDeleteContext(_glContext);
         
-        Sdl.DestroyWindow(_window);
-        Sdl.Quit();
+        SDL.DestroyWindow(_window);
+        SDL.Quit();
     }
 
-    private bool HandleSdlEvent(ref SdlEvent sdlEvent, out IWindowEvent @event)
+    private bool HandleSdlEvent(ref Event sdlEvent, out IWindowEvent @event)
     {
-        switch ((SdlEventType) sdlEvent.Type)
+        switch ((EventType) sdlEvent.Type)
         {
-            case SdlEventType.Quit:
+            case EventType.Quit:
                 @event = new QuitEvent();
                 break;
-            case SdlEventType.WindowEvent:
-                switch ((SdlWindowEventId) sdlEvent.Window.Event)
+            
+            case EventType.Windowevent:
+                switch ((WindowEventID) sdlEvent.Window.Event)
                 {
-                    case SdlWindowEventId.Resized:
+                    case WindowEventID.Resized:
                         @event = new ResizeEvent(sdlEvent.Window.Data1, sdlEvent.Window.Data2);
                         break;
                     default:
@@ -619,50 +611,45 @@ public sealed unsafe class Window : IDisposable
 
                 break;
             
-            case SdlEventType.KeyDown:
-                ref SdlKeyboardEvent kde = ref sdlEvent.Keyboard;
-
+            case EventType.Keydown:
+                ref KeyboardEvent kde = ref sdlEvent.Key;
                 WindowEventType kdeType = kde.Repeat != 0 ? WindowEventType.KeyRepeat : WindowEventType.KeyDown;
-
-                @event = new KeyEvent(kdeType, kde.ScanCode, SdlHelper.KeycodeToKey(kde.KeyCode));
+                @event = new KeyEvent(kdeType, (uint) kde.Keysym.Scancode, SdlHelper.KeycodeToKey((uint) kde.Keysym.Sym));
+                
                 break;
-            case SdlEventType.KeyUp:
-                ref SdlKeyboardEvent kue = ref sdlEvent.Keyboard;
-
-                @event = new KeyEvent(WindowEventType.KeyUp, kue.ScanCode, SdlHelper.KeycodeToKey(kue.KeyCode));
-                break;
-            
-            case SdlEventType.TextInput:
-                ref SdlTextInputEvent textEvent = ref sdlEvent.Text;
-
-                fixed (char* text = textEvent.Text)
-                    @event = new TextInputEvent(new string(text));
-
+            case EventType.Keyup:
+                ref KeyboardEvent kue = ref sdlEvent.Key;
+                @event = new KeyEvent(WindowEventType.KeyUp, (uint) kue.Keysym.Scancode, SdlHelper.KeycodeToKey((uint) kue.Keysym.Sym));
+                
                 break;
             
-            case SdlEventType.MouseMotion:
-                ref SdlMouseMotionEvent motionEvent = ref sdlEvent.Motion;
-
-                @event = new MouseMoveEvent(motionEvent.X, motionEvent.Y, motionEvent.XRel, motionEvent.YRel);
+            case EventType.Textinput:
+                ref Silk.NET.SDL.TextInputEvent textEvent = ref sdlEvent.Text;
+                fixed (byte* text = textEvent.Text)
+                    @event = new TextInputEvent(new string((sbyte*) text));
 
                 break;
             
-            case SdlEventType.MouseButtonDown:
-                ref SdlMouseButtonEvent bdEvent = ref sdlEvent.Button;
+            case EventType.Mousemotion:
+                ref MouseMotionEvent motionEvent = ref sdlEvent.Motion;
+                @event = new MouseMoveEvent(motionEvent.X, motionEvent.Y, motionEvent.Xrel, motionEvent.Yrel);
 
+                break;
+            
+            case EventType.Mousebuttondown:
+                ref Silk.NET.SDL.MouseButtonEvent bdEvent = ref sdlEvent.Button;
                 @event = new MouseButtonEvent(WindowEventType.MouseButtonDown, (MouseButton) bdEvent.Button);
 
                 break;
             
-            case SdlEventType.MouseButtonUp:
-                ref SdlMouseButtonEvent buEvent = ref sdlEvent.Button;
-
+            case EventType.Mousebuttonup:
+                ref Silk.NET.SDL.MouseButtonEvent buEvent = ref sdlEvent.Button;
                 @event = new MouseButtonEvent(WindowEventType.MouseButtonUp, (MouseButton) buEvent.Button);
 
                 break;
             
-            case SdlEventType.MouseWheel:
-                ref SdlMouseWheelEvent wheelEvent = ref sdlEvent.Wheel;
+            case EventType.Mousewheel:
+                ref MouseWheelEvent wheelEvent = ref sdlEvent.Wheel;
 
                 float x = wheelEvent.PreciseX;
                 float y = wheelEvent.PreciseY;

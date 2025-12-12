@@ -17,4 +17,8 @@
       <ProjectReference Include="..\Pie\Pie.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Silk.NET.SDL" Version="2.22.0" />
+    </ItemGroup>
+
 </Project>

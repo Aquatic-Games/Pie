@@ -1,5 +1,8 @@
 using System.Drawing;
-using Pie.SDL;
+using Silk.NET.Maths;
+using Silk.NET.SDL;
+using static Pie.Windowing.SdlHelper;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Pie.Windowing;
 
@@ -39,28 +42,28 @@ public struct Monitor
     static unsafe Monitor()
     {
         // Init in case this is called before a Pie window is created.
-        if (Sdl.Init(Sdl.InitVideo) < 0)
-            throw new PieException("Failed to initialize SDL: " + Sdl.GetErrorS());
+        if (SDL.Init(Sdl.InitVideo) < 0)
+            throw new PieException("Failed to initialize SDL: " + SDL.GetErrorS());
 
-        int numDisplays = Sdl.GetNumVideoDisplays();
+        int numDisplays = SDL.GetNumVideoDisplays();
         if (numDisplays < 0)
-            throw new PieException("Failed to get number of displays: " + Sdl.GetErrorS());
+            throw new PieException("Failed to get number of displays: " + SDL.GetErrorS());
 
         ConnectedMonitors = new Monitor[numDisplays];
         
         for (int d = 0; d < numDisplays; d++)
         {
-            SdlRect bounds;
-            if (Sdl.GetDisplayBounds(d, &bounds) < 0)
-                throw new PieException("Failed to get display bounds: " + Sdl.GetErrorS());
+            Rectangle<int> bounds;
+            if (SDL.GetDisplayBounds(d, &bounds) < 0)
+                throw new PieException("Failed to get display bounds: " + SDL.GetErrorS());
 
-            int numDisplayModes = Sdl.GetNumDisplayModes(d);
+            int numDisplayModes = SDL.GetNumDisplayModes(d);
             if (numDisplayModes < 0)
-                throw new PieException("Failed to get display modes: " + Sdl.GetErrorS());
+                throw new PieException("Failed to get display modes: " + SDL.GetErrorS());
             
-            SdlDisplayMode currentMode;
-            if (Sdl.GetDesktopDisplayMode(d, &currentMode) < 0)
-                throw new PieException("Failed to get current display mode: " + Sdl.GetErrorS());
+            DisplayMode currentMode;
+            if (SDL.GetDesktopDisplayMode(d, &currentMode) < 0)
+                throw new PieException("Failed to get current display mode: " + SDL.GetErrorS());
             
             VideoMode current = new VideoMode(new Size(currentMode.W, currentMode.H), currentMode.RefreshRate);
 
@@ -68,13 +71,15 @@ public struct Monitor
 
             for (int m = 0; m < numDisplayModes; m++)
             {
-                SdlDisplayMode mode;
-                Sdl.GetDisplayMode(d, m, &mode);
+                DisplayMode mode;
+                SDL.GetDisplayMode(d, m, &mode);
 
                 modes[m] = new VideoMode(new Size(mode.W, mode.H), mode.RefreshRate);
             }
 
-            ConnectedMonitors[d] = new Monitor(new Rectangle(bounds.X, bounds.Y, bounds.W, bounds.H), current, modes);
+            ConnectedMonitors[d] =
+                new Monitor(new Rectangle(bounds.Origin.X, bounds.Origin.Y, bounds.Size.X, bounds.Size.Y), current,
+                    modes);
         }
     }
 

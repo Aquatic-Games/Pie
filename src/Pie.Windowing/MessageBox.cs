@@ -1,6 +1,6 @@
 using System;
-using System.Text;
-using Pie.SDL;
+using Silk.NET.SDL;
+using static Pie.Windowing.SdlHelper;
 
 namespace Pie.Windowing;
 
@@ -17,17 +17,15 @@ public static class MessageBox
     /// <param name="message">The message to display.</param>
     public static unsafe void Show(MessageBoxType type, string title, string message)
     {
-        SdlMessageBoxFlags flags = type switch
+        MessageBoxFlags flags = type switch
         {
-            MessageBoxType.Error => SdlMessageBoxFlags.Error,
-            MessageBoxType.Warning => SdlMessageBoxFlags.Warning,
-            MessageBoxType.Information => SdlMessageBoxFlags.Information,
+            MessageBoxType.Error => MessageBoxFlags.Error,
+            MessageBoxType.Warning => MessageBoxFlags.Warning,
+            MessageBoxType.Information => MessageBoxFlags.Information,
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
         
-        fixed (byte* tPtr = Encoding.UTF8.GetBytes(title))
-        fixed (byte* mPtr = Encoding.UTF8.GetBytes(message))
-            Sdl.ShowSimpleMessageBox((uint) flags, (sbyte*) tPtr, (sbyte*) mPtr, null);
+        SDL.ShowSimpleMessageBox((uint) flags, title, message, null);
     }
 
     /// <summary>
