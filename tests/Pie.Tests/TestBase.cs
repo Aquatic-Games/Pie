@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Numerics;
-using Pie.Audio;
 using Pie.Windowing;
 using Pie.Windowing.Events;
 using StbImageSharp;
