@@ -1,15 +1,15 @@
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Pie.Text.Native;
-using static Pie.Text.Native.FreetypeNative;
+using FreeTypeSharp;
+using static FreeTypeSharp.FT_LOAD;
+using static FreeTypeSharp.FT;
 
 namespace Pie.Text;
 
 public unsafe class Face : IDisposable
 {
-    private FT_Face* _face;
+    private FT_FaceRec_* _face;
     private byte* _faceData;
 
     public readonly string Family;
@@ -17,39 +17,39 @@ public unsafe class Face : IDisposable
     
     public readonly FaceFlags Flags;
 
-    internal Face(FT_Face* face, byte* data, FaceFlags flags)
+    internal Face(FT_FaceRec_* face, byte* data, FaceFlags flags)
     {
         _face = face;
         _faceData = data;
         
-        Family = Marshal.PtrToStringAnsi((IntPtr) face->FamilyName);
-        Style = Marshal.PtrToStringAnsi((IntPtr) face->StyleName);
+        Family = Marshal.PtrToStringAnsi((IntPtr) face->family_name);
+        Style = Marshal.PtrToStringAnsi((IntPtr) face->style_name);
         
         Flags = flags;
     }
 
     public bool CharacterExists(char c)
     {
-        return FT_Get_Char_Index(_face, new FT_ULong(c)) != 0;
+        return FT_Get_Char_Index(_face, (nuint) c) != 0;
     }
 
     public Character GetCharacter(char c, uint size)
     {
         FT_Error error;
 
-        if ((error = FT_Set_Pixel_Sizes(_face, 0, (ushort) size)) != FT_Error.Ok)
+        if ((error = FT_Set_Pixel_Sizes(_face, 0, (ushort) size)) != FT_Error.FT_Err_Ok)
             throw new Exception("Freetype failed: " + error);
 
         bool isMonochrome = (Flags & FaceFlags.Antialiased) != FaceFlags.Antialiased;
         
-        int loadFlags = LoadRender;
+        FT_LOAD loadFlags = FT_LOAD_RENDER;
         if (isMonochrome)
-            loadFlags |= LoadMonochrome;
+            loadFlags |= FT_LOAD_MONOCHROME;
 
-        if ((error = FT_Load_Char(_face, new FT_ULong(c), loadFlags)) != FT_Error.Ok)
+        if ((error = FT_Load_Char(_face, (nuint) c, loadFlags)) != FT_Error.FT_Err_Ok)
             throw new Exception("Freetype failed: " + error);
-        FT_GlyphSlot* glyph = _face->Glyph;
-        FT_Bitmap bitmap = glyph->Bitmap;
+        FT_GlyphSlotRec_* glyph = _face->glyph;
+        FT_Bitmap_ bitmap = glyph->bitmap;
 
         byte[] data;
 
@@ -57,15 +57,15 @@ public unsafe class Face : IDisposable
         {
             if ((Flags & FaceFlags.RgbaConvert) == FaceFlags.RgbaConvert)
             {
-                data = new byte[bitmap.Width * bitmap.Rows * 4];
+                data = new byte[bitmap.width * bitmap.rows * 4];
                 // Convert to RGBA.
-                for (int x = 0; x < bitmap.Width; x++)
+                for (int x = 0; x < bitmap.width; x++)
                 {
-                    for (int y = 0; y < bitmap.Rows; y++)
+                    for (int y = 0; y < bitmap.rows; y++)
                     {
-                        byte* row = &bitmap.Buffer[bitmap.Pitch * y];
+                        byte* row = &bitmap.buffer[bitmap.pitch * y];
                         
-                        int pos = (int) (y * bitmap.Width + x);
+                        int pos = (int) (y * bitmap.width + x);
                         data[pos * 4 + 0] = 255;
                         data[pos * 4 + 1] = 255;
                         data[pos * 4 + 2] = 255;
@@ -75,14 +75,14 @@ public unsafe class Face : IDisposable
             }
             else
             {
-                data = new byte[bitmap.Width * bitmap.Rows];
-                for (int x = 0; x < bitmap.Width; x++)
+                data = new byte[bitmap.width * bitmap.rows];
+                for (int x = 0; x < bitmap.width; x++)
                 {
-                    for (int y = 0; y < bitmap.Rows; y++)
+                    for (int y = 0; y < bitmap.rows; y++)
                     {
-                        byte* row = &bitmap.Buffer[bitmap.Pitch * y];
+                        byte* row = &bitmap.buffer[bitmap.pitch * y];
                         
-                        int pos = (int) (y * bitmap.Width + x);
+                        int pos = (int) (y * bitmap.width + x);
                         data[pos] = (byte) ((row[x >> 3] & (128 >> (x & 7))) != 0 ? 255 : 0);
                     }
                 }
@@ -92,37 +92,37 @@ public unsafe class Face : IDisposable
         {
             if ((Flags & FaceFlags.RgbaConvert) == FaceFlags.RgbaConvert)
             {
-                data = new byte[bitmap.Width * bitmap.Rows * 4];
+                data = new byte[bitmap.width * bitmap.rows * 4];
                 // Convert to RGBA.
-                for (int x = 0; x < bitmap.Width; x++)
+                for (int x = 0; x < bitmap.width; x++)
                 {
-                    for (int y = 0; y < bitmap.Rows; y++)
+                    for (int y = 0; y < bitmap.rows; y++)
                     {
-                        int pos = (int) (y * bitmap.Width + x);
+                        int pos = (int) (y * bitmap.width + x);
                         data[pos * 4 + 0] = 255;
                         data[pos * 4 + 1] = 255;
                         data[pos * 4 + 2] = 255;
-                        data[pos * 4 + 3] = bitmap.Buffer[pos];
+                        data[pos * 4 + 3] = bitmap.buffer[pos];
                     }
                 }
             }
             else
             {
                 // Just do a straight copy.
-                data = new byte[bitmap.Width * bitmap.Rows];
+                data = new byte[bitmap.width * bitmap.rows];
                 fixed (byte* dPtr = data)
-                    Unsafe.CopyBlock(dPtr, bitmap.Buffer, (uint) data.Length);
+                    Unsafe.CopyBlock(dPtr, bitmap.buffer, (uint) data.Length);
             }
         }
 
         Character chr = new Character()
         {
-            Width = (int) bitmap.Width,
-            Height = (int) bitmap.Rows,
+            Width = (int) bitmap.width,
+            Height = (int) bitmap.rows,
             Bitmap = data,
-            Advance = (int) glyph->Advance.X.Value >> 6,
-            BitmapLeft = glyph->BitmapLeft,
-            BitmapTop = glyph->BitmapTop
+            Advance = (int) glyph->advance.x >> 6,
+            BitmapLeft = glyph->bitmap_left,
+            BitmapTop = glyph->bitmap_top
         };
             
             //_characters.Add(c, chr);

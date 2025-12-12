@@ -2,27 +2,29 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Pie.Text.Native;
-using static Pie.Text.Native.FreetypeNative;
+using FreeTypeSharp;
+using static FreeTypeSharp.FT;
 
 namespace Pie.Text;
 
-public class FreeType : IDisposable
+public unsafe class FreeType : IDisposable
 {
-    private FT_Library _library;
+    private FT_LibraryRec_* _library;
     
     public FreeType()
     {
-        if (FT_Init_FreeType(out _library) != FT_Error.Ok)
-            throw new Exception("Could not initialize freetype.");
+        fixed (FT_LibraryRec_** library = &_library)
+        {
+            if (FT_Init_FreeType(library) != FT_Error.FT_Err_Ok)
+                throw new Exception("Could not initialize freetype.");
+        }
     }
 
     public unsafe Face CreateFace(string path, FaceFlags flags = FaceFlags.Antialiased | FaceFlags.RgbaConvert)
     {
-        //return CreateFace(File.ReadAllBytes(path), initialSize);
-        FT_Face* face;
+        FT_FaceRec_* face;
         fixed (byte* bytes = Encoding.ASCII.GetBytes(path))
-            FT_New_Face(_library, (sbyte*) bytes, new FT_Long(0), out face);
+            FT_New_Face(_library, bytes, (nint) 0, &face);
         return new Face(face, null, flags);
     }
 
@@ -36,14 +38,14 @@ public class FreeType : IDisposable
         fixed (byte* dPtr = data)
             Unsafe.CopyBlock(pData, dPtr, (uint) data.Length);
         
-        FT_Face* face;
-        FT_New_Memory_Face(_library, pData, new FT_Long(data.Length), new FT_Long(0), out face);
+        FT_FaceRec_* face;
+        FT_New_Memory_Face(_library, pData, (nint) data.Length, (nint) 0, &face);
         return new Face(face, pData, flags);
     }
 
     public void Dispose()
     {
-        if (FT_Done_FreeType(_library) != FT_Error.Ok)
+        if (FT_Done_FreeType(_library) != FT_Error.FT_Err_Ok)
             throw new Exception("An error occured during disposal.");
     }
 }
