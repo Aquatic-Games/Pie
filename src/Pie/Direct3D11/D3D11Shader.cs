@@ -36,7 +36,7 @@ internal sealed class D3D11Shader : Shader
                     Blob vShaderBlob = CompileShader(hlsl, "main", "vs_5_0");
                     ID3D11VertexShader vShader = device.CreateVertexShader(vShaderBlob);
                     _shaders[i] = new ShaderObject(ShaderStage.Vertex, vShader);
-                    VertexBytecode = hlsl;
+                    VertexBytecode = vShaderBlob.AsBytes();
                     break;
                 case ShaderStage.Fragment:
                     Blob pShaderBlob = CompileShader(hlsl, "main", "ps_5_0");
