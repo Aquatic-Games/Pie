@@ -1,10 +1,10 @@
 <Project>
     <PropertyGroup>
         <Description>The cross-platform graphics toolkit.</Description>
-        <RepositoryUrl>https://github.com/piegfx/Pie</RepositoryUrl>
+        <RepositoryUrl>https://github.com/Aquatic-Games/Pie</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <Authors>Skye Barnes</Authors>
-        <PackageProjectUrl>https://piegfx.com/pie/</PackageProjectUrl>
+        <Authors>aquagoose</Authors>
+        <!--<PackageProjectUrl>https://piegfx.com/pie/</PackageProjectUrl>--> <!-- piegfx.com... yikes... -->
         <PackageTags>graphics;opengl;directx;vulkan;cross-platform;audio;freetype;text;sdl</PackageTags>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
