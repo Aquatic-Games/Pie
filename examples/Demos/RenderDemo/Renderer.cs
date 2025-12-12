@@ -33,11 +33,10 @@ public class Renderer : IDisposable
             new ShaderAttachment(ShaderStage.Pixel, shaderCode, Language.HLSL, "Pixel")
         });
 
-        _layout = device.CreateInputLayout(new[]
-        {
+        _layout = device.CreateInputLayout(_shader,
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex), // position
             new InputLayoutDescription(Format.R32G32_Float, 12, 0, InputType.PerVertex) // texCoord
-        });
+        );
 
         // sizeof(Matrix4x4) = 64
         // Camera info buffer is just sizeof(CameraInfo) which is just sizeof(Matrix4x4) * 2

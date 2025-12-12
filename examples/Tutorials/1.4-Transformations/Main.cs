@@ -83,7 +83,7 @@ void main()
             new ShaderAttachment(ShaderStage.Fragment, FragmentShader)
         });
 
-        _inputLayout = GraphicsDevice.CreateInputLayout(
+        _inputLayout = GraphicsDevice.CreateInputLayout(_shader,
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex), // aPosition
             new InputLayoutDescription(Format.R32G32_Float, 12, 0, InputType.PerVertex) // aTexCoords
         );

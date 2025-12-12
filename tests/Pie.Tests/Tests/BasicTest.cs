@@ -54,7 +54,7 @@ public class BasicTest : TestBase
             new ShaderAttachment(ShaderStage.Fragment, fragmentShader, Language.GLSL)
         }, new []{ new SpecializationConstant(0, 5f) });
 
-        _layout = GraphicsDevice.CreateInputLayout(
+        _layout = GraphicsDevice.CreateInputLayout(_shader,
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex),
             new InputLayoutDescription(Format.R32G32B32A32_Float, 12, 0, InputType.PerVertex)
         );

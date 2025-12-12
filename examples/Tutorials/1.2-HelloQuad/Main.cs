@@ -88,7 +88,7 @@ void main()
 
         // Create an input layout. Input layouts determine how the graphics GraphicsDevice will interpret the vertex data, that
         // we uploaded earlier into our vertex array.
-        _inputLayout = GraphicsDevice.CreateInputLayout(
+        _inputLayout = GraphicsDevice.CreateInputLayout(_shader,
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex), // aPosition
             new InputLayoutDescription(Format.R32G32B32A32_Float, 12, 0, InputType.PerVertex) // aColor
         );

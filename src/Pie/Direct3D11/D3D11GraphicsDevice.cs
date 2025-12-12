@@ -206,9 +206,9 @@ internal sealed unsafe class D3D11GraphicsDevice : GraphicsDevice
         return new D3D11Shader(_device, _context, attachments, constants);
     }
 
-    public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
+    public override InputLayout CreateInputLayout(Shader shader, params InputLayoutDescription[] descriptions)
     {
-        return new D3D11InputLayout(_device, descriptions);
+        return new D3D11InputLayout(_device, descriptions, (D3D11Shader) shader);
     }
 
     public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)

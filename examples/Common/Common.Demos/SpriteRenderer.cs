@@ -66,7 +66,7 @@ public class SpriteRenderer : IDisposable
             new SpecializationConstant(0, 0)
         });
 
-        _inputLayout = device.CreateInputLayout(
+        _inputLayout = device.CreateInputLayout(_shader,
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex), // position
             new InputLayoutDescription(Format.R32G32_Float, 12, 0, InputType.PerVertex)    // texCoord
         );

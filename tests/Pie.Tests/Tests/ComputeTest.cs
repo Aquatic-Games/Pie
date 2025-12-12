@@ -94,7 +94,7 @@ PSOutput PixelShader(in VSOutput input)
             new ShaderAttachment(ShaderStage.Pixel, shader, Language.HLSL, "PixelShader")
         });
 
-        _layout = GraphicsDevice.CreateInputLayout(
+        _layout = GraphicsDevice.CreateInputLayout(_shader,
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex),
             new InputLayoutDescription(Format.R32G32_Float, 12, 0, InputType.PerVertex));
 

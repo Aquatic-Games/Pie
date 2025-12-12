@@ -82,16 +82,14 @@ public class InstancingTest : TestBase
             new ShaderAttachment(ShaderStage.Pixel, ShaderCode, Language.HLSL, "PixelShader")
         });
 
-        _inputLayout = GraphicsDevice.CreateInputLayout(new[]
-        {
+        _inputLayout = GraphicsDevice.CreateInputLayout(_shader,
             new InputLayoutDescription(Format.R32G32B32_Float, 0, 0, InputType.PerVertex),
             new InputLayoutDescription(Format.R32G32_Float, 12, 0, InputType.PerVertex),
             
             new InputLayoutDescription(Format.R32G32B32A32_Float, 0, 1, InputType.PerInstance),
             new InputLayoutDescription(Format.R32G32B32A32_Float, 16, 1, InputType.PerInstance),
             new InputLayoutDescription(Format.R32G32B32A32_Float, 32, 1, InputType.PerInstance),
-            new InputLayoutDescription(Format.R32G32B32A32_Float, 48, 1, InputType.PerInstance)
-        });
+            new InputLayoutDescription(Format.R32G32B32A32_Float, 48, 1, InputType.PerInstance));
 
         _depthStencilState = GraphicsDevice.CreateDepthStencilState(DepthStencilStateDescription.LessEqual);
         _rasterizerState = GraphicsDevice.CreateRasterizerState(RasterizerStateDescription.CullNone);

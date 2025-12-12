@@ -185,7 +185,7 @@ internal sealed unsafe class GlGraphicsDevice : GraphicsDevice
         return new GlShader(attachments, constants);
     }
 
-    public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
+    public override InputLayout CreateInputLayout(Shader shader, params InputLayoutDescription[] descriptions)
     {
         return new GlInputLayout(descriptions);
     }

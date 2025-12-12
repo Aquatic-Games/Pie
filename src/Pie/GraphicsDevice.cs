@@ -174,9 +174,10 @@ public abstract class GraphicsDevice : IDisposable
     /// <summary>
     /// Create an input layout which can be used with a vertex buffer.
     /// </summary>
+    /// <param name="shader">A shader used to validate the input layout.</param>
     /// <param name="inputLayoutDescriptions">The descriptions for this layout.</param>
     /// <returns>The created input layout.</returns>
-    public abstract InputLayout CreateInputLayout(params InputLayoutDescription[] inputLayoutDescriptions);
+    public abstract InputLayout CreateInputLayout(Shader shader, params InputLayoutDescription[] inputLayoutDescriptions);
 
     /// <summary>
     /// Create a new rasterizer state from the given description.

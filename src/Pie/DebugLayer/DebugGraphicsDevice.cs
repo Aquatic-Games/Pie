@@ -125,9 +125,9 @@ internal sealed unsafe class DebugGraphicsDevice : GraphicsDevice
         return new DebugShader(attachments, constants);
     }
 
-    public override InputLayout CreateInputLayout(params InputLayoutDescription[] inputLayoutDescriptions)
+    public override InputLayout CreateInputLayout(Shader shader, params InputLayoutDescription[] inputLayoutDescriptions)
     {
-        return new DebugInputLayout(inputLayoutDescriptions);
+        return new DebugInputLayout(shader, inputLayoutDescriptions);
     }
 
     public override RasterizerState CreateRasterizerState(RasterizerStateDescription description)

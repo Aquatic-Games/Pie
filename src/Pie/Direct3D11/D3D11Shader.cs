@@ -9,6 +9,8 @@ internal sealed class D3D11Shader : Shader
 {
     private ID3D11DeviceContext _context;
     private ShaderObject[] _shaders;
+
+    public readonly byte[]? VertexBytecode;
     
     public override bool IsDisposed { get; protected set; }
 
@@ -34,6 +36,7 @@ internal sealed class D3D11Shader : Shader
                     Blob vShaderBlob = CompileShader(hlsl, "main", "vs_5_0");
                     ID3D11VertexShader vShader = device.CreateVertexShader(vShaderBlob);
                     _shaders[i] = new ShaderObject(ShaderStage.Vertex, vShader);
+                    VertexBytecode = hlsl;
                     break;
                 case ShaderStage.Fragment:
                     Blob pShaderBlob = CompileShader(hlsl, "main", "ps_5_0");

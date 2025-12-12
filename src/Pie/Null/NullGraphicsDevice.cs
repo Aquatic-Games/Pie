@@ -84,7 +84,7 @@ internal sealed class NullGraphicsDevice : GraphicsDevice
         return new NullFramebuffer();
     }
 
-    public override InputLayout CreateInputLayout(params InputLayoutDescription[] inputLayoutDescriptions)
+    public override InputLayout CreateInputLayout(Shader shader, params InputLayoutDescription[] inputLayoutDescriptions)
     {
         return new NullInputLayout();
     }

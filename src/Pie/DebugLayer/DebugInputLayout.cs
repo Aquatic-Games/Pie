@@ -16,7 +16,7 @@ internal sealed class DebugInputLayout : InputLayout
 
     public override InputLayoutDescription[] Descriptions => InputLayout.Descriptions;
 
-    public DebugInputLayout(InputLayoutDescription[] descriptions)
+    public DebugInputLayout(Shader shader, InputLayoutDescription[] descriptions)
     {
         StringBuilder builder = new StringBuilder();
 
@@ -54,7 +54,7 @@ internal sealed class DebugInputLayout : InputLayout
         
         PieLog.Log(LogType.Debug, $"Layout info:\n    CalculatedStride: {stride}\n{builder}");
 
-        InputLayout = Device.CreateInputLayout(descriptions);
+        InputLayout = Device.CreateInputLayout(shader, descriptions);
     }
     
     public override void Dispose()
